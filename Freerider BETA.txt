@@ -1,0 +1,33 @@
+[
+  {
+    "creationDate": 1581061289764,
+    "description": "",
+    "groupId": "",
+    "id": "Redirect_1581061289764",
+    "isSample": false,
+    "name": "Old FRHD BETA",
+    "objectType": "rule",
+    "pairs": [
+      {
+        "destination": "https://requestly.page.link/pSAWUdkikuU9nTNC7",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/styles/combined/gui/combined.min.120.16.32.45.css"
+        }
+      },
+      {
+        "destination": "https://requestly.page.link/VBtZzorFsJ7UJuB38",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/styles/application/frhd_app.min.494.346706218.css"
+        }
+      }
+    ],
+    "ruleType": "Redirect",
+    "status": "Active"
+  }
+]
