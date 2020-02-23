@@ -1,0 +1,141 @@
+[
+  {
+    "creationDate": 1579820866143,
+    "description": "",
+    "groupId": "",
+    "id": "Redirect_1579820866143",
+    "isSample": false,
+    "name": "FRHD Mods",
+    "objectType": "rule",
+    "pairs": [
+      {
+        "destination": "https://imgur.com/MEMQtVk.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/editor/gui/editorgui_icons_v7.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/JQ0X7tR.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/store_icons_v7.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/uKMEAW0.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/profile_icons_v2.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/8z714x0.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/inventory/head/spritesheets/head_icons_5.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/uhNyX7F.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/inventory/head/spritesheets/head_icons_10.png"
+        }
+      },
+      {
+        "destination": "http://cdn.kanoapps.com/free_rider_hd/sprites/frhd_logo_v3.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/forum/logo_2.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/zTrZGhV.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/home_features_icons_v6.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/c5B4OKT.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/core_icons_v11.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/6Q5eJwd.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/track_complete_icons_v3.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/YoU9aIF.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/campaign_icons_v5.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/RoXgo1A.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/assets/images/icons/dialog_button_icons_v6.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/uDpUha6.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://http//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/elite_author_icon_sm.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/fGYo6Fm.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://http//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/vip_icon_sm.png"
+        }
+      },
+      {
+        "destination": "https://imgur.com/RhTchft.png",
+        "source": {
+          "filters": {},
+          "key": "Url",
+          "operator": "Contains",
+          "value": "https://cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png"
+        }
+      }
+    ],
+    "ruleType": "Redirect",
+    "status": "Active"
+  }
+]
