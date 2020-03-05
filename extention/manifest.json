@@ -1,0 +1,35 @@
+{
+    "manifest_version": 2,
+    "name": "Beta FRHD Project",
+    "version": "0.1",
+    "description": "Replaces the current assets used in FreeRiderHD with the older (and better) ones.",
+    "author": "Calculus & GoodraFRHD",
+    "content_scripts": [
+        {
+            "matches": [
+                "*://www.freeriderhd.com/*",
+                "*://freeriderhd.com/*"
+            ],
+            "js": [
+                "js/injecter.js"
+            ],
+            "css" : [
+                "css/combined.css",
+                "css/frhd_app.css"
+            ]
+        }
+    ],
+    "background": {
+        "scripts": [
+            "js/background.js"
+        ]
+    },
+    "permissions": [
+        "webRequest",
+        "webRequestBlocking",
+        "*://*.freeriderhd.com/*"
+    ],
+    "web_accessible_resources": [
+        "js/main.js"
+    ]
+}
