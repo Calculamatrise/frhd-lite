@@ -39,7 +39,7 @@ function userpage(username) {
         name => {
             if (name == username) {
                 $(`.profile-username h3`).css('color', users[name].color);
-                if(users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="BetaFRHD Staff"></span></div>');
+                if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="BetaFRHD Staff"></span></div>');
             }
         }
     );
@@ -62,13 +62,11 @@ function colorNames(data = () => { }) {
         if (!users.hasOwnProperty(name)) return;
         data(name)
         $(`.bold:contains(${users[name].uname})`).filter(
-            function() {
+            function () {
                 return $(this).text() == users[name].uname
             }
         ).not('#username-text, .track-leaderboard').css('color', users[name].color);
     }
 }
 
-setInterval(() => {
-    if (document.location.href != page) return document.location.reload();
-}, 500);
+Backbone.history.navigate = (url) => {document.location.href = document.location.origin + url}
