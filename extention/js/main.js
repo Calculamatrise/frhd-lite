@@ -60,7 +60,7 @@ function homepage() {
 function colorNames(data = () => { }) {
     for (const name in users) {
         if (!users.hasOwnProperty(name)) return;
-        data(name)
+        data(name);
         $(`.bold:contains(${users[name].uname})`).filter(
             function () {
                 return $(this).text() == users[name].uname
