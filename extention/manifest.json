@@ -31,5 +31,8 @@
     ],
     "web_accessible_resources": [
         "js/main.js"
-    ]
+    ],
+    "icons": {
+        "128": "icons/icon_128.png"
+      }
 }
