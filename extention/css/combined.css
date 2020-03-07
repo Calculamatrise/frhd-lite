@@ -2909,6 +2909,12 @@ label {
     background-position: -78px -116px
 }
 
+.store_icons.store_icons-freerider_hd_vip_icon {
+    width: 32px;
+    height: 16px;
+    background-position: -78px -116px
+}
+
 .store_icons.store_icons-question_mark {
     width: 80px;
     height: 80px;
@@ -3316,6 +3322,12 @@ label {
 }
 
 .profile_icons.profile_icons-freerider_hd_pro_icon {
+    width: 33px;
+    height: 18px;
+    background-position: -33px -66px
+}
+
+.profile_icons.profile_icons-freerider_hd_vip_icon {
     width: 33px;
     height: 18px;
     background-position: -33px -66px
@@ -7280,11 +7292,11 @@ ul.track-list a {
     margin-top: 12px
 }
 
-.trackTile .top .featured {
+.trackTile .featured {
     position: absolute;
-    top: 0;
-    right: 10px;
-    font-size: 1.4em;
+    right: 3px;
+    top: 3px;
+    z-index: 2;
     color: #8455dc
 }
 
@@ -7359,6 +7371,9 @@ ul.track-list a {
 
 .trackTile .bottom {
     padding: 5px;
+    border-bottom: 1px solid #CCC;
+    border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc
 }
 
 .trackTile .bottom .name {
@@ -8813,6 +8828,13 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     bottom: 5px
 }
 
+.shop ul.store-list li.store-item .store-info .store-info-desc span.store_icons-freerider_hd_vip_icon {
+    top: 15px;
+    left: auto;
+    right: -38px;
+    bottom: 5px
+}
+
 .shop ul.store-list li.store-item .store-info .store-progress {
     position: relative;
     text-align: center;
@@ -9344,15 +9366,6 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     padding: 7px 10px;
     font-size: .95em;
     border-bottom: 1px solid #CCC
-}
-
-.track-leaderboard-1>.ad {
-    padding: 5px 0;
-    border-bottom: 1px solid #CCC
-}
-
-.track-300x250-2-ad>.ad {
-    padding: 5px 0
 }
 
 #leaderboard_loading {
@@ -10928,7 +10941,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     pointer-events: none
 }
 
-.admin_icon,.classic_author_icon,.elite_author_icon {
+.admin_icon,.vip_icon,.plus_icon,.classic_author_icon,.elite_author_icon {
     display: inline-block;
     width: 18px;
     height: 18px
@@ -10958,17 +10971,27 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     background-size: 100%
 }
 
+.vip_icon {
+    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/vip_icon_sm.png) center center no-repeat;
+    background-size: 100%
+}
+
+.plus_icon {
+    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/plus_icon_sm.png) center center no-repeat;
+    background-size: 100%
+}
+
 .classic_author_icon {
     background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/classic_icon_sm.png) center center no-repeat;
     background-size: 100%
 }
 
 .classic_author_icon.remove {
-    display: block
+    display: none
 }
 
 .elite_author_icon {
-    background: url(//http://cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/elite_icon_sm.png) center center no-repeat;
+    background: url(//http://cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/elite_author_icon_sm.png) center center no-repeat;
     background-size: 100%
 }
 
@@ -13299,13 +13322,6 @@ div#add_invite_challenge_friends_container {
     text-align: center
 }
 
-.track-list-promote.mobile-track-list-promote .ad {
-    height: 100%;
-    float: right;
-    margin-right: 28px;
-    display: none
-}
-
 .track-list-promote.mobile-track-list-promote .mobile-download-promote {
     display: -webkit-inline-box;
     display: -ms-inline-flexbox;
@@ -13351,19 +13367,6 @@ div#add_invite_challenge_friends_container {
     cursor: pointer
 }
 
-.ad-wrapper {
-    display: inline-block;
-    height: auto;
-    width: auto;
-    margin: auto;
-    overflow: visible
-}
-
-.track-list-mobile-promote,.track-list-promote {
-    height: 100%;
-    display: none
-}
-
 .home-leaderboard-ad {
     display: block
 }
@@ -13379,7 +13382,7 @@ div#add_invite_challenge_friends_container {
 }
 
 .ads-plus-remove-ads a {
-    color: #1B5264
+    color: #1f80c3
 }
 
 .ads-plus-remove-ads a span.store_icons-freerider_hd_pro_icon {
@@ -13387,103 +13390,13 @@ div#add_invite_challenge_friends_container {
     margin-left: 4px
 }
 
+.ads-plus-remove-ads a span.store_icons-freerider_hd_vip_icon {
+    vertical-align: top;
+    margin-left: 4px
+}
+
 .ads-plus-remove-ads>a>.store_icons {
     vertical-align: middle
-}
-
-@media screen and (min-width: 720px) {
-    .track-list-promote {
-        position:absolute;
-        right: 0;
-        background: #fff;
-        width: calc(100%/3*1 + 2px);
-        z-index: 4
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        display: -webkit-inline-box;
-        display: -ms-inline-flexbox;
-        display: inline-flex;
-        min-height: 275px
-    }
-
-    .track-list-promote.mobile-track-list-promote .mobile-download-promote {
-        width: 85%
-    }
-}
-
-@media screen and (min-width: 850px) {
-    .track-list-promote {
-        display:inline-block;
-        width: calc(100%/4*2 + 2px)
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        height: 100%
-    }
-
-    .track-list-promote.mobile-track-list-promote .mobile-download-promote {
-        display: -webkit-inline-box;
-        display: -ms-inline-flexbox;
-        display: inline-flex
-    }
-
-    .home-leaderboard-ad {
-        display: none
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    .track-list-promote {
-        width:calc(100%/5*2 + 2px)
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        width: calc(100%/5*3)
-    }
-
-    .track-list-promote.mobile-track-list-promote .mobile-download-promote {
-        display: -webkit-inline-box;
-        display: -ms-inline-flexbox;
-        display: inline-flex;
-        width: calc(100% - 375px)
-    }
-
-    .track-list-promote.mobile-track-list-promote .ad {
-        display: -webkit-inline-box;
-        display: -ms-inline-flexbox;
-        display: inline-flex
-    }
-}
-
-@media screen and (min-width: 1280px) {
-    .track-list-promote {
-        width:calc(100%/6*2 + 2px)
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        width: calc(100%/6*4)
-    }
-}
-
-@media screen and (min-width: 1500px) {
-    .track-list-promote {
-        width:calc(100%/7*2 + 2px)
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        width: calc(100%/7*4)
-    }
-}
-
-@media screen and (min-width: 1700px) {
-    .track-list-promote {
-        width:calc(100%/8*2 + 2px)
-    }
-
-    .track-list-promote.mobile-track-list-promote {
-        width: calc(100%/8*4)
-    }
 }
 
 .alert-message {
