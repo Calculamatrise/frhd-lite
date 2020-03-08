@@ -30,9 +30,10 @@
         "*://*.freeriderhd.com/*"
     ],
     "web_accessible_resources": [
-        "js/main.js"
+        "js/main.js",
+        "images/*.png"
     ],
     "icons": {
-        "128": "icons/icon_128.png"
+        "128": "images/icons/icon_128.png"
       }
 }

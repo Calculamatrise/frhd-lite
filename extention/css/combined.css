@@ -2375,7 +2375,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/core_icons_v11.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/core_icons_v11.png');
     background-size: 168px 451px
 }
 
@@ -2857,7 +2857,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/store_icons_v7.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/store_icons_v7.png');
     background-size: 341px 168px
 }
 
@@ -3269,7 +3269,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/profile_icons_v2.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/profile_icons_v2.png');
     background-size: 93px 84px
 }
 
@@ -3337,7 +3337,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/campaign_icons_v5.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/campaign_icons_v5.png');
     background-size: 483px 852px;
     -webkit-transform: scale(.5) perspective(1px);
     transform: scale(.5) perspective(1px)
@@ -3503,7 +3503,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/home_features_icons_v6.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/home_features_icons_v6.png');
     background-size: 150px 250px
 }
 
@@ -3613,7 +3613,7 @@ label {
     display: inline-block;
     overflow: hidden;
     background-repeat: no-repeat;
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/track_complete_icons_v3.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/track_complete_icons_v3.png');
     background-size: 906px 402px
 }
 
@@ -4891,8 +4891,8 @@ label {
     bottom: 50px
 }
 
-.dialog_button_icons {
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/dialog_button_icons_v6.png);
+.dialog_button_icons {  
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/dialog_button_icons_v6.png');
     background-size: 428px 72px
 }
 
@@ -5065,7 +5065,7 @@ label {
 }
 
 .campaign_progress_icons {
-    background-image: url(//cdn.freeriderhd.com/free_rider_hd/assets/images/icons/campaign_progress_icons_v2.png);
+    background-image: url('chrome-extension://__MSG_@@extension_id__/images/campaign_progress_icons_v2.png');
     background-size: 248px
 }
 
@@ -10972,7 +10972,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .vip_icon {
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/vip_icon_sm.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/vip_icon_sm.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -10991,7 +10991,8 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .elite_author_icon {
-    background: url(//http://cdn.freeriderhd.com/free_rider_hd/sprites/user_profile/elite_author_icon_sm.png) center center no-repeat;
+    
+    background: url('chrome-extension://__MSG_@@extension_id__/images/elite_author_icon_sm.png') center center no-repeat;
     background-size: 100%
 }
 
