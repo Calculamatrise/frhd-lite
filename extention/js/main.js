@@ -21,8 +21,7 @@ const page = document.location.href,
             color: '#a471e4',
             elite_author: !0,
             admin: !0,
-            plus: !0,
-            vip: !0
+            plus: !0
         },
         char: {
             uname: 'Char',
@@ -79,7 +78,6 @@ function userpage(username) {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].vip) $('.profile_icons-freerider_hd_pro_icon-inactive').after('<span class="profile_icons profile_icons-freerider_hd_pro_icon" title="BetaFRHD VIP"></span></div>');
             if (users[name].plus) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="plus_icon profile-badge" title="BetaFRHD Plus"></span></div>');
             if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="BetaFRHD Staff"></span></div>');
         }
