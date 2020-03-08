@@ -63,38 +63,6 @@ const page = document.location.href,
             uname: 'BobbyJames',
             color: '#d34836',
             admin: !0
-        },
-        cctvcctvcctv: {
-            uname: 'cctvcctvcctv',
-            color: '#6ea750'
-        },
-        brandonbishop50: {
-            uname: 'BrandonBishop50',
-            color: '#6ea750'
-        },
-        elibloodthirst: {
-            uname: 'elibloodthirst',
-            color: '#e8a923'
-        },
-        deadrising2: {
-            uname: 'deadrising2',
-            color: '#e8a923'
-        },
-        maple: {
-            uname: 'Maple',
-            color: '#e8a923'
-        },
-        lolz666: {
-            uname: 'lolz666',
-            color: '#e8a923'
-        },
-        netsik: {
-            uname: 'Netsik',
-            color: '#e8a923'
-        },
-        xwinx: {
-            uname: 'xwinx',
-            color: '#e8a923'
         }
     }
 
