@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Beta FRHD Project",
-    "version": "0.1",
+    "version": "0.7",
     "description": "Replaces the current assets used in FreeRiderHD with the older (and better) ones.",
     "author": "Calculus & GoodraFRHD",
     "content_scripts": [
