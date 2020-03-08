@@ -21,7 +21,7 @@ const page = document.location.href,
             color: '#a471e4',
             elite_author: !0,
             admin: !0,
-            plus: !0
+            vip: !0
         },
         char: {
             uname: 'Char',
@@ -78,7 +78,7 @@ function userpage(username) {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].plus) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="plus_icon profile-badge" title="BetaFRHD Plus"></span></div>');
+            if (users[name].vip) $('[title="Upgrade to Pro"]').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_icon profile-icon" title="BetaFRHD Plus"></span></a>');
             if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="BetaFRHD Staff"></span></div>');
         }
     );
@@ -106,10 +106,10 @@ function homepage() {
     colorNames();
 }
 
-function colorNames(data = () => { }) {
+function colorNames(cb = () => { }) {
     for (const name in users) {
         if (!users.hasOwnProperty(name)) return;
-        data(name)
+        cb(name)
         $(`.bold:contains(${users[name].uname})`).filter(
             function () {
                 return $(this).text() == users[name].uname

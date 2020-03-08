@@ -3294,7 +3294,7 @@ label {
 .profile_icons.profile_icons-freerider_hd_pro_icon-inactive {
     width: 33px;
     height: 18px;
-    background-position: 0 -66px
+    background-position: 0 -64px
 }
 
 .profile_icons.profile_icons-icon_ios_app {
@@ -10941,7 +10941,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     pointer-events: none
 }
 
-.admin_icon,.vip_icon,.plus_icon,.classic_author_icon,.elite_author_icon {
+.admin_icon,.plus_icon,.classic_author_icon,.elite_author_icon {
     display: inline-block;
     width: 18px;
     height: 18px
@@ -10973,7 +10973,10 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .vip_icon {
     background: url('chrome-extension://__MSG_@@extension_id__/images/vip_icon_sm.png') center center no-repeat;
-    background-size: 100%
+    background-size: 100%;
+    width: 28px;
+    height: 17px;
+    display: inline-block;
 }
 
 .plus_icon {
