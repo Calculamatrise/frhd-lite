@@ -7371,9 +7371,6 @@ ul.track-list a {
 
 .trackTile .bottom {
     padding: 5px;
-    border-bottom: 1px solid #CCC;
-    border-right: 1px solid #ccc;
-    border-left: 1px solid #ccc
 }
 
 .trackTile .bottom .name {
