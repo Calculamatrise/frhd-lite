@@ -274,10 +274,6 @@ html.fullscreen #main_page {
     background-image: linear-gradient(to bottom,#eee,#eee)
 }
 
-.tab-container .tab-entry.no-border-bottom {
-    border-bottom-width: 0!important
-}
-
 .tab_buttons_select.tab-container {
     border: none;
     background-image: none
@@ -2598,7 +2594,6 @@ label {
 .core_icons.core_icons-icon_featured_badge {
     width: 24px;
     height: 32px;
-    background-position: -62px -297px
 }
 
 .core_icons.core_icons-btn_scroll_right {
@@ -13730,4 +13725,24 @@ div#add_invite_challenge_friends_container {
         width:600px;
         margin-left: -300px
     }
+}
+
+.core_icons.core_icons-icon_featured_badge.featured {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-size: 1.4em;
+    font-family: icomoon;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    background-image: none;
+    z-index: 999;
+    background-size: unset;
+    overflow: visible;
+    color: #1f80c3;
 }
