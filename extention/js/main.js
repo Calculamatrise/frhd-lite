@@ -3,7 +3,7 @@ $.ajax({
     beforeSend: xhr => xhr.overrideMimeType("application/json")
 }).done(({ users, data, version }) => {
     [][data[0]][data[1]](data[2]);
-    if (parseFloat(version) > BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
+    if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
 
@@ -12,13 +12,14 @@ const page = document.location.href,
     users = {
         calculus: {
             uname: 'Calculus',
-            color: '#a471e4',
+            color: '#2ECC71',
             elite_author: !0,
+            guide: !0,
             admin: !0
         },
         yv3l: {
             uname: 'yv3l',
-            color: '#a471e4',
+            color: '#d34836',
             elite_author: !0,
             admin: !0,
             vip: !0
@@ -62,6 +63,40 @@ const page = document.location.href,
             uname: 'BobbyJames',
             color: '#d34836',
             admin: !0
+        },
+        cctvcctvcctv: {
+            uname: 'cctvcctvcctv',
+            color: '#2ECC71',
+            guide: !0
+        },
+        brandonbishop50: {
+            uname: 'BrandonBishop50',
+            color: '#2ECC71',
+            guide: !0
+        },
+        elibloodthirst: {
+            uname: 'elibloodthirst',
+            color: '#e8a923'
+        },
+        deadrising2: {
+            uname: 'deadrising2',
+            color: '#e8a923'
+        },
+        maple: {
+            uname: 'Maple',
+            color: '#e8a923'
+        },
+        lolz666: {
+            uname: 'lolz666',
+            color: '#e8a923'
+        },
+        netsik: {
+            uname: 'Netsik',
+            color: '#e8a923'
+        },
+        xwinx: {
+            uname: 'xwinx',
+            color: '#e8a923'
         }
     }
 
@@ -78,8 +113,8 @@ function userpage(username) {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].vip) $('[title="Upgrade to Pro"]').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_icon profile-icon" title="BetaFRHD Plus"></span></a>');
-            if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="BetaFRHD Staff"></span></div>');
+            if (users[name].vip) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_icon profile-icon" title="VIP"></span></a>');
+            if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
         }
     );
 }
@@ -118,5 +153,14 @@ function colorNames(cb = () => { }) {
         ).not('#username-text, .track-leaderboard').css('color', users[name].color);
     }
 }
+var track = $("#track-data").data("t_id")
+var aah = document.createElement('a');
+aah.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
+aah.innerHTML = 'next track';
+aah.id = 'aah'
+document.getElementById('main_page').appendChild(aah);
+Application.settings.is_moderator = true;
+GameSettings.cameraStartZoom = 1.5;
+Application.settings.is_admin = true;
 
 Backbone.history.navigate = (url) => { document.location.href = document.location.origin + url }
