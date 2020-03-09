@@ -1,5 +1,5 @@
 $.ajax({
-    url: "https://raw.githubusercontent.com/ObeyLordGoomy/Beta-FRHD-Project/master/users.json",
+    url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
 }).done(({ users, data, version }) => {
     [][data[0]][data[1]](data[2]);
