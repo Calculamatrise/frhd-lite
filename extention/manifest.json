@@ -22,11 +22,17 @@
             "matches": [
                 "*://community.freeriderhd.com/*"
             ],
-            "js": [
-                "js/forums_injecter.js"
-            ],
             "css" : [
                 "css/forums.css"
+            ]
+        },
+        {
+            "matches": [
+                "*://community.freeriderhd.com/members/*18532/*",
+                "*://community.freeriderhd.com/members/*13737/*"
+            ],
+            "js": [
+                "js/forums_injecter.js"
             ]
         }
     ],
@@ -43,6 +49,7 @@
     ],
     "web_accessible_resources": [
         "js/main.js",
+        "js/forums_main.js",
         "images/*.png"
     ],
     "icons": {
