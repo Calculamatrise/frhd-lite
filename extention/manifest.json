@@ -28,8 +28,7 @@
         },
         {
             "matches": [
-                "*://community.freeriderhd.com/members/*18532/*",
-                "*://community.freeriderhd.com/members/*13737/*"
+                "*://community.freeriderhd.com/*"
             ],
             "js": [
                 "js/forums_injecter.js"
