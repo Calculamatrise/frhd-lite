@@ -23,6 +23,7 @@ function userpage(uid) {
         name => {
             if (users[name].uid != uid) return;
             if($('.userBanners').length == 0) $('p.userBlurb').after('<div class="userBanners"></div>');
+            $('.userBanners').prepend('<em class="userBanner bannerGray " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em>');
             $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em> ');
         }
     );
