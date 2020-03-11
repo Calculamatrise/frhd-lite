@@ -25,7 +25,7 @@ function userpage(uid) {
             if (users[name].uid != uid) return;
             if($('.userBanners').length == 0) $('p.userBlurb').after('<div class="userBanners"></div>');
             $('.userBanners').prepend('<em class="userBanner bannerSilver " itemprop="title"><span class="before"></span><strong>Forum Moderator</strong><span class="after"></span></em>');
-            $('.userBanners').prepend('<em class="userBanner bannerGray " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
+            $('.userBanners').prepend('<em class="userBanner bannerGray " itemprop="title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em> ');
             $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em> ');
         }
     );
@@ -35,7 +35,7 @@ function threads(){
     applyBanners(
         name => {
             $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerSilver wrapped" itemprop"title"=""><span class="before"></span><strong>Forum Moderator</strong><span class="after"></span></em>');
-            $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerGray wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
+            $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerGray wrapped" itemprop"title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em> ');
             $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>');
         }
     )
@@ -45,7 +45,7 @@ function conversations(){
     applyBanners(
         name => {
             $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerSilver wrapped" itemprop"title"=""><span class="before"></span><strong>Forum Moderator</strong><span class="after"></span></em>');
-            $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerGray wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em>');
+            $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerGray wrapped" itemprop"title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em>');
             $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>');
         }
     )
