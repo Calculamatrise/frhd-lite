@@ -1,3 +1,4 @@
+"use strict";
 $.ajax({
     url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
@@ -6,10 +7,6 @@ $.ajax({
     if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
-"userstrict";
-        var list = ['elite_author','admin','guide','vip'];
-        list[1] = 'vip';
-        console.dir(list);
 const page = document.location.href,
     loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),
     users = {
