@@ -10,9 +10,10 @@ $.ajax({
 const page = document.location.href,
     loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),
     users = {
+        //Beta Creators
         calculus: {
             uname: 'Calculus',
-            color: '#2ECC71',
+            color: '#46b073',
             elite_author: !0,
             guide: !0,
             admin: !0
@@ -24,6 +25,7 @@ const page = document.location.href,
             admin: !0,
             vip: !0
         },
+        //Mods
         char: {
             uname: 'Char',
             color: '#d34836',
@@ -32,6 +34,7 @@ const page = document.location.href,
         max007x: {
             uname: 'Max007x',
             color: '#d34836',
+            elite_author: !0,
             admin: !0
         },
         mi7ch: {
@@ -64,18 +67,140 @@ const page = document.location.href,
             color: '#d34836',
             admin: !0
         },
+        //Guides
         cctvcctvcctv: {
             uname: 'cctvcctvcctv',
-            color: '#2ECC71',
+            color: '#46b073',
             guide: !0
         },
         brandonbishop50: {
             uname: 'BrandonBishop50',
-            color: '#2ECC71',
+            color: '#46b073',
             guide: !0
         },
+        //Elite
+        wheeliemaker: {
+            uname: 'WheelieMaker',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        dblu: {
+            uname: 'DblU',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        pssst: {
+            uname: 'pssst',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        volund: {
+            uname: 'Volund',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        figured: {
+            uname: 'Figured',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        zgolex: {
+            uname: 'Zgolex',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        bowloffire: {
+            uname: 'BowlOfFire',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        foundations: {
+            uname: 'Foundations',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        THEEnd: {
+            uname: 'THEend',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        vickong: {
+            uname: 'Vickong',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        alehsandro: {
+            uname: 'Alehsandro',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        weem: {
+            uname: 'weem',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        rationalities: {
+            uname: 'rationalities',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        doodlenut: {
+            uname: 'Doodlenut',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        kazniti: {
+            uname: 'kazniti',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        gongo999: {
+            uname: 'gongo999',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        LDPrider: {
+            uname: 'LDPrider',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        plastic: {
+            uname: 'Plastic',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        hawnks: {
+            uname: 'hawnks',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        RHINO: {
+            uname: 'RHINO',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        bigblu3: {
+            uname: 'BIGBLU3',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        plasticpineapple: {
+            uname: 'plasticpineapple',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        dropkick: {
+            uname: 'dropkick',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        //VIPs
         elibloodthirst: {
-            uname: 'elibloodthirst',
+            uname: 'Elibloodthirst',
+            color: '#e8a923'
+        },
+        pinn: {
+            uname: 'pinn',
             color: '#e8a923'
         },
         deadrising2: {
@@ -97,7 +222,63 @@ const page = document.location.href,
         xwinx: {
             uname: 'xwinx',
             color: '#e8a923'
-        }
+        },
+        spruce: {
+            uname: 'spruce',
+            color: '#e8a923'
+        },
+        nitrogeneric: {
+            uname: 'Nitrogeneric',
+            color: '#e8a923'
+        },
+        minus: {
+            uname: 'Minus',
+            color: '#e8a923'
+        },
+        eryp: {
+            uname: 'Eryp',
+            color: '#e8a923'
+        },
+        wyattstonhouse: {
+            uname: 'WyattStonhouse',
+            color: '#e8a923'
+        },
+        zwinxz: {
+            uname: 'zwinxz',
+            color: '#e8a923'
+        },
+        cityshep: {
+            uname: 'CityShep',
+            color: '#e8a923'
+        },
+        itzchucknorris: {
+            uname: 'iTzChuckNorris',
+            color: '#e8a923'
+        },
+        stevenleary: {
+            uname: 'StevenLeary',
+            color: '#e8a923'
+        },
+        alexander: {
+            uname: 'alexander',
+            color: '#e8a923'
+        },
+        cataclysm: {
+            uname: 'Cataclysm',
+            color: '#e8a923'
+        },
+        ness: {
+            uname: 'Ness',
+            color: '#e8a923'
+        },
+        moose_man: {
+            uname: 'moose_man',
+            color: '#e8a923'
+        },
+        graggen: {
+            uname: 'Graggen',
+            color: '#e8a923'
+        },
     }
 
 switch (loc[0]) {
