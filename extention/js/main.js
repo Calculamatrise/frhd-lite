@@ -6,7 +6,10 @@ $.ajax({
     if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
-
+"userstrict";
+        var list = ['elite_author','admin','guide','vip'];
+        list[1] = 'vip';
+        console.dir(list);
 const page = document.location.href,
     loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),
     users = {
@@ -16,7 +19,6 @@ const page = document.location.href,
             color: '#46b073',
             elite_author: !0,
             guide: !0,
-            admin: !0
         },
         yv3l: {
             uname: 'yv3l',
@@ -35,6 +37,7 @@ const page = document.location.href,
             uname: 'Max007x',
             color: '#d34836',
             elite_author: !0,
+            vip: !0,
             admin: !0
         },
         mi7ch: {
@@ -45,12 +48,14 @@ const page = document.location.href,
         'mr..a': {
             uname: 'mR..A',
             color: '#d34836',
-            admin: !0
+            admin: !0,
+            vip: !0
         },
         stig: {
             uname: 'Stig',
             color: '#e91e63',
-            admin: !0
+            admin: !0,
+            vip: !0
         },
         eric: {
             uname: 'Eric',
@@ -194,91 +199,117 @@ const page = document.location.href,
             color: '#917bdf',
             elite_author: !0
         },
+        codrey: {
+            uname: 'codrey',
+            color: '#917bdf',
+            elite_author: !0
+        },
         //VIPs
         elibloodthirst: {
             uname: 'Elibloodthirst',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         pinn: {
             uname: 'pinn',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         deadrising2: {
             uname: 'deadrising2',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         maple: {
             uname: 'Maple',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         lolz666: {
             uname: 'lolz666',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         netsik: {
             uname: 'Netsik',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         xwinx: {
             uname: 'xwinx',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         spruce: {
             uname: 'spruce',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         nitrogeneric: {
             uname: 'Nitrogeneric',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         minus: {
             uname: 'Minus',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         eryp: {
             uname: 'Eryp',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         wyattstonhouse: {
             uname: 'WyattStonhouse',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         zwinxz: {
             uname: 'zwinxz',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         cityshep: {
             uname: 'CityShep',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         itzchucknorris: {
             uname: 'iTzChuckNorris',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         stevenleary: {
             uname: 'StevenLeary',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         alexander: {
             uname: 'alexander',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         cataclysm: {
             uname: 'Cataclysm',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         ness: {
             uname: 'Ness',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         moose_man: {
             uname: 'moose_man',
-            color: '#e8a923'
+            color: '#e8a923',
+            vip: !0
         },
         graggen: {
             uname: 'Graggen',
-            color: '#e8a923'
-        },
+            color: '#e8a923',
+            vip: !0
+        }
     }
 
 switch (loc[0]) {
@@ -293,6 +324,7 @@ function userpage(username) {
         name => {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
+            if (users[name].guide) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
             if (users[name].vip) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_icon profile-icon" title="VIP"></span></a>');
             if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
