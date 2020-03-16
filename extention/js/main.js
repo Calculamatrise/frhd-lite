@@ -1,4 +1,4 @@
-"use strict";
+"userstrict";
 $.ajax({
     url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
@@ -13,13 +13,13 @@ const page = document.location.href,
         //Beta Creators
         calculus: {
             uname: 'Calculus',
-            color: '#46b073',
+            color: '#d34836',
             elite_author: !0,
             guide: !0,
         },
         yv3l: {
             uname: 'yv3l',
-            color: '#d34836',
+            color: '#6F2DA8',
             elite_author: !0,
             admin: !0,
             vip: !0
@@ -35,6 +35,11 @@ const page = document.location.href,
             color: '#d34836',
             elite_author: !0,
             vip: !0,
+            admin: !0
+        },
+        sparklemotion: {
+            uname: 'SparkleMotion',
+            color: '#d34836',
             admin: !0
         },
         mi7ch: {
@@ -66,6 +71,16 @@ const page = document.location.href,
         },
         bobbyjames: {
             uname: 'BobbyJames',
+            color: '#d34836',
+            admin: !0
+        },
+        ira: {
+            uname: 'Ira',
+            color: '#d34836',
+            admin: !0
+        },
+        velksy: {
+            uname: 'Velksy',
             color: '#d34836',
             admin: !0
         },
@@ -201,6 +216,16 @@ const page = document.location.href,
             color: '#917bdf',
             elite_author: !0
         },
+        minus: {
+            uname: 'Minus',
+            color: '#917bdf',
+            elite_author: !0
+        },
+        eryp: {
+            uname: 'Eryp',
+            color: '#917bdf',
+            elite_author: !0
+        },
         //VIPs
         elibloodthirst: {
             uname: 'Elibloodthirst',
@@ -244,16 +269,6 @@ const page = document.location.href,
         },
         nitrogeneric: {
             uname: 'Nitrogeneric',
-            color: '#e8a923',
-            vip: !0
-        },
-        minus: {
-            uname: 'Minus',
-            color: '#e8a923',
-            vip: !0
-        },
-        eryp: {
-            uname: 'Eryp',
             color: '#e8a923',
             vip: !0
         },
@@ -307,8 +322,9 @@ const page = document.location.href,
             color: '#e8a923',
             vip: !0
         }
+        
     }
-
+       
 switch (loc[0]) {
     case 'u': userpage(loc[1]); break;
     case 't': trackpage(loc[1]); break;
