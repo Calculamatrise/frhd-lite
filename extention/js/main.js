@@ -16,6 +16,14 @@ const page = document.location.href,
             color: '#d34836',
             elite_author: !0,
             guide: !0,
+            developer: !0
+        },
+        notcalculus: {
+            uname: 'NotCalculus',
+            color: '#d34836',
+            elite_author: !0,
+            guide: !0,
+            developer: !0
         },
         yv3l: {
             uname: 'yv3l',
@@ -322,9 +330,8 @@ const page = document.location.href,
             color: '#e8a923',
             vip: !0
         }
-        
     }
-       
+
 switch (loc[0]) {
     case 'u': userpage(loc[1]); break;
     case 't': trackpage(loc[1]); break;
@@ -388,5 +395,18 @@ document.getElementById('main_page').appendChild(aah);
 Application.settings.is_moderator = true;
 GameSettings.cameraStartZoom = 1.5;
 Application.settings.is_admin = true;
+
+$('.headgear-deck').after('<li class="headgear-owned" data-item="39"><div class="head-card  "><div class="title">Reindeer Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-reindeer_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="40"><div class="head-card  "><div class="title">Elf Hat</div><div class="image-container"><span class="head_icons_4 head_icons_4-elf_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="41"><div class="head-card  "><div class="title">Santa Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-santa_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="42"><div class="head-card  "><div class="title">Snowman Head</div><div class="image-container"><span class="head_icons_10 head_icons_10-snowman_head"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="43"><div class="head-card  "><div class="title">Love Struck Beanie</div><div class="image-container"><span class="head_icons_6 head_icons_6-lovestruck_beanie"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="44"><div class="head-card  "><div class="title">Heart Antlers</div><div class="image-container"><span class="head_icons_6 head_icons_6-heart_antlers"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="45"><div class="head-card  "><div class="title">Red Valentines</div><div class="image-container"><span class="head_icons_9 head_icons_9-red_valentines_helmet"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="46"><div class="head-card  "><div class="title">Black Valentines</div><div class="image-container"><span class="head_icons_2 head_icons_2-black_valentines_helmet"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="47"><div class="head-card  "><div class="title">Leprechaun Hat</div><div class="image-container"><span class="head_icons_6 head_icons_6-leprechaun_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="48"><div class="head-card  "><div class="title">Luck o the Irish Helmet</div><div class="image-container"><span class="head_icons_6 head_icons_6-luck_o_the_irish_helmet"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="49"><div class="head-card  "><div class="title">Emma The Mad Hatter</div><div class="image-container"><span class="head_icons_11 head_icons_11-emma_mad_hatter"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
+$('.headgear-deck').after('<li class="headgear-owned" data-item="50"><div class="head-card  "><div class="title">Pumpkin Head</div><div class="image-container"><span class="head_icons_8 head_icons_8-pumpkinhead"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 
 Backbone.history.navigate = (url) => { document.location.href = document.location.origin + url }
