@@ -12420,8 +12420,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 @media screen and (min-width: 51.125em) {
     .campaign_page ul.track-list li a.campaign-track {
-        border:1px solid #85ABB5;
-        border-radius: 6px
+        border:1px solid #CCC;
     }
 
     .campaign_page ul.track-list li a.campaign-track div.track-number-bg {
