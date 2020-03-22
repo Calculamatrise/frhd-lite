@@ -3233,8 +3233,8 @@ label {
     background-repeat: no-repeat;
     background-image: url('chrome-extension://__MSG_@@extension_id__/images/campaign_icons_v5.png');
     background-size: 483px 852px;
-    -webkit-transform: scale(.5) perspective(1px);
-    transform: scale(.5) perspective(1px)
+    -webkit-transform: scale(.4) perspective(1px);
+    transform: scale(.4) perspective(1px)
 }
 
 .campaign_icons.campaign_icons-loading_results,.campaign_sprite.campaign_icons-loading_results {
@@ -11912,7 +11912,8 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .campaign .campaign-item .info .condensed,.campaign .campaign-item .number .val,.campaign .campaign-link-submit,.campaign .section-title-bar,.campaign_page .campaign_page-title .campaign_page-percent-complete,.campaign_page .campaign_page-title h1 {
-    font-family: riffic,Arial,Helvetica,sans-serif
+    text-transform: uppercase;
+    font-family: 'roboto_condensed_bold',Arial,Helvetica,sans-serif;
 }
 
 .account-settings-page .account-settings-panel .account-settings-item .account-settings-input-form {
@@ -12013,7 +12014,8 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .campaign .campaign-link-submit {
-    color: #1B5264
+    font-family: 'helsinki', Arial, Helvetica, sans-serif;
+    color: #2d2d2d
 }
 
 .campaign .campaign-title {
@@ -12059,7 +12061,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     padding: 0 8px 0 0;
     line-height: 45px;
     border-radius: 30px;
-    color: #1B5264;
+    color: #2d2d2d;
     font-size: 1em
 }
 
@@ -12076,13 +12078,12 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .campaign .section-title-bar {
     padding: 10px;
-    border: 1px solid #ccc;
-    background-color: #F2F7F9;
-    border-left-width: 0;
-    border-right-width: 0;
-    color: #1B5264;
-    font-size: 20px;
-    letter-spacing: 1px
+    background-color: #EEE;
+    color: #2d2d2d;
+    font-size: 16px;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #888;
+    font-family: 'helsinki', Arial, Helvetica, sans-serif;
 }
 
 .campaign .section-title-bar.campaign-coin-progress-container {
@@ -12094,11 +12095,13 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 .campaign .campaign-item {
     display: table;
     position: relative;
-    width: 100%;
+    width: 50%;
+    float: left;
     min-height: 95px;
     cursor: pointer;
     padding: 15px 45px 15px 90px;
-    border-bottom: 1px solid #F2F7F9
+    border-left: 1px solid #d6d6d6;
+    border-bottom: 1px solid #d6d6d6
 }
 
 .campaign .campaign-item .campaign_sprite-number_locked,.campaign .campaign-item .campaign_sprite-number_unlocked {
@@ -12107,7 +12110,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .campaign .campaign-item:hover {
-    background: #D6DFE2;
+    background: #d6d6d6;
     text-decoration: none
 }
 
@@ -12124,12 +12127,14 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .campaign .campaign-item:nth-last-of-type(odd) {
-    border: 1px solid #B5D8E2;
-    background-color: #F2F7F9
+    border-left: 1px solid #d6d6d6;
+    border-bottom: 1px solid #d6d6d6;
+    width: 50%;
+    background-color: #FFF
 }
 
 .campaign .campaign-item:nth-last-of-type(odd):hover {
-    background: #D6DFE2
+    background: #d6d6d6
 }
 
 .campaign .campaign-item .core_icons-btn_arrow_right {
@@ -12180,10 +12185,10 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .campaign .campaign-item .info .condensed {
-    color: #1B5264;
+    color: #197bc2;
     font-size: 1.1em;
     padding-bottom: 5px;
-    margin-left: 10px
+    border-bottom: 2px dotted #CCC;
 }
 
 .campaign .campaign-item .info .unlock-campaign {
