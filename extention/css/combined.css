@@ -6586,7 +6586,7 @@ li.no-friends .blurb {
 .left-nav-profile .left-nav-profile-top .left-nav-profile-image-link .left-nav-profile-image-bg {
     width: 62px;
     height: 62px;
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -6695,7 +6695,7 @@ li.no-friends .blurb {
 .left-nav-small-profile .left-nav-small-profile-image-bg {
     width: 40px;
     height: 40px;
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -7769,7 +7769,7 @@ ul.track-list a {
     width: 35px;
     height: 35px;
     border: 1px solid #11181C;
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -10401,7 +10401,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     float: left;
     width: 62px;
     height: 62px;
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -11393,7 +11393,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .notifications .notification-list ul .notification .notification-user-pic-bg {
     z-index: 1;
-    background: url(//cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png) center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
     background-size: 100%
 }
 
