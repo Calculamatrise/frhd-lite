@@ -3215,7 +3215,7 @@ label {
     background-position: -33px -66px
 }
 
-.profile_icons.profile_icons-freerider_hd_vip_icon {
+.profile_icons.profile_icons-freerider_hd_vip_banner {
     width: 33px;
     height: 18px;
     background-position: -33px -66px
@@ -6586,7 +6586,7 @@ li.no-friends .blurb {
 .left-nav-profile .left-nav-profile-top .left-nav-profile-image-link .left-nav-profile-image-bg {
     width: 62px;
     height: 62px;
-    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v3.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -6695,7 +6695,7 @@ li.no-friends .blurb {
 .left-nav-small-profile .left-nav-small-profile-image-bg {
     width: 40px;
     height: 40px;
-    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v3.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -7769,7 +7769,7 @@ ul.track-list a {
     width: 35px;
     height: 35px;
     border: 1px solid #11181C;
-    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v3.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -10401,7 +10401,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     float: left;
     width: 62px;
     height: 62px;
-    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v3.png') center center no-repeat;
     background-size: 100%
 }
 
@@ -10822,7 +10822,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     pointer-events: none
 }
 
-.admin_icon,.plus_icon,.classic_author_icon,.elite_author_icon {
+.admin_icon,.plus_icon,.classic_author_icon,.elite_author_icon,.vip_icon {
     display: inline-block;
     width: 18px;
     height: 18px
@@ -10852,16 +10852,8 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     background-size: 100%
 }
 
-.vip_icon {
-    background: url('chrome-extension://__MSG_@@extension_id__/images/vip_icon_sm.png') center center no-repeat;
-    background-size: 100%;
-    width: 28px;
-    height: 17px;
-    display: inline-block;
-}
-
-.vip_icon {
-    background: url('chrome-extension://__MSG_@@extension_id__/images/vip_icon_sm2.png') center center no-repeat;
+.vip_banner {
+    background: url('chrome-extension://__MSG_@@extension_id__/images/vip_banner_sm2.png') center center no-repeat;
     background-size: 100%;
     width: 28px;
     height: 17px;
@@ -10883,13 +10875,21 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .elite_author_icon {
-    
     background: url('chrome-extension://__MSG_@@extension_id__/images/elite_author_icon_sm.png') center center no-repeat;
     background-size: 100%
 }
 
 .elite_author_icon.remove {
-    display: none
+    display: block
+}
+
+.vip_icon {
+    background: url('chrome-extension://__MSG_@@extension_id__/images/vip_icon_sm.png') center center no-repeat;
+    background-size: 100%
+}
+
+.vip_icon.remove {
+    display: block
 }
 
 .guide_icon {
@@ -11393,7 +11393,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .notifications .notification-list ul .notification .notification-user-pic-bg {
     z-index: 1;
-    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v2.png') center center no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/images/guest_profile_v3.png') center center no-repeat;
     background-size: 100%
 }
 
