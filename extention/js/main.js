@@ -15,15 +15,13 @@ const page = document.location.href,
             uname: 'Calculus',
             color: '#d34836',
             elite_author: !0,
-            guide: !0,
-            developer: !0
+            guide: !0
         },
         notcalculus: {
             uname: 'NotCalculus',
             color: '#d34836',
             elite_author: !0,
-            guide: !0,
-            developer: !0
+            guide: !0
         },
         yv3l: {
             uname: 'yv3l',
@@ -345,8 +343,12 @@ function userpage(username) {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             if (users[name].guide) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
+            if (users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].vip) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_icon profile-icon" title="VIP"></span></a>');
+            if (users[name].vip) {
+                $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_banner profile-icon" title="VIP"></span></a>');
+                $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="vip_icon profile-badge" title="VIP"></span></div>');
+            }
             if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
         }
     );
