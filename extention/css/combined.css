@@ -654,7 +654,7 @@ label {
 }
 
 .pagination li.cat-page.disabled span.icon-arrow-left,.pagination li.cat-page.disabled span.icon-arrow-right {
-    opacity: .5
+    opacity: 1
 }
 
 .pagination li.cat-page.gap {
@@ -2641,7 +2641,7 @@ label {
 .core_icons.core_icons-icon_points {
     width: 26px;
     height: 26px;
-    background-position: -92px -323px
+    background-position: -92px -323px;
 }
 
 .core_icons.core_icons-icon_close {
@@ -6656,11 +6656,10 @@ li.no-friends .blurb {
     width: calc(50% - 15px);
     padding-left: 12px;
     margin: 2px;
-    border-radius: 10px;
-    background-color: #e7e7e7;
     line-height: 17px;
     font-size: 13px;
-    color: #2d2d2d;
+    color: #FFF;
+    text-shadow: 2px 1px 2px black;
     text-align: left
 }
 
@@ -10556,20 +10555,21 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 .profile-header #profile-stats .profile-stats-bar-web {
     margin: 0 -5px -5px;
     background: #565656;
-    border: 1px solid #404040;
+    border-top: 1px solid #404040;
+    border-right: 1px solid #404040;
     width: 100%px;
     height: 70px;
-    display: inline-block
+    display: inline-flex
 }
 
 .profile-header #profile-stats .profile-stats-bar-mobile {
     margin: 9px -5px 0;
     width: 50%;
     height: 70px;
-    border: 1px solid #404040;
+    border-top: 1px solid #404040;
+    border-left: 1px solid #404040;
     background: #565656;
-    display: inline-block;
-    position: relative
+    display: inline-flex;
 }
 
 .profile-header #profile-stats .stat-category {
@@ -10919,11 +10919,11 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 @media screen and (min-width: 69.687em) {
     .profile-header #profile-stats {
-        display:inline
+        display: initial
     }
 
     .profile-header #profile-stats .profile-stats-bar-web {
-        margin-bottom: 0;
+        margin-top: 10px;
         margin-right: 0
     }
 
@@ -11147,7 +11147,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .leaderboard-page .leaderboard-table {
-    border: 1px solid #85ABB5
+    border: 1px solid #CCC
 }
 
 .leaderboard-page .leaderboard-table .leaderboard-title {
@@ -11155,7 +11155,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     padding: 0 10px 0 0;
     font-size: 1em;
     line-height: 45px;
-    background: #143F4D;
+    background: #f6f6f6;
     text-transform: uppercase
 }
 
@@ -11183,17 +11183,15 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     padding: 5px 29px 6px 10px;
     margin-left: 4px;
     cursor: pointer;
-    border: 1px solid #85ABB5;
-    background: linear-gradient(to bottom,#fff,#e4faff);
+    border-radius: 30px;
+    background-color: #e7e7e7;
     -webkit-appearance: none;
     -moz-appearance: none;
-    box-shadow: none;
     text-align: left
 }
 
 .leaderboard-page .leaderboard-table .leaderboard-title select:hover {
-    background: linear-gradient(to bottom,#eefbff,#a1e1f6);
-    border: 1px solid #11181C
+    border: 1px solid #000
 }
 
 .leaderboard-page .leaderboard-table .leaderboard-title select option {
@@ -11202,14 +11200,9 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .leaderboard-page .pagination-header {
     text-align: left;
-    background-color: #F2F7F9;
-    border: 1px solid #85ABB5;
+    background-color: #e6e6e6;
     border-top: none;
     border-bottom: none
-}
-
-.leaderboard-page .pagination-header.bottom {
-    border-bottom: 1px solid #85ABB5
 }
 
 .leaderboard-page .pagination-header ul {
@@ -11219,7 +11212,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 
 .leaderboard-page .leaderboard-list {
     position: relative;
-    border: 1px solid #85ABB5;
+    border: 1px solid #CCC;
     border-top: none
 }
 
@@ -11227,7 +11220,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     position: relative;
     display: table;
     width: 100%;
-    border-top: 1px solid #85ABB5
+    border-top: 1px solid #CCC
 }
 
 .leaderboard-page .leaderboard-list .leaderboard-item .leaderboard-item-desc {
@@ -11239,12 +11232,11 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     width: 100px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-family: riffic,Arial,Helvetica,sans-serif;
-    letter-spacing: 1px
+    font-family: 'helsinki',Arial,Helvetica,sans-serif;
 }
 
 .leaderboard-page .leaderboard-list .leaderboard-item .leaderboard-item-desc a {
-    color: #1B5264
+    color: #1f80c3
 }
 
 .leaderboard-page .leaderboard-list .leaderboard-item .leaderboard-item-place {
@@ -11252,8 +11244,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     width: 50px;
     text-align: center;
     vertical-align: middle;
-    font-family: riffic,Arial,Helvetica,sans-serif;
-    letter-spacing: 1px
+    font-family: 'helsinki',Arial,Helvetica,sans-serif;
 }
 
 .leaderboard-page .leaderboard-list .leaderboard-item .leaderboard-item-value {
@@ -11261,8 +11252,7 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     padding-right: 20px;
     text-align: right;
     vertical-align: middle;
-    font-family: riffic,Arial,Helvetica,sans-serif;
-    letter-spacing: 1px
+    font-family: 'helsinki',Arial,Helvetica,sans-serif;
 }
 
 .leaderboard-page .leaderboard-list .leaderboard-item .leaderboard-item-img-cell {
