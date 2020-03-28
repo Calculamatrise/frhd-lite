@@ -9,3 +9,4 @@ document.head.appendChild(inject);
 for (const element of document.getElementsByClassName('featured')) {
     element.innerText = '';
 }
+document.getElementsByClassName('notification')[0].title = 'Notifications'

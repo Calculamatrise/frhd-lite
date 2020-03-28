@@ -6,6 +6,7 @@ $.ajax({
     if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
+
 const page = document.location.href,
     loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),
     users = {
@@ -393,6 +394,5 @@ function colorNames(cb = () => { }) {
 }
 
 $('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_campaigns campaign  leftNavIconPlacement"></span> Leaderboards</a></li>');
-$('.menu_icons.menu_icons-icon_notifications.notification')[0].title = 'Notifications';
 
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : `/${url}` }

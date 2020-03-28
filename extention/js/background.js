@@ -10,7 +10,3 @@ chrome.webRequest.onBeforeRequest.addListener(({ url }) => {
 	],
     types: ['stylesheet']
 }, ['blocking']);
-
-setInterval(() => {
-	console.log(1);
-}, 1000);
