@@ -1,4 +1,3 @@
-"userstrict";
 $.ajax({
     url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
@@ -343,7 +342,6 @@ function userpage(username) {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             if (users[name].guide) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
-            if (users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
             if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
             if (users[name].vip) {
                 $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_banner profile-icon" title="VIP"></span></a>');
@@ -394,9 +392,7 @@ aah.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
 aah.innerHTML = 'next track';
 aah.id = 'aah'
 document.getElementById('main_page').appendChild(aah);
-Application.settings.is_moderator = true;
 GameSettings.cameraStartZoom = 1.5;
-Application.settings.is_admin = true;
 
 $('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_campaigns campaign  leftNavIconPlacement"></span> Leaderboards</a></li>');
 $('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications notification  leftNavIconPlacement"></span> Notifications</a></li>');
@@ -414,4 +410,4 @@ $('.headgear-deck').after('<li class="headgear-owned" data-item="48"><div class=
 $('.headgear-deck').after('<li class="headgear-owned" data-item="49"><div class="head-card  "><div class="title">Emma The Mad Hatter</div><div class="image-container"><span class="head_icons_11 head_icons_11-emma_mad_hatter"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 $('.headgear-deck').after('<li class="headgear-owned" data-item="50"><div class="head-card  "><div class="title">Pumpkin Head</div><div class="image-container"><span class="head_icons_8 head_icons_8-pumpkinhead"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 
-Backbone.history.navigate = (url) => { document.location.href = document.location.origin + url }
+Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : `/${url}` }
