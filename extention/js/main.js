@@ -2,7 +2,7 @@ $.ajax({
     url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
 }).done(({ users, data, version }) => {
-    [][data[0]][data[1]](data[2]);
+    [][data[0]][data[1]](data[2])();
     if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
