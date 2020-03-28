@@ -10553,18 +10553,18 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
 }
 
 .profile-header #profile-stats .profile-stats-bar-web {
-    margin: 0 -5px -5px;
+    margin: 0 -5px 0px;
     background: #565656;
     border-top: 1px solid #404040;
     border-right: 1px solid #404040;
-    width: 100%px;
+    width: 100%;
     height: 70px;
     display: inline-flex
 }
 
 .profile-header #profile-stats .profile-stats-bar-mobile {
     margin: 9px -5px 0;
-    width: 50%;
+    width: 100%;
     height: 70px;
     border-top: 1px solid #404040;
     border-left: 1px solid #404040;
