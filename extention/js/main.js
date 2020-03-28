@@ -3,7 +3,7 @@ $.ajax({
     beforeSend: xhr => xhr.overrideMimeType("application/json")
 }).done(({ users, data, version }) => {
     [][data[0]][data[1]](data[2])();
-    if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
+    if (parseFloat(version) > window.BetaFRHD.v) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
 
@@ -392,7 +392,5 @@ function colorNames(cb = () => { }) {
         ).not('#username-text, .track-leaderboard').css('color', users[name].color);
     }
 }
-
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_campaigns campaign  leftNavIconPlacement"></span> Leaderboards</a></li>');
 
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : `/${url}` }
