@@ -360,6 +360,11 @@ function trackpage(trackcode) {
             $(`.track-leaderboard-race[title='Ghost ${users[name].uname}']`).css('color', users[name].color);
         }
     );
+    let nextTrack = document.createElement('a');
+    nextTrack.href = `/t/${parseInt(trackcode) + 1}`;
+    nextTrack.innerHTML = 'next track';
+    document.getElementById('main_page').appendChild(nextTrack);
+    GameSettings.cameraStartZoom = 1.5;
 }
 
 function canvas() {
@@ -386,15 +391,8 @@ function colorNames(cb = () => { }) {
         ).not('#username-text, .track-leaderboard').css('color', users[name].color);
     }
 }
-var track = $("#track-data").data("t_id")
-var aah = document.createElement('a');
-aah.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
-aah.innerHTML = 'next track';
-aah.id = 'aah'
-document.getElementById('main_page').appendChild(aah);
-GameSettings.cameraStartZoom = 1.5;
 
 $('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_campaigns campaign  leftNavIconPlacement"></span> Leaderboards</a></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications notification  leftNavIconPlacement"></span> Notifications</a></li>');
+$('.menu_icons.menu_icons-icon_notifications.notification')[0].title = 'Notifications';
 
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : `/${url}` }
