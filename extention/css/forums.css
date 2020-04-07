@@ -6632,17 +6632,17 @@ font-size:11px!important
 }
 
 .userBanner.bannerStaff.wrapped span {
-    background-color: #d3d3d3;
+    background-color: #ededed;
 }
 
 .userBanner.bannerPrimary {
     color: #656565;
-    background: linear-gradient(to bottom,#fafafa,#efefef);
+    background: linear-gradient(to bottom,#fafafa,#f2f2f2);
     border-color: #d3d3d3; 
 }
 
 .userBanner.bannerPrimary.wrapped span {
-    background-color: #d3d3d3;
+    background-color: #ededed;
 }
 
 .userBanner.bannerSecondary {
@@ -6677,7 +6677,7 @@ font-size:11px!important
 
 .userBanner.bannerRed {
     color: white;
-    background: linear-gradient(to bottom,#ff7361,#b71500);
+    background: linear-gradient(to bottom,#e95f4d,#d34836);
     border-color: #d34836;
     text-shadow: -1px -1px 0 #d34836;
     font-weight: bold;   
@@ -6689,7 +6689,7 @@ font-size:11px!important
 
 .userBanner.bannerGreen {
     color: white;
-    background: linear-gradient(to bottom,#97f113,#6ea750);
+    background: linear-gradient(to bottom,#b4ed50,#6ea750);
     border-color: #6ea750;
     text-shadow: -1px -1px 0 #6ea750;
     font-weight: bold;
@@ -6701,13 +6701,25 @@ font-size:11px!important
 
 .userBanner.bannerOrange {
     color: white;
+    border-color: #e8a923;
+    background: linear-gradient(#fac51f,#e8a923);
+    font-weight: bold;
+    text-shadow: -1px -1px 0 #e8a923;
+}
+
+.userBanner.bannerOrange.wrapped span {
+    background-color: #e8a923;
+}
+
+.userBanner.bannerYellow {
+    color: white;
     border-color: #ffb924;
     background: linear-gradient(#ffd13e,#ffad00);
     font-weight: bold;
     text-shadow: -1px -1px 0 #ffb518;
 }
 
-.userBanner.bannerOrange.wrapped span {
+.userBanner.bannerYellow.wrapped span {
     background-color: #efb63d;
 }
 
