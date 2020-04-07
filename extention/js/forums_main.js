@@ -51,7 +51,6 @@ function conversations(){
 }
 
 $('.breadBoxTop').after('<p class="importantMessage">This mod was created by Calculus and GoodraFRHD. If you have any questions, feel free to send us a message using one of the following links.<br>Heres a link to our profile: <a href="https://community.freeriderhd.com/members/18532/" target="_blank">Calculus</a> and <a href="https://community.freeriderhd.com/members/13737/" target="_blank">GoodraFRHD</a>.</p> ');
-$('.panel').after(`<li class="panel Notice DismissParent notice_23 " data-notice="23"><div class="baseHtml noticeContent">Welcome to Free Rider HD Beta!</div></li> `);
 
 function applyBanners(cb = () => { }) {
     for (const name in users) {
