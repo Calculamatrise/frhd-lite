@@ -388,11 +388,12 @@ function colorNames(cb = () => { }) {
     }
 }
 var track = $("#track-data").data("t_id")
-var aah = document.createElement('a');
-aah.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
-aah.innerHTML = 'next track';
-aah.id = 'aah'
-document.getElementById('main_page').appendChild(aah);
+var a = document.createElement('a');
+a.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
+a.innerHTML = 'Next';
+a.classList = 'nextTrack';
+a.id = 'a'
+document.getElementById('main_page').appendChild(a);
 Application.settings.is_moderator = true;
 GameSettings.cameraStartZoom = 1.5;
 Application.settings.is_admin = true;
