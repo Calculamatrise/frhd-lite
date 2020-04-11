@@ -1,4 +1,4 @@
-"userstrict";
+"use strict";
 $.ajax({
     url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
@@ -7,326 +7,268 @@ $.ajax({
     if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
     if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
+let admin = ['calculus', 'notcalculus', 'yv3l', 'char', 'max007x', 'sparklemotion', 'mr..a', 'stig', 'eric', 'mi7ch', 'brett', 'bobbyjames', 'ira', 'velsky'];
+let eliteAuthor = ['yv3l', 'wheeliemaker', 'dblu', 'pssst', 'volund', 'codrey', 'figured', 'zgolex', 'bowloffire', 'foundations', 'theend', 'vickong', 'alehsandro', 'weem', 'rationalities', 'doodlenut', 'kazniti', 'gongo999', 'ldprider', 'plastic', 'hawnks', 'rhino', 'bigblu3', 'plasticpineapple', 'dropkick', 'minus', 'eryp', 'nitrogeneric', 'wyattstonhouse', 'itzchucknorris', 'cityshep'];
+let vip = ['max007x', 'mr..a', 'stig', 'maple', 'elibloodthirst', 'deadrising2', 'pinn', 'lolz666', 'netsik', 'xwinx', 'spruce', 'zwinxz', 'stevenleary', 'alexander', 'cataclysm', 'ness', 'moose_man', 'graggen'];
+let guide = ['calculus', 'cctvcctvcctv', 'brandonbishop50'];
+let red = '#d34836';
+let green = '#46b073'
+let purple = '#917bdf';
+let orange = '#e8a923';
 const page = document.location.href,
-    loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),
+    loc = document.location.pathname.toLocaleLowerCase().slice(1).split('/'),    
     users = {
-        //Beta Creators
+        //Developers
         calculus: {
             uname: 'Calculus',
-            color: '#d34836',
-            elite_author: !0,
-            guide: !0
+            color: red,
         },
         notcalculus: {
             uname: 'NotCalculus',
-            color: '#d34836',
-            elite_author: !0,
-            guide: !0
+            color: red
         },
         yv3l: {
             uname: 'yv3l',
-            color: '#6F2DA8',
-            elite_author: !0,
-            admin: !0,
-            vip: !0
+            color: red,
         },
         //Mods
         char: {
             uname: 'Char',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         max007x: {
             uname: 'Max007x',
-            color: '#d34836',
-            elite_author: !0,
-            admin: !0,
-            vip: !0
+            color: red,
         },
         sparklemotion: {
             uname: 'SparkleMotion',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         mi7ch: {
             uname: 'Mi7ch',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         'mr..a': {
             uname: 'mR..A',
-            color: '#d34836',
-            admin: !0,
-            vip: !0
+            color: red,
         },
         stig: {
             uname: 'Stig',
             color: '#e91e63',
-            admin: !0,
-            vip: !0
         },
         eric: {
             uname: 'Eric',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         brett: {
             uname: 'Brett',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         bobbyjames: {
             uname: 'BobbyJames',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         ira: {
             uname: 'Ira',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         velksy: {
             uname: 'Velksy',
-            color: '#d34836',
-            admin: !0
+            color: red,
         },
         //Guides
         cctvcctvcctv: {
             uname: 'cctvcctvcctv',
-            color: '#46b073',
+            color: green,
             guide: !0
         },
         brandonbishop50: {
             uname: 'BrandonBishop50',
-            color: '#46b073',
+            color: green,
             guide: !0
         },
         //Elite
         wheeliemaker: {
             uname: 'WheelieMaker',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         dblu: {
             uname: 'DblU',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         pssst: {
             uname: 'pssst',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         volund: {
             uname: 'Volund',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         figured: {
             uname: 'Figured',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         zgolex: {
             uname: 'Zgolex',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         bowloffire: {
             uname: 'BowlOfFire',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         foundations: {
             uname: 'Foundations',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         THEEnd: {
             uname: 'THEend',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         vickong: {
             uname: 'Vickong',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         alehsandro: {
             uname: 'Alehsandro',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         weem: {
             uname: 'weem',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         rationalities: {
             uname: 'rationalities',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         doodlenut: {
             uname: 'Doodlenut',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         kazniti: {
             uname: 'kazniti',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         gongo999: {
             uname: 'gongo999',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         LDPrider: {
             uname: 'LDPrider',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         plastic: {
             uname: 'Plastic',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         hawnks: {
             uname: 'hawnks',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         RHINO: {
             uname: 'RHINO',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         bigblu3: {
             uname: 'BIGBLU3',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         plasticpineapple: {
             uname: 'plasticpineapple',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         dropkick: {
             uname: 'dropkick',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         codrey: {
             uname: 'codrey',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         minus: {
             uname: 'Minus',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         eryp: {
             uname: 'Eryp',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         nitrogeneric: {
             uname: 'Nitrogeneric',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         wyattstonhouse: {
             uname: 'WyattStonhouse',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         itzchucknorris: {
             uname: 'iTzChuckNorris',
-            color: '#917bdf',
-            elite_author: !0
+            color: purple,
         },
         //VIPs
         elibloodthirst: {
             uname: 'Elibloodthirst',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         pinn: {
             uname: 'pinn',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         deadrising2: {
             uname: 'deadrising2',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         maple: {
             uname: 'Maple',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         lolz666: {
             uname: 'lolz666',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         netsik: {
             uname: 'Netsik',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         xwinx: {
             uname: 'xwinx',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         spruce: {
             uname: 'spruce',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         zwinxz: {
             uname: 'zwinxz',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         cityshep: {
             uname: 'CityShep',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         stevenleary: {
             uname: 'StevenLeary',
-            color: '#e8a923',
+            color: orange,
             vip: !0
         },
         alexander: {
             uname: 'alexander',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         cataclysm: {
             uname: 'Cataclysm',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         ness: {
             uname: 'Ness',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         moose_man: {
             uname: 'moose_man',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         },
         graggen: {
             uname: 'Graggen',
-            color: '#e8a923',
-            vip: !0
+            color: orange,
         }
     }
 
@@ -342,13 +284,13 @@ function userpage(username) {
         name => {
             if (name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
-            if (users[name].guide) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
+            //if (guide.indexOf(name) !== -1) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
             if (users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].elite_author) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (users[name].vip) {
+            if (eliteAuthor.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
+            if (vip.indexOf(name) !== -1) {
                 $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_banner profile-icon" title="VIP"></span></a>');
             }
-            if (users[name].admin) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
+            if (admin.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
         }
     );
 }
@@ -415,3 +357,4 @@ $('.headgear-deck').after('<li class="headgear-owned" data-item="49"><div class=
 $('.headgear-deck').after('<li class="headgear-owned" data-item="50"><div class="head-card  "><div class="title">Pumpkin Head</div><div class="image-container"><span class="head_icons_8 head_icons_8-pumpkinhead"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : '/' + url }
+console.log(`Mod Injected!\nVersion: 1.0`)
