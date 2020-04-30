@@ -282,15 +282,15 @@ switch (loc[0]) {
 function userpage(username) {
     colorNames(
         name => {
-            if (name != username) return;
+            if(name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
             //if (guide.indexOf(name) !== -1) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
-            if (users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
-            if (eliteAuthor.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
-            if (vip.indexOf(name) !== -1) {
+            if(users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
+            if(eliteAuthor.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
+            if(vip.indexOf(name) !== -1) {
                 $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_banner profile-icon" title="VIP"></span></a>');
             }
-            if (admin.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
+            if(admin.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
         }
     );
 }
@@ -341,7 +341,6 @@ GameSettings.cameraStartZoom = 1.5;
 Application.settings.user.admin = true
 Application.settings.is_admin = true;
 
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_campaigns campaign  leftNavIconPlacement"></span> Leaderboards</a></li>');
 $('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications notification  leftNavIconPlacement"></span> Notifications</a></li>');
 
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="39"><div class="head-card  "><div class="title">Reindeer Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-reindeer_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
