@@ -38,10 +38,7 @@ function userpage(uid) {
                 $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em> ');
             }
             if(special.indexOf(name) !== -1){
-                if($('.section.MedalsBlock').length == 0){
-                    $('.profilePage .mast .followBlocks').before('<div class="section MedalsBlock"><h3 class="subHeading textWithCount" title="Calculus was awarded 1 medals."><span class="text">Awarded Medals</span><a href="members/calculus.18532/medals" class="count OverlayTrigger">1</a></h3><div class="primaryContent MedalHeap"><ol></ol></div></div>');
-                    $('.section.MedalsBlock ol').append('<li><a href="members/calculus.18532/medals" class="Tooltip" data-offsety="--6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555l.jpg" class="size-l"></a></li>');
-                }
+                $('.profilePage .mast .MedalsBlock .primaryContent.MedalHeap ol').append('<li><a href="members/calculus.18532/medals" class="Tooltip" data-offsety="--6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555l.jpg" class="size-l"></a></li>');
             }
             if(dev.indexOf(name) !== -1){
                 $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
