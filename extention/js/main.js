@@ -341,8 +341,6 @@ GameSettings.cameraStartZoom = 1.5;
 Application.settings.user.admin = true
 Application.settings.is_admin = true;
 
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications notification  leftNavIconPlacement"></span> Notifications</a></li>');
-
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="39"><div class="head-card  "><div class="title">Reindeer Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-reindeer_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="40"><div class="head-card  "><div class="title">Elf Hat</div><div class="image-container"><span class="head_icons_4 head_icons_4-elf_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="41"><div class="head-card  "><div class="title">Santa Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-santa_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
