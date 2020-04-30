@@ -1,5 +1,4 @@
 "use strict";
-let special = ['calculus'];
 let admin = ['goodrafrhd'];
 let dev = ['calculus', 'polygon'];
 const page = document.location.href,
@@ -34,14 +33,15 @@ function userpage(uid) {
             if($('.userBanners').length == 0) $('p.userBlurb').after('<div class="userBanners"></div>');
             if(admin.indexOf(name) !== -1){
                 $('.userBanners').prepend('<em class="userBanner bannerOrange " itemprop="title"><span class="before"></span><strong>VIP</strong><span class="after"></span></em>');
-                $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em> ');
-                $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em> ');
+                $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em>\n');
+                $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>\n');
             }
-            if(special.indexOf(name) !== -1){
+            if(users[name].uid === '4475'){
+                $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em>');
+            }
+            if(users[name].uid === '18532'){
+                $('.userBanners').prepend('<em class="userBanner bannerOrange " itemprop="title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>');
                 $('.profilePage .mast .MedalsBlock .primaryContent.MedalHeap ol').append('<li><a href="members/calculus.18532/medals" class="Tooltip" data-offsety="--6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555l.jpg" class="size-l"></a></li>');
-            }
-            if(dev.indexOf(name) !== -1){
-                $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
             }
         }
     );
@@ -51,15 +51,16 @@ function threads(){
     applyBanners(
         name => {
             if(admin.indexOf(name) !== -1){
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"=""><span class="before"></span><strong>VIP</strong><span class="after"></span></em>');
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em> ');
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"=""><span class="before"></span><strong>VIP</strong><span class="after"></span></em>\n');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em>\n');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>\n');
             }
-            if(special.indexOf(name) !== -1){
+            if(users[name].uid === '4475'){
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
+            }
+            if(users[name].uid === '18532'){
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>\n');
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('.medals').append('<a href="members/calculus.18532/medals" class="OverlayTrigger Tooltip" data-offsetx="-12" data-offsety="-6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555t.jpg" class="size-t" width="12" height="12"></a>');
-            }
-            if(dev.indexOf(name) !== -1){
-            $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
             }
         }
     )
@@ -73,11 +74,12 @@ function conversations(){
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Administrator</strong><span class="after"></span></em> ');
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff Member</strong><span class="after"></span></em>');
             }
-            if(special.indexOf(name) !== -1){
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('.medals').append('<a href="members/calculus.18532/medals" class="OverlayTrigger Tooltip" data-offsetx="-12" data-offsety="-6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555t.jpg" class="size-t" width="12" height="12"></a>');
-            }
-            if(dev.indexOf(name) !== -1){
+            if(users[name].uid === '4475'){
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
+            }
+            if(users[name].uid === '18532'){
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>\n');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('.medals').append('<a href="members/calculus.18532/medals" class="OverlayTrigger Tooltip" data-offsetx="-12" data-offsety="-6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555t.jpg" class="size-t" width="12" height="12"></a>');
             }
         }
     )
@@ -88,11 +90,9 @@ function conversations(){
 function homepage(){
     applyBanners(
         name => {
-            if(special.indexOf(name) !== -1){
-                if(users[name].uid === '18532'){
-                    if($('.sidebar .avatarList li').length == 0) $('.sidebar .visitorPanel').after('<div class="section staffOnline avatarList"><div class="secondaryContent"><h3>Staff Online Now</h3><ul></ul></div></div>');
-                    $(".sidebar .avatarList ul").append('<li><a href="members/calculus.18532/" class="avatar Av1212s" data-avatarhtml="true"><img src="https://s3.amazonaws.com/kano-xfro-frhd/avatars/s/18/18532.jpg?1584737316" width="48" height="48" alt="Calculus"></a><a href="members/calculus.18532/" class="username" dir="auto">Calculus</a><div class="userTitle">Guide</div></li>');
-                }
+            if(users[name].uid === '18532'){
+                if($('.sidebar .avatarList li').length == 0) $('.sidebar .visitorPanel').after('<div class="section staffOnline avatarList"><div class="secondaryContent"><h3>Staff Online Now</h3><ul></ul></div></div>');
+                $(".sidebar .avatarList ul").append('<li><a href="members/calculus.18532/" class="avatar Av1212s" data-avatarhtml="true"><img src="https://s3.amazonaws.com/kano-xfro-frhd/avatars/s/18/18532.jpg?1584737316" width="48" height="48" alt="Calculus"></a><a href="members/calculus.18532/" class="username" dir="auto">Calculus</a><div class="userTitle">Guide</div></li>');
             }
         }
     )
