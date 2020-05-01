@@ -40,7 +40,7 @@ function userpage(uid) {
                 $('.userBanners').prepend('<em class="userBanner bannerRed " itemprop="title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em>');
             }
             if(users[name].uid === '18532'){
-                $('.userBanners').prepend('<em class="userBanner bannerOrange " itemprop="title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>');
+                $('.userBanners').prepend('<em class="userBanner bannerStaff " itemprop="title"><span class="before"></span><strong>Staff</strong><span class="after"></span></em>');
                 $('.profilePage .mast .MedalsBlock .primaryContent.MedalHeap ol').append('<li><a href="members/calculus.18532/medals" class="Tooltip" data-offsety="--6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555l.jpg" class="size-l"></a></li>');
             }
         }
@@ -59,7 +59,7 @@ function threads(){
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
             }
             if(users[name].uid === '18532'){
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>\n');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff</strong><span class="after"></span></em>\n');
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('.medals').append('<a href="members/calculus.18532/medals" class="OverlayTrigger Tooltip" data-offsetx="-12" data-offsety="-6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555t.jpg" class="size-t" width="12" height="12"></a>');
             }
         }
@@ -78,7 +78,7 @@ function conversations(){
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerRed wrapped" itemprop"title"><span class="before"></span><strong>Developer</strong><span class="after"></span></em> ');
             }
             if(users[name].uid === '18532'){
-                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerOrange wrapped" itemprop"title"><span class="before"></span><strong>Special Developer</strong><span class="after"></span></em>\n');
+                $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('em.userTitle').after('<em class="userBanner bannerStaff wrapped" itemprop"title"><span class="before"></span><strong>Staff</strong><span class="after"></span></em>\n');
                 $(`h3.userText a.username[href="members/${name}.${users[name].uid}/"]`).parent().parent().find('.medals').append('<a href="members/calculus.18532/medals" class="OverlayTrigger Tooltip" data-offsetx="-12" data-offsety="-6" style="display: inline-block"><img src="https://s3.amazonaws.com/kano-xfro-frhd/medal/5_1529237555t.jpg" class="size-t" width="12" height="12"></a>');
             }
         }
