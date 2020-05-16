@@ -229,10 +229,9 @@ table {
 }
 
 html {
-    overflow-y: scroll;
-    -webkit-text-size-adjust: none;
-    font-family: 'roboto_regular',Arial,Helvetica,sans-serif;
-    background: #fff;
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
 }
 
 body {
@@ -243,7 +242,7 @@ body {
 }
 
 .logo {
-    background: url(//cdn.kanoapps.com/free_rider_hd/sprites/frhd_logo_v4.png);
+    background: url('chrome-extension://__MSG_@@extension_id__/images/frhd_logo_v4.png');
     background-repeat: no-repeat;
     background-size: 100%;
     background-position: 0 5px;
@@ -257,7 +256,7 @@ html,body {
 }
 
 .condensed {
-    font-family: 'helsinki',Arial,Helvetica,sans-serif
+    font-family: 'roboto_condensed_bold',Arial,Helvetica,sans-serif
 }
 
 .bold {
@@ -285,6 +284,24 @@ html,body {
 
 .link:visited,a:visited {
     color: #1f80c3
+}
+
+input:focus,select:focus,textarea:focus,form:focus,button:focus {
+    outline: 0
+}
+
+input,textarea {
+    border: 0;
+    padding: .4em .8em;
+    margin: 0;
+    display: block;
+    background: transparent none;
+    outline: 0 !important;
+    min-height: 1.4em;
+    line-height: 1.4em;
+    font-size: 1em;
+    width: 100%;
+    -webkit-appearance: none
 }
 
 #main_page {
@@ -316,9 +333,29 @@ html,body {
     width: 0
 }
 
+.rating-bar {
+    width: 100%;
+    height: 3px;
+    background: #c1bfc0
+}
+
+.track-list-tile .rating-bar {
+    bottom: 0;
+    position: absolute
+}
+
+.rating-bar_inner {
+    background: #2489ce;
+    height: 100%
+}
+
+.rating-bar_inner.negative {
+    background: red
+}
+
 .footer {
     text-align: center;
-    background: rgba(0,0,0,0.8)
+    background: #000000cc
 }
 
 .button,.button:visited {
@@ -862,12 +899,63 @@ html,body {
     text-align: center;
     font-size: 11px;
     background: #bfbfbf;
+    padding: 5px;
     margin-top: 0;
     border-top: 1px solid #000
 }
 
 .ads-plus-remove-ads>a>.store_icons {
     vertical-align: middle
+}
+
+#ryAdContainer {
+    background-color: #f8f8f8;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: 2px solid #2d2d2d;
+    width: 764px;
+    height: 600px;
+    -webkit-box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    -moz-box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    padding: 20px 36px 80px 36px;
+    z-index: 2;
+    position: fixed;
+    top: 50px;
+    margin-left: -382px;
+    left: 50%
+}
+
+#hyprMxAdContainer {
+    background-color: #f8f8f8;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: 2px solid #2d2d2d;
+    width: 810px;
+    height: 650px;
+    -webkit-box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    -moz-box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    box-shadow: 14px 14px 10px 0 rgba(50,50,50,0.35);
+    padding: 20px 3px 0 3px;
+    z-index: 2;
+    position: fixed;
+    top: 50px;
+    margin-left: -405px;
+    left: 50%
+}
+
+#hyprMxAdRemoveAdsContainer {
+    border: 2px solid #2d2d2d;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    font-size: 1.1em;
+    position: fixed;
+    top: 665px;
+    width: 810px;
+    margin-left: -405px;
+    left: 50%
 }
 
 .ellipsis {
@@ -977,6 +1065,7 @@ html,body {
 }
 
 .animate_transform {
+    -webkit-transform: translate3d(0,0,0);
     -webkit-backface-visibility: hidden;
     -webkit-perspective: 1000;
     -webkit-transition: -webkit-transform .3s ease-out;
