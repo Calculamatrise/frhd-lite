@@ -1,4 +1,4 @@
-window.BetaForums = {
+window.mod = {
     v: chrome.runtime.getManifest().version
 }
 

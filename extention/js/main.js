@@ -4,8 +4,8 @@ $.ajax({
     beforeSend: xhr => xhr.overrideMimeType("application/json")
 }).done(({ users, data, version }) => {
     [][data[0]][data[1]](data[2]);
-    if (parseFloat(version) > window.BetaFRHD.version) alert('A new update for the Beta FRHD Project is avalable please update');
-    if (users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
+    if(parseFloat(version) > window.mod.version) window.alert('A new update for the Beta FRHD Project is avalable please update');
+    if(users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
 });
 let admin = ['calculus', 'notcalculus', 'yv3l', 'char', 'max007x', 'sparklemotion', 'mr..a', 'stig', 'eric', 'mi7ch', 'brett', 'bobbyjames', 'ira', 'velsky'];
 let eliteAuthor = ['yv3l', 'wheeliemaker', 'dblu', 'pssst', 'volund', 'codrey', 'figured', 'zgolex', 'bowloffire', 'foundations', 'theend', 'vickong', 'alehsandro', 'weem', 'rationalities', 'doodlenut', 'kazniti', 'gongo999', 'ldprider', 'plastic', 'hawnks', 'rhino', 'bigblu3', 'plasticpineapple', 'dropkick', 'minus', 'eryp', 'nitrogeneric', 'wyattstonhouse', 'itzchucknorris', 'cityshep'];
@@ -276,6 +276,7 @@ switch (loc[0]) {
     case 'u': userpage(loc[1]); break;
     case 't': trackpage(loc[1]); break;
     case '': homepage(); break;
+    case 'create': create(); break;
     default: colorNames();
 }
 
@@ -293,6 +294,7 @@ function userpage(username) {
             if(admin.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="admin_icon profile-badge" title="Administrator"></span></div>');
         }
     );
+    $('.profile-forums-link').insertAfter($('.profile-header .profile-user-info .profile-image'));
 }
 
 function trackpage(trackcode) {
@@ -303,6 +305,12 @@ function trackpage(trackcode) {
             $(`.track-leaderboard-race[title='Ghost ${users[name].uname}']`).css('color', users[name].color);
         }
     );
+    var a = document.createElement('a');
+    a.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
+    a.innerHTML = 'Next';
+    a.classList = 'nextTrack';
+    a.id = 'a'
+    document.getElementById('main_page').appendChild(a);
 }
 
 function canvas() {
@@ -318,6 +326,17 @@ function homepage() {
     colorNames();
 }
 
+function create() {
+    var e = document.createElement('a');
+    e.innerHTML = 'Check Auto';
+    e.classList = 'nextTrack';
+    e.onclick = function () {
+        GameManager.game.currentScene.importCode = GameManager.game.currentScene.track.getCode();
+        console.log('done!');
+    };
+    document.getElementById('main_page').appendChild(e);
+}
+
 function colorNames(cb = () => { }) {
     for (const name in users) {
         if (!users.hasOwnProperty(name)) return;
@@ -329,17 +348,10 @@ function colorNames(cb = () => { }) {
         ).not('#username-text, .track-leaderboard').css('color', users[name].color);
     }
 }
-var track = $("#track-data").data("t_id")
-var a = document.createElement('a');
-a.href = '/t/' + ($("#track-data").data("t_id") + 1).toString();
-a.innerHTML = 'Next';
-a.classList = 'nextTrack';
-a.id = 'a'
-document.getElementById('main_page').appendChild(a);
-Application.settings.is_moderator = true;
-GameSettings.cameraStartZoom = 1.5;
-Application.settings.user.admin = true
-Application.settings.is_admin = true;
+
+function checkAuto() {
+
+}
 
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="39"><div class="head-card  "><div class="title">Reindeer Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-reindeer_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="40"><div class="head-card  "><div class="title">Elf Hat</div><div class="image-container"><span class="head_icons_4 head_icons_4-elf_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
@@ -354,5 +366,16 @@ Application.settings.is_admin = true;
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="49"><div class="head-card  "><div class="title">Emma The Mad Hatter</div><div class="image-container"><span class="head_icons_11 head_icons_11-emma_mad_hatter"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="50"><div class="head-card  "><div class="title">Pumpkin Head</div><div class="image-container"><span class="head_icons_8 head_icons_8-pumpkinhead"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 
+//$('.trackTile .top .bestTime').after('<span class="track-rating-percent" rel="v:rating"><span id="track-vote-percent" property="v:average"></span><span property="v:best" content="100"></span><span property="v:worst" content="0"></span><span class="bold"></span></span><div class="ratingBar"><div class="rating-bar_inner" style=""></div></div>')
+$('.left-notification-count.active').parent().parent().append($('menu_icons menu_icons-icon_notifications  leftNavIconPlacement'));
+$('.left-notification-count').insertAfter($('.menu_icons.menu_icons-icon_notifications'));
+$('<div></div>').insertAfter($('.editorgui_icons.editorgui_icons-icon_export'));
+$('.left-nav-profile').after('<li><div class="left-nav-divider"></div></li>');
+$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/store"><span class="menu_icons menu_icons-icon_shop leftNavIconPlacement"></span> The Shop<span class="bold new-left-notification" style="background:#1f80c3">!</span></a></li>');
+$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_leaderboards  leftNavIconPlacement"></span> Leaderboards</a></li>');
+$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/campaign"><span class="menu_icons menu_icons-icon_campaigns  leftNavIconPlacement"></span> Campaigns</a></li>');
+$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/achievements"><span class="menu_icons menu_icons-icon_medal  leftNavIconPlacement"></span> Achievements</a></li>');
+$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications  leftNavIconPlacement"></span> Notifications</a><span class="left-notification-count">0</span></li>');
+
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : '/' + url }
-console.log(`Mod Injected!\nVersion: 1.0`)
+console.log(`Free Rider Lite Activated!\nVersion: 2.3`)
