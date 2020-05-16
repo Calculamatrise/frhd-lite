@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Free Rider Lite",
-    "version": "0.95",
+    "version": "2.3",
     "description": "Replaces the current assets used in FreeRiderHD with the older (and better) ones.",
     "author": "Calculus & GoodraFRHD",
     "content_scripts": [
@@ -43,8 +43,7 @@
     "permissions": [
         "webRequest",
         "webRequestBlocking",
-        "*://*.freeriderhd.com/*",
-        "*://community.freeriderhd.com/*"
+        "*://*.freeriderhd.com/*"
     ],
     "web_accessible_resources": [
         "js/main.js",
@@ -53,5 +52,10 @@
     ],
     "icons": {
         "128": "images/icons/icon_128.png"
-      }
+    },
+    "browser_action": {
+        "default_icon": "images/icons/icon_128.png",
+        "default_popup": "popup.html",
+        "default_title": "Free Rider Lite"
+    }
 }
