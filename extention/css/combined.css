@@ -3040,16 +3040,9 @@ label {
 }
 
 .menu_icons.menu_icons-icon_settings {
-    position: absolute;
-    top: 16px;
-    right: 16px;
     width: 33px;
     height: 33px;
     background-position: -256px -40px;
-    color: #FFF;
-    border: 1px solid #1d1d1d;
-    background-color: #333;
-    border-radius: 30px;
 }
 
 .menu_icons.menu_icons-icon_leaderboards {
@@ -6318,19 +6311,16 @@ li.no-friends .blurb {
 .left-notification-count {
     font-family: roboto_regular,Arial,Helvetica,sans-serif;
     position: absolute;
-    display: inline-block;
-    top: 5px;
-    right: 12px;
+    display: none;
+    top: 0;
+    right: 0;
     z-index: 1;
     line-height: 15px;
-    border-radius: 10px;
+    border-radius: 30px;
     font-size: 10px;
     color: #555;
     border: 1px solid #11181C;
-    padding: 0 9px;
-    text-shadow: 1px 1px 1px #094269;
-    font-size: .75em;
-    line-height: 20px;
+    padding: 0 4px
 }
 
 .left-nav-item,.left-nav-item-small.left-nav-item-small-dropdown ul li,.left-nav-profile .left-nav-profile-bottom .stat,.left-nav-profile .left-nav-profile-top .left-nav-profile-links a.bold,.track-list-title,.trackTile .track-of-the-day-ttl .text {
@@ -10702,9 +10692,9 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     background-color: #e5432f;
     border: 1px solid #11181c;
     position: absolute;
-    top: -8px;
-    left: 74px;
-    z-index: 3
+    top: 4px;
+    left: 165px;
+    z-index: 3;
 }
 
 .notification-alert .text {
@@ -11219,7 +11209,6 @@ div#main_page.is_mobile #right_content ul.track-list div.campaign-number .num,di
     height: 38px;
     display: table;
     width: 100%;
-}
 }
 
 .leaderboard-page .pagination-header.bottom {
