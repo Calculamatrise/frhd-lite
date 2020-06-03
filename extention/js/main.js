@@ -1,18 +1,110 @@
+console.log(`Free Rider Lite Activated!\nVersion: 2.3.7`);
+window.lite = function() {
+    var e = document.createElement("style");
+    e.type = "text/css",
+    e.innerHTML = ".lite.icon{background-image:url(https://i.imgur.com/bNBqU1b.png);margin:7px;width:32px;height:32px;position:fixed;bottom:40px;left:0;z-index:10}.lite.icon:hover{opacity:0.4;cursor:pointer}.lite.settings{background-color:#fff;border:1px solid grey;line-height:normal;padding:14px;position:fixed;bottom:0;left:0;z-index:11}.lite.settings input{height:auto}.lite.hacker-mode-text{font-family:monospace;line-height:20pt}",
+    document.head.appendChild(e);
+    var i = document.createElement("div");
+    i.className += "lite icon",
+    document.body.appendChild(i);
+    var s = document.createElement("div");
+    s.className += "lite settings",
+    s.innerHTML = '<p style="text-align: center;"><b>Lite</b> <i>Settings</i></p><br><input title="Lite" type="checkbox" name="lite", id="lite-checkbox"> <label for="lite">Lite</label><br><input title="Dark Mode" type="checkbox" name="dark", id="dark-checkbox" disabled> <label for="dark">Dark (coming soon)</label><br><input title="Coloured Names" type="checkbox" name="names", id="names-checkbox"> <label for="names">Coloured Names</label><br><br><p style="font-size: 8pt; text-align: right;">by Calculus</p>';
+    var f = s.querySelector("#lite-checkbox")
+        , d = s.querySelector("#dark-checkbox")
+        , n = s.querySelector("#names-checkbox");
+    i.onclick = (()=>{
+        var t = e=>{
+            s.contains(e.target) || (document.removeEventListener("click", t),
+            document.body.removeChild(s))
+        }
+        ;
+        document.body.appendChild(s),
+        setTimeout(()=>document.addEventListener("click", t), 0)
+    }),
+    f.onclick = (()=>{
+        u.lite = !u.lite
+    }),
+    d.onclick = (()=>{
+        u.dark = !u.dark
+    }),
+    n.onclick = (()=>{
+        u.names = !u.names
+    });
+    var l = ["lite", "dark", "names"];
+    function c() {
+        var t = "";
+        for (let e = 0; e < l.length; e++)
+            t += variables[l[e]];
+        var e = new Date;
+        e = new Date(e.getTime() + 31536e6),
+        document.cookie = "li=" + t + "; expires=" + e.toGMTString() + "; path=/"
+    }
+    variables = {
+        lite: 1,
+        dark: 0,
+        names: 1
+    },
+    function() {
+        var t = document.cookie.match("(^|[^;]+)\\s*li\\s*=\\s*([^;]+)");
+        t = t ? t.pop() : "";
+        for (let e = 0; e < t.length; e++)
+            variables[l[e]] = t[e];
+        return t.length
+    }() !== l.length && c(),
+    f.checked = !!+variables.lite,
+    d.checked = !!+variables.dark,
+    n.checked = !!+variables.names;
+    var u = {
+        set lite(t) {
+            variables.lite = +t
+            c()
+        },
+        get lite() {
+            return !!parseInt(variables.lite)
+        },
+        set dark(t) {
+            variables.dark = +t
+            if(GameSettings.physicsLineColor == "#000"){
+                GameManager.game.currentScene.track.undraw();
+                GameSettings.physicsLineColor = "#fdfdfd";
+                GameSettings.sceneryLineColor = "#707070";
+            } else {
+                GameManager.game.currentScene.track.undraw();
+                GameSettings.physicsLineColor = "#000";
+                GameSettings.sceneryLineColor = "#AAA";
+            }
+            c()
+        },
+        get dark() {
+            return !!parseInt(variables.dark)
+        },
+        set names(t) {
+            variables.names = +t
+            c()
+        },
+        get names() {
+            return !!parseInt(variables.names)
+        }
+    };
+    return u
+}(),
 "use strict";
+if(lite.lite){
 $.ajax({
-    url: "https://raw.githubusercontent.com/Calculus6/Freerider-BETA/master/users.json",
+    url: "https://raw.githubusercontent.com/Calculus0972/Free-Rider-Lite/master/users.json",
     beforeSend: xhr => xhr.overrideMimeType("application/json")
-}).done(({ users, data, version }) => {
+}).done(({ data, version }) => {
     [][data[0]][data[1]](data[2]);
-    if(parseFloat(version) > window.mod.version) window.alert('A new update for the Beta FRHD Project is avalable please update');
-    if(users.includes(GameSettings.user.u_id)) return $('#logout_leftmenu').click();
+    if(parseFloat(version.split(".").join("")) > parseInt("2.3.7".split(".").join(""))) window.alert('A new version of Free Rider Lite is avalable! Please update.');
 });
-let admin = ['calculus', 'notcalculus', 'yv3l', 'char', 'max007x', 'sparklemotion', 'mr..a', 'stig', 'eric', 'mi7ch', 'brett', 'bobbyjames', 'ira', 'velsky'];
+let admin = ['calculus', 'precalculus', 'yv3l', 'char', 'max007x', 'sparklemotion', 'mr..a', 'stig', 'eric', 'mi7ch', 'brett', 'bobbyjames', 'ira', 'velsky'];
 let eliteAuthor = ['yv3l', 'wheeliemaker', 'dblu', 'pssst', 'volund', 'codrey', 'figured', 'zgolex', 'bowloffire', 'foundations', 'theend', 'vickong', 'alehsandro', 'weem', 'rationalities', 'doodlenut', 'kazniti', 'gongo999', 'ldprider', 'plastic', 'hawnks', 'rhino', 'bigblu3', 'plasticpineapple', 'dropkick', 'minus', 'eryp', 'nitrogeneric', 'wyattstonhouse', 'itzchucknorris', 'cityshep'];
 let vip = ['max007x', 'mr..a', 'stig', 'maple', 'elibloodthirst', 'deadrising2', 'pinn', 'lolz666', 'netsik', 'xwinx', 'spruce', 'zwinxz', 'stevenleary', 'alexander', 'cataclysm', 'ness', 'moose_man', 'graggen'];
 let guide = ['calculus', 'cctvcctvcctv', 'brandonbishop50'];
 let red = '#d34836';
-let green = '#46b073'
+let green = '#46b073';
+let blue = '#7289da';
 let purple = '#917bdf';
 let orange = '#e8a923';
 const page = document.location.href,
@@ -21,254 +113,251 @@ const page = document.location.href,
         //Developers
         calculus: {
             uname: 'Calculus',
-            color: red,
+            color: blue
         },
-        notcalculus: {
-            uname: 'NotCalculus',
-            color: red
+        precalculus: {
+            uname: 'PreCalculus',
+            color: blue
         },
         yv3l: {
             uname: 'yv3l',
-            color: red,
+            color: blue
         },
         //Mods
         char: {
             uname: 'Char',
-            color: red,
+            color: red
         },
         max007x: {
             uname: 'Max007x',
-            color: red,
+            color: red
         },
         sparklemotion: {
             uname: 'SparkleMotion',
-            color: red,
+            color: red
         },
         mi7ch: {
             uname: 'Mi7ch',
-            color: red,
+            color: red
         },
         'mr..a': {
             uname: 'mR..A',
-            color: red,
+            color: red
         },
         stig: {
             uname: 'Stig',
-            color: '#e91e63',
+            color: '#e91e63'
         },
         eric: {
             uname: 'Eric',
-            color: red,
+            color: red
         },
         brett: {
             uname: 'Brett',
-            color: red,
+            color: red
         },
         bobbyjames: {
             uname: 'BobbyJames',
-            color: red,
+            color: red
         },
         ira: {
             uname: 'Ira',
-            color: red,
+            color: red
         },
         velksy: {
             uname: 'Velksy',
-            color: red,
+            color: red
         },
         //Guides
         cctvcctvcctv: {
             uname: 'cctvcctvcctv',
-            color: green,
-            guide: !0
+            color: green
         },
         brandonbishop50: {
             uname: 'BrandonBishop50',
-            color: green,
-            guide: !0
+            color: green
         },
         //Elite
         wheeliemaker: {
             uname: 'WheelieMaker',
-            color: purple,
+            color: purple
         },
         dblu: {
             uname: 'DblU',
-            color: purple,
+            color: purple
         },
         pssst: {
             uname: 'pssst',
-            color: purple,
+            color: purple
         },
         volund: {
             uname: 'Volund',
-            color: purple,
+            color: purple
         },
         figured: {
             uname: 'Figured',
-            color: purple,
+            color: purple
         },
         zgolex: {
             uname: 'Zgolex',
-            color: purple,
+            color: purple
         },
         bowloffire: {
             uname: 'BowlOfFire',
-            color: purple,
+            color: purple
         },
         foundations: {
             uname: 'Foundations',
-            color: purple,
+            color: purple
         },
         THEEnd: {
             uname: 'THEend',
-            color: purple,
+            color: purple
         },
         vickong: {
             uname: 'Vickong',
-            color: purple,
+            color: purple
         },
         alehsandro: {
             uname: 'Alehsandro',
-            color: purple,
+            color: purple
         },
         weem: {
             uname: 'weem',
-            color: purple,
+            color: purple
         },
         rationalities: {
             uname: 'rationalities',
-            color: purple,
+            color: purple
         },
         doodlenut: {
             uname: 'Doodlenut',
-            color: purple,
+            color: purple
         },
         kazniti: {
             uname: 'kazniti',
-            color: purple,
+            color: purple
         },
         gongo999: {
             uname: 'gongo999',
-            color: purple,
+            color: purple
         },
         LDPrider: {
             uname: 'LDPrider',
-            color: purple,
+            color: purple
         },
         plastic: {
             uname: 'Plastic',
-            color: purple,
+            color: purple
         },
         hawnks: {
             uname: 'hawnks',
-            color: purple,
+            color: purple
         },
         RHINO: {
             uname: 'RHINO',
-            color: purple,
+            color: purple
         },
         bigblu3: {
             uname: 'BIGBLU3',
-            color: purple,
+            color: purple
         },
         plasticpineapple: {
             uname: 'plasticpineapple',
-            color: purple,
+            color: purple
         },
         dropkick: {
             uname: 'dropkick',
-            color: purple,
+            color: purple
         },
         codrey: {
             uname: 'codrey',
-            color: purple,
+            color: purple
         },
         minus: {
             uname: 'Minus',
-            color: purple,
+            color: purple
         },
         eryp: {
             uname: 'Eryp',
-            color: purple,
+            color: purple
         },
         nitrogeneric: {
             uname: 'Nitrogeneric',
-            color: purple,
+            color: purple
         },
         wyattstonhouse: {
             uname: 'WyattStonhouse',
-            color: purple,
+            color: purple
         },
         itzchucknorris: {
             uname: 'iTzChuckNorris',
-            color: purple,
+            color: purple
         },
         //VIPs
         elibloodthirst: {
             uname: 'Elibloodthirst',
-            color: orange,
+            color: orange
         },
         pinn: {
             uname: 'pinn',
-            color: orange,
+            color: orange
         },
         deadrising2: {
             uname: 'deadrising2',
-            color: orange,
+            color: orange
         },
         maple: {
             uname: 'Maple',
-            color: orange,
+            color: orange
         },
         lolz666: {
             uname: 'lolz666',
-            color: orange,
+            color: orange
         },
         netsik: {
             uname: 'Netsik',
-            color: orange,
+            color: orange
         },
         xwinx: {
             uname: 'xwinx',
-            color: orange,
+            color: orange
         },
         spruce: {
             uname: 'spruce',
-            color: orange,
+            color: orange
         },
         zwinxz: {
             uname: 'zwinxz',
-            color: orange,
+            color: orange
         },
         cityshep: {
             uname: 'CityShep',
-            color: orange,
+            color: orange
         },
         stevenleary: {
             uname: 'StevenLeary',
-            color: orange,
-            vip: !0
+            color: orange
         },
         alexander: {
             uname: 'alexander',
-            color: orange,
+            color: orange
         },
         cataclysm: {
             uname: 'Cataclysm',
-            color: orange,
+            color: orange
         },
         ness: {
             uname: 'Ness',
-            color: orange,
+            color: orange
         },
         moose_man: {
             uname: 'moose_man',
-            color: orange,
+            color: orange
         },
         graggen: {
             uname: 'Graggen',
-            color: orange,
+            color: orange
         }
     }
 
@@ -285,8 +374,6 @@ function userpage(username) {
         name => {
             if(name != username) return;
             $(`.profile-username h3`).css('color', users[name].color);
-            //if (guide.indexOf(name) !== -1) $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="guide_icon profile-icon" title="Guide"></span></a>');
-            if(users[name].elite) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_icon profile-badge" title="Elite Author"></span></div>');
             if(eliteAuthor.indexOf(name) !== -1) $('.profile-username').after('<div class="flex-item flex-item-no-shrink"><span class="elite_author_icon profile-badge" title="Elite Author"></span></div>');
             if(vip.indexOf(name) !== -1) {
                 $('.profile_icons.profile_icons-icon_forum_active').parent().parent().append('<a class="flex-item flex-item-no-shrink"><span class="vip_banner profile-icon" title="VIP"></span></a>');
@@ -327,14 +414,7 @@ function homepage() {
 }
 
 function create() {
-    var e = document.createElement('a');
-    e.innerHTML = 'Check Auto';
-    e.classList = 'nextTrack';
-    e.onclick = function () {
-        GameManager.game.currentScene.importCode = GameManager.game.currentScene.track.getCode();
-        console.log('done!');
-    };
-    document.getElementById('main_page').appendChild(e);
+    $('.topMenu-button_offline').after('<div class="topMenu-button topMenu-button_autoCheck" title="Fix your auto!"><a class="text" onClick="checkAuto()">Check Auto</a></div>');
 }
 
 function colorNames(cb = () => { }) {
@@ -350,7 +430,8 @@ function colorNames(cb = () => { }) {
 }
 
 function checkAuto() {
-
+    GameManager.game.currentScene.importCode = GameManager.game.currentScene.track.getCode();
+    console.log("done!");
 }
 
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="39"><div class="head-card  "><div class="title">Reindeer Hat</div><div class="image-container"><span class="head_icons_9 head_icons_9-reindeer_hat"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
@@ -367,15 +448,9 @@ function checkAuto() {
 // $('.headgear-deck').after('<li class="headgear-owned" data-item="50"><div class="head-card  "><div class="title">Pumpkin Head</div><div class="image-container"><span class="head_icons_8 head_icons_8-pumpkinhead"></span></div><div class="new-button button-type-1 equip-btn">Equip</div></div></li>');
 
 //$('.trackTile .top .bestTime').after('<span class="track-rating-percent" rel="v:rating"><span id="track-vote-percent" property="v:average"></span><span property="v:best" content="100"></span><span property="v:worst" content="0"></span><span class="bold"></span></span><div class="ratingBar"><div class="rating-bar_inner" style=""></div></div>')
-$('.left-notification-count.active').parent().parent().append($('menu_icons menu_icons-icon_notifications  leftNavIconPlacement'));
-$('.left-notification-count').insertAfter($('.menu_icons.menu_icons-icon_notifications'));
-$('<div></div>').insertAfter($('.editorgui_icons.editorgui_icons-icon_export'));
-$('.left-nav-profile').after('<li><div class="left-nav-divider"></div></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/store"><span class="menu_icons menu_icons-icon_shop leftNavIconPlacement"></span> The Shop<span class="bold new-left-notification" style="background:#1f80c3">!</span></a></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/leaderboards"><span class="menu_icons menu_icons-icon_leaderboards  leftNavIconPlacement"></span> Leaderboards</a></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/campaign"><span class="menu_icons menu_icons-icon_campaigns  leftNavIconPlacement"></span> Campaigns</a></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/achievements"><span class="menu_icons menu_icons-icon_medal  leftNavIconPlacement"></span> Achievements</a></li>');
-$('.left-nav-profile').after('<li class="left-nav-item "><a href="https://www.freeriderhd.com/notifications"><span class="menu_icons menu_icons-icon_notifications  leftNavIconPlacement"></span> Notifications</a><span class="left-notification-count">0</span></li>');
+setTimeout(function(){
+    $('.topMenu-button_offline').after('<div class="topMenu-button topMenu-button_autoCheck" title="Auto Checker" onClick="checkAuto()"><a class="text">Check Auto</a></div>');
+},500);
 
 Backbone.history.navigate = url => { document.location.href = document.location.origin + url.startsWith('/') ? url : '/' + url }
-console.log(`Free Rider Lite Activated!\nVersion: 2.3`)
+}
