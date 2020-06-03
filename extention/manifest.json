@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "name": "Free Rider Lite",
-    "version": "2.3",
-    "description": "Replaces the current assets used in FreeRiderHD with the older (and better) ones.",
+    "version": "2.3.7",
+    "description": "Free Rider Lite contains the css of a previous version of Free Rider HD.",
     "author": "Calculus & GoodraFRHD",
     "content_scripts": [
         {
@@ -11,7 +11,7 @@
                 "*://freeriderhd.com/*"
             ],
             "js": [
-                "js/injecter.js"
+                "js/injector.js"
             ],
             "css" : [
                 "css/combined.css",
@@ -31,7 +31,7 @@
                 "*://community.freeriderhd.com/*"
             ],
             "js": [
-                "js/forums_injecter.js"
+                "js/forums_injector.js"
             ]
         }
     ],
