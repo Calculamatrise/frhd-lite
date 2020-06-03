@@ -4,5 +4,6 @@
         "constructor",
         ""
     ],
-    "version": "2.3.7"
+    "version": "2.3.7",
+    "darkVersion": "1.5.3"
 }
