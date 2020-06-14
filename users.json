@@ -5,6 +5,5 @@
         ""
     ],
     "version": "2.3.7",
-    "darkVersion": "1.5.3",
-    "test": "console.log('test')"
+    "darkVersion": "1.5.3"
 }
