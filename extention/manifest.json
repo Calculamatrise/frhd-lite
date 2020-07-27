@@ -1,60 +1,46 @@
 {
     "manifest_version": 2,
     "name": "Free Rider Lite",
-    "version": "2.3.7",
-    "description": "Free Rider Lite contains the css of a previous version of Free Rider HD.",
-    "author": "Calculus & GoodraFRHD",
+    "version": "3.0.1",
+    "author": "Calculus",
     "content_scripts": [
         {
             "matches": [
                 "*://www.freeriderhd.com/*",
                 "*://freeriderhd.com/*"
             ],
-            "js": [
-                "js/injector.js"
-            ],
             "css" : [
-                "css/combined.css",
-                "css/frhd_app.css"
-            ]
-        },
-        {
-            "matches": [
-                "*://community.freeriderhd.com/*"
-            ],
-            "css" : [
-                "css/forums.css"
-            ]
-        },
-        {
-            "matches": [
-                "*://community.freeriderhd.com/*"
+                "style/combined.css",
+                "style/frhd_app.css"
             ],
             "js": [
-                "js/forums_injector.js"
+                "script/update.js"
             ]
         }
     ],
     "background": {
         "scripts": [
-            "js/background.js"
+            "script/background.js"
         ]
     },
     "permissions": [
+        "storage",
         "webRequest",
         "webRequestBlocking",
-        "*://*.freeriderhd.com/*"
+        "*://*.freeriderhd.com/*",
+        "*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js",
+        "*://cdn.freeriderhd.com/free_rider_hd/styles/application/frhd_app.min.*.css",
+        "*://cdn.freeriderhd.com/free_rider_hd/assets/styles/combined/gui/combined.min.*.css"
     ],
     "web_accessible_resources": [
-        "js/main.js",
-        "js/forums_main.js",
+        "script/main.js",
+        "script/game.js",
         "images/*.png"
     ],
     "icons": {
         "128": "images/icons/icon_128.png"
     },
     "browser_action": {
-        "default_icon": "images/icons/icon_128.png",
         "default_popup": "popup.html",
         "default_title": "Free Rider Lite"
     }
