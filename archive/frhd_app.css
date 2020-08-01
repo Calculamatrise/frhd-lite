@@ -1,0 +1,2427 @@
+/*! normalize.css v2.0.1 | MIT License | git.io/normalize */
+article,aside,details,figcaption,figure,footer,header,hgroup,nav,section,canvas,summary {
+    display: block
+}
+
+audio,video {
+    display: inline-block
+}
+
+audio:not([controls]) {
+    display: none;
+    height: 0
+}
+
+[hidden] {
+    display: none
+}
+
+html {
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
+}
+
+p {
+    margin: 0
+}
+
+body {
+    margin: 0
+}
+
+a:focus {
+    outline: thin dotted
+}
+
+a:active,a:hover {
+    outline: 0
+}
+
+h1,h2,h3,h4,h5 {
+    font-size: 2em;
+    font-weight: normal
+}
+
+abbr[title] {
+    border-bottom: 1px dotted
+}
+
+dfn {
+    font-style: italic
+}
+
+mark {
+    background: #ff0;
+    color: #000
+}
+
+code,kbd,pre,samp {
+    font-family: monospace,serif;
+    font-size: 1em
+}
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word
+}
+
+q {
+    quotes: "\201C" "\201D" "\2018" "\2019"
+}
+
+small {
+    font-size: 80%
+}
+
+sub,sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline
+}
+
+sup {
+    top: -0.5em
+}
+
+sub {
+    bottom: -0.25em
+}
+
+img {
+    border: 0
+}
+
+svg:not(:root) {
+    overflow: hidden
+}
+
+figure {
+    margin: 0
+}
+
+fieldset {
+    border: 1px solid silver;
+    margin: 0 2px;
+    padding: .35em .625em .75em
+}
+
+legend {
+    border: 0;
+    padding: 0
+}
+
+button,input,select,textarea {
+    font-family: inherit;
+    font-size: 100%;
+    margin: 0
+}
+
+button,input {
+    line-height: normal
+}
+
+button,html input[type="button"],input[type="reset"],input[type="submit"] {
+    -webkit-appearance: button;
+    cursor: pointer
+}
+
+button[disabled],input[disabled] {
+    cursor: default
+}
+
+input[type="checkbox"],input[type="radio"] {
+    box-sizing: border-box;
+    padding: 0
+}
+
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none
+}
+
+button::-moz-focus-inner,input::-moz-focus-inner {
+    border: 0;
+    padding: 0
+}
+
+textarea {
+    overflow: auto;
+    vertical-align: top
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+*,*:before,*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+.ir {
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block
+}
+
+.ir:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 150%
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden
+}
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px
+}
+
+.visuallyhidden.focusable:active,.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto
+}
+
+.invisible {
+    visibility: hidden
+}
+
+.clearfix:before,.clearfix:after {
+    content: " ";
+    display: table
+}
+
+.clearfix:after {
+    clear: both
+}
+
+.break {
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto
+}
+
+.disabled {
+    opacity: .5;
+    cursor: default
+}
+
+html {
+    overflow-y: scroll;
+    -webkit-text-size-adjust: none;
+    font-family: 'roboto_regular',Arial,Helvetica,sans-serif;
+    background: #FFF
+}
+
+body {
+    font-size: 100%;
+    width: 100%;
+    height: 100%;
+    color: #2d2d2d
+}
+
+.logo {
+    background: url(//cdn.kanoapps.com/free_rider_hd/sprites/frhd_logo_v4.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: 0 5px;
+    width: 203px;
+    height: 35px;
+    display: inline-block
+}
+
+html,body {
+    -webkit-text-size-adjust: 100%
+}
+
+.condensed {
+    font-family: 'roboto_condensed_bold',Arial,Helvetica,sans-serif
+}
+
+.bold {
+    font-family: 'roboto_medium',Arial,Helvetica,sans-serif
+}
+
+.condensed-no-svg {
+    font-family: 'roboto_condensed_bold',Arial,Helvetica,sans-serif
+}
+
+.cartoon {
+    font-family: 'helsinki',Arial,Helvetica,sans-serif
+}
+
+.link,a {
+    text-decoration: none;
+    color: #1f80c3;
+    position: relative;
+    cursor: pointer
+}
+
+.link:hover,a:hover {
+    color: #1f80c3
+}
+
+.link:visited,a:visited {
+    color: #1f80c3
+}
+
+#main_page {
+    top: 48px;
+    left: 0;
+    width: 100%;
+    position: relative;
+    border: 0;
+    overflow: visible;
+    overflow-x: hidden
+}
+
+.rating {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAABQCAYAAABveuf8AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAK6wAACusBgosNWgAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAAWdEVYdENyZWF0aW9uIFRpbWUAMDcvMjMvMTMzHUWbAAADxUlEQVRoge2a7ZHbRgyGn834v6+DYwemKzikgjAVhNeBXEGUDi4VRO7A7gDpQNfBuQOpgvUPrmSJxyWxR1BSxnlnOOLHEvsSWGCBXYUYI/8F/HJtAla4Ew0hVCGEjbdcYoyuB7ABInDnKddVoyGEO6BJl62nbG/Tt8D7dL5ylexs9hc6sx+O5uZMH0JogPvebTetepq+Hbj3EEKoXKQ7mbzi3OSnx+aWTD9m4iZFg1mYTTSRaEeavJ94boKHRht+hKQc5jvVAiEpd8icfkLqLIvktVW6HDp/MOrkW/ooPbl3PI8xKiM4Eg0hrAE5IdGPiZfEv+l3F2PspuRMQnELxw6oj9wGxtz6Bkhu6WVfOQdpr0jyS59klmgiWyf1X5JkdhazTI3bC5FsR7kY4uQdXRhZiuAOQzpYEtg3C5GsTf0XzkIrR5KvPNuNaCL75ES0qPh7S1JSv+GdIVQlja9JVEoaFxENIdRMp3RWFH1wqUalsL2brGsSvS8p/JYgugeeHeUBBUTT10+Nz89AFWOsgUc60mOwj9OC+NkyHrwlM/2Oxd2te8BneArdASvDuzX5fMEU+EuIvvQ62Fg76Vmlnzqa1qesHVRTZi4g2x8OT55EG6uZCwgfhoNa2r8z+tyOzpt3xvaTiDFuAQkhtJb2k3X9reDn3RVZCj8vUVUVb5mwjEbXqtpMNyuDNTyZoKo1P1b3vnjK9tboYcH2QVUrT8FuRFX1Dvjj5NbaSzYsu33TJPIu8CTaX6d32WQ4wIVo8vL7gUc3t3OXI3TvFapmE03e/TDSpJ3bB/hodD3x/DePUDWLaPJqi2lnj9W5Gm2xLfG0c0PVWeKchB1q7bHzDzP63NPVXdBVDoPnIrI9felIVFW3MwksgUcR2cC56YVupeMWsAd+P5CEgZpJVdfAnxeldY49IFnTn0JVW+Cfy/A6wzMdyVfV7qDXJ5V/ZHqRyxNfyZCEiXI5JcIblneyv0VkNNZO1vUpZCnLkX08dZoczAsQqrrhPDGeiz3QiIhaGptnJhFpgb/exukVvnUibSThDUs6quqxBjQ5Jvsomusda/ZiOdfaFflQmqRcc/tm0Q2xsUy+FFLS2Ew0BX9PSEnjEo1aBO+BT3TT4RSKrONJ9DNQiciTiDTAr3TxMouSKFKySJYT+gys+sE7XVcpbVwxXLII53+By8Kk0VRF9jvaA59EpB6bYURkTefhQ8PBPO6tppfe9dHMppdFXjLDoS83C9MUepKQDJq5FL3h8LGfzQ/BqtEag5mt6A0Hsbzz/z6TN74DQXT98G4fiJoAAAAASUVORK5CYII=);
+    background-size: 18px
+}
+
+.rating-outer {
+    height: 17px;
+    background-position: 0 -18px;
+    width: 90px;
+    overflow: hidden;
+    margin-right: 5px
+}
+
+.rating-inner {
+    height: 17px;
+    background-position: 0 0;
+    width: 0
+}
+
+.footer {
+    text-align: center;
+    background: rgba(0,0,0,0.8)
+}
+
+.button,.button:visited {
+    padding: 10px 30px;
+    color: #FFF;
+    border-radius: 30px;
+    background: #404040;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid #000
+}
+
+.button.blue {
+    background: #1f80c3;
+    border: 2px solid #000;
+    text-shadow: 1px 1px 0 #000
+}
+
+.button.red {
+    background: #fa3333;
+    text-shadow: none
+}
+
+.button.red:hover {
+    background: #fa6060
+}
+
+.button.blue:hover {
+    background: #4e92cd
+}
+
+.button.green {
+    background: #5db019 !important;
+    text-shadow: 1px 1px 0 #000
+}
+
+.button.green:hover {
+    background: #76c624 !important
+}
+
+.button.facebook {
+    padding-right: 20px;
+    padding-left: 47px;
+    background: #3b5998
+}
+
+.button.facebook:hover {
+    background: #486cb8
+}
+
+.button.facebook>.icon-facebook {
+    position: absolute;
+    left: 21px;
+    top: 10px;
+    font-size: 1.3em
+}
+
+.button.chrome {
+    padding-left: 45px;
+    background: #1e8be5
+}
+
+.button.chrome:hover {
+    background: #319ef9
+}
+
+.button.chrome>.gamify_icon {
+    position: absolute;
+    left: 17px;
+    top: 5px
+}
+
+.button:hover,.button:active {
+    background: #1f80c3;
+    color: #FFF
+}
+
+.spinner-loader-small {
+    background: url(//cdn.kanoapps.com/free_rider_hd/sprites/spinner-loader-small.gif);
+    background-repeat: no-repeat;
+    height: 14px;
+    width: 14px;
+    display: inline-block
+}
+
+.spinner-loader-med {
+    background: url(//cdn.kanoapps.com/free_rider_hd/sprites/spinner-loader-med.gif);
+    background-repeat: no-repeat;
+    height: 30px;
+    width: 30px;
+    display: inline-block
+}
+
+.gamify_icon {
+    display: inline-block;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-image: url(//cdn.kanoapps.com/free_rider_hd/sprites/gamify_icon_v12.png);
+    background-size: 855px
+}
+
+.gamify_icon-shop_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -1px -1px
+}
+
+.gamify_icon-shop_badge:hover {
+    width: 60px;
+    height: 60px;
+    background-position: -62px -1px
+}
+
+.gamify_icon-leaderboard_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -123px -1px
+}
+
+.gamify_icon-leaderboard_badge:hover {
+    width: 60px;
+    height: 60px;
+    background-position: -184px -1px
+}
+
+.gamify_icon-creator_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -245px -1px
+}
+
+.gamify_icon-creator_badge:hover {
+    width: 60px;
+    height: 60px;
+    background-position: -306px -1px
+}
+
+.gamify_icon-chrome_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -367px -1px
+}
+
+.gamify_icon-campaign_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -428px -1px
+}
+
+.gamify_icon-campaign_badge:hover {
+    width: 60px;
+    height: 60px;
+    background-position: -489px -1px
+}
+
+.gamify_icon-achievements_badge {
+    width: 60px;
+    height: 60px;
+    background-position: -550px -1px
+}
+
+.gamify_icon-achievements_badge:hover {
+    width: 60px;
+    height: 60px;
+    background-position: -611px -1px
+}
+
+.gamify_icon-facebook_badge {
+    width: 58px;
+    height: 58px;
+    background-position: -672px -1px
+}
+
+.gamify_icon-cws_icon {
+    width: 29px;
+    height: 30px;
+    background-position: -731px -1px
+}
+
+.gamify_icon-slowmo {
+    width: 23px;
+    height: 23px;
+    background-position: -731px -32px
+}
+
+.gamify_icon-gravity {
+    width: 19px;
+    height: 23px;
+    background-position: -755px -32px
+}
+
+.gamify_icon-bomb {
+    width: 19px;
+    height: 23px;
+    background-position: -761px -1px
+}
+
+.gamify_icon-checkpoint {
+    width: 16px;
+    height: 23px;
+    background-position: -775px -25px
+}
+
+.gamify_icon-star {
+    width: 23px;
+    height: 22px;
+    background-position: -781px -1px
+}
+
+.gamify_icon-points {
+    width: 20px;
+    height: 20px;
+    background-position: -792px -24px
+}
+
+.gamify_icon-boost {
+    width: 23px;
+    height: 16px;
+    background-position: -792px -45px
+}
+
+.gamify_icon-plus {
+    width: 20px;
+    height: 20px;
+    background-position: -805px -1px
+}
+
+.gamify_icon-help {
+    width: 20px;
+    height: 20px;
+    background-position: -813px -22px
+}
+
+.gamify_icon-help:hover {
+    width: 20px;
+    height: 20px;
+    background-position: -826px -1px
+}
+
+.gamify_icon-coins {
+    width: 20px;
+    height: 20px;
+    background-position: -834px -22px
+}
+
+.sprite-share,.sprite-share_small {
+    background-image: url(//cdn.kanoapps.com/free_rider_hd/sprites/share_icons/share_icons.png);
+    background-repeat: no-repeat;
+    display: block;
+    background-size: 180px
+}
+
+.sprite-share_facebook {
+    width: 56px;
+    height: 56px;
+    background-position: -2px -2px
+}
+
+.sprite-share_gmail {
+    width: 56px;
+    height: 56px;
+    background-position: -62px -2px
+}
+
+.sprite-share_google {
+    width: 56px;
+    height: 56px;
+    background-position: -2px -62px
+}
+
+.sprite-share_mail {
+    width: 56px;
+    height: 56px;
+    background-position: -62px -62px
+}
+
+.sprite-share_reddit {
+    width: 56px;
+    height: 56px;
+    background-position: -122px -2px
+}
+
+.sprite-share_stumbleupon {
+    width: 56px;
+    height: 56px;
+    background-position: -122px -62px
+}
+
+.sprite-share_twitter {
+    width: 56px;
+    height: 56px;
+    background-position: -2px -122px
+}
+
+.sprite-share_small {
+    width: 40px;
+    height: 40px;
+    background-size: 130px
+}
+
+.sprite-share_small_facebook {
+    background-position: -2px -2px
+}
+
+.sprite-share_small_gmail {
+    background-position: -45px -2px
+}
+
+.sprite-share_small_google {
+    background-position: -2px -45px
+}
+
+.sprite-share_small_mail {
+    background-position: -46px -45px
+}
+
+.sprite-share_small_reddit {
+    background-position: -89px -2px
+}
+
+.sprite-share_small_stumbleupon {
+    background-position: -89px -45px
+}
+
+.sprite-share_small_twitter {
+    background-position: -2px -88px
+}
+
+.animated {
+    -webkit-animation-fill-mode: both;
+    -moz-animation-fill-mode: both;
+    -ms-animation-fill-mode: both;
+    -o-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    -ms-animation-duration: 2s;
+    -o-animation-duration: 2s;
+    animation-duration: 2s
+}
+
+.animated.hinge {
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    -ms-animation-duration: 2s;
+    -o-animation-duration: 2s;
+    animation-duration: 2s
+}
+
+@-webkit-keyframes flash {
+    0%,50%,100% {
+        opacity: 1
+    }
+
+    25%,75% {
+        opacity: 0
+    }
+}
+
+.animated.infinite {
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite
+}
+
+.animated.five {
+    -webkit-animation-iteration-count: 5;
+    animation-iteration-count: 5
+}
+
+@-moz-keyframes flash {
+    0%,50%,100% {
+        opacity: 1
+    }
+
+    25%,75% {
+        opacity: 0
+    }
+}
+
+@-o-keyframes flash {
+    0%,50%,100% {
+        opacity: 1
+    }
+
+    25%,75% {
+        opacity: 0
+    }
+}
+
+@keyframes flash {
+    0%,50%,100% {
+        opacity: 1
+    }
+
+    25%,75% {
+        opacity: 0
+    }
+}
+
+.flash {
+    -webkit-animation-name: flash;
+    -moz-animation-name: flash;
+    -o-animation-name: flash;
+    animation-name: flash
+}
+
+@-webkit-keyframes pulse {
+    0%,50%,100% {
+        -webkit-transform: scale(1)
+    }
+
+    25%,75% {
+        -webkit-transform: scale(1.01)
+    }
+}
+
+@-moz-keyframes pulse {
+    0% {
+        -moz-transform: scale(1)
+    }
+
+    50% {
+        -moz-transform: scale(1.01)
+    }
+
+    100% {
+        -moz-transform: scale(1)
+    }
+}
+
+@-o-keyframes pulse {
+    0% {
+        -o-transform: scale(1)
+    }
+
+    50% {
+        -o-transform: scale(1.01)
+    }
+
+    100% {
+        -o-transform: scale(1)
+    }
+}
+
+@keyframes pulse {
+    0%,50%,100% {
+        transform: scale(1)
+    }
+
+    25%,75% {
+        transform: scale(1.01)
+    }
+}
+
+.pulse {
+    -webkit-animation-name: pulse;
+    -moz-animation-name: pulse;
+    -o-animation-name: pulse;
+    animation-name: pulse
+}
+
+@-webkit-keyframes bounce {
+    0%,20%,53%,80%,100% {
+        -webkit-animation-timing-function: cubic-bezier(0.215,0.610,0.355,1.000);
+        animation-timing-function: cubic-bezier(0.215,0.610,0.355,1.000);
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0)
+    }
+
+    40%,43% {
+        -webkit-animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        -webkit-transform: translate3d(0,-15px,0);
+        transform: translate3d(0,-15px,0)
+    }
+
+    70% {
+        -webkit-animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        -webkit-transform: translate3d(0,-10px,0);
+        transform: translate3d(0,-10px,0)
+    }
+
+    90% {
+        -webkit-transform: translate3d(0,-4px,0);
+        transform: translate3d(0,-4px,0)
+    }
+}
+
+@keyframes bounce {
+    0%,20%,53%,80%,100% {
+        -webkit-animation-timing-function: cubic-bezier(0.215,0.610,0.355,1.000);
+        animation-timing-function: cubic-bezier(0.215,0.610,0.355,1.000);
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0)
+    }
+
+    40%,43% {
+        -webkit-animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        -webkit-transform: translate3d(0,-7px,0);
+        transform: translate3d(0,-7px,0)
+    }
+
+    70% {
+        -webkit-animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        animation-timing-function: cubic-bezier(0.755,0.050,0.855,0.060);
+        -webkit-transform: translate3d(0,-2px,0);
+        transform: translate3d(0,-2px,0)
+    }
+
+    90% {
+        -webkit-transform: translate3d(0,-1px,0);
+        transform: translate3d(0,-1px,0)
+    }
+}
+
+.bounce {
+    -webkit-animation-name: bounce;
+    animation-name: bounce;
+    -webkit-transform-origin: center bottom;
+    transform-origin: center bottom
+}
+
+#leaderboard-1-ad,#leaderboard-2-ad {
+    min-height: 10px
+}
+
+.ad {
+    text-align: center;
+    margin-top: 5px
+}
+
+.ad-wrapper {
+    display: inline-block;
+    border: 1px solid #000
+}
+
+.ads-plus-remove-ads {
+    text-align: center;
+    font-size: 11px;
+    background: #bfbfbf;
+    margin-top: 0;
+    border-top: 1px solid #000
+}
+
+.ads-plus-remove-ads>a>.store_icons {
+    vertical-align: middle
+}
+
+.ellipsis {
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis
+}
+
+.circular {
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    overflow: hidden
+}
+
+.circular>img {
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.float-left {
+    float: left
+}
+
+.float-right {
+    float: right
+}
+
+.inline-block {
+    display: inline-block
+}
+
+.table {
+    display: table;
+    width: 100%
+}
+
+.table-cell {
+    display: table-cell;
+    vertical-align: middle
+}
+
+*.unselectable {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+.pad-5 {
+    padding: 5px
+}
+
+.round-button {
+    padding: 11px 29px;
+    color: #FFF;
+    border-radius: 30px;
+    display: inline;
+    line-height: 72px;
+    font-size: 1.1em;
+    background: #2d2d2d;
+    cursor: pointer
+}
+
+.center {
+    text-align: center
+}
+
+.margin-10-0 {
+    margin: 10px 0
+}
+
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity .15s linear;
+    transition: opacity .15s linear
+}
+
+.fade.in {
+    opacity: 1
+}
+
+.arrow {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+    border-style: inset;
+    width: 0;
+    height: 0;
+    border-style: solid
+}
+
+.arrow.down {
+    border-width: 6px 6px 0 6px;
+    border-color: #000 transparent transparent transparent
+}
+
+.animate {
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000
+}
+
+.animate_transform {
+    <!---webkit-transform:translate3d(0,0,0);-->-webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    -webkit-transition: -webkit-transform .3s ease-out;
+    -moz-transition: -moz-transform .3s ease-out;
+    transition: transform .3s ease-out
+}
+
+.disable-hover,.disable-hover * {
+    pointer-events: none !important
+}
+
+.animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both
+}
+
+@-webkit-keyframes bounceInDown {
+    0% {
+        opacity: 0;
+        -webkit-transform: translateY(-2000px);
+        transform: translateY(-2000px)
+    }
+
+    60% {
+        opacity: 1;
+        -webkit-transform: translateY(30px);
+        transform: translateY(30px)
+    }
+
+    80% {
+        -webkit-transform: translateY(-10px);
+        transform: translateY(-10px)
+    }
+
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0)
+    }
+}
+
+@keyframes bounceInDown {
+    0% {
+        opacity: 0;
+        -webkit-transform: translateY(-2000px);
+        -ms-transform: translateY(-2000px);
+        transform: translateY(-2000px)
+    }
+
+    60% {
+        opacity: 1;
+        -webkit-transform: translateY(30px);
+        -ms-transform: translateY(30px);
+        transform: translateY(30px)
+    }
+
+    80% {
+        -webkit-transform: translateY(-10px);
+        -ms-transform: translateY(-10px);
+        transform: translateY(-10px)
+    }
+
+    100% {
+        -webkit-transform: translateY(0);
+        -ms-transform: translateY(0);
+        transform: translateY(0)
+    }
+}
+
+.bounceInDown {
+    -webkit-animation-name: bounceInDown;
+    animation-name: bounceInDown
+}
+
+@-webkit-keyframes bounceOutUp {
+    20% {
+        -webkit-transform: translate3d(0,-10px,0);
+        transform: translate3d(0,-10px,0)
+    }
+
+    40%,45% {
+        opacity: 1;
+        -webkit-transform: translate3d(0,20px,0);
+        transform: translate3d(0,20px,0)
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3d(0,-2000px,0);
+        transform: translate3d(0,-2000px,0)
+    }
+}
+
+@keyframes bounceOutUp {
+    20% {
+        -webkit-transform: translate3d(0,-10px,0);
+        -ms-transform: translate3d(0,-10px,0);
+        transform: translate3d(0,-10px,0)
+    }
+
+    40%,45% {
+        opacity: 1;
+        -webkit-transform: translate3d(0,20px,0);
+        -ms-transform: translate3d(0,20px,0);
+        transform: translate3d(0,20px,0)
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3d(0,-2000px,0);
+        -ms-transform: translate3d(0,-2000px,0);
+        transform: translate3d(0,-2000px,0)
+    }
+}
+
+.bounceOutUp {
+    -webkit-animation-name: bounceOutUp;
+    animation-name: bounceOutUp
+}
+
+@-webkit-keyframes pulse {
+    0% {
+        -webkit-transform: scale(1);
+        transform: scale(1)
+    }
+
+    50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1)
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1)
+    }
+}
+
+@keyframes pulse {
+    0% {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1)
+    }
+
+    50% {
+        -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+        transform: scale(1.1)
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1)
+    }
+}
+
+.pulse {
+    -webkit-animation-name: pulse;
+    animation-name: pulse
+}
+
+.mention {
+    width: 260px;
+    position: absolute;
+    z-index: 10000;
+    box-shadow: 1px 1px 8px #dfdfdf;
+    cursor: pointer
+}
+
+.mention-name {
+    line-height: 30px;
+    margin-left: 10px
+}
+
+.mention>ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #CCC
+}
+
+.mention>ul>li {
+    background: #FFF;
+    padding: 5px;
+    border: 1px solid #CCC;
+    border-bottom: 0
+}
+
+.mention>ul>li:hover {
+    background: #EEE
+}
+
+.mention>ul>li.selected {
+    border: 1px solid #000;
+    background: #EEE
+}
+
+.mention-item>.circular {
+    border: 1px solid #000;
+    width: 30px;
+    height: 30px;
+    float: left
+}
+
+@font-face {
+    font-family: 'icomoon';
+    src: url("//cdn.kanoapps.com/free_rider_hd/fonts/icons/v22/icomoon.svg#icomoon") format('svg'),url("//cdn.kanoapps.com/free_rider_hd/fonts/icons/v22/icomoon.woff") format('woff');
+    font-weight: normal;
+    font-style: normal
+}
+
+.ico_moon {
+    font-family: 'icomoon';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+
+.icon-info-with-circle:before {
+    content: "\e611"
+}
+
+.icon-featured-2:before {
+    content: "\e60e"
+}
+
+.icon-featured:before {
+    content: "\e60f"
+}
+
+.icon-chart-bar:before {
+    content: "\e610"
+}
+
+.icon-fire:before {
+    content: "\e000"
+}
+
+.icon-home:before {
+    content: "\e001"
+}
+
+.icon-clock:before {
+    content: "\e002"
+}
+
+.icon-heart:before {
+    content: "\e003"
+}
+
+.icon-stats:before {
+    content: "\e004"
+}
+
+.icon-calendar:before {
+    content: "\e005"
+}
+
+.icon-warning:before {
+    content: "\e006"
+}
+
+.icon-shuffle:before {
+    content: "\e007"
+}
+
+.icon-star:before {
+    content: "\e008"
+}
+
+.icon-trophy:before {
+    content: "\e009"
+}
+
+.icon-flag:before {
+    content: "\e00a"
+}
+
+.icon-tags:before {
+    content: "\e00b"
+}
+
+.icon-list:before {
+    content: "\e00c"
+}
+
+.icon-cog:before {
+    content: "\e00d"
+}
+
+.icon-arrow-up:before {
+    content: "\e00e"
+}
+
+.icon-checkmark:before {
+    content: "\e00f"
+}
+
+.icon-close:before {
+    content: "\e010"
+}
+
+.icon-alarm:before {
+    content: "\e012"
+}
+
+.icon-user:before {
+    content: "\e013"
+}
+
+.icon-facebook-2:before {
+    content: "\e014"
+}
+
+.icon-google:before {
+    content: "\e015"
+}
+
+.icon-google-plus:before {
+    content: "\e016"
+}
+
+.icon-loop:before {
+    content: "\e017"
+}
+
+.icon-twitter:before {
+    content: "\e018"
+}
+
+.icon-play-alt:before {
+    content: "\e019"
+}
+
+.icon-volume:before {
+    content: "\e01c"
+}
+
+.icon-volume-2:before {
+    content: "\e01d"
+}
+
+.icon-stopwatch:before {
+    content: "\e01f"
+}
+
+.icon-upload:before {
+    content: "\e021"
+}
+
+.icon-pencil:before {
+    content: "\e022"
+}
+
+.icon-downloaded:before {
+    content: "\e023"
+}
+
+.icon-arrow-left-2:before {
+    content: "\e024"
+}
+
+.icon-edit:before {
+    content: "\e025"
+}
+
+.icon-phone-landscape:before {
+    content: "\e026"
+}
+
+.icon-phone-portrait:before {
+    content: "\e027"
+}
+
+.icon-phone:before {
+    content: "\e028"
+}
+
+.icon-mail:before {
+    content: "\e02b"
+}
+
+.icon-screen:before {
+    content: "\e02c"
+}
+
+.icon-tablet:before {
+    content: "\e02d"
+}
+
+.icon-html5:before {
+    content: "\e600"
+}
+
+.icon-chrome:before {
+    content: "\e601"
+}
+
+.icon-reddit:before {
+    content: "\e602"
+}
+
+.icon-play:before {
+    content: "\e603"
+}
+
+.icon-pause:before {
+    content: "\e604"
+}
+
+.icon-indent-increase:before {
+    content: "\e605"
+}
+
+.icon-indent-decrease:before {
+    content: "\e606"
+}
+
+.icon-badge:before {
+    content: "\e607"
+}
+
+.icon-world:before {
+    content: "\e608"
+}
+
+.icon-cart:before {
+    content: "\e609"
+}
+
+.icon-first:before {
+    content: "\e60a"
+}
+
+.icon-last:before {
+    content: "\e60b"
+}
+
+.icon-facebook:before {
+    content: "\e60c"
+}
+
+.icon-share:before {
+    content: "\f045"
+}
+
+.icon-minus-sign:before {
+    content: "\f056"
+}
+
+.icon-group:before {
+    content: "\f0c0"
+}
+
+.icon-question:before {
+    content: "\f128"
+}
+
+.icon-youtube:before {
+    content: "\f167"
+}
+
+.icon-wheel:before {
+    content: "\f228"
+}
+
+.icon-trophy-2:before {
+    content: "\f2d7"
+}
+
+.icon-database:before {
+    content: "\f1c0"
+}
+
+.tipsy {
+    font-size: 1em;
+    position: absolute;
+    padding: 5px;
+    z-index: 100000
+}
+
+.tipsy-inner {
+    background-color: #000;
+    color: #FFF;
+    max-width: 200px;
+    padding: 5px 8px 4px 8px;
+    text-align: center
+}
+
+.tipsy-inner {
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px
+}
+
+.tipsy-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    line-height: 0;
+    border: 5px dashed #000
+}
+
+.tipsy-arrow-n {
+    border-bottom-color: #000
+}
+
+.tipsy-arrow-s {
+    border-top-color: #000
+}
+
+.tipsy-arrow-e {
+    border-left-color: #000
+}
+
+.tipsy-arrow-w {
+    border-right-color: #000
+}
+
+.tipsy-n .tipsy-arrow {
+    top: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-bottom-style: solid;
+    border-top: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-nw .tipsy-arrow {
+    top: 0;
+    left: 10px;
+    border-bottom-style: solid;
+    border-top: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-ne .tipsy-arrow {
+    top: 0;
+    right: 10px;
+    border-bottom-style: solid;
+    border-top: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-s .tipsy-arrow {
+    bottom: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-top-style: solid;
+    border-bottom: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-sw .tipsy-arrow {
+    bottom: 0;
+    left: 10px;
+    border-top-style: solid;
+    border-bottom: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-se .tipsy-arrow {
+    bottom: 0;
+    right: 10px;
+    border-top-style: solid;
+    border-bottom: 0;
+    border-left-color: transparent;
+    border-right-color: transparent
+}
+
+.tipsy-e .tipsy-arrow {
+    right: 0;
+    top: 50%;
+    margin-top: -5px;
+    border-left-style: solid;
+    border-right: 0;
+    border-top-color: transparent;
+    border-bottom-color: transparent
+}
+
+.tipsy-w .tipsy-arrow {
+    left: 0;
+    top: 50%;
+    margin-top: -5px;
+    border-right-style: solid;
+    border-left: 0;
+    border-top-color: transparent;
+    border-bottom-color: transparent
+}
+
+.slick-slider {
+    position: relative;
+    display: block;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -ms-touch-action: pan-y;
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent
+}
+
+.slick-list {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0
+}
+
+.slick-list:focus {
+    outline: 0
+}
+
+.slick-list.dragging {
+    cursor: pointer;
+    cursor: hand
+}
+
+.slick-slider .slick-track,.slick-slider .slick-list {
+    -webkit-transform: translate3d(0,0,0);
+    -moz-transform: translate3d(0,0,0);
+    -ms-transform: translate3d(0,0,0);
+    -o-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0)
+}
+
+.slick-track {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block
+}
+
+.slick-track:before,.slick-track:after {
+    display: table;
+    content: ''
+}
+
+.slick-track:after {
+    clear: both
+}
+
+.slick-loading .slick-track {
+    visibility: hidden
+}
+
+.slick-slide {
+    float: left;
+    min-height: 1px
+}
+
+[dir='rtl'] .slick-slide {
+    float: right
+}
+
+.slick-slide img {
+    display: block
+}
+
+.slick-slide.slick-loading img {
+    display: none
+}
+
+.slick-slide.dragging img {
+    pointer-events: none
+}
+
+.slick-initialized .slick-slide {
+    display: block
+}
+
+.slick-loading .slick-slide {
+    visibility: hidden
+}
+
+.slick-vertical .slick-slide {
+    display: block;
+    height: auto;
+    border: 1px solid transparent
+}
+
+#track-upload-tips>.box {
+    width: 460px;
+    background: #FFF;
+    height: 300px;
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    margin-left: -230px;
+    border: 1px solid #030303;
+    box-shadow: 0 0 10px #000
+}
+
+#track-upload-tips .title {
+    padding: 14px 30px;
+    text-align: center;
+    font-size: 1em;
+    background: #333;
+    color: #FFF
+}
+
+#track-upload-tips .list {
+    list-style: none
+}
+
+#track-upload-tips .list li {
+    margin: 5px 0
+}
+
+#track-upload-tips .list input {
+    display: inline-block;
+    width: 220px
+}
+
+#track-upload-tips .icon {
+    color: #1f80c3;
+    margin-right: 5px;
+    font-size: 1.2em;
+    vertical-align: middle
+}
+
+#track-upload-tips .share {
+    border: 1px solid #adadad;
+    padding: 11px 7px;
+    display: inline-block;
+    margin: 6px;
+    border-radius: 12px;
+    vertical-align: middle;
+    position: relative
+}
+
+#track-upload-tips .share .text {
+    position: absolute;
+    top: -14px;
+    left: 16px;
+    background: #FFF;
+    padding: 0 6px;
+    font-size: .9em
+}
+
+#track-upload-tips .share-icon {
+    float: left;
+    margin: 0 10px;
+    cursor: pointer
+}
+
+#track-upload-tips .bottom-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center
+}
+
+#track-upload-tips .close {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+    color: silver;
+    opacity: 1;
+    text-shadow: none;
+    cursor: pointer;
+    display: none
+}
+
+#track-upload-tips .share-url {
+    padding: 0 40px
+}
+
+#track-upload-tips .share-url input {
+    border: 1px solid #b2b2b2;
+    border-radius: 30px;
+    width: 100%
+}
+
+.system-page-image {
+    max-width: 405px
+}
+
+.system-page-wrapper {
+    margin-top: 30px;
+    text-align: center
+}
+
+.system-page-title {
+    font-size: 1em;
+    margin: 5px 0
+}
+
+.system-page-blurb {
+    max-width: 500px;
+    margin: auto
+}
+
+.system-page-blurb>p {
+    font-size: .9em
+}
+
+.system-page-buttons>.button {
+    display: block;
+    margin: 10px 30px;
+    margin-bottom: 0
+}
+
+@media screen and (min-width: 40em) {
+    .system-page-buttons {
+        padding:20px 0
+    }
+
+    .system-page-buttons>.button {
+        display: inline;
+        margin: 0
+    }
+}
+
+.generic-page_create .generic-page-header-bg {
+    background: url(//cdn.kanoapps.com/free_rider_hd/tracks/prd/1038/1200x1200-v1.png);
+    background-position: 0 0;
+    opacity: .5
+}
+
+.editor-view .content {
+    overflow: hidden
+}
+
+.create-track-iframe {
+    width: 100%;
+    border: 1px solid #000;
+    background: #FFF;
+    min-height: 490px;
+    height: 100%
+}
+
+.create-track-wrapper {
+    padding: 10px;
+    background: #EEE;
+    border-bottom: 1px solid #CCC;
+    position: relative
+}
+
+.create-track-blurb-icon {
+    font-size: 2em;
+    float: left;
+    top: 21px;
+    left: 29px;
+    display: block;
+    position: relative
+}
+
+.create-track-blurb-text {
+    overflow: hidden;
+    padding: 10px 0;
+    max-width: 1000px;
+    font-size: .9em;
+    font-family: 'roboto_regular_svg'
+}
+
+.create-track-blurb-text>h2 {
+    font-size: 1.3em;
+    margin: 1em 0;
+    margin-left: 40px
+}
+
+.create-track-wrapper-anchor {
+    width: 100%;
+    padding: 0;
+    display: table;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    background: rgba(255,255,255,0.5)
+}
+
+.create-track-wrapper-anchor-center {
+    padding: 0;
+    vertical-align: middle;
+    display: table-cell;
+    margin: 0
+}
+
+.create-track-wrapper-anchor-middle {
+    text-align: center;
+    background-color: #fff;
+    margin: 0 auto;
+    padding: 10px;
+    font-size: 6.2em;
+    width: 200px
+}
+
+.sprite_desktop_controls {
+    background-image: url(//cdn.kanoapps.com/free_rider_hd/sprites/controls/desktop_v4.png);
+    background-repeat: no-repeat;
+    display: inline-block;
+    background-size: 204px 175px
+}
+
+.sprite_desktop_controls-a_key {
+    width: 26px;
+    height: 26px;
+    background-position: -1px -2px
+}
+
+.sprite_desktop_controls-backspace_key {
+    width: 68px;
+    height: 28px;
+    background-position: -30px -1px
+}
+
+.sprite_desktop_controls-d_key {
+    width: 26px;
+    height: 26px;
+    background-position: -98px -1px
+}
+
+.sprite_desktop_controls-down_key {
+    width: 26px;
+    height: 26px;
+    background-position: -1px -31px
+}
+
+.sprite_desktop_controls-enter_key {
+    width: 58px;
+    height: 26px;
+    background-position: -29px -31px
+}
+
+.sprite_desktop_controls-left_key {
+    width: 26px;
+    height: 26px;
+    background-position: -89px -31px
+}
+
+.sprite_desktop_controls-plus_minus_key {
+    width: 53px;
+    height: 26px;
+    background-position: 0 -60px
+}
+
+.sprite_desktop_controls-r_key {
+    width: 26px;
+    height: 26px;
+    background-position: -61px -60px
+}
+
+.sprite_desktop_controls-right_key {
+    width: 26px;
+    height: 26px;
+    background-position: -89px -60px
+}
+
+.sprite_desktop_controls-s_key {
+    width: 26px;
+    height: 26px;
+    background-position: -1px -89px
+}
+
+.sprite_desktop_controls-scroll_wheel {
+    width: 61px;
+    height: 26px;
+    background-position: -29px -90px
+}
+
+.sprite_desktop_controls-spacebar_key {
+    width: 68px;
+    height: 27px;
+    background-position: -125px -1px
+}
+
+.sprite_desktop_controls-tab_key {
+    width: 59px;
+    height: 28px;
+    background-position: -116px -30px
+}
+
+.sprite_desktop_controls-up_key {
+    width: 26px;
+    height: 26px;
+    background-position: -177px -31px
+}
+
+.sprite_desktop_controls-v_key {
+    width: 26px;
+    height: 26px;
+    background-position: -116px -60px
+}
+
+.sprite_desktop_controls-w_key {
+    width: 26px;
+    height: 26px;
+    background-position: -145px -60px
+}
+
+.sprite_desktop_controls-z_key {
+    width: 26px;
+    height: 26px;
+    background-position: -174px -60px
+}
+
+.sprite_desktop_controls-t_key {
+    width: 26px;
+    height: 26px;
+    background-position: -90px -90px
+}
+
+.sprite_desktop_controls-q_key {
+    width: 26px;
+    height: 26px;
+    background-position: -118px -90px
+}
+
+.sprite_desktop_controls-e_key {
+    width: 26px;
+    height: 26px;
+    background-position: -147px -90px
+}
+
+.sprite_desktop_controls-1_key {
+    width: 26px;
+    height: 26px;
+    background-position: -175px -90px
+}
+
+.sprite_desktop_controls-2_key {
+    width: 26px;
+    height: 26px;
+    background-position: -2px -118px
+}
+
+.sprite_desktop_controls-3_key {
+    width: 26px;
+    height: 26px;
+    background-position: -30px -118px
+}
+
+.sprite_desktop_controls-4_key {
+    width: 26px;
+    height: 26px;
+    background-position: -59px -118px
+}
+
+.sprite_desktop_controls-5_key {
+    width: 26px;
+    height: 26px;
+    background-position: -87px -118px
+}
+
+.sprite_desktop_controls-6_key {
+    width: 26px;
+    height: 26px;
+    background-position: -115px -118px
+}
+
+.sprite_desktop_controls-g_key {
+    width: 26px;
+    height: 26px;
+    background-position: -170px -118px
+}
+
+.sprite_desktop_controls-c_key {
+    width: 26px;
+    height: 26px;
+    background-position: 0 -147px
+}
+
+.sprite_desktop_controls-f_key {
+    width: 26px;
+    height: 26px;
+    background-position: -28px -147px
+}
+
+.sprite_desktop_controls-shift_key {
+    width: 57px;
+    height: 26px;
+    background-position: -57px -147px
+}
+
+.sprite_desktop_controls-x_key {
+    width: 26px;
+    height: 26px;
+    background-position: -144px -118px
+}
+
+.help-page {
+    margin: 18px
+}
+
+.help-page>h1 {
+    margin: 0;
+    font-size: 1.3em;
+    float: left
+}
+
+.help-page>.back {
+    float: right
+}
+
+.help-points {
+    border: 2px solid #000;
+    padding: 20px
+}
+
+.help-points>h3 {
+    margin: 0;
+    font-size: 1.1em
+}
+
+.help-controls {
+    width: 100%;
+    border: 2px solid #000;
+    padding: 20px;
+    margin-top: 10px
+}
+
+.track-about-help .help-controls {
+    width: 100%;
+    margin-top: 10px;
+    border: 0;
+    padding: 0
+}
+
+.help-container .help-controls {
+    width: 100%;
+    margin-top: 10px;
+    border: 0;
+    padding: 0;
+    margin-left: 20px
+}
+
+.help-controls>h3 {
+    margin: 0;
+    font-size: 1.1em
+}
+
+.help-controls>p {
+    margin: 10px 0
+}
+
+.help-controls>h3>.icon {
+    font-size: 1.2em;
+    margin-right: 9px
+}
+
+.help-controls>ul {
+    list-style-type: none;
+    padding: 0;
+    float: left;
+    width: 100%;
+    font-size: .8em;
+    margin: 0
+}
+
+.help-controls>ul>li {
+    line-height: 38px
+}
+
+.help-controls_mobile>ul>li {
+    line-height: 40px
+}
+
+.help-controls>ul>li>.icon-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    height: 38px;
+    text-align: center;
+    width: 50%
+}
+
+.help-controls>ul>li>div>.title {
+    display: block
+}
+
+.help-controls>ul>li>div>.sub-title {
+    color: #666
+}
+
+.help-controls>ul>li>.title {
+    display: inline-block;
+    width: 50%;
+    float: left;
+    max-width: 184px
+}
+
+.help-controls>ul>li>.icon {
+    vertical-align: middle
+}
+
+.creator-help-controls {
+    width: initial !important;
+    margin-right: 20px !important;
+    padding: 20px !important;
+    border: 2px solid black !important;
+    margin-bottom: 20px
+}
+
+@media screen and (min-width: 44em) {
+    .help-controls>ul {
+        width:50%
+    }
+
+    .help-controls>ul>li>.icon-wrapper {
+        text-align: left
+    }
+}
+
+@media screen and (max-width: 1830px) and (min-width:63em) {
+    .track-about-help .help-controls>ul {
+        width:100%;
+        float: none
+    }
+}
+
+.sprite_mobile_controls {
+    background-image: url(//cdn.kanoapps.com/free_rider_hd/sprites/controls/mobile_v2.png);
+    background-repeat: no-repeat;
+    display: inline-block;
+    background-size: 123px 123px;
+    vertical-align: middle
+}
+
+.sprite_mobile_controls-help_brake {
+    width: 38px;
+    height: 38px;
+    background-position: -2px -1px
+}
+
+.sprite_mobile_controls-help_direction {
+    width: 38px;
+    height: 38px;
+    background-position: -42px -2px
+}
+
+.sprite_mobile_controls-help_forward {
+    width: 38px;
+    height: 38px;
+    background-position: -84px -2px
+}
+
+.sprite_mobile_controls-help_left {
+    width: 38px;
+    height: 38px;
+    background-position: -1px -42px
+}
+
+.sprite_mobile_controls-help_restart {
+    width: 38px;
+    height: 38px;
+    background-position: -43px -42px
+}
+
+.sprite_mobile_controls-help_restart_double_tap {
+    width: 41px;
+    height: 42px;
+    background-position: -83px -41px
+}
+
+.sprite_mobile_controls-help_restart_hold {
+    width: 38px;
+    height: 38px;
+    background-position: -1px -83px
+}
+
+.sprite_mobile_controls-help_right {
+    width: 38px;
+    height: 38px;
+    background-position: -42px -83px
+}
+
+.sprite_mobile_controls-help_settings {
+    width: 38px;
+    height: 38px;
+    background-position: -83px -83px
+}
+
+.generic-page-header {
+    height: 213px;
+    border-bottom: 1px solid #CCC;
+    position: relative
+}
+
+.generic-page-header-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 100% !important
+}
+
+.generic-page-header>h1 {
+    font-size: 1.4em;
+    margin: 0;
+    text-align: center;
+    position: relative;
+    top: 70px;
+    background: rgba(255,255,255,0.9);
+    padding: 14px 0;
+    border: 1px solid #CCC;
+    border-right: 0;
+    border-left: 0;
+    color: #666
+}
+
+.generic-page-header-icon {
+    position: absolute;
+    left: 50%;
+    font-size: 10em;
+    margin-left: -65px;
+    top: 25px;
+    color: #2d2d2d
+}
+
+.generic-page-blurb {
+    background: #f8f8f8;
+    border-bottom: 1px solid #CCC;
+    position: relative;
+    padding-bottom: 15px
+}
+
+.generic-page-blurb>p {
+    font-size: .9em;
+    text-align: center;
+    padding: 50px 0;
+    padding-bottom: 35px
+}
+
+.generic-page-blurb-item {
+    position: relative;
+    padding: 1em 1em 1em 5em
+}
+
+.generic-page-blurb-item>.icon {
+    float: left;
+    background: #bfbfbf;
+    color: #FFF;
+    border-radius: 50%;
+    padding: 12px;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    text-align: center;
+    font-size: 2.5em;
+    width: 1.6em;
+    height: 1.6em;
+    margin-top: -0.67em
+}
+
+.generic-page-blurb-item-text {
+    overflow: hidden;
+    padding-top: 10px
+}
+
+.generic-page-blurb-item-text>h3 {
+    margin: 0;
+    font-size: .95em
+}
+
+.generic-page-blurb-item-text>p {
+    font-size: .9em
+}
+
+@media screen and (min-width: 40em) {
+    .generic-page-blurb-item {
+        position:relative;
+        float: left;
+        width: 50%
+    }
+}
+
+@media screen and (min-width: 50em) {
+    .generic-page-header {
+        height:360px
+    }
+
+    .generic-page-header>h1 {
+        font-size: 2.5em;
+        padding: 34px 0;
+        top: 120px
+    }
+
+    .generic-page-header-icon {
+        font-size: 17em;
+        margin-left: -140px;
+        top: 50px
+    }
+
+    .generic-page-blurb {
+        font-size: 1.2em
+    }
+}
+
+.fbmobile-login-button {
+    color: #FFF;
+    border-radius: 5px;
+    background: url(//cdn.kanoapps.com/free_rider_hd/tracks/prd/1009/1200x1200-v1.png);
+    border: 1px solid black;
+    display: inline-block;
+    cursor: pointer;
+    background-position: -10px 250px;
+    background-size: 310px;
+    width: 290px;
+    height: 190px
+}
+
+.fbmobile-inner-button {
+    border: 1px solid black;
+    text-align: center;
+    height: 45px;
+    width: 240px;
+    background-image: -webkit-linear-gradient(#3b5997,#223e81);
+    background-image: linear-gradient(#3b5997,#223e81);
+    display: block;
+    margin: auto;
+    margin-top: 70px;
+    text-shadow: 0 1px #000;
+    font-size: 18px;
+    padding-top: 13px;
+    padding-left: 35px
+}
+
+.fb-login-icon {
+    position: absolute;
+    margin-left: -21px;
+    margin-top: -6px;
+    height: 30px;
+    width: 30px;
+    background: url(//cdn.kanoapps.com/free_rider_hd/sprites/facebook/facebook-icon.png);
+    display: block;
+    background-position: 0 0;
+    background-size: 30px
+}
