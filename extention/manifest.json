@@ -1,23 +1,8 @@
 {
     "manifest_version": 2,
     "name": "Free Rider Lite",
-    "version": "3.0.1",
+    "version": "3.1.8",
     "author": "Calculus",
-    "content_scripts": [
-        {
-            "matches": [
-                "*://www.freeriderhd.com/*",
-                "*://freeriderhd.com/*"
-            ],
-            "css" : [
-                "style/combined.css",
-                "style/frhd_app.css"
-            ],
-            "js": [
-                "script/update.js"
-            ]
-        }
-    ],
     "background": {
         "scripts": [
             "script/background.js"
@@ -27,18 +12,15 @@
         "storage",
         "webRequest",
         "webRequestBlocking",
-        "*://*.freeriderhd.com/*",
-        "*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js",
-        "*://cdn.freeriderhd.com/free_rider_hd/styles/application/frhd_app.min.*.css",
-        "*://cdn.freeriderhd.com/free_rider_hd/assets/styles/combined/gui/combined.min.*.css"
+        "*://freeriderhd.com/*",
+        "*://www.freeriderhd.com/*",
+        "*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js"
     ],
     "web_accessible_resources": [
-        "script/main.js",
-        "script/game.js",
-        "images/*.png"
+        "script/game.lite.js"
     ],
     "icons": {
-        "128": "images/icons/icon_128.png"
+        "128": "icons/icon_128.png"
     },
     "browser_action": {
         "default_popup": "popup.html",
