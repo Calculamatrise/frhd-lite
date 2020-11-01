@@ -1,9 +1,11 @@
-const { E, LN2, LN10, LOG2E, LOG10E, PI, SQRT1_2, SQRT2,
+const {
+    E, LN2, LN10, LOG2E, LOG10E, PI, SQRT1_2, SQRT2,
     abs, acos, acosh, asin, asinh, atan, atan2, atanh,
     cbrt, ceil, clz32, cos, cosh, exp, expm1, floor,
-    fround, hypot, imul, log, log1p, log2, log10,max,
-    min, pow, random, round, sign, sin, sinh, sqrt,tan,
-    tanh, trunc } = Math;
+    fround, hypot, imul, log, log1p, log2, log10, max,
+    min, pow, random, round, sign, sin, sinh, sqrt, tan,
+    tanh, trunc
+} = Math;
 function formatNumber(t) {
     t = parseInt(t, 10);
     var e = floor(t / 6e4)
@@ -95,7 +97,7 @@ function curve(t, e, i) {
 }
 !function t(e) {
     var i = {}
-      , s = [2];
+      , s = [1];
     function n(o, a) {
         if (!i[o]) {
             if (!e[o]) {
@@ -121,168 +123,24 @@ function curve(t, e, i) {
         n(s[o]);
     return n
 }({
-    1: function(t, e) {
-        e.exports = class EventHandler {
-            constructor() {
-                this.EventEmitter = this,
-                this._events = this._events || {},
-                this._maxListeners = this._maxListeners || void 0
-            }
-            _events = void 0;
-            _maxListeners = void 0;
-            defaultMaxListeners = 10;
-            n(a) {
-                return "number" == typeof a
-            }
-            o(a) {
-                return void 0 === a
-            }
-            s(a) {
-                return "function" == typeof a
-            }
-            r() {
-                return "object" == typeof a && null !== a
-            }
-            setMaxListeners(t) {
-                if (!this.n(t) || 0 > t || isNaN(t))
-                    throw TypeError("n must be a positive number");
-                return this._maxListeners = t,
-                this
-            }
-            emit(t) {
-                var e, i, n, a, h, l;
-                if (this._events || (this._events = {}),
-                "error" === t && (!this._events.error || this.r(this._events.error) && !this._events.error.length)) {
-                    if (e = arguments[1],
-                    e instanceof Error)
-                        throw e;
-                    throw TypeError('Uncaught, unspecified "error" event.')
-                }
-                if (i = this._events[t],
-                this.o(i))
-                    return !1;
-                if (this.s(i))
-                    switch (arguments.length) {
-                    case 1:
-                        i.call(this);
-                        break;
-                    case 2:
-                        i.call(this, arguments[1]);
-                        break;
-                    case 3:
-                        i.call(this, arguments[1], arguments[2]);
-                        break;
-                    default:
-                        for (n = arguments.length,
-                        a = new Array(n - 1),
-                        h = 1; n > h; h++)
-                            a[h - 1] = arguments[h];
-                        i.apply(this, a)
+    1: function(t) {
+        t(7);
+        t(89);
+        t(92);
+        if(typeof window.performance == "undefined") {
+            window.performance = {}
+            if(!window.performance.now) {
+                var t = Date.now();
+                if(performance.timing) {
+                    if(performance.timing.navigationStart) {
+                        t = performance.timing.navigationStart
                     }
-                else if (this.r(i)) {
-                    for (n = arguments.length,
-                    a = new Array(n - 1),
-                    h = 1; n > h; h++)
-                        a[h - 1] = arguments[h];
-                    for (l = i.slice(),
-                    n = l.length,
-                    h = 0; n > h; h++)
-                        l[h].apply(this, a)
                 }
-                return !0
-            }
-            addListener(t, e) {
-                var n;
-                if (!this.s(e))
-                    throw TypeError("listener must be a function");
-                if (this._events || (this._events = {}),
-                this._events.newListener && this.emit("newListener", t, this.s(e.listener) ? e.listener : e),
-                this._events[t] ? this.r(this._events[t]) ? this._events[t].push(e) : this._events[t] = [this._events[t], e] : this._events[t] = e,
-                this.r(this._events[t]) && !this._events[t].warned) {
-                    var n;
-                    n = this.o(this._maxListeners) ? i.defaultMaxListeners : this._maxListeners,
-                    n && n > 0 && this._events[t].length > n && (this._events[t].warned = !0,
-                    console.error("(node) warning: possible EventEmitter memory leak detected. %d listeners added. Use emitter.setMaxListeners() to increase limit.", this._events[t].length),
-                    "function" == typeof console.trace && console.trace())
+                window.performance.now = function() {
+                    return Date.now() - t
                 }
-                return this
-            }
-            on = this.addListener;
-            once(t, e) {
-                function i() {
-                    this.removeListener(t, i),
-                    n || (n = !0,
-                    e.apply(this, arguments))
-                }
-                if (!this.s(e))
-                    throw TypeError("listener must be a function");
-                var n = !1;
-                return i.listener = e,
-                this.on(t, i),
-                this
-            }
-            removeListener(t, e) {
-                var i, n, o, a;
-                if (!this.s(e))
-                    throw TypeError("listener must be a function");
-                if (!this._events || !this._events[t])
-                    return this;
-                if (i = this._events[t],
-                o = i.length,
-                n = -1,
-                i === e || this.s(i.listener) && i.listener === e)
-                    delete this._events[t],
-                    this._events.removeListener && this.emit("removeListener", t, e);
-                else if (this.r(i)) {
-                    for (a = o; a-- > 0; )
-                        if (i[a] === e || i[a].listener && i[a].listener === e) {
-                            n = a;
-                            break
-                        }
-                    if (0 > n)
-                        return this;
-                    1 === i.length ? (i.length = 0,
-                    delete this._events[t]) : i.splice(n, 1),
-                    this._events.removeListener && this.emit("removeListener", t, e)
-                }
-                return this
-            }
-            removeAllListeners(t) {
-                var e, i;
-                if (!this._events)
-                    return this;
-                if (!this._events.removeListener)
-                    return 0 === arguments.length ? this._events = {} : this._events[t] && delete this._events[t],
-                    this;
-                if (0 === arguments.length) {
-                    for (e in this._events)
-                        "removeListener" !== e && this.removeAllListeners(e);
-                    return this.removeAllListeners("removeListener"),
-                    this._events = {},
-                    this
-                }
-                if (i = this._events[t],
-                this.s(i))
-                    this.removeListener(t, i);
-                else
-                    for (; i.length; )
-                        this.removeListener(t, i[i.length - 1]);
-                return delete this._events[t],
-                this
-            }
-            listeners(t) {
-                var e;
-                return e = this._events && this._events[t] ? this.s(this._events[t]) ? [this._events[t]] : this._events[t].slice() : []
-            }
-            listenerCount(t, e) {
-                var i;
-                return i = t._events && t._events[e] ? this.s(t._events[e]) ? 1 : t._events[e].length : 0
             }
         }
-    },
-    2: function(t) {
-        t(89),
-        t(91);
         window.Game = class Game {
             constructor(t, e, i) {
                 this.assets = e,
@@ -306,8 +164,8 @@ function curve(t, e, i) {
             fullscreen = !1;
             onStateChange = null;
             scenes = {
-                Editor: t(16),
-                Main: t(17)
+                Editor: t(9),
+                Main: t(10)
             }
             initCanvas() {
                 var t = document.createElement("canvas")
@@ -357,9 +215,10 @@ function curve(t, e, i) {
                 createjs.Ticker.on("tick", this.update.bind(this))
             }
             update() {
+                this.currentScene.update(),
                 this.currentScene.toolHandler.options.visibleGrid = window.lite.getVar("invisible") ? false : true,
                 document.getElementsByClassName("game")[0].style.background = window.lite.getVar("dark") && "#1d1d1d" || "#ffffff",
-                this.currentScene.update(),
+                window.lite.getVar("di") && window.lite.drawInputDisplay(this.canvas),
                 this.tickCount++
             }
             switchScene(t) {
@@ -390,7 +249,7 @@ function curve(t, e, i) {
             }
         }
     },
-    3: function(t, e) {
+    2: function(t, e) {
         e.exports = class Controls {
             defaultControlOptions = {
                 visible: !0
@@ -440,8 +299,11 @@ function curve(t, e, i) {
             }
             createControl(t) {
                 var e = this.controlsSprite
-                  , i = this.defaultControlOptions
+                  , i = {}
                   , n = e.clone();
+                for(var a in this.defaultControlOptions) {
+                    i[a] = this.defaultControlOptions[a]
+                }
                 for(var a in this.controlData[t]) {
                     i[a] = this.controlData[t][a]
                 }
@@ -530,8 +392,8 @@ function curve(t, e, i) {
             }
         }
     },
-    4: function(t, e) {
-        var Controls = t(3);
+    3: function(t, e) {
+        var Controls = t(2);
         e.exports = class FullScreenControls extends Controls {
             constructor(a) {
                 super();
@@ -570,8 +432,8 @@ function curve(t, e, i) {
             }
         }
     },
-    5: function(t, e) {
-        var Controls = t(3);
+    4: function(t, e) {
+        var Controls = t(2);
         e.exports = class PauseControls extends Controls {
             constructor(a) {
                 super();
@@ -611,163 +473,8 @@ function curve(t, e, i) {
             }
         }
     },
-    6: function(t, e) {
-        var Controls = t(3);
-        e.exports = class PhoneControls extends Controls {
-            constructor(a) {
-                super();
-                this.initialize(a)
-            }
-            name = "phone_controls";
-            mainResize = n.resize;
-            zoomControlsContainer = null;
-            lastCheckpointButton = null;
-            replayButton = null;
-            controlsSpriteSheetData = {
-                frames: [[782, 2, 128, 128], [652, 2, 128, 128], [522, 2, 128, 128], [912, 78, 75, 75], [392, 2, 128, 128], [912, 2, 75, 75], [262, 2, 128, 128], [132, 2, 128, 128], [2, 2, 128, 128]],
-                animations: {
-                    accelerate: [0],
-                    brake: [1],
-                    direction: [2],
-                    last_checkpoint: [3],
-                    left: [4],
-                    replay: [5],
-                    right: [6],
-                    zoom_in: [7],
-                    zoom_out: [8]
-                }
-            }
-            controlData = {
-                brake: {
-                    key: "down",
-                    bottom: 100,
-                    left: 100,
-                    hitArea: {
-                        width: 250,
-                        height: 200,
-                        x: -30,
-                        y: -15
-                    }
-                },
-                direction: {
-                    key: "z",
-                    bottom: 250,
-                    right: 100,
-                    hitArea: {
-                        width: 200,
-                        height: 200,
-                        x: -20,
-                        y: -65
-                    }
-                },
-                forward: {
-                    key: "up",
-                    bottom: 250,
-                    left: 100,
-                    hitArea: {
-                        width: 250,
-                        height: 200,
-                        x: -30,
-                        y: -65
-                    }
-                },
-                last_checkpoint: {
-                    key: "enter",
-                    top: 60,
-                    left: 160
-                },
-                left: {
-                    key: "left",
-                    bottom: 100,
-                    right: 250,
-                    hitArea: {
-                        width: 230,
-                        height: 230,
-                        x: -100,
-                        y: -65
-                    }
-                },
-                right: {
-                    key: "right",
-                    bottom: 100,
-                    right: 100,
-                    hitArea: {
-                        width: 200,
-                        height: 200,
-                        x: -10,
-                        y: -15
-                    }
-                },
-                replay: {
-                    key: "restart",
-                    top: 60,
-                    left: 80
-                },
-                zoom_in: {
-                    key: "zoom_increase",
-                    bottom: 100,
-                    right: 100
-                },
-                zoom_out: {
-                    key: "zoom_decrease",
-                    bottom: 100,
-                    left: 100
-                }
-            }
-            addControls() {
-                var t = this.createControl("last_checkpoint")
-                , e = this.createControl("replay")
-                , i = this.createControl("zoom_in")
-                , s = this.createControl("zoom_out")
-                , n = new createjs.Container;
-                n.addChild(this.createControl("left")),
-                n.addChild(this.createControl("right")),
-                n.addChild(this.createControl("forward")),
-                n.addChild(this.createControl("brake")),
-                n.addChild(this.createControl("direction")),
-                n.addChild(t),
-                n.addChild(e),
-                n.addChild(i),
-                n.addChild(s);
-                var r = new createjs.Container;
-                r.addChild(i),
-                r.addChild(s),
-                r.visibility = !1,
-                this.lastCheckpointButton = t,
-                this.replayButton = e,
-                this.controlsContainer = n,
-                this.zoomControlsContainer = r,
-                this.stage.addChild(n),
-                this.stage.addChild(r)
-            }
-            resize() {
-                var t = this.scene.game
-                , e = t.width
-                , i = t.height
-                , s = t.pixelRatio
-                , n = this.zoomControlsContainer.children;
-                for (var r in n) {
-                    var o = n[r]
-                    , a = o.buttonDetails;
-                    a.bottom && (o.y = i - a.bottom * (s / 2)),
-                    a.left && (o.x = a.left * (s / 2)),
-                    a.right && (o.x = e - a.right * (s / 2)),
-                    a.top && (o.y = a.top * (s / 2)),
-                    o.scaleX = o.scaleY = s / 2
-                }
-                this.mainResize()
-            }
-            setZoomControlsVisibilty(t) {
-                this.zoomControlsContainer.visible = t
-            }
-            update() {
-                var t = this.scene;
-                this.lastCheckpointButton.visible = t.playerManager.firstPlayer.hasCheckpoints() ? !0 : !1
-            }
-        }
-    },
-    7: function(t, e) {
-        var Controls = t(3);
+    5: function(t, e) {
+        var Controls = t(2);
         e.exports = class UndoManager extends Controls {
             constructor(a) {
                 super();
@@ -807,8 +514,8 @@ function curve(t, e, i) {
             }
         }
     },
-    8: function(t, e) {
-        var Controls = t(3);
+    6: function(t, e) {
+        var Controls = t(2);
         e.exports = class ControlSettings extends Controls {
             constructor(a) {
                 super();
@@ -844,151 +551,85 @@ function curve(t, e, i) {
             }
         }
     },
-    9: function(t, e) {
-        var Controls = t(3);
-        e.exports = class TabletControls extends Controls {
-            constructor(a) {
-                super();
-                this.initialize(a)
+    7: function(t, e) {
+        window.GameInventoryManager = new class GameInventoryManager {
+            s = {};
+            n = {};
+            r = {};
+            getItem(t) {
+                var e = t.classname
+                  , i = t.script
+                  , o = t.options
+                  , a = t.type;
+                this.s[e] || ("1" === a && (e = "forward_cap",
+                o = {
+                    back: "white"
+                }),
+                this.r[i] || (this.r[i] = !0,
+                GameManager.loadFile(i)));
+                var h = this.generateID(a, e, o);
+                return this.n[h] || (this.n[h] = new this.s[e](o)),
+                this.n[h]
             }
-            name = "tablet_controls";
-            mainResize = this.resize;
-            zoomControlsContainer = null;
-            lastCheckpointButton = null;
-            controlsSpriteSheetData = {
-                frames: [[154, 306, 150, 150], [154, 154, 150, 150], [382, 154, 75, 75], [306, 2, 150, 150], [154, 2, 150, 150], [306, 154, 75, 75], [2, 306, 150, 150], [2, 154, 150, 150], [2, 2, 150, 150]],
-                animations: {
-                    accelerate: [0],
-                    brake: [1],
-                    last_checkpoint: [2],
-                    direction: [3],
-                    left: [4],
-                    replay: [5],
-                    right: [6],
-                    zoom_in: [7],
-                    zoom_out: [8]
-                }
+            redraw() {
+                for (var t in this.n)
+                    this.n.hasOwnProperty(t) && this.n[t].setDirty()
             }
-            controlData = {
-                brake: {
-                    key: "down",
-                    bottom: 120,
-                    left: 285,
-                    hitArea: {
-                        radius: 150,
-                        x: 75,
-                        y: 90
-                    }
-                },
-                direction: {
-                    key: "z",
-                    bottom: 285,
-                    right: 450,
-                    hitArea: {
-                        radius: 150,
-                        x: 40,
-                        y: 40
-                    }
-                },
-                forward: {
-                    key: "up",
-                    bottom: 285,
-                    left: 140,
-                    hitArea: {
-                        radius: 150,
-                        x: 75,
-                        y: 75
-                    }
-                },
-                last_checkpoint: {
-                    key: "enter",
-                    top: 60,
-                    left: 160
-                },
-                left: {
-                    key: "left",
-                    bottom: 120,
-                    right: 285,
-                    hitArea: {
-                        radius: 150,
-                        x: 75,
-                        y: 75
-                    }
-                },
-                right: {
-                    key: "right",
-                    bottom: 285,
-                    right: 140,
-                    hitArea: {
-                        radius: 150,
-                        x: 100,
-                        y: 40
-                    }
-                },
-                replay: {
-                    key: "restart",
-                    top: 60,
-                    left: 80
-                },
-                zoom_in: {
-                    key: "zoom_increase",
-                    bottom: 285,
-                    right: 140
-                },
-                zoom_out: {
-                    key: "zoom_decrease",
-                    bottom: 285,
-                    left: 140
-                }
+            generateID(t, e, i) {
+                var e = t + e;
+                if (i)
+                    for (var s in i)
+                        i.hasOwnProperty(s) && (e += i[s]);
+                return e
             }
-            resize() {
-                var t = this.scene.game
-                , e = t.width
-                , i = t.height
-                , s = t.pixelRatio
-                , n = this.zoomControlsContainer.children;
-                for (var r in n) {
-                    var o = n[r]
-                    , a = o.buttonDetails;
-                    a.bottom && (o.y = i - a.bottom * (s / 2)),
-                    a.left && (o.x = a.left * (s / 2)),
-                    a.right && (o.x = e - a.right * (s / 2)),
-                    a.top && (o.y = a.top * (s / 2)),
-                    o.scaleX = o.scaleY = s / 2
-                }
-                this.mainResize()
+            register(t, e) {
+                this.s[t] = e
             }
-            setZoomControlsVisibilty(t) {
-                this.zoomControlsContainer.visible = t
+            clear() {}
+        }
+        GameInventoryManager.HeadClass = class HeadClass {
+            createVersion() {
+                var t = this.colors
+                  , e = this.getVersions()
+                  , i = "";
+                for (var s in t)
+                    t.hasOwnProperty(s) && (i += t[s]);
+                this.versionName = i,
+                e[i] || (e[i] = {
+                    dirty: !0,
+                    canvas: document.createElement("canvas")
+                })
             }
-            addControls() {
-                var t = this.createControl("zoom_in")
-                , e = this.createControl("zoom_out")
-                , i = new createjs.Container;
-                i.addChild(this.createControl("left")),
-                i.addChild(this.createControl("right")),
-                i.addChild(this.createControl("forward")),
-                i.addChild(this.createControl("brake")),
-                i.addChild(this.createControl("direction")),
-                i.addChild(this.createControl("last_checkpoint")),
-                i.addChild(this.createControl("replay"));
-                var s = new createjs.Container;
-                s.addChild(t),
-                s.addChild(e),
-                s.visible = !1,
-                this.lastCheckpointButton = i.getChildByName("last_checkpoint"),
-                this.controlsContainer = i,
-                this.zoomControlsContainer = s,
-                this.stage.addChild(i),
-                this.stage.addChild(s)
+            draw(t, e, i, s, n, r) {
+                var o = this.getCache(n)
+                  , a = this.getBaseWidth()
+                  , h = this.getBaseHeight()
+                  , l = this.getScale()
+                  , c = this.getDrawOffsetX()
+                  , u = this.getDrawOffsetY()
+                  , p = a * n * l
+                  , d = h * n * l
+                  , f = c * n - p / 2
+                  , v = u * n - d / 2
+                  , g = -1 === r;
+                t.translate(e, i),
+                t.rotate(s),
+                g && t.scale(1, -1),
+                t.drawImage(o, f, v, p, d),
+                g && t.scale(1, -1),
+                t.rotate(-s),
+                t.translate(-e, -i)
             }
-            update() {
-                var t = this.scene;
-                this.lastCheckpointButton.visible = t.playerManager.firstPlayer.hasCheckpoints() ? !0 : !1
+            getCache(t) {
+                var e = this.getVersions();
+                return e[this.versionName].dirty && this.cache(t),
+                e[this.versionName].canvas
+            }
+            setDirty() {
+                var t = this.getVersions();
+                t[this.versionName].dirty = !0
             }
         }
-    },
-    10:function(t, e, i) {
         class Head extends GameInventoryManager.HeadClass {
             constructor(a) {
                 super();
@@ -1116,103 +757,8 @@ function curve(t, e, i) {
         if(GameInventoryManager) {
             GameInventoryManager.register("forward_cap", Head)
         }
-        if(typeof i != "undefined") {
-            if(typeof e != "undefined") {
-                if(e.exports) {
-                    i = Head
-                }
-                i.Forward_Cap = Head
-            }
-        }
-        e.exports = Head;
     },
-    11: function(t, e) {
-        t(12);
-        t(95);
-        e.exports = GameInventoryManager.HeadClass = class HeadClass {
-            createVersion() {
-                var t = this.colors
-                  , e = this.getVersions()
-                  , i = "";
-                for (var s in t)
-                    t.hasOwnProperty(s) && (i += t[s]);
-                this.versionName = i,
-                e[i] || (e[i] = {
-                    dirty: !0,
-                    canvas: document.createElement("canvas")
-                })
-            }
-            draw(t, e, i, s, n, r) {
-                var o = this.getCache(n)
-                  , a = this.getBaseWidth()
-                  , h = this.getBaseHeight()
-                  , l = this.getScale()
-                  , c = this.getDrawOffsetX()
-                  , u = this.getDrawOffsetY()
-                  , p = a * n * l
-                  , d = h * n * l
-                  , f = c * n - p / 2
-                  , v = u * n - d / 2
-                  , g = -1 === r;
-                t.translate(e, i),
-                t.rotate(s),
-                g && t.scale(1, -1),
-                t.drawImage(o, f, v, p, d),
-                g && t.scale(1, -1),
-                t.rotate(-s),
-                t.translate(-e, -i)
-            }
-            getCache(t) {
-                var e = this.getVersions();
-                return e[this.versionName].dirty && this.cache(t),
-                e[this.versionName].canvas
-            }
-            setDirty() {
-                var t = this.getVersions();
-                t[this.versionName].dirty = !0
-            }
-        }
-    },
-    12: function(t, e) {
-        class GameInventoryManager {
-            s = {};
-            n = {};
-            r = {};
-            getItem(t) {
-                var e = t.classname
-                  , i = t.script
-                  , o = t.options
-                  , a = t.type;
-                this.s[e] || ("1" === a && (e = "forward_cap",
-                o = {
-                    back: "white"
-                }),
-                this.r[i] || (this.r[i] = !0,
-                GameManager.loadFile(i)));
-                var h = this.generateID(a, e, o);
-                return this.n[h] || (this.n[h] = new this.s[e](o)),
-                this.n[h]
-            }
-            redraw() {
-                for (var t in this.n)
-                    this.n.hasOwnProperty(t) && this.n[t].setDirty()
-            }
-            generateID(t, e, i) {
-                var e = t + e;
-                if (i)
-                    for (var s in i)
-                        i.hasOwnProperty(s) && (e += i[s]);
-                return e
-            }
-            register(t, e) {
-                this.s[t] = e
-            }
-            clear() {}
-        }
-        window.GameInventoryManager = new GameInventoryManager;
-        e.exports = GameInventoryManager
-    },
-    14: function(t, e) {
+    8: function(t, e) {
         e.exports = class Vector {
             constructor(a, b) {
                 this.x = a,
@@ -1297,7 +843,7 @@ function curve(t, e, i) {
             }
         }
     },
-    16: function(t, e) {
+    9: function(t, e) {
         var MouseHandler = t(63)
           , Camera = t(87)
           , Screen = t(88)
@@ -1309,18 +855,16 @@ function curve(t, e, i) {
           , StraightLineTool = t(48)
           , BrushTool = t(34)
           , SelectTool = t(47)
-          , FillTool = t(93)
-          , OvalTool = t(94)
+          , FillTool = t(90)
+          , OvalTool = t(91)
           , EraserTool = t(37)
           , PowerupTool = t(38)
           , VehiclePowerupTool = t(51)
           , Track = t(56)
           , LoadingCircle = t(61)
           , Score = t(66)
-          , TabletControls = t(9)
-          , PhoneControls = t(6)
-          , PauseControls = t(5)
-          , UndoManager = t(7)
+          , PauseControls = t(4)
+          , UndoManager = t(5)
           , SoundManager = t(68)
           , MessageManager = t(62);
         e.exports = class Editor {
@@ -1489,10 +1033,6 @@ function curve(t, e, i) {
                 this.playerManager.addPlayer(e)
             }
             createControls() {
-                "tablet" === this.settings.controls && (this.controls = new TabletControls(this),
-                this.controls.hide()),
-                "phone" === this.settings.controls && (this.controls = new PhoneControls(this),
-                this.controls.hide()),
                 this.redoundoControls = new UndoManager(this),
                 this.pauseControls = new PauseControls(this)
             }
@@ -1877,7 +1417,7 @@ function curve(t, e, i) {
             }
         }
     },
-    17: function(t, e) {
+    10: function(t, e) {
         var MouseHandler = t(63)
           , Score = t(66)
           , CampaignScore = t(57)
@@ -1890,13 +1430,11 @@ function curve(t, e, i) {
           , VehicleTimer = t(69)
           , Track = t(56)
           , LoadingCircle = t(61)
-          , TabletControls = t(9)
-          , PhoneControls = t(6)
-          , PauseControls = t(5)
+          , PauseControls = t(4)
           , SoundManager = t(68)
           , MessageManager = t(62)
-          , FullScreenControls = t(4)
-          , ControlSettings = t(8)
+          , FullScreenControls = t(3)
+          , ControlSettings = t(6)
           , S = t(67);
         e.exports = class Main {
             constructor(game) {
@@ -1993,10 +1531,6 @@ function curve(t, e, i) {
                 }
             }
             createControls() {
-                "tablet" === this.settings.controls && (this.controls = new TabletControls(this),
-                this.controls.hide()),
-                "phone" === this.settings.controls && (this.controls = new PhoneControls(this),
-                this.controls.hide()),
                 this.pauseControls = new PauseControls(this),
                 this.settings.fullscreenAvailable && (this.fullscreenControls = new FullScreenControls(this)),
                 this.settingsControls = new ControlSettings(this)
@@ -2399,12 +1933,17 @@ function curve(t, e, i) {
                 });
             }
             mergeRaces(race) {
-                for(var t in this.races) {
-                    if(this.races[t].user.u_id === race[0].user.u_id) {
-                        return;
+                race = race[0] || race;
+                if(race) {
+                    for(var t in this.races) {
+                        if(this.races[t].user.u_id === (race.user.u_id)) {
+                            if(this.races[t].race.run_ticks === race.race.run_ticks) {
+                                return;
+                            }
+                        }
                     }
+                    this.races.push(race);
                 }
-                this.races.push(race[0]);
             }
             sortByRunTicksIterator(a) {
                 var e = this.settings
@@ -2512,8 +2051,8 @@ function curve(t, e, i) {
             }
         }
     },
-    18: function(t, e) {
-        var Vector = t(14);
+    11: function(t, e) {
+        var Vector = t(8);
         e.exports = class PhysicsLine {
             constructor(a, b, c, d) {
                 this.p1 = new Vector(a, b),
@@ -2639,7 +2178,7 @@ function curve(t, e, i) {
             }
         }
     },
-    19: function(t, e) {
+    12: function(t, e) {
         e.exports = class Powerup {
             init(a) {
                 this.game = a.scene.game,
@@ -2685,8 +2224,8 @@ function curve(t, e, i) {
             }
         }
     },
-    20: function(t, e) {
-        var Powerup = t(19),
+    13: function(t, e) {
+        var Powerup = t(12),
             powerup = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -2894,8 +2433,8 @@ function curve(t, e, i) {
             }
         }
     },
-    21: function(t, e) {
-        var Powerup = t(19)
+    14: function(t, e) {
+        var Powerup = t(12)
           , n = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -3004,8 +2543,8 @@ function curve(t, e, i) {
             }
         }
     },
-    22: function(t, e) {
-        var Powerup = t(19)
+    15: function(t, e) {
+        var Powerup = t(12)
           , r = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -3123,8 +2662,8 @@ function curve(t, e, i) {
             }
         }
     },
-    23: function(t, e) {
-        var Powerup = t(19)
+    16: function(t, e) {
+        var Powerup = t(12)
           , a = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -3221,8 +2760,8 @@ function curve(t, e, i) {
             }
         }
     },
-    24: function(t, e) {
-        var Powerup = t(19)
+    17: function(t, e) {
+        var Powerup = t(12)
           , r = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -3328,29 +2867,29 @@ function curve(t, e, i) {
             }
         }
     },
-    25: function(t, e) {
-        var Powerup = t(19);
+    18: function(t, e) {
+        var Powerup = t(12)
+          , o = {
+            canvas: document.createElement("canvas"),
+            dirty: !0,
+            width: 24,
+            height: 24
+        };
         e.exports = class Slowmo extends Powerup {
-            constructor(a, b, c) {
-                super();
-                this.x = a,
-                this.y = b,
-                this.init(c)
+            constructor(t, e, i) {
+                super(),
+                this.x = t,
+                this.y = e,
+                this.init(i)
             }
             x = 0;
             y = 0;
             name = "slowmo";
-            powerup = {
-                canvas: document.createElement("canvas"),
-                dirty: !0,
-                width: 24,
-                height: 24 
-            }
             recache(t) {
-                this.powerup.dirty = !1;
-                var e = this.powerup.canvas;
-                e.width = this.powerup.width * t,
-                e.height = this.powerup.height * t;
+                o.dirty = !1;
+                var e = o.canvas;
+                e.width = o.width * t,
+                e.height = o.height * t;
                 var i = e.getContext("2d")
                 , s = e.width / 2
                 , n = e.height / 2;
@@ -3362,18 +2901,18 @@ function curve(t, e, i) {
                 i.stroke())
             }
             setDirty(t) {
-                this.powerup.dirty = t
+                o.dirty = t
             }
             getCode() {
                 return "S " + this.x.toString(32) + " " + this.y.toString(32)
             }
             draw(t, e, i, s) {
-                this.powerup.dirty && this.recache(i);
-                var n = this.powerup.width * i
-                , r = this.powerup.height * i
+                o.dirty && this.recache(i);
+                var n = o.width * i
+                , r = o.height * i
                 , a = n / 2
                 , h = r / 2;
-                s.drawImage(this.powerup.canvas, t - a, e - h, n, r)
+                s.drawImage(o.canvas, t - a, e - h, n, r)
             }
             collide(t) {
                 var e = t.parent
@@ -3451,8 +2990,8 @@ function curve(t, e, i) {
             }
         }
     },
-    26: function(t, e) {
-        var Powerup = t(19)
+    19: function(t, e) {
+        var Powerup = t(12)
           , a = {
                 canvas: document.createElement("canvas"),
                 width: 35,
@@ -3581,8 +3120,8 @@ function curve(t, e, i) {
             }
         }
     },
-    27: function(t, e) {
-        var Powerup = t(19)
+    20: function(t, e) {
+        var Powerup = t(12)
           , a = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -3850,8 +3389,8 @@ function curve(t, e, i) {
             }
         }
     },
-    28: function(t, e) {
-        var Vector = t(14);
+    21: function(t, e) {
+        var Vector = t(8);
         e.exports = class SceneryLine {
             constructor(a, b, c, d){
                 this.p1 = new Vector(a, b),
@@ -3928,9 +3467,9 @@ function curve(t, e, i) {
             }
         }
     },
-    29: function(t, e) {
-        var PhysicsLine = t(18)
-          , SceneryLine = t(28);
+    22: function(t, e) {
+        var PhysicsLine = t(11)
+          , SceneryLine = t(21);
         e.exports = class Sector {
             constructor(a, b, c) {
                 this.track = c,
@@ -4267,7 +3806,7 @@ function curve(t, e, i) {
         }
     },
     30: function(t, e) {
-        var Powerup = t(19)
+        var Powerup = t(12)
           , n = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -4440,7 +3979,7 @@ function curve(t, e, i) {
         }
     },
     31: function(t, e) {
-        var Powerup = t(19)
+        var Powerup = t(12)
           , n = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -4569,7 +4108,7 @@ function curve(t, e, i) {
         }
     },
     32: function(t, e) {
-        var Powerup = t(19)
+        var Powerup = t(12)
           , n = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -4706,7 +4245,7 @@ function curve(t, e, i) {
         }
     },
     33: function(t, e) {
-        var Powerup = t(19)
+        var Powerup = t(12)
           , n = {
                 canvas: document.createElement("canvas"),
                 dirty: !0,
@@ -4941,7 +4480,7 @@ function curve(t, e, i) {
         }
     },
     34: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49);
         e.exports = class BrushTool extends Tool {
             constructor(a) {
@@ -5185,7 +4724,7 @@ function curve(t, e, i) {
         }
     },
     36: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49);
         e.exports = class CurveTool extends Tool {
             constructor(a) {
@@ -5380,7 +4919,7 @@ function curve(t, e, i) {
         }
     },
     37: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49);
         e.exports = class EraserTool extends Tool {
             constructor(a) {
@@ -5571,8 +5110,8 @@ function curve(t, e, i) {
         }
     },
     39: function(t, e) {
-        var Vector = t(14)
-          , Antigravity = t(20)
+        var Vector = t(8)
+          , Antigravity = t(13)
           , Tool = t(49);
         e.exports = class AntigravityTool extends Tool {
             constructor(a) {
@@ -5626,8 +5165,8 @@ function curve(t, e, i) {
         }
     },
     40: function(t, e) {
-        var Vector = t(14)
-          , Bomb = t(21)
+        var Vector = t(8)
+          , Bomb = t(14)
           , Tool = t(49);
         e.exports = class BombTool extends Tool {
             constructor(t) {
@@ -5694,8 +5233,8 @@ function curve(t, e, i) {
         }
     },
     41: function(t, e) {
-        var Vector = t(14)
-          , Booster = t(22)
+        var Vector = t(8)
+          , Booster = t(15)
           , Tool = t(49);
         class BoosterTool extends Tool {
             constructor(t) {
@@ -5803,8 +5342,8 @@ function curve(t, e, i) {
         e.exports = BoosterTool
     },
     42: function(t, e) {
-        var Vector = t(14),
-            Checkpoint = t(23),
+        var Vector = t(8),
+            Checkpoint = t(16),
             Tool = t(49);
         class CheckpointTool extends Tool {
             constructor(a) {
@@ -5872,8 +5411,8 @@ function curve(t, e, i) {
         e.exports = CheckpointTool
     },
     43: function(t, e) {
-        var Vector = t(14),
-            Target = t(26),
+        var Vector = t(8),
+            Target = t(19),
             Tool = t(49);
         class TargetTool extends Tool {
             constructor(a) {
@@ -5893,8 +5432,7 @@ function curve(t, e, i) {
             active = !1;
             draw(t) {
                 var e = this.mouse.touch
-                  , i = (e.pos,
-                this.camera.zoom)
+                  , i = this.camera.zoom
                   , s = this.scene.settings.device
                   , n = this.scene.screen;
                 if (this.active === !0) {
@@ -5942,8 +5480,8 @@ function curve(t, e, i) {
         e.exports = TargetTool
     },
     44: function(t, e) {
-        var Vector = t(14)
-          , Gravity = t(24)
+        var Vector = t(8)
+          , Gravity = t(17)
           , Tool = t(49);
         class GravityTool extends Tool {
             constructor(t) {
@@ -6051,8 +5589,8 @@ function curve(t, e, i) {
         e.exports = GravityTool
     },
     45: function(t, e) {
-        var Vector = t(14)
-          , Slowmo = t(25)
+        var Vector = t(8)
+          , Slowmo = t(18)
           , Tool = t(49);
         class SlowmoTool extends Tool {
             constructor(t) {
@@ -6120,8 +5658,8 @@ function curve(t, e, i) {
         e.exports = SlowmoTool
     },
     46: function(t, e) {
-        var Vector = t(14)
-          , Teleporter = t(27)
+        var Vector = t(8)
+          , Teleporter = t(20)
           , Tool = t(49)
           , c = (min,
         abs);
@@ -6229,7 +5767,7 @@ function curve(t, e, i) {
         e.exports = TeleporterTool
     },
     47: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Path = t(64)
           , Tool = t(49);
         class SelectTool extends Tool {
@@ -6491,7 +6029,7 @@ function curve(t, e, i) {
         e.exports = SelectTool
     },
     48: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49);
         class StraightLineTool extends Tool {
             constructor(t) {
@@ -6709,10 +6247,10 @@ function curve(t, e, i) {
         e.exports = Tool
     },
     50: function(t, e) {
-        var Vector = t(14)
-          , PhysicsLine = t(18)
-          , SceneryLine = t(28)
-          , Target = t(26)
+        var Vector = t(8)
+          , PhysicsLine = t(11)
+          , SceneryLine = t(21)
+          , Target = t(19)
           , a = 50;
         class ToolHandler {
             constructor(a) {
@@ -7135,7 +6673,7 @@ function curve(t, e, i) {
         e.exports = VehiclePowerupTool
     },
     52: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49)
           , BalloonPowerup = t(30);
         class BalloonTool extends Tool {
@@ -7202,7 +6740,7 @@ function curve(t, e, i) {
         e.exports = BalloonTool
     },
     53: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49)
           , BlobPowerup = t(31);
         class BlobTool extends Tool {
@@ -7259,7 +6797,7 @@ function curve(t, e, i) {
         e.exports = BlobTool
     },
     54: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49)
           , HeliPowerup = t(32);
         class HeliTool extends Tool {
@@ -7326,7 +6864,7 @@ function curve(t, e, i) {
         e.exports = HeliTool
     },
     55: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Tool = t(49)
           , TruckPowerup = t(33);
         class TruckTool extends Tool {
@@ -7393,18 +6931,18 @@ function curve(t, e, i) {
         e.exports = TruckTool
     },
     56: function(t, e) {
-        var Vector = t(14)
-          , PhysicsLine = t(18)
-          , SceneryLine = t(28)
-          , Sector = t(29)
-          , Bomb = t(21)
-          , Gravity = t(24)
-          , Booster = t(22)
-          , Checkpoint = t(23)
-          , Target = t(26)
-          , Slowmo = t(25)
-          , Antigravity = t(20)
-          , Teleporter = t(27)
+        var Vector = t(8)
+          , PhysicsLine = t(11)
+          , SceneryLine = t(21)
+          , Sector = t(22)
+          , Bomb = t(14)
+          , Gravity = t(17)
+          , Booster = t(15)
+          , Checkpoint = t(16)
+          , Target = t(19)
+          , Slowmo = t(18)
+          , Antigravity = t(13)
+          , Teleporter = t(20)
           , HeliPowerup = t(32)
           , TruckPowerup = t(33)
           , BalloonPowerup = t(30)
@@ -8412,11 +7950,9 @@ function curve(t, e, i) {
         e.exports = MessageManager
     },
     63: function(t, e) {
-        var Vector = t(14)
-          , EventEmitter = t(1);
-        class MouseHandler extends EventEmitter {
+        var Vector = t(8);
+        class MouseHandler {
             constructor(a) {
-                super();
                 this.scene = a,
                 this.enabled = !0,
                 this.touch = this.getTouchObject(),
@@ -9277,12 +8813,12 @@ function curve(t, e, i) {
         e.exports = SoundManager
     },
     69: function(t, e) {
-        var Libs = t(92);
-        class VehicleTimer {
+        e.exports = class VehicleTimer {
             constructor(a) {
                 this.scene = a,
                 this.settings = a.settings,
                 this.player = !1,
+                this.tweens = [],
                 this.build_interface(),
                 this.createPulseTween()
             }
@@ -9319,6 +8855,153 @@ function curve(t, e, i) {
                 this.player === t && this.createPulseTween()
             }
             createPulseTween() {
+                var self = this;
+                class Tween {
+                    constructor(t) {
+                        this.e = t,
+                        this.i = {},
+                        this.n = {},
+                        this.r = {},
+                        this.o = 1e3,
+                        this.a = 0,
+                        this.h = !1,
+                        this.l = !1,
+                        this.c = !1,
+                        this.u = 0,
+                        this.p = null,
+                        this.d = (t) => { return t },
+                        this.f = function(t, e) {
+                            var i = t.length - 1
+                            , n = i * e
+                            , r = floor(n)
+                            , o = function(t, e, i) {
+                                return (e - t) * i + t
+                            };
+                            return 0 > e ? o(t[0], t[1], n) : e > 1 ? o(t[i], t[i - 1], i - n) : o(t[r], t[r + 1 > i ? i : r + 1], n - r)
+                        },
+                        this.v = [],
+                        this.g = null,
+                        this.m = !1,
+                        this.y = null,
+                        this.w = null,
+                        this.x = null;
+                        for (var _ in t)
+                            this.i[_] = parseFloat(t[_], 10);
+                    }
+                    to(t, e) {
+                        return void 0 !== e && (this.o = e),
+                        this.n = t,
+                        this
+                    }
+                    start(t) {
+                        self.tweens.push(this),
+                        this.l = !0,
+                        this.m = !1,
+                        p = void 0 !== t ? t : window.performance.now(),
+                        p += u;
+                        for (var o in n) {
+                            if (n[o]instanceof Array) {
+                                if (0 === n[o].length)
+                                    continue;
+                                n[o] = [e[o]].concat(n[o])
+                            }
+                            this.i[o] = e[o],
+                            this.i[o]instanceof Array == !1 && (this.i[o] *= 1),
+                            r[o] = this.i[o] || 0
+                        }
+                        return this
+                    }
+                    stop() {
+                        return l ? ((i = t.indexOf(this), i !== -1 && self.tweens.splice(i, 1)),
+                        l = !1,
+                        null !== x && x.call(e),
+                        this.stopChainedTweens(),
+                        this) : this
+                    }
+                    stopChainedTweens() {
+                        for (var t = 0, e = this.v.length; e > t; t++)
+                            this.v[t].stop()
+                    }
+                    delay(t) {
+                        return this.u = t,
+                        this
+                    }
+                    repeat(t) {
+                        return this.a = t,
+                        this
+                    }
+                    yoyo(t) {
+                        return this.h = t,
+                        this
+                    }
+                    easing(t) {
+                        return this.d = t,
+                        this
+                    }
+                    interpolation(t) {
+                        return this.f = t,
+                        this
+                    }
+                    chain() {
+                        return v = arguments,
+                        this
+                    }
+                    onStart(t) {
+                        return g = t,
+                        this
+                    }
+                    onUpdate(t) {
+                        return this.y = t,
+                        this
+                    }
+                    onComplete(t) {
+                        return this.w = t,
+                        this
+                    }
+                    onStop(t) {
+                        return this.x = t,
+                        this
+                    }
+                    update(t) {
+                        var s, l, x;
+                        if (p > t)
+                            return !0;
+                        m === !1 && (null !== g && g.call(e),
+                        m = !0),
+                        l = (t - p) / o,
+                        l = l > 1 ? 1 : l,
+                        x = d(l);
+                        for (s in n) {
+                            var _ = i[s] || 0
+                              , b = n[s];
+                            b instanceof Array ? e[s] = f(b, x) : ("string" == typeof b && (b = _ + parseFloat(b, 10)),
+                            "number" == typeof b && (e[s] = _ + (b - _) * x))
+                        }
+                        if (null !== y && y.call(e, x),
+                        1 === l) {
+                            if (a > 0) {
+                                isFinite(a) && a--;
+                                for (s in r) {
+                                    if ("string" == typeof n[s] && (r[s] = r[s] + parseFloat(n[s], 10)),
+                                    h) {
+                                        var T = r[s];
+                                        r[s] = n[s],
+                                        n[s] = T
+                                    }
+                                    i[s] = r[s]
+                                }
+                                return h && (c = !c),
+                                p = t + u,
+                                !0
+                            }
+                            null !== w && w.call(e);
+                            for (var C = 0, k = v.length; k > C; C++)
+                                v[C].start(p + o);
+                            return !1
+                        }
+                        return !0
+                    }
+                }
                 var t = this.container
                 , e = this.scene.game.pixelRatio
                 , i = e / 2
@@ -9328,7 +9011,9 @@ function curve(t, e, i) {
                 , r = {
                     scale: 1.2 * i
                 };
-                this.pulse = new Libs.Tween(n).to(r, 200).repeat(1).yoyo(!0).easing(Libs.Easing.Cubic.InOut).onUpdate(function() {
+                this.pulse = new Tween(n).to(r, 200).repeat(1).yoyo(!0).easing(function(t) {
+                    return (t *= 2) < 1 ? .5 * t * t * t : .5 * ((t -= 2) * t * t + 2)
+                }).onUpdate(function() {
                     t.scaleX = t.scaleY = this.scale
                 }).start()
             }
@@ -9339,7 +9024,7 @@ function curve(t, e, i) {
                 e.y = t.height - 100 * e.scaleY
             }
             update = () => {
-                Libs.update(),
+
                 this.player && this.player._tempVehicleTicks > 0 ? (this.center_container(),
                 this.updateTime()) : this.container.visible = !1
             }
@@ -9365,10 +9050,9 @@ function curve(t, e, i) {
                 this.timeText = null
             }
         }
-        e.exports = VehicleTimer
     },
     70: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85)
@@ -9512,7 +9196,7 @@ function curve(t, e, i) {
         e.exports = Balloon
     },
     71: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Wheel = t(86)
           , Spring = t(83)
@@ -9670,7 +9354,7 @@ function curve(t, e, i) {
         e.exports = Blob
     },
     72: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85)
@@ -9992,10 +9676,7 @@ function curve(t, e, i) {
                 u.lineTo(P.x, P.y),
                 u.stroke(),
                 old.crashed) {
-                    if(!old.ragdoll) {
-                        old.createRagdoll();
-                    }
-                    old.ragdoll.draw();
+                    old.ragdoll.draw && old.ragdoll.draw();
                 }
                 else {
                     a = n.sub(e.add(o.factor(.5)));
@@ -10084,8 +9765,8 @@ function curve(t, e, i) {
     },
     73: function(t, e) {
         var Mass = t(77)
-          , Vector = t(14);
-        class Canopy extends Mass {
+          , Vector = t(8);
+        e.exports = class Canopy extends Mass {
             constructor(a, b, c) {
                 super();
                 this.init(new Vector(a, b), c),
@@ -10135,11 +9816,10 @@ function curve(t, e, i) {
                 t.fill()
             }
         }
-        e.exports = Canopy
     },
     74: function(t, e) {
         var Mass = t(77);
-        class Debris extends Mass {
+        e.exports = class Debris extends Mass {
             constructor(a, b, c) {
                 super();
                 this.massInit(a, b),
@@ -10204,12 +9884,11 @@ function curve(t, e, i) {
                 d.stroke()
             }
         }
-        e.exports = Debris
     },
     75: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Debris = t(74);
-        class Explosion {
+        e.exports = class Explosion {
             constructor(a, b) {
                 this.time = 20,
                 this.gravity = new Vector(0,.3),
@@ -10273,10 +9952,9 @@ function curve(t, e, i) {
                     t[e].update()
             }
         }
-        e.exports = Explosion
     },
     76: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85)
@@ -10284,7 +9962,7 @@ function curve(t, e, i) {
           , c = {
             HELICOPTER: "helicopter"
         };
-        class Heli extends Vehicle {
+        e.exports = class Heli extends Vehicle {
             constructor(a, b, c) {
                 super();
                 this.vehicleInit(a),
@@ -10605,11 +10283,10 @@ function curve(t, e, i) {
                 }
             }
         }
-        e.exports = Heli
     },
     77: function(t, e) {
-        var Vector = t(14);
-        class Mass {
+        var Vector = t(8);
+        e.exports = class Mass {
             pos = null;
             old = null;
             vel = null;
@@ -10667,10 +10344,9 @@ function curve(t, e, i) {
                 e.closePath()
             }
         }
-        e.exports = Mass
     },
     78: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85)
@@ -10683,9 +10359,7 @@ function curve(t, e, i) {
             BIKE_FALL_2: "bike_fall_2",
             BIKE_FALL_3: "bike_fall_3"
         };
-        t(11),
-        t(10)
-        class Mtb extends Vehicle {
+        e.exports = class Mtb extends Vehicle {
             constructor(a, b, c, d) {
                 super();
                 this.color = "rgba(0,0,0,1)",
@@ -11115,10 +10789,9 @@ function curve(t, e, i) {
                 }
             }
         }
-        e.exports = Mtb;
     },
     79: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Gamepad = t(60)
           , Explosion = t(75)
           , Bmx = t(72)
@@ -11144,7 +10817,7 @@ function curve(t, e, i) {
                 }
             return t
         };
-        class Player {
+        e.exports = class Player {
             constructor(a, b) {
                 this.id = g++,
                 this._scene = a,
@@ -11203,6 +10876,7 @@ function curve(t, e, i) {
                 this._ghost = !0
             }
             isGhost() {
+                if(this._scene.playerManager._players[this._scene.camera.focusIndex].id === this.id) return !1;
                 return this._ghost
             }
             isAlive() {
@@ -11316,7 +10990,7 @@ function curve(t, e, i) {
                 this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
                 t.draw(),
                 window.lite.getVar("frce") && this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
-                this.isGhost() && this.drawName()
+                this._ghost && this.drawName()
             }
             checkKeys() {
                 var t = this._gamepad
@@ -11357,13 +11031,15 @@ function curve(t, e, i) {
                 t
             }
             _createCheckpoint() {
-                var t = {};
+                var t = {
+                    _powerupsConsumed: JSON.stringify(this._powerupsConsumed),
+                    _crashed: this._crashed,
+                    _ticks: this._ticks
+                };
                 this._tempVehicleTicks > 0 ? (t._tempVehicleType = this._tempVehicleType,
                 t._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
                 t._tempVehicleTicks = this._tempVehicleTicks) : (t._baseVehicleType = this._baseVehicleType,
                 t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
-                t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
-                t._crashed = this._crashed,
                 this._checkpoints.push(t)
             }
             _snapshotFilter(t, e) {
@@ -11448,10 +11124,23 @@ function curve(t, e, i) {
             }
             returnToCheckpoint(t) {
                 if (this._checkpointsCache.length > 0) {
-                    for (var e = 0; t > e; e++)
+                    for (var e = 0; t > e; e++) {
+                        if(typeof this._gamepad.records.backspace_down != "undefined") {
+                            this._gamepad.records.backspace_down.pop();
+                            if(this._gamepad.records.backspace_down.length < 1) {
+                                delete this._gamepad.records.backspace_down
+                            }
+                        }
+                        if(typeof this._gamepad.records.backspace_up != "undefined") {
+                            this._gamepad.records.backspace_up.pop();
+                            if(this._gamepad.records.backspace_up.length < 1) {
+                                delete this._gamepad.records.backspace_up
+                            }
+                        }
                         this._checkpoints.push(this._checkpointsCache.pop());
-                    this.gotoCheckpoint()
+                    }
                 }
+                this.gotoCheckpoint()
             }
             close() {
                 this.id = null,
@@ -11483,11 +11172,10 @@ function curve(t, e, i) {
                 this._scene.state.playerAlive = this.isAlive()
             }
         }
-        e.exports = Player;
     },
     80: function(t, e) {
         var Player = t(79);
-        class PlayerManager {
+        e.exports = class PlayerManager {
             constructor(a) {
                 this.scene = a,
                 this.game = a.game,
@@ -11558,12 +11246,11 @@ function curve(t, e, i) {
                 this.settings = null
             }
         }
-        e.exports = PlayerManager;
     },
     81: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77);
-        class Prop extends Mass {
+        e.exports = class Prop extends Mass {
             constructor(a, b) {
                 super();
                 this.init(a, b),
@@ -11591,14 +11278,13 @@ function curve(t, e, i) {
                 s.equ(i)
             }
         }
-        e.exports = Prop
     },
     82: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85);
-        class Ragdoll extends Vehicle {
+        e.exports = class Ragdoll extends Vehicle {
             constructor(t, e) {
                 super();
                 this.parent = e;
@@ -11803,11 +11489,10 @@ function curve(t, e, i) {
                 this.drawHeadAngle = -(atan2(o, h) + PI)
             }
         }
-        e.exports = Ragdoll
     },
     83: function(t, e) {
-        var Vector = t(14);
-        class Spring {
+        var Vector = t(8);
+        e.exports = class Spring {
             constructor(a, b, c) {
                 this.m1 = a,
                 this.m2 = b,
@@ -11895,10 +11580,9 @@ function curve(t, e, i) {
                 this.m2 = e
             }
         }
-        e.exports = Spring
     },
     84: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Mass = t(77)
           , Spring = t(83)
           , Vehicle = t(85)
@@ -11906,7 +11590,7 @@ function curve(t, e, i) {
           , d = {
                 TRUCK_GROUND: "truck_idle"
             };
-        class Truck extends Vehicle {
+        e.exports = class Truck extends Vehicle {
             constructor(a, b, c) {
                 super();
                 this.vehicleInit(a),
@@ -12166,12 +11850,11 @@ function curve(t, e, i) {
                 t.stroke()
             }
         }
-        e.exports = Truck;
     },
     85: function(t, e) {
-        var Vector = t(14)
+        var Vector = t(8)
           , Explosion = t(75);
-        class Vehicle {
+        e.exports = class Vehicle {
             init(t) {
                 this.player = t,
                 this.scene = t._scene,
@@ -12230,11 +11913,10 @@ function curve(t, e, i) {
             }
             stopSounds() {}
         }
-        e.exports = Vehicle;
     },
     86: function(t, e) {
         var Mass = t(77);
-        class Wheel extends Mass {
+        e.exports = class Wheel extends Mass {
             constructor(a, b) {
                 super();
                 this.init(a, b),
@@ -12287,11 +11969,10 @@ function curve(t, e, i) {
                 this.rotationSpeed = .999 * this.rotationSpeed
             }
         }
-        e.exports = Wheel
     },
     87: function(t, e) {
-        var Vector = t(14);
-        class Camera {
+        var Vector = t(8);
+        e.exports = class Camera {
             constructor(a) {
                 var e = a.settings;
                 this.settings = e,
@@ -12447,11 +12128,10 @@ function curve(t, e, i) {
                 this.playerFocus = null
             }
         }
-        e.exports = Camera
     },
     88: function(t, e) {
-        var Vector = t(14);
-        class Screen {
+        var Vector = t(8);
+        e.exports = class Screen {
             constructor(a) {
                 this.scene = a,
                 this.game = a.game,
@@ -12500,199 +12180,186 @@ function curve(t, e, i) {
                 this.scene = null
             }
         }
-        e.exports = Screen
     },
     89: function() {
-        this.createjs = this.createjs || {},
-        createjs.extend = function(t, e) {
-            "use strict";
-            function i() {
-                this.constructor = t
-            }
-            return i.prototype = e.prototype,
-            t.prototype = new i
-        },
-        this.createjs = this.createjs || {},
-        createjs.promote = function(t, e) {
-            "use strict";
-            var i = t.prototype
-              , s = Object.getPrototypeOf && Object.getPrototypeOf(i) || i.__proto__;
-            if (s) {
-                i[(e += "_") + "constructor"] = s.constructor;
-                for (var n in s)
-                    i.hasOwnProperty(n) && "function" == typeof s[n] && (i[e + n] = s[n])
-            }
-            return t
-        },
-        this.createjs = this.createjs || {},
-        createjs.indexOf = function(t, e) {
-            "use strict";
-            for (var i = 0, s = t.length; s > i; i++)
-                if (e === t[i])
-                    return i;
-            return -1
-        },
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t, e, i) {
-                this.type = t,
-                this.target = null,
-                this.currentTarget = null,
-                this.eventPhase = 0,
-                this.bubbles = !!e,
-                this.cancelable = !!i,
-                this.timeStamp = (new Date).getTime(),
-                this.defaultPrevented = !1,
-                this.propagationStopped = !1,
-                this.immediatePropagationStopped = !1,
-                this.removed = !1
-            }
-            var e = t.prototype;
-            e.preventDefault = function() {
-                this.defaultPrevented = this.cancelable && !0
+        this.createjs = {
+            extend: function(t, e) {
+                "use strict";
+                function i() {
+                    this.constructor = t
+                }
+                return i.prototype = e.prototype,
+                t.prototype = new i
             },
-            e.stopPropagation = function() {
-                this.propagationStopped = !0
-            },
-            e.stopImmediatePropagation = function() {
-                this.immediatePropagationStopped = this.propagationStopped = !0
-            },
-            e.remove = function() {
-                this.removed = !0
-            },
-            e.clone = function() {
-                return new t(this.type,this.bubbles,this.cancelable)
-            },
-            e.set = function(t) {
-                for (var e in t)
-                    this[e] = t[e];
-                return this
-            },
-            e.toString = function() {
-                return "[Event (type=" + this.type + ")]"
-            },
-            createjs.Event = t
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t() {
-                this._listeners = null,
-                this._captureListeners = null
-            }
-            var e = t.prototype;
-            t.initialize = function(t) {
-                t.addEventListener = e.addEventListener,
-                t.on = e.on,
-                t.removeEventListener = t.off = e.removeEventListener,
-                t.removeAllEventListeners = e.removeAllEventListeners,
-                t.hasEventListener = e.hasEventListener,
-                t.dispatchEvent = e.dispatchEvent,
-                t._dispatchEvent = e._dispatchEvent,
-                t.willTrigger = e.willTrigger
-            },
-            e.addEventListener = function(t, e, i) {
-                var s;
-                s = i ? this._captureListeners = this._captureListeners || {} : this._listeners = this._listeners || {};
-                var n = s[t];
-                return n && this.removeEventListener(t, e, i),
-                n = s[t],
-                n ? n.push(e) : s[t] = [e],
-                e
-            },
-            e.on = function(t, e, i, s, n, r) {
-                return e.handleEvent && (i = i || e,
-                e = e.handleEvent),
-                i = i || this,
-                this.addEventListener(t, function(t) {
-                    e.call(i, t, n),
-                    s && t.remove()
-                }, r)
-            },
-            e.removeEventListener = function(t, e, i) {
-                var s = i ? this._captureListeners : this._listeners;
+            promote: function(t, e) {
+                "use strict";
+                var i = t.prototype
+                  , s = Object.getPrototypeOf && Object.getPrototypeOf(i) || i.__proto__;
                 if (s) {
-                    var n = s[t];
-                    if (n)
-                        for (var r = 0, o = n.length; o > r; r++)
-                            if (n[r] == e) {
-                                1 == o ? delete s[t] : n.splice(r, 1);
-                                break
-                            }
+                    i[(e += "_") + "constructor"] = s.constructor;
+                    for (var n in s)
+                        i.hasOwnProperty(n) && "function" == typeof s[n] && (i[e + n] = s[n])
+                }
+                return t
+            },
+            indexOf: function(t, e) {
+                for (var i = 0, s = t.length; s > i; i++)
+                    if (e === t[i])
+                        return i;
+                return -1
+            },
+            Event: class {
+                constructor(t, e, i) {
+                    this.type = t,
+                    this.target = null,
+                    this.currentTarget = null,
+                    this.eventPhase = 0,
+                    this.bubbles = !!e,
+                    this.cancelable = !!i,
+                    this.timeStamp = (new Date).getTime(),
+                    this.defaultPrevented = !1,
+                    this.propagationStopped = !1,
+                    this.immediatePropagationStopped = !1,
+                    this.removed = !1
+                }
+                preventDefault() {
+                    this.defaultPrevented = this.cancelable && !0
+                }
+                stopPropagation() {
+                    this.propagationStopped = !0
+                }
+                stopImmediatePropagation() {
+                    this.immediatePropagationStopped = this.propagationStopped = !0
+                }
+                remove() {
+                    this.removed = !0
+                }
+                clone() {
+                    return new t(this.type,this.bubbles,this.cancelable)
+                }
+                set(t) {
+                    for (var e in t)
+                        this[e] = t[e];
+                    return this
+                }
+                toString() {
+                    return "[Event (type=" + this.type + ")]"
                 }
             },
-            e.off = e.removeEventListener,
-            e.removeAllEventListeners = function(t) {
-                t ? (this._listeners && delete this._listeners[t],
-                this._captureListeners && delete this._captureListeners[t]) : this._listeners = this._captureListeners = null
-            },
-            e.dispatchEvent = function(t) {
-                if ("string" == typeof t) {
-                    var e = this._listeners;
-                    if (!e || !e[t])
-                        return !1;
-                    t = new createjs.Event(t)
-                } else
-                    t.target && t.clone && (t = t.clone());
-                try {
-                    t.target = this
-                } catch (i) {}
-                if (t.bubbles && this.parent) {
-                    for (var s = this, n = [s]; s.parent; )
-                        n.push(s = s.parent);
-                    var r, o = n.length;
-                    for (r = o - 1; r >= 0 && !t.propagationStopped; r--)
-                        n[r]._dispatchEvent(t, 1 + (0 == r));
-                    for (r = 1; o > r && !t.propagationStopped; r++)
-                        n[r]._dispatchEvent(t, 3)
-                } else
-                    this._dispatchEvent(t, 2);
-                return t.defaultPrevented
-            },
-            e.hasEventListener = function(t) {
-                var e = this._listeners
-                  , i = this._captureListeners;
-                return !!(e && e[t] || i && i[t])
-            },
-            e.willTrigger = function(t) {
-                for (var e = this; e; ) {
-                    if (e.hasEventListener(t))
-                        return !0;
-                    e = e.parent
-                }
-                return !1
-            },
-            e.toString = function() {
-                return "[EventDispatcher]"
-            },
-            e._dispatchEvent = function(t, e) {
-                var i, s = 1 == e ? this._captureListeners : this._listeners;
-                if (t && s) {
-                    var n = s[t.type];
-                    if (!n || !(i = n.length))
-                        return;
-                    try {
-                        t.currentTarget = this
-                    } catch (r) {}
-                    try {
-                        t.eventPhase = e
-                    } catch (r) {}
-                    t.removed = !1,
-                    n = n.slice();
-                    for (var o = 0; i > o && !t.immediatePropagationStopped; o++) {
-                        var a = n[o];
-                        a.handleEvent ? a.handleEvent(t) : a(t),
-                        t.removed && (this.off(t.type, a, 1 == e),
-                        t.removed = !1)
+            EventDispatcher: class {
+                constructor() {
+                    this._listeners = null,
+                    this._captureListeners = null,
+                    this.initialize = function(t) {
+                        t.addEventListener = e.addEventListener,
+                        t.on = e.on,
+                        t.removeEventListener = t.off = e.removeEventListener,
+                        t.removeAllEventListeners = e.removeAllEventListeners,
+                        t.hasEventListener = e.hasEventListener,
+                        t.dispatchEvent = e.dispatchEvent,
+                        t._dispatchEvent = e._dispatchEvent,
+                        t.willTrigger = e.willTrigger
                     }
                 }
-            },
-            createjs.EventDispatcher = t
-        }(),
-        this.createjs = this.createjs || {},
+                addEventListener(t, e, i) {
+                    var s;
+                    s = i ? this._captureListeners = this._captureListeners || {} : this._listeners = this._listeners || {};
+                    var n = s[t];
+                    return n && this.removeEventListener(t, e, i),
+                    n = s[t],
+                    n ? n.push(e) : s[t] = [e],
+                    e
+                }
+                on(t, e, i, s, n, r) {
+                    return e.handleEvent && (i = i || e,
+                    e = e.handleEvent),
+                    i = i || this,
+                    this.addEventListener(t, function(t) {
+                        e.call(i, t, n),
+                        s && t.remove()
+                    }, r)
+                }
+                removeEventListener(t, e, i) {
+                    var s = i ? this._captureListeners : this._listeners;
+                    if (s) {
+                        var n = s[t];
+                        if (n)
+                            for (var r = 0, o = n.length; o > r; r++)
+                                if (n[r] == e) {
+                                    1 == o ? delete s[t] : n.splice(r, 1);
+                                    break
+                                }
+                    }
+                }
+                off = e.removeEventListener;
+                removeAllEventListeners(t) {
+                    t ? (this._listeners && delete this._listeners[t],
+                    this._captureListeners && delete this._captureListeners[t]) : this._listeners = this._captureListeners = null
+                }
+                dispatchEvent(t) {
+                    if ("string" == typeof t) {
+                        var e = this._listeners;
+                        if (!e || !e[t])
+                            return !1;
+                        t = new createjs.Event(t)
+                    } else
+                        t.target && t.clone && (t = t.clone());
+                    try {
+                        t.target = this
+                    } catch (i) {}
+                    if (t.bubbles && this.parent) {
+                        for (var s = this, n = [s]; s.parent; )
+                            n.push(s = s.parent);
+                        var r, o = n.length;
+                        for (r = o - 1; r >= 0 && !t.propagationStopped; r--)
+                            n[r]._dispatchEvent(t, 1 + (0 == r));
+                        for (r = 1; o > r && !t.propagationStopped; r++)
+                            n[r]._dispatchEvent(t, 3)
+                    } else
+                        this._dispatchEvent(t, 2);
+                    return t.defaultPrevented
+                }
+                hasEventListener(t) {
+                    var e = this._listeners
+                      , i = this._captureListeners;
+                    return !!(e && e[t] || i && i[t])
+                }
+                willTrigger(t) {
+                    for (var e = this; e; ) {
+                        if (e.hasEventListener(t))
+                            return !0;
+                        e = e.parent
+                    }
+                    return !1
+                }
+                toString() {
+                    return "[EventDispatcher]"
+                }
+                _dispatchEvent(t, e) {
+                    var i, s = 1 == e ? this._captureListeners : this._listeners;
+                    if (t && s) {
+                        var n = s[t.type];
+                        if (!n || !(i = n.length))
+                            return;
+                        try {
+                            t.currentTarget = this
+                        } catch (r) {}
+                        try {
+                            t.eventPhase = e
+                        } catch (r) {}
+                        t.removed = !1,
+                        n = n.slice();
+                        for (var o = 0; i > o && !t.immediatePropagationStopped; o++) {
+                            var a = n[o];
+                            a.handleEvent ? a.handleEvent(t) : a(t),
+                            t.removed && (this.off(t.type, a, 1 == e),
+                            t.removed = !1)
+                        }
+                    }
+                }
+            }
+        },
         function() {
-            "use strict";
             function t() {
                 throw "Ticker cannot be instantiated."
             }
@@ -12859,7 +12526,6 @@ function curve(t, e, i) {
             },
             createjs.Ticker = t
         }(),
-        this.createjs = this.createjs || {},
         function() {
             "use strict";
             function t() {
@@ -12871,9 +12537,7 @@ function curve(t, e, i) {
             },
             createjs.UID = t
         }(),
-        this.createjs = this.createjs || {},
         function() {
-            "use strict";
             function t(t, e, i, s, n, r, o, a, h, l) {
                 this.Event_constructor(t, e, i),
                 this.stageX = s,
@@ -16402,377 +16066,8 @@ function curve(t, e, i) {
             t.buildDate = "Thu, 22 Oct 2020 00:15:55 PST"
         }()
     },
-    91: function() {
-        !function() {
-            if ("undefined" == typeof window.performance && (window.performance = {}),
-            !window.performance.now) {
-                var t = Date.now();
-                performance.timing && performance.timing.navigationStart && (t = performance.timing.navigationStart),
-                window.performance.now = function() {
-                    return Date.now() - t
-                }
-            }
-        }()
-    },
-    92: function(t, e, i) {
-        !function() {
-            if ("performance"in window == !1 && (window.performance = {}),
-            Date.now = Date.now || function() {
-                return (new Date).getTime()
-            },
-            "now"in window.performance == !1) {
-                var t = window.performance.timing && window.performance.timing.navigationStart ? window.performance.timing.navigationStart : Date.now();
-                window.performance.now = function() {
-                    return Date.now() - t
-                }
-            }
-        }();
-        var s = s || function() {
-            var t = [];
-            return {
-                getAll: function() {
-                    return t
-                },
-                removeAll: function() {
-                    t = []
-                },
-                add: function(e) {
-                    t.push(e)
-                },
-                remove: function(e) {
-                    var i = t.indexOf(e);
-                    -1 !== i && t.splice(i, 1)
-                },
-                update: function(e) {
-                    if (0 === t.length)
-                        return !1;
-                    var i = 0;
-                    for (e = void 0 !== e ? e : window.performance.now(); i < t.length; )
-                        t[i].update(e) ? i++ : t.splice(i, 1);
-                    return !0
-                }
-            }
-        }();
-        s.Tween = function(t) {
-            var e = t
-              , i = {}
-              , n = {}
-              , r = {}
-              , o = 1e3
-              , a = 0
-              , h = !1
-              , l = !1
-              , c = !1
-              , u = 0
-              , p = null
-              , d = s.Easing.Linear.None
-              , f = s.Interpolation.Linear
-              , v = []
-              , g = null
-              , m = !1
-              , y = null
-              , w = null
-              , x = null;
-            for (var _ in t)
-                i[_] = parseFloat(t[_], 10);
-            this.to = function(t, e) {
-                return void 0 !== e && (o = e),
-                n = t,
-                this
-            },
-            this.start = function(t) {
-                s.add(this),
-                l = !0,
-                m = !1,
-                p = void 0 !== t ? t : window.performance.now(),
-                p += u;
-                for (var o in n) {
-                    if (n[o]instanceof Array) {
-                        if (0 === n[o].length)
-                            continue;
-                        n[o] = [e[o]].concat(n[o])
-                    }
-                    i[o] = e[o],
-                    i[o]instanceof Array == !1 && (i[o] *= 1),
-                    r[o] = i[o] || 0
-                }
-                return this
-            },
-            this.stop = function() {
-                return l ? (s.remove(this),
-                l = !1,
-                null !== x && x.call(e),
-                this.stopChainedTweens(),
-                this) : this
-            },
-            this.stopChainedTweens = function() {
-                for (var t = 0, e = v.length; e > t; t++)
-                    v[t].stop()
-            },
-            this.delay = function(t) {
-                return u = t,
-                this
-            },
-            this.repeat = function(t) {
-                return a = t,
-                this
-            },
-            this.yoyo = function(t) {
-                return h = t,
-                this
-            },
-            this.easing = function(t) {
-                return d = t,
-                this
-            },
-            this.interpolation = function(t) {
-                return f = t,
-                this
-            },
-            this.chain = function() {
-                return v = arguments,
-                this
-            },
-            this.onStart = function(t) {
-                return g = t,
-                this
-            },
-            this.onUpdate = function(t) {
-                return y = t,
-                this
-            },
-            this.onComplete = function(t) {
-                return w = t,
-                this
-            },
-            this.onStop = function(t) {
-                return x = t,
-                this
-            },
-            this.update = function(t) {
-                var s, l, x;
-                if (p > t)
-                    return !0;
-                m === !1 && (null !== g && g.call(e),
-                m = !0),
-                l = (t - p) / o,
-                l = l > 1 ? 1 : l,
-                x = d(l);
-                for (s in n) {
-                    var _ = i[s] || 0
-                      , b = n[s];
-                    b instanceof Array ? e[s] = f(b, x) : ("string" == typeof b && (b = _ + parseFloat(b, 10)),
-                    "number" == typeof b && (e[s] = _ + (b - _) * x))
-                }
-                if (null !== y && y.call(e, x),
-                1 === l) {
-                    if (a > 0) {
-                        isFinite(a) && a--;
-                        for (s in r) {
-                            if ("string" == typeof n[s] && (r[s] = r[s] + parseFloat(n[s], 10)),
-                            h) {
-                                var T = r[s];
-                                r[s] = n[s],
-                                n[s] = T
-                            }
-                            i[s] = r[s]
-                        }
-                        return h && (c = !c),
-                        p = t + u,
-                        !0
-                    }
-                    null !== w && w.call(e);
-                    for (var C = 0, k = v.length; k > C; C++)
-                        v[C].start(p + o);
-                    return !1
-                }
-                return !0
-            }
-        },
-        s.Easing = {
-            Linear: {
-                None: function(t) {
-                    return t
-                }
-            },
-            Quadratic: {
-                In: function(t) {
-                    return t * t
-                },
-                Out: function(t) {
-                    return t * (2 - t)
-                },
-                InOut: function(t) {
-                    return (t *= 2) < 1 ? .5 * t * t : -.5 * (--t * (t - 2) - 1)
-                }
-            },
-            Cubic: {
-                In: function(t) {
-                    return t * t * t
-                },
-                Out: function(t) {
-                    return --t * t * t + 1
-                },
-                InOut: function(t) {
-                    return (t *= 2) < 1 ? .5 * t * t * t : .5 * ((t -= 2) * t * t + 2)
-                }
-            },
-            Quartic: {
-                In: function(t) {
-                    return t * t * t * t
-                },
-                Out: function(t) {
-                    return 1 - --t * t * t * t
-                },
-                InOut: function(t) {
-                    return (t *= 2) < 1 ? .5 * t * t * t * t : -.5 * ((t -= 2) * t * t * t - 2)
-                }
-            },
-            Quintic: {
-                In: function(t) {
-                    return t * t * t * t * t
-                },
-                Out: function(t) {
-                    return --t * t * t * t * t + 1
-                },
-                InOut: function(t) {
-                    return (t *= 2) < 1 ? .5 * t * t * t * t * t : .5 * ((t -= 2) * t * t * t * t + 2)
-                }
-            },
-            Sinusoidal: {
-                In: function(t) {
-                    return 1 - cos(t * PI / 2)
-                },
-                Out: function(t) {
-                    return sin(t * PI / 2)
-                },
-                InOut: function(t) {
-                    return .5 * (1 - cos(PI * t))
-                }
-            },
-            Exponential: {
-                In: function(t) {
-                    return 0 === t ? 0 : pow(1024, t - 1)
-                },
-                Out: function(t) {
-                    return 1 === t ? 1 : 1 - pow(2, -10 * t)
-                },
-                InOut: function(t) {
-                    return 0 === t ? 0 : 1 === t ? 1 : (t *= 2) < 1 ? .5 * pow(1024, t - 1) : .5 * (-pow(2, -10 * (t - 1)) + 2)
-                }
-            },
-            Circular: {
-                In: function(t) {
-                    return 1 - sqrt(1 - t * t)
-                },
-                Out: function(t) {
-                    return sqrt(1 - --t * t)
-                },
-                InOut: function(t) {
-                    return (t *= 2) < 1 ? -.5 * (sqrt(1 - t * t) - 1) : .5 * (sqrt(1 - (t -= 2) * t) + 1)
-                }
-            },
-            Elastic: {
-                In: function(t) {
-                    var e, i = .1, s = .4;
-                    return 0 === t ? 0 : 1 === t ? 1 : (!i || 1 > i ? (i = 1,
-                    e = s / 4) : e = s * asin(1 / i) / (2 * PI),
-                    -(i * pow(2, 10 * (t -= 1)) * sin(2 * (t - e) * PI / s)))
-                },
-                Out: function(t) {
-                    var e, i = .1, s = .4;
-                    return 0 === t ? 0 : 1 === t ? 1 : (!i || 1 > i ? (i = 1,
-                    e = s / 4) : e = s * asin(1 / i) / (2 * PI),
-                    i * pow(2, -10 * t) * sin(2 * (t - e) * PI / s) + 1)
-                },
-                InOut: function(t) {
-                    var e, i = .1, s = .4;
-                    return 0 === t ? 0 : 1 === t ? 1 : (!i || 1 > i ? (i = 1,
-                    e = s / 4) : e = s * asin(1 / i) / (2 * PI),
-                    (t *= 2) < 1 ? -.5 * i * pow(2, 10 * (t -= 1)) * sin(2 * (t - e) * PI / s) : i * pow(2, -10 * (t -= 1)) * sin(2 * (t - e) * PI / s) * .5 + 1)
-                }
-            },
-            Back: {
-                In: function(t) {
-                    var e = 1.70158;
-                    return t * t * ((e + 1) * t - e)
-                },
-                Out: function(t) {
-                    var e = 1.70158;
-                    return --t * t * ((e + 1) * t + e) + 1
-                },
-                InOut: function(t) {
-                    var e = 2.5949095;
-                    return (t *= 2) < 1 ? .5 * t * t * ((e + 1) * t - e) : .5 * ((t -= 2) * t * ((e + 1) * t + e) + 2)
-                }
-            },
-            Bounce: {
-                In: function(t) {
-                    return 1 - s.Easing.Bounce.Out(1 - t)
-                },
-                Out: function(t) {
-                    return 1 / 2.75 > t ? 7.5625 * t * t : 2 / 2.75 > t ? 7.5625 * (t -= 1.5 / 2.75) * t + .75 : 2.5 / 2.75 > t ? 7.5625 * (t -= 2.25 / 2.75) * t + .9375 : 7.5625 * (t -= 2.625 / 2.75) * t + .984375
-                },
-                InOut: function(t) {
-                    return .5 > t ? .5 * s.Easing.Bounce.In(2 * t) : .5 * s.Easing.Bounce.Out(2 * t - 1) + .5
-                }
-            }
-        },
-        s.Interpolation = {
-            Linear: function(t, e) {
-                var i = t.length - 1
-                  , n = i * e
-                  , r = floor(n)
-                  , o = s.Interpolation.Utils.Linear;
-                return 0 > e ? o(t[0], t[1], n) : e > 1 ? o(t[i], t[i - 1], i - n) : o(t[r], t[r + 1 > i ? i : r + 1], n - r)
-            },
-            Bezier: function(t, e) {
-                for (var i = 0, n = t.length - 1, r = pow, o = s.Interpolation.Utils.Bernstein, a = 0; n >= a; a++)
-                    i += r(1 - e, n - a) * r(e, a) * t[a] * o(n, a);
-                return i
-            },
-            CatmullRom: function(t, e) {
-                var i = t.length - 1
-                  , n = i * e
-                  , r = floor(n)
-                  , o = s.Interpolation.Utils.CatmullRom;
-                return t[0] === t[i] ? (0 > e && (r = floor(n = i * (1 + e))),
-                o(t[(r - 1 + i) % i], t[r], t[(r + 1) % i], t[(r + 2) % i], n - r)) : 0 > e ? t[0] - (o(t[0], t[0], t[1], t[1], -n) - t[0]) : e > 1 ? t[i] - (o(t[i], t[i], t[i - 1], t[i - 1], n - i) - t[i]) : o(t[r ? r - 1 : 0], t[r], t[r + 1 > i ? i : r + 1], t[r + 2 > i ? i : r + 2], n - r)
-            },
-            Utils: {
-                Linear: function(t, e, i) {
-                    return (e - t) * i + t
-                },
-                Bernstein: function(t, e) {
-                    var i = s.Interpolation.Utils.Factorial;
-                    return i(t) / i(e) / i(t - e)
-                },
-                Factorial: function() {
-                    var t = [1];
-                    return function(e) {
-                        var i = 1;
-                        if (t[e])
-                            return t[e];
-                        for (var s = e; s > 1; s--)
-                            i *= s;
-                        return t[e] = i,
-                        i
-                    }
-                }(),
-                CatmullRom: function(t, e, i, s, n) {
-                    var r = .5 * (i - t)
-                      , o = .5 * (s - e)
-                      , a = n * n
-                      , h = n * a;
-                    return (2 * e - 2 * i + r + o) * h + (-3 * e + 3 * i - 2 * r - o) * a + r * n + e
-                }
-            }
-        }
-        e.exports = s
-        return s
-    },
-    93: function(t, e) {
-        var Vector = t(14)
+    90: function(t, e) {
+        var Vector = t(8)
           , Tool = t(49)
           , Path = t(64);
         e.exports = class Fill extends Tool {
@@ -16875,8 +16170,8 @@ function curve(t, e, i) {
             }
         }
     },
-    94: function(t, e) {
-        var Vector = t(14)
+    91: function(t, e) {
+        var Vector = t(8)
             , n = t(64)
             , Tool = t(49);
         e.exports = class OvalTool extends Tool {
@@ -17014,11 +16309,12 @@ function curve(t, e, i) {
             }
         }
     },
-    95: function(t, e) {
+    92: function(t, e) {
         e.exports = window.lite = new class lite {
             constructor() {
                 this.vars = localStorage.lite ? JSON.parse(localStorage.lite).vars : {
                     dark: !1,
+                    di: !0,
                     feats: !1,
                     frce: !1,
                     invisible: !1,
@@ -17036,8 +16332,10 @@ function curve(t, e, i) {
                     tools: null
                 }
                 this.inject(),
-                this.saveToLocalStorage(),
-                this.checkForUpdate()
+                this.saveToLocalStorage();
+                var cfuInt = setInterval(() => {
+                    !!window.manifestVersionLite && (this.checkForUpdate(window.manifestVersionLite), clearInterval(cfuInt));
+                }, 1000);
             }
             getCap() {
                 return {
@@ -17096,11 +16394,95 @@ function curve(t, e, i) {
                     type: "1"
                 }
             }
+            drawInputDisplay(canvas = document.createElement('canvas')) {
+                var gamepad = GameManager.game.currentScene.playerManager._players[GameManager.game.currentScene.camera.focusIndex]._gamepad.downButtons;
+                var ctx = canvas.getContext('2d');
+                ctx.lineJoin = "round";
+                ctx.lineCap = "round";
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = this.getVar("dark") && "#fff" || "#000";
+                ctx.fillStyle = this.getVar("dark") && "#fff" || "#000";
+                ctx.beginPath();
+                ctx.moveTo(10, canvas.height - 10);
+                ctx.lineTo(10, canvas.height - 50);
+                ctx.lineTo(50, canvas.height - 50);
+                ctx.lineTo(50, canvas.height - 10);
+                ctx.lineTo(10, canvas.height - 10);
+                !!gamepad.left && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(10, canvas.height - 60);
+                ctx.lineTo(10, canvas.height - 100);
+                ctx.lineTo(50, canvas.height - 100);
+                ctx.lineTo(50, canvas.height - 60);
+                ctx.lineTo(10, canvas.height - 60);
+                !!gamepad.z && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(60, canvas.height - 60);
+                ctx.lineTo(60, canvas.height - 100);
+                ctx.lineTo(100, canvas.height - 100);
+                ctx.lineTo(100, canvas.height - 60);
+                ctx.lineTo(60, canvas.height - 60);
+                !!gamepad.up && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(60, canvas.height - 10);
+                ctx.lineTo(60, canvas.height - 50);
+                ctx.lineTo(100, canvas.height - 50);
+                ctx.lineTo(100, canvas.height - 10);
+                ctx.lineTo(60, canvas.height - 10);
+                !!gamepad.down && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(110, canvas.height - 10);
+                ctx.lineTo(110, canvas.height - 50);
+                ctx.lineTo(150, canvas.height - 50);
+                ctx.lineTo(150, canvas.height - 10);
+                ctx.lineTo(110, canvas.height - 10);
+                !!gamepad.right && ctx.fill();
+                ctx.stroke();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = !!gamepad.left ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(35, canvas.height - 38);
+                ctx.lineTo(22, canvas.height - 30);
+                ctx.lineTo(35, canvas.height - 22);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.z ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(22, canvas.height - 90);
+                ctx.lineTo(37, canvas.height - 90);
+                ctx.lineTo(22, canvas.height - 70);
+                ctx.lineTo(37, canvas.height - 70);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.up ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(72, canvas.height - 72);
+                ctx.lineTo(80, canvas.height - 88);
+                ctx.lineTo(88, canvas.height - 72);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.down ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(72, canvas.height - 37);
+                ctx.lineTo(80, canvas.height - 22);
+                ctx.lineTo(88, canvas.height - 37);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.right ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(125, canvas.height - 38);
+                ctx.lineTo(138, canvas.height - 30);
+                ctx.lineTo(125, canvas.height - 22);
+                ctx.stroke();
+            }
             saveToLocalStorage() {
                 var lite = JSON.stringify({
                     vars: this.vars
                 });
                 localStorage.setItem("lite", lite)
+            }
+            getVar(t) {
+                return localStorage.lite ? JSON.parse(localStorage.lite).vars[t] : this.vars[t]
             }
             setVar(t, e) {
                 if(typeof this.vars[t] == "object") {
@@ -17112,8 +16494,11 @@ function curve(t, e, i) {
                 }
                 this.saveToLocalStorage()
             }
-            getVar(t) {
-                return localStorage.lite ? JSON.parse(localStorage.lite).vars[t] : this.vars[t]
+            updateVars() {
+                this.vars = {};
+                for(var t in JSON.parse(localStorage.lite).vars) {
+                    this.vars[t] = JSON.parse(localStorage.lite).vars[t];
+                }
             }
             checkAuto(){
                 GameManager.game.currentScene.importCode = GameManager.game.currentScene.track.getCode();
@@ -17191,9 +16576,9 @@ function curve(t, e, i) {
                   , output = document.getElementById("output");
                 output.value = `${i1[0]}${i2[0]}#${i1[1]}${i2[1]}#${i1[2]}${i2[2]}`
             }
-            checkForUpdate() {
+            checkForUpdate(t) {
                 fetch("https://raw.githubusercontent.com/calculus-dev/free-rider-lite/master/update.json").then(response => response.json()).then(json => {
-                    if(json.version > "3.1.7" && this.getVar("update").dismissed != !0){
+                    if(json.version > t && this.getVar("update").dismissed != !0){
                         this.setVar("update", {
                             uptodate: !0
                         })
@@ -17235,10 +16620,11 @@ function curve(t, e, i) {
                     <input type="radio" name="toggle" id="combine" ${!this.getVar("toggle") ? "checked" : ""}> <label for="orange">Combine Tracks</label><br>
                 </div>
                 <input title="Refresh your page for changes to take effect" type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> <label for="dark">Dark Mode</label><br>
+                <input title="Enables an input display." type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> <label for="di">Input Display</label><br>
                 <input title="Enables a beta feature" type="checkbox" id="frce" ${this.getVar("frce") ? "checked" : ""}> <label for="frce">FRCE Mod (limited)</label><br>
-                <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br>
                 <input title="Hide grid lines" type="checkbox" id="invisible" ${this.getVar("invisible") ? "checked" : ""}> <label for="invisible">Invisible Grid</label><br>
-                <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : "disabled"}> <label for="isometric">Isometric Grid</label><br><br>`;
+                <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : "disabled"}> <label for="isometric">Isometric Grid</label><br>
+                <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br><br>`;
                 i.onclick = (()=>{
                     var t = e=>{
                         s.contains(e.target) || (document.removeEventListener("click", t),
@@ -17262,6 +16648,9 @@ function curve(t, e, i) {
                     this.setVar("dark", !this.getVar("dark")),
                     document.getElementsByClassName("game")[0].style.background = this.getVar("dark") && "#1d1d1d" || "#ffffff",
                     GameManager.game.currentScene.track.undraw()
+                }),
+                s.querySelector("#di").onclick = (()=>{
+                    this.setVar("di", !this.getVar("di"))
                 }),
                 s.querySelector("#frce").onclick = (()=>{
                     this.setVar("frce", !this.getVar("frce"))
