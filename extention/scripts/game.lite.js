@@ -5102,8 +5102,7 @@ function curve(t, e, i) {
             }
             draw() {
                 var t = this.scene
-                , e = (t.game.canvas,
-                t.game.canvas.getContext("2d"))
+                , e = t.game.canvas.getContext("2d")
                 , i = this.options;
                 this.powerupTools[i.selected].draw(e)
             }
@@ -6301,10 +6300,7 @@ function curve(t, e, i) {
                 this.tools[e] = t
             }
             setTool(t) {
-                {
-                    var t = t.toLowerCase();
-                    this.scene
-                }
+                var t = t.toLowerCase();
                 this.currentTool !== t && (this.resetTool(),
                 this.currentTool = t,
                 this.scene.stateChanged(),
@@ -6496,7 +6492,7 @@ function curve(t, e, i) {
                 t.globalAlpha = 1
             }
             drawCachedIsometricGrid(t, e) {
-                this.gridCache === !1 && this.cacheIsometricGrid(e);
+                this.cacheIsometricGrid(e);
                 var i = this.gridCache
                   , s = i.width
                   , n = i.height
@@ -6565,30 +6561,32 @@ function curve(t, e, i) {
                 o.height = i;
                 var a = o.getContext("2d");
                 a.strokeStyle = window.lite.getVar("dark") ? "#252525" : this.options.gridMinorLineColor,
+                a.fillStyle = window.lite.getVar("dark") ? "#252525" : this.options.gridMinorLineColor,
                 a.strokeWidth = 1,
                 a.beginPath();
                 var h = null
+                  , b = null
                   , l = null
                   , c = null
                   , u = null;
                 for (h = floor(e / r),
-                l = 0; h >= l; l+=1.5)
-                    c = l * r,
-                    a.moveTo(c, 0),
-                    a.lineTo(c, i),
-                    a.stroke();
-                for (h = floor(i / r),
-                l = 0; h >= l; l++)
-                    u = l * r,
-                    a.moveTo(0, u),
-                    a.lineTo(e, u),
-                    a.stroke();
-                a.beginPath(),
-                a.rect(0, 0, e, i),
-                a.lineWidth = 2,
-                a.strokeStyle = window.lite.getVar("dark") ? "#3e3e3e" : this.options.gridMajorLineColor,
-                a.stroke(),
-                a.closePath(),
+                l = 0; h >= l; l+=2) {
+                    for (h = floor(i / r),
+                    b = 0; h >= b; b+=.5) {
+                        a.beginPath();
+                        if((b - Math.floor(b)) === 0) {
+                            c = b * r,
+                            u = l * r,
+                            a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                        } else {
+                            c = b * r,
+                            u = (l + 1) * r,
+                            a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                        }
+                        a.fill(),
+                        a.stroke();
+                    }
+                }
                 this.gridCache = o,
                 this.gridCacheAlpha = min(t + .2, 1)
             }
@@ -8097,11 +8095,9 @@ function curve(t, e, i) {
                 this.updateRealPosition(e)
             }
             updateRealPosition(t) {
-                var e = (t.old,
-                t.pos)
+                var e = t.pos
                 , i = t.real
-                , s = (t.down,
-                this.scene)
+                , s = this.scene
                 , n = s.screen
                 , o = s.camera
                 , a = n.center
@@ -8111,10 +8107,20 @@ function curve(t, e, i) {
                 i.x = round(l),
                 i.y = round(c);
                 var u = this.scene.settings;
-                if (this.scene.toolHandler.options.grid) {
+                if(this.scene.toolHandler.options.grid) {
                     var p = u.toolHandler.gridSize;
-                    i.x = round(i.x / p) * p,
-                    i.y = round(i.y / p) * p
+                    if(window.lite.getVar("isometric")) {
+                        function mod(a, b) {
+                            return ((a % b) + b) % b
+                        }
+                        let adjusted = round(i.y / p),
+                            shifted = -p * (mod(adjusted, 2) + 1);
+                        i.x = i.x - mod(i.x - shifted, p * 2) + shifted + (mod(adjusted, 2) * p);
+                        i.y = adjusted * p;
+                    } else {
+                        i.x = round(i.x / p) * p
+                        i.y = round(i.y / p) * p
+                    }
                 }
                 this.updateCallback
             }
@@ -16623,6 +16629,1098 @@ function curve(t, e, i) {
                 <input title="Enables an input display." type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> <label for="di">Input Display</label><br>
                 <input title="Enables a beta feature" type="checkbox" id="frce" ${this.getVar("frce") ? "checked" : ""}> <label for="frce">FRCE Mod (limited)</label><br>
                 <input title="Hide grid lines" type="checkbox" id="invisible" ${this.getVar("invisible") ? "checked" : ""}> <label for="invisible">Invisible Grid</label><br>
+                <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> <label for="isometric">Isometric Grid</label><br>
+                <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br><br>`;
+                i.onclick = (()=>{
+                    var t = e=>{
+                        s.contains(e.target) || (document.removeEventListener("click", t),
+                        document.body.removeChild(s))
+                    };
+                    document.body.appendChild(s),
+                    setTimeout(()=>document.addEventListener("click", t), 0)
+                });
+                s.querySelector("#toggleDropdown").onclick = (()=>{
+                    s.querySelector("#dropdown2").style.display = s.querySelector("#dropdown2").style.display == "none" && "block" || "none"
+                }),
+                s.querySelector("#move").onclick = (()=>{
+                    this.setVar("toggle", !0),
+                    document.getElementById('trackCombiner').parentNode.replaceChild(this.nodes.trackMover, document.getElementById('trackCombiner'))
+                }),
+                s.querySelector("#combine").onclick = (()=>{
+                    this.setVar("toggle", !1),
+                    document.getElementById('trackMover').parentNode.replaceChild(this.nodes.trackCombiner, document.getElementById('trackMover'))
+                }),
+                s.querySelector("#dark").onclick = (()=>{
+                    this.setVar("dark", !this.getVar("dark")),
+                    document.getElementsByClassName("game")[0].style.background = this.getVar("dark") && "#1d1d1d" || "#ffffff",
+                    GameManager.game.currentScene.track.undraw()
+                }),
+                s.querySelector("#di").onclick = (()=>{
+                    this.setVar("di", !this.getVar("di"))
+                }),
+                s.querySelector("#frce").onclick = (()=>{
+                    this.setVar("frce", !this.getVar("frce"))
+                }),
+                s.querySelector("#feats").onclick = (()=>{
+                    this.setVar("feats", !this.getVar("feats"))
+                }),
+                s.querySelector("#invisible").onclick = (()=>{
+                    this.setVar("invisible", !this.getVar("invisible")),
+                    GameManager.game.currentScene.state.grid = GameManager.game.currentScene.toolHandler.options.grid
+                }),
+                s.querySelector("#isometric").onclick = (()=>{
+                    this.setVar("isometric", !this.getVar("isometric"))
+                });
+            }
+        }()
+    }
+});                  , A = {
+                    r: 0,
+                    b: 0,
+                    g: 0,
+                    a: 0
+                }
+                  , D = A;
+                for (h = 1; _ > h; h++)
+                    D = D.n = {
+                        r: 0,
+                        b: 0,
+                        g: 0,
+                        a: 0
+                    };
+                D.n = A;
+                var I = {
+                    r: 0,
+                    b: 0,
+                    g: 0,
+                    a: 0
+                }
+                  , E = I;
+                for (h = 1; b > h; h++)
+                    E = E.n = {
+                        r: 0,
+                        b: 0,
+                        g: 0,
+                        a: 0
+                    };
+                E.n = I;
+                for (var O = null, z = 0 | t.MUL_TABLE[i], j = 0 | t.SHG_TABLE[i], L = 0 | t.MUL_TABLE[s], B = 0 | t.SHG_TABLE[s]; n-- > 0; ) {
+                    p = u = 0;
+                    var F = z
+                      , R = j;
+                    for (a = C; --a > -1; ) {
+                        for (d = P * (m = r[0 | u]),
+                        f = P * (y = r[u + 1 | 0]),
+                        v = P * (w = r[u + 2 | 0]),
+                        g = P * (x = r[u + 3 | 0]),
+                        D = A,
+                        h = P; --h > -1; )
+                            D.r = m,
+                            D.g = y,
+                            D.b = w,
+                            D.a = x,
+                            D = D.n;
+                        for (h = 1; P > h; h++)
+                            l = u + ((h > k ? k : h) << 2) | 0,
+                            d += D.r = r[l],
+                            f += D.g = r[l + 1],
+                            v += D.b = r[l + 2],
+                            g += D.a = r[l + 3],
+                            D = D.n;
+                        for (O = A,
+                        o = 0; T > o; o++)
+                            r[u++] = d * F >>> R,
+                            r[u++] = f * F >>> R,
+                            r[u++] = v * F >>> R,
+                            r[u++] = g * F >>> R,
+                            l = p + ((l = o + i + 1) < k ? l : k) << 2,
+                            d -= O.r - (O.r = r[l]),
+                            f -= O.g - (O.g = r[l + 1]),
+                            v -= O.b - (O.b = r[l + 2]),
+                            g -= O.a - (O.a = r[l + 3]),
+                            O = O.n;
+                        p += T
+                    }
+                    for (F = L,
+                    R = B,
+                    o = 0; T > o; o++) {
+                        for (u = o << 2 | 0,
+                        d = M * (m = r[u]) | 0,
+                        f = M * (y = r[u + 1 | 0]) | 0,
+                        v = M * (w = r[u + 2 | 0]) | 0,
+                        g = M * (x = r[u + 3 | 0]) | 0,
+                        E = I,
+                        h = 0; M > h; h++)
+                            E.r = m,
+                            E.g = y,
+                            E.b = w,
+                            E.a = x,
+                            E = E.n;
+                        for (c = T,
+                        h = 1; s >= h; h++)
+                            u = c + o << 2,
+                            d += E.r = r[u],
+                            f += E.g = r[u + 1],
+                            v += E.b = r[u + 2],
+                            g += E.a = r[u + 3],
+                            E = E.n,
+                            S > h && (c += T);
+                        if (u = o,
+                        O = I,
+                        n > 0)
+                            for (a = 0; C > a; a++)
+                                l = u << 2,
+                                r[l + 3] = x = g * F >>> R,
+                                x > 0 ? (r[l] = d * F >>> R,
+                                r[l + 1] = f * F >>> R,
+                                r[l + 2] = v * F >>> R) : r[l] = r[l + 1] = r[l + 2] = 0,
+                                l = o + ((l = a + M) < S ? l : S) * T << 2,
+                                d -= O.r - (O.r = r[l]),
+                                f -= O.g - (O.g = r[l + 1]),
+                                v -= O.b - (O.b = r[l + 2]),
+                                g -= O.a - (O.a = r[l + 3]),
+                                O = O.n,
+                                u += T;
+                        else
+                            for (a = 0; C > a; a++)
+                                l = u << 2,
+                                r[l + 3] = x = g * F >>> R,
+                                x > 0 ? (x = 255 / x,
+                                r[l] = (d * F >>> R) * x,
+                                r[l + 1] = (f * F >>> R) * x,
+                                r[l + 2] = (v * F >>> R) * x) : r[l] = r[l + 1] = r[l + 2] = 0,
+                                l = o + ((l = a + M) < S ? l : S) * T << 2,
+                                d -= O.r - (O.r = r[l]),
+                                f -= O.g - (O.g = r[l + 1]),
+                                v -= O.b - (O.b = r[l + 2]),
+                                g -= O.a - (O.a = r[l + 3]),
+                                O = O.n,
+                                u += T
+                    }
+                }
+                return !0
+            },
+            createjs.BlurFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t(t) {
+                this.alphaMap = t,
+                this._alphaMap = null,
+                this._mapData = null
+            }
+            var e = createjs.extend(t, createjs.Filter);
+            e.clone = function() {
+                var e = new t(this.alphaMap);
+                return e._alphaMap = this._alphaMap,
+                e._mapData = this._mapData,
+                e
+            },
+            e.toString = function() {
+                return "[AlphaMapFilter]"
+            },
+            e._applyFilter = function(t) {
+                if (!this.alphaMap)
+                    return !0;
+                if (!this._prepAlphaMap())
+                    return !1;
+                for (var e = t.data, i = this._mapData, s = 0, n = e.length; n > s; s += 4)
+                    e[s + 3] = i[s] || 0;
+                return !0
+            },
+            e._prepAlphaMap = function() {
+                if (!this.alphaMap)
+                    return !1;
+                if (this.alphaMap == this._alphaMap && this._mapData)
+                    return !0;
+                this._mapData = null;
+                var t, e = this._alphaMap = this.alphaMap, i = e;
+                e instanceof HTMLCanvasElement ? t = i.getContext("2d") : (i = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas"),
+                i.width = e.width,
+                i.height = e.height,
+                t = i.getContext("2d"),
+                t.drawImage(e, 0, 0));
+                try {
+                    var s = t.getImageData(0, 0, e.width, e.height)
+                } catch (n) {
+                    return !1
+                }
+                return this._mapData = s.data,
+                !0
+            },
+            createjs.AlphaMapFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t(t) {
+                this.mask = t
+            }
+            var e = createjs.extend(t, createjs.Filter);
+            e.applyFilter = function(t, e, i, s, n, r, o, a) {
+                return this.mask ? (r = r || t,
+                null == o && (o = e),
+                null == a && (a = i),
+                r.save(),
+                t != r ? !1 : (r.globalCompositeOperation = "destination-in",
+                r.drawImage(this.mask, o, a),
+                r.restore(),
+                !0)) : !0
+            },
+            e.clone = function() {
+                return new t(this.mask)
+            },
+            e.toString = function() {
+                return "[AlphaMaskFilter]"
+            },
+            createjs.AlphaMaskFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t(t, e, i, s, n, r, o, a) {
+                this.redMultiplier = null != t ? t : 1,
+                this.greenMultiplier = null != e ? e : 1,
+                this.blueMultiplier = null != i ? i : 1,
+                this.alphaMultiplier = null != s ? s : 1,
+                this.redOffset = n || 0,
+                this.greenOffset = r || 0,
+                this.blueOffset = o || 0,
+                this.alphaOffset = a || 0
+            }
+            var e = createjs.extend(t, createjs.Filter);
+            e.toString = function() {
+                return "[ColorFilter]"
+            },
+            e.clone = function() {
+                return new t(this.redMultiplier,this.greenMultiplier,this.blueMultiplier,this.alphaMultiplier,this.redOffset,this.greenOffset,this.blueOffset,this.alphaOffset)
+            },
+            e._applyFilter = function(t) {
+                for (var e = t.data, i = e.length, s = 0; i > s; s += 4)
+                    e[s] = e[s] * this.redMultiplier + this.redOffset,
+                    e[s + 1] = e[s + 1] * this.greenMultiplier + this.greenOffset,
+                    e[s + 2] = e[s + 2] * this.blueMultiplier + this.blueOffset,
+                    e[s + 3] = e[s + 3] * this.alphaMultiplier + this.alphaOffset;
+                return !0
+            },
+            createjs.ColorFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t(t, e, i, s) {
+                this.setColor(t, e, i, s)
+            }
+            var e = t.prototype;
+            t.DELTA_INDEX = [0, .01, .02, .04, .05, .06, .07, .08, .1, .11, .12, .14, .15, .16, .17, .18, .2, .21, .22, .24, .25, .27, .28, .3, .32, .34, .36, .38, .4, .42, .44, .46, .48, .5, .53, .56, .59, .62, .65, .68, .71, .74, .77, .8, .83, .86, .89, .92, .95, .98, 1, 1.06, 1.12, 1.18, 1.24, 1.3, 1.36, 1.42, 1.48, 1.54, 1.6, 1.66, 1.72, 1.78, 1.84, 1.9, 1.96, 2, 2.12, 2.25, 2.37, 2.5, 2.62, 2.75, 2.87, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.3, 4.7, 4.9, 5, 5.5, 6, 6.5, 6.8, 7, 7.3, 7.5, 7.8, 8, 8.4, 8.7, 9, 9.4, 9.6, 9.8, 10],
+            t.IDENTITY_MATRIX = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+            t.LENGTH = t.IDENTITY_MATRIX.length,
+            e.setColor = function(t, e, i, s) {
+                return this.reset().adjustColor(t, e, i, s)
+            },
+            e.reset = function() {
+                return this.copy(t.IDENTITY_MATRIX)
+            },
+            e.adjustColor = function(t, e, i, s) {
+                return this.adjustHue(s),
+                this.adjustContrast(e),
+                this.adjustBrightness(t),
+                this.adjustSaturation(i)
+            },
+            e.adjustBrightness = function(t) {
+                return 0 == t || isNaN(t) ? this : (t = this._cleanValue(t, 255),
+                this._multiplyMatrix([1, 0, 0, 0, t, 0, 1, 0, 0, t, 0, 0, 1, 0, t, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]),
+                this)
+            },
+            e.adjustContrast = function(e) {
+                if (0 == e || isNaN(e))
+                    return this;
+                e = this._cleanValue(e, 100);
+                var i;
+                return 0 > e ? i = 127 + e / 100 * 127 : (i = e % 1,
+                i = 0 == i ? t.DELTA_INDEX[e] : t.DELTA_INDEX[e << 0] * (1 - i) + t.DELTA_INDEX[(e << 0) + 1] * i,
+                i = 127 * i + 127),
+                this._multiplyMatrix([i / 127, 0, 0, 0, .5 * (127 - i), 0, i / 127, 0, 0, .5 * (127 - i), 0, 0, i / 127, 0, .5 * (127 - i), 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]),
+                this
+            },
+            e.adjustSaturation = function(t) {
+                if (0 == t || isNaN(t))
+                    return this;
+                t = this._cleanValue(t, 100);
+                var e = 1 + (t > 0 ? 3 * t / 100 : t / 100)
+                  , i = .3086
+                  , s = .6094
+                  , n = .082;
+                return this._multiplyMatrix([i * (1 - e) + e, s * (1 - e), n * (1 - e), 0, 0, i * (1 - e), s * (1 - e) + e, n * (1 - e), 0, 0, i * (1 - e), s * (1 - e), n * (1 - e) + e, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]),
+                this
+            },
+            e.adjustHue = function(t) {
+                if (0 == t || isNaN(t))
+                    return this;
+                t = this._cleanValue(t, 180) / 180 * PI;
+                var e = cos(t)
+                  , i = sin(t)
+                  , s = .213
+                  , n = .715
+                  , r = .072;
+                return this._multiplyMatrix([s + e * (1 - s) + i * -s, n + e * -n + i * -n, r + e * -r + i * (1 - r), 0, 0, s + e * -s + .143 * i, n + e * (1 - n) + .14 * i, r + e * -r + i * -.283, 0, 0, s + e * -s + i * -(1 - s), n + e * -n + i * n, r + e * (1 - r) + i * r, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]),
+                this
+            },
+            e.concat = function(e) {
+                return e = this._fixMatrix(e),
+                e.length != t.LENGTH ? this : (this._multiplyMatrix(e),
+                this)
+            },
+            e.clone = function() {
+                return (new t).copy(this)
+            },
+            e.toArray = function() {
+                for (var e = [], i = 0, s = t.LENGTH; s > i; i++)
+                    e[i] = this[i];
+                return e
+            },
+            e.copy = function(e) {
+                for (var i = t.LENGTH, s = 0; i > s; s++)
+                    this[s] = e[s];
+                return this
+            },
+            e.toString = function() {
+                return "[ColorMatrix]"
+            },
+            e._multiplyMatrix = function(t) {
+                var e, i, s, n = [];
+                for (e = 0; 5 > e; e++) {
+                    for (i = 0; 5 > i; i++)
+                        n[i] = this[i + 5 * e];
+                    for (i = 0; 5 > i; i++) {
+                        var r = 0;
+                        for (s = 0; 5 > s; s++)
+                            r += t[i + 5 * s] * n[s];
+                        this[i + 5 * e] = r
+                    }
+                }
+            },
+            e._cleanValue = function(t, e) {
+                return min(e, max(-e, t))
+            },
+            e._fixMatrix = function(e) {
+                return e instanceof t && (e = e.toArray()),
+                e.length < t.LENGTH ? e = e.slice(0, e.length).concat(t.IDENTITY_MATRIX.slice(e.length, t.LENGTH)) : e.length > t.LENGTH && (e = e.slice(0, t.LENGTH)),
+                e
+            },
+            createjs.ColorMatrix = t
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t(t) {
+                this.matrix = t
+            }
+            var e = createjs.extend(t, createjs.Filter);
+            e.toString = function() {
+                return "[ColorMatrixFilter]"
+            },
+            e.clone = function() {
+                return new t(this.matrix)
+            },
+            e._applyFilter = function(t) {
+                for (var e, i, s, n, r = t.data, o = r.length, a = this.matrix, h = a[0], l = a[1], c = a[2], u = a[3], p = a[4], d = a[5], f = a[6], v = a[7], g = a[8], m = a[9], y = a[10], w = a[11], x = a[12], _ = a[13], b = a[14], T = a[15], C = a[16], k = a[17], S = a[18], P = a[19], M = 0; o > M; M += 4)
+                    e = r[M],
+                    i = r[M + 1],
+                    s = r[M + 2],
+                    n = r[M + 3],
+                    r[M] = e * h + i * l + s * c + n * u + p,
+                    r[M + 1] = e * d + i * f + s * v + n * g + m,
+                    r[M + 2] = e * y + i * w + s * x + n * _ + b,
+                    r[M + 3] = e * T + i * C + s * k + n * S + P;
+                return !0
+            },
+            createjs.ColorMatrixFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            function t() {
+                throw "Touch cannot be instantiated"
+            }
+            t.isSupported = function() {
+                return !!("ontouchstart"in window || window.navigator.msPointerEnabled && window.navigator.msMaxTouchPoints > 0 || window.navigator.pointerEnabled && window.navigator.maxTouchPoints > 0)
+            },
+            t.enable = function(e, i, s) {
+                return e && e.canvas && t.isSupported() ? e.__touch ? !0 : (e.__touch = {
+                    pointers: {},
+                    multitouch: !i,
+                    preventDefault: !s,
+                    count: 0
+                },
+                "ontouchstart"in window ? t._IOS_enable(e) : (window.navigator.msPointerEnabled || window.navigator.pointerEnabled) && t._IE_enable(e),
+                !0) : !1
+            },
+            t.disable = function(e) {
+                e && ("ontouchstart"in window ? t._IOS_disable(e) : (window.navigator.msPointerEnabled || window.navigator.pointerEnabled) && t._IE_disable(e),
+                delete e.__touch)
+            },
+            t._IOS_enable = function(e) {
+                var i = e.canvas
+                  , s = e.__touch.f = function(i) {
+                    t._IOS_handleEvent(e, i)
+                }
+                ;
+                i.addEventListener("touchstart", s, !1),
+                i.addEventListener("touchmove", s, !1),
+                i.addEventListener("touchend", s, !1),
+                i.addEventListener("touchcancel", s, !1)
+            },
+            t._IOS_disable = function(t) {
+                var e = t.canvas;
+                if (e) {
+                    var i = t.__touch.f;
+                    e.removeEventListener("touchstart", i, !1),
+                    e.removeEventListener("touchmove", i, !1),
+                    e.removeEventListener("touchend", i, !1),
+                    e.removeEventListener("touchcancel", i, !1)
+                }
+            },
+            t._IOS_handleEvent = function(t, e) {
+                if (t) {
+                    t.__touch.preventDefault && e.preventDefault && e.preventDefault();
+                    for (var i = e.changedTouches, s = e.type, n = 0, r = i.length; r > n; n++) {
+                        var o = i[n]
+                          , a = o.identifier;
+                        o.target == t.canvas && ("touchstart" == s ? this._handleStart(t, a, e, o.pageX, o.pageY) : "touchmove" == s ? this._handleMove(t, a, e, o.pageX, o.pageY) : ("touchend" == s || "touchcancel" == s) && this._handleEnd(t, a, e))
+                    }
+                }
+            },
+            t._IE_enable = function(e) {
+                var i = e.canvas
+                  , s = e.__touch.f = function(i) {
+                    t._IE_handleEvent(e, i)
+                }
+                ;
+                void 0 === window.navigator.pointerEnabled ? (i.addEventListener("MSPointerDown", s, !1),
+                window.addEventListener("MSPointerMove", s, !1),
+                window.addEventListener("MSPointerUp", s, !1),
+                window.addEventListener("MSPointerCancel", s, !1),
+                e.__touch.preventDefault && (i.style.msTouchAction = "none")) : (i.addEventListener("pointerdown", s, !1),
+                window.addEventListener("pointermove", s, !1),
+                window.addEventListener("pointerup", s, !1),
+                window.addEventListener("pointercancel", s, !1),
+                e.__touch.preventDefault && (i.style.touchAction = "none")),
+                e.__touch.activeIDs = {}
+            },
+            t._IE_disable = function(t) {
+                var e = t.__touch.f;
+                void 0 === window.navigator.pointerEnabled ? (window.removeEventListener("MSPointerMove", e, !1),
+                window.removeEventListener("MSPointerUp", e, !1),
+                window.removeEventListener("MSPointerCancel", e, !1),
+                t.canvas && t.canvas.removeEventListener("MSPointerDown", e, !1)) : (window.removeEventListener("pointermove", e, !1),
+                window.removeEventListener("pointerup", e, !1),
+                window.removeEventListener("pointercancel", e, !1),
+                t.canvas && t.canvas.removeEventListener("pointerdown", e, !1))
+            },
+            t._IE_handleEvent = function(t, e) {
+                if (t) {
+                    t.__touch.preventDefault && e.preventDefault && e.preventDefault();
+                    var i = e.type
+                      , s = e.pointerId
+                      , n = t.__touch.activeIDs;
+                    if ("MSPointerDown" == i || "pointerdown" == i) {
+                        if (e.srcElement != t.canvas)
+                            return;
+                        n[s] = !0,
+                        this._handleStart(t, s, e, e.pageX, e.pageY)
+                    } else
+                        n[s] && ("MSPointerMove" == i || "pointermove" == i ? this._handleMove(t, s, e, e.pageX, e.pageY) : ("MSPointerUp" == i || "MSPointerCancel" == i || "pointerup" == i || "pointercancel" == i) && (delete n[s],
+                        this._handleEnd(t, s, e)))
+                }
+            },
+            t._handleStart = function(t, e, i, s, n) {
+                var r = t.__touch;
+                if (r.multitouch || !r.count) {
+                    var o = r.pointers;
+                    o[e] || (o[e] = !0,
+                    r.count++,
+                    t._handlePointerDown(e, i, s, n))
+                }
+            },
+            t._handleMove = function(t, e, i, s, n) {
+                t.__touch.pointers[e] && t._handlePointerMove(e, i, s, n)
+            },
+            t._handleEnd = function(t, e, i) {
+                var s = t.__touch
+                  , n = s.pointers;
+                n[e] && (s.count--,
+                t._handlePointerUp(e, i, !0),
+                delete n[e])
+            },
+            createjs.Touch = t
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+            "use strict";
+            var t = createjs.EaselJS = createjs.EaselJS || {};
+            t.version = "0.8.0",
+            t.buildDate = "Thu, 22 Oct 2020 00:15:55 PST"
+        }()
+    },
+    90: function(t, e) {
+        var Vector = t(8)
+          , Tool = t(49)
+          , Path = t(64);
+        e.exports = class Fill extends Tool {
+            constructor(t) {
+                super();
+                this.toolInit(t),
+                this.pos = new Vector(0,0)
+            }
+            toolInit = this.init;
+            name = "Fill";
+            passive = !1;
+            active = !1;
+            pos = null;
+            release() {
+                var t = this.mouse.touch.real;
+                this.passive = !1,
+                this.active = !0,
+                this.pos.x = t.x,
+                this.pos.y = t.y;
+                for(var i of this.scene.track.physicsLines) {
+                    var p1 = i.checkForConnectedLine(this.scene.track, i.p1);
+                    var p2 = i.checkForConnectedLine(this.scene.track, i.p2);
+                    if(p1 && p2) {
+                        var p1a = p1.checkForConnectedLine(this.scene.track, p1.p1);
+                        var p2a = p2.checkForConnectedLine(this.scene.track, p2.p1);
+                        var p1b = p1.checkForConnectedLine(this.scene.track, p1.p2);
+                        var p2b = p2.checkForConnectedLine(this.scene.track, p2.p2);
+                        if(p1a == p2a || p1b == p2b || p1a == p2b || p2a == p1b) {
+                            var p3 = p1b;
+                        }
+                        if(p3) {
+                            for(let i = p3.p1.y; i < p3.p1.y + p3.p2.y; i++) {
+                                this.scene.track.addPhysicsLine(p3.p1.x, i, p3.p1.x + p3.p2.x, i);
+                            }
+                        }
+                    }
+                }
+            }
+            buildPaths(t) {
+                for (var e = []; t.length > 0; ) {
+                    var i = new Path;
+                    i.build(t),
+                    e.push(i)
+                }
+            }
+            intersectsLine(t, e) {
+                var i = min(this.p1.y, this.p2.y)
+                    , s = min(this.p1.x, this.p2.x)
+                    , n = max(this.p1.y, this.p2.y)
+                    , r = max(this.p1.x, this.p2.x)
+                    , o = abs(r - s)
+                    , c = abs(i - n)
+                    , u = t.x
+                    , p = e.x;
+                if (t.x > e.x && (u = e.x,
+                p = t.x),
+                p > s + o && (p = s + o),
+                s > u && (u = s),
+                u > p)
+                    return !1;
+                var d = t.y
+                    , f = e.y
+                    , v = e.x - t.x;
+                if (abs(v) > 1e-7) {
+                    var g = (e.y - t.y) / v
+                        , m = t.y - g * t.x;
+                    d = g * u + m,
+                    f = g * p + m
+                }
+                if (d > f) {
+                    var y = f;
+                    f = d,
+                    d = y
+                }
+                return f > i + c && (f = i + c),
+                i > d && (d = i),
+                d > f ? !1 : !0
+            }
+            toScreen(t, e) {
+                var i = this.scene.camera
+                    , s = this.scene.screen;
+                return (t - i.position[e]) * i.zoom + s.center[e]
+            }
+            reset() {
+                this.pos.x = 0,
+                this.pos.y = 0,
+                this.active = !1,
+                this.passive = !1
+            }
+            close() {
+                this.dashOffset = 0,
+                this.selectedElements = [],
+                this.mouse = null,
+                this.camera = null,
+                this.scene = null,
+                this.toolHandler = null,
+                this.pos = null,
+                this.active = !1,
+                this.passive = !1
+            }
+        }
+    },
+    91: function(t, e) {
+        var Vector = t(8)
+            , n = t(64)
+            , Tool = t(49);
+        e.exports = class OvalTool extends Tool {
+            constructor(t) {
+                super();
+                this.toolInit(t),
+                this.p1 = new Vector(0,0),
+                this.p2 = new Vector(0,0)
+            }
+            toolInit = this.init;
+            name = "Oval";
+            passive = !1;
+            active = !1;
+            p1 = null;
+            p2 = null;
+            press() {
+                var t = this.mouse.touch.real;
+                this.passive = !1,
+                this.active = !0,
+                this.p1.x = t.x,
+                this.p1.y = t.y,
+                this.p2.x = t.x,
+                this.p2.y = t.y
+            }
+            hold() {
+                var t = this.mouse.touch.real;
+                this.p2.x = t.x,
+                this.p2.y = t.y
+            }
+            release() {
+                for(let i = 0; i <= 360; i += 5) {
+                    this.scene.track.addPhysicsLine(this.p1.x + this.p2.x * cos(i * PI / 180), this.p1.y + this.p2.y * sin(i * PI / 180))
+                }
+                this.active = !1,
+                this.passive = !0
+            }
+            buildPaths(t) {
+                for (var e = []; t.length > 0; ) {
+                    var i = new n;
+                    i.build(t),
+                    e.push(i)
+                }
+            }
+            intersectsLine(t, e) {
+                var i = min(this.p1.y, this.p2.y)
+                    , s = min(this.p1.x, this.p2.x)
+                    , n = max(this.p1.y, this.p2.y)
+                    , r = max(this.p1.x, this.p2.x)
+                    , o = abs(r - s)
+                    , c = abs(i - n)
+                    , u = t.x
+                    , p = e.x;
+                if (t.x > e.x && (u = e.x,
+                p = t.x),
+                p > s + o && (p = s + o),
+                s > u && (u = s),
+                u > p)
+                    return !1;
+                var d = t.y
+                    , f = e.y
+                    , v = e.x - t.x;
+                if (abs(v) > 1e-7) {
+                    var g = (e.y - t.y) / v
+                        , m = t.y - g * t.x;
+                    d = g * u + m,
+                    f = g * p + m
+                }
+                if (d > f) {
+                    var y = f;
+                    f = d,
+                    d = y
+                }
+                return f > i + c && (f = i + c),
+                i > d && (d = i),
+                d > f ? !1 : !0
+            }
+            toScreen(t, e) {
+                var i = this.scene.camera
+                    , s = this.scene.screen;
+                return (t - i.position[e]) * i.zoom + s.center[e]
+            }
+            draw() {
+                    var t = this.scene
+                        , e = t.game.canvas.getContext("2d");
+                    if (this.active || this.passive) {
+                        var i = this.p1.toScreen(this.scene)
+                            , s = this.p2.toScreen(this.scene);
+                        CanvasRenderingContext2D.prototype.oval = function(x, y, w, h) {
+                            e.moveTo(x, y + h / 2);
+                            e.bezierCurveTo(x, y + h / 2 - (h / 2) * .5522848, x + w / 2 - (w / 2) * .5522848, y, x + w / 2, y);
+                            e.bezierCurveTo(x + w / 2 + (w / 2) * .5522848, y, x + w, y + h / 2 - (h / 2) * .5522848, x + w, y + h / 2);
+                            e.bezierCurveTo(x + w, y + h / 2 + (h / 2) * .5522848, x + w / 2 + (w / 2) * .5522848, y + h, x + w / 2, y + h);
+                            e.bezierCurveTo(x + w / 2 - (w / 2) * .5522848, y + h, x, y + h / 2 + (h / 2) * .5522848, x, y + h / 2);
+                        }
+                        e.save(),
+                        e.beginPath(),
+                        e.oval(i.x, i.y, s.x, s.y),
+                        e.stroke(),
+                        e.restore()
+                    }
+            }
+            reset() {
+                this.p1.x = 0,
+                this.p1.y = 0,
+                this.p2.x = 0,
+                this.p2.y = 0,
+                this.active = !1,
+                this.passive = !1
+            }
+            drawSectors() {
+                for (var t = this.scene, e = t.camera, i = t.screen, s = t.game.canvas.getContext("2d"), n = e.zoom, r = e.position, o = t.screen.center, a = this.settings.drawSectorSize * n, h = r.x * n / a, l = r.y * n / a, c = i.width / a, u = i.height / a, p = u / 2, d = c / 2, f = h - d - 1, v = l - p - 1, g = h + d, m = l + p, y = this.totalSectors, w = y.length, x = 0; w > x; x++) {
+                    var _ = y[x]
+                        , b = _.row
+                        , T = _.column;
+                    if (T >= f && g >= T && b >= v && m >= b) {
+                        _.drawn === !1 && _.image === !1 && _.draw();
+                        var C = T * a - h * a + o.x
+                            , k = b * a - l * a + o.y;
+                        C = 0 | C,
+                        k = 0 | k,
+                        _.image ? s.drawImage(_.image, C, k) : s.drawImage(_.canvas, C, k)
+                    } else
+                        _.drawn && _.clear()
+                }
+            }
+            close() {
+                this.mouse = null,
+                this.camera = null,
+                this.scene = null,
+                this.toolHandler = null,
+                this.p2 = null,
+                this.p1 = null,
+                this.active = !1,
+                this.passive = !1
+            }
+        }
+    },
+    92: function(t, e) {
+        e.exports = window.lite = new class lite {
+            constructor() {
+                this.vars = localStorage.lite ? JSON.parse(localStorage.lite).vars : {
+                    dark: !1,
+                    di: !0,
+                    feats: !1,
+                    frce: !1,
+                    invisible: !1,
+                    isometric: !1,
+                    toggle: !1,
+                    toggleDropdown: !1,
+                    update: {
+                        dismissed: !1,
+                        uptodate: !1
+                    }
+                }
+                this.nodes = {
+                    trackMover: null,
+                    trackCombiner: null,
+                    tools: null
+                }
+                this.inject(),
+                this.saveToLocalStorage();
+                var cfuInt = setInterval(() => {
+                    !!window.manifestVersionLite && (this.checkForUpdate(window.manifestVersionLite), clearInterval(cfuInt));
+                }, 1000);
+            }
+            getCap() {
+                return {
+                    classname: "cap",
+                    script: GameInventoryManager.register("cap", class e extends GameInventoryManager.HeadClass {
+                        constructor() {
+                            super(),
+                            this.drawAngle = 0,
+                            this.createVersion()
+                        }
+                        versions = {};
+                        versionName = "";
+                        dirty = !0;
+                        getVersions() {
+                            return this.versions
+                        }
+                        cache(e) {
+                            var r = this.versions[this.versionName];
+                            r.dirty = !1;
+                            var a = 115*(e=max(e,1))*.17,s=112*e*.17,
+                            u = r.canvas;u.width=a,
+                            u.height=s;
+                            var v=u.getContext("2d"),
+                            l=.17*e;
+                            v.save(),
+                            v.scale(l,l),
+                            v.fillStyle = "#ffffff00";
+                            v.lineCap = "round";
+                            v.lineWidth = 11.5;
+                            v.beginPath(),
+                            v.arc(44, 50.5, 29.5, 0, 2 * PI),
+                            v.moveTo(15,54),
+                            v.lineTo(100, 38.5),
+                            v.fill(),
+                            v.stroke()
+                        }
+                        setDirty(){
+                            this.versions[this.versionName].dirty=!0
+                        }
+                        getBaseWidth(){
+                            return 115
+                        }
+                        getBaseHeight(){
+                            return 112
+                        }
+                        getDrawOffsetX(){
+                            return 2.2
+                        }
+                        getDrawOffsetY(){
+                            return 1
+                        }
+                        getScale(){
+                            return .17
+                        }
+                    }),
+                    type: "1"
+                }
+            }
+            drawInputDisplay(canvas = document.createElement('canvas')) {
+                var gamepad = GameManager.game.currentScene.playerManager._players[GameManager.game.currentScene.camera.focusIndex]._gamepad.downButtons;
+                var ctx = canvas.getContext('2d');
+                ctx.lineJoin = "round";
+                ctx.lineCap = "round";
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = this.getVar("dark") && "#fff" || "#000";
+                ctx.fillStyle = this.getVar("dark") && "#fff" || "#000";
+                ctx.beginPath();
+                ctx.moveTo(10, canvas.height - 10);
+                ctx.lineTo(10, canvas.height - 50);
+                ctx.lineTo(50, canvas.height - 50);
+                ctx.lineTo(50, canvas.height - 10);
+                ctx.lineTo(10, canvas.height - 10);
+                !!gamepad.left && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(10, canvas.height - 60);
+                ctx.lineTo(10, canvas.height - 100);
+                ctx.lineTo(50, canvas.height - 100);
+                ctx.lineTo(50, canvas.height - 60);
+                ctx.lineTo(10, canvas.height - 60);
+                !!gamepad.z && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(60, canvas.height - 60);
+                ctx.lineTo(60, canvas.height - 100);
+                ctx.lineTo(100, canvas.height - 100);
+                ctx.lineTo(100, canvas.height - 60);
+                ctx.lineTo(60, canvas.height - 60);
+                !!gamepad.up && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(60, canvas.height - 10);
+                ctx.lineTo(60, canvas.height - 50);
+                ctx.lineTo(100, canvas.height - 50);
+                ctx.lineTo(100, canvas.height - 10);
+                ctx.lineTo(60, canvas.height - 10);
+                !!gamepad.down && ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(110, canvas.height - 10);
+                ctx.lineTo(110, canvas.height - 50);
+                ctx.lineTo(150, canvas.height - 50);
+                ctx.lineTo(150, canvas.height - 10);
+                ctx.lineTo(110, canvas.height - 10);
+                !!gamepad.right && ctx.fill();
+                ctx.stroke();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = !!gamepad.left ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(35, canvas.height - 38);
+                ctx.lineTo(22, canvas.height - 30);
+                ctx.lineTo(35, canvas.height - 22);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.z ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(22, canvas.height - 90);
+                ctx.lineTo(37, canvas.height - 90);
+                ctx.lineTo(22, canvas.height - 70);
+                ctx.lineTo(37, canvas.height - 70);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.up ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(72, canvas.height - 72);
+                ctx.lineTo(80, canvas.height - 88);
+                ctx.lineTo(88, canvas.height - 72);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.down ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(72, canvas.height - 37);
+                ctx.lineTo(80, canvas.height - 22);
+                ctx.lineTo(88, canvas.height - 37);
+                ctx.stroke();
+                ctx.strokeStyle = !!gamepad.right ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+                ctx.beginPath();
+                ctx.moveTo(125, canvas.height - 38);
+                ctx.lineTo(138, canvas.height - 30);
+                ctx.lineTo(125, canvas.height - 22);
+                ctx.stroke();
+            }
+            saveToLocalStorage() {
+                var lite = JSON.stringify({
+                    vars: this.vars
+                });
+                localStorage.setItem("lite", lite)
+            }
+            getVar(t) {
+                return localStorage.lite ? JSON.parse(localStorage.lite).vars[t] : this.vars[t]
+            }
+            setVar(t, e) {
+                if(typeof this.vars[t] == "object") {
+                    for(var i in e) {
+                        this.vars[t][i] = e[i]
+                    }
+                } else {
+                    this.vars[t] = e
+                }
+                this.saveToLocalStorage()
+            }
+            updateVars() {
+                this.vars = {};
+                for(var t in JSON.parse(localStorage.lite).vars) {
+                    this.vars[t] = JSON.parse(localStorage.lite).vars[t];
+                }
+            }
+            checkAuto(){
+                GameManager.game.currentScene.importCode = GameManager.game.currentScene.track.getCode();
+                console.log("done!");
+            }
+            encode(t) {
+                return parseInt(floor(t)).toString(32);
+            }
+            decode(t){
+                return parseInt(parseInt(t, 32).toString());
+            }
+            moveTrack(){
+                this.mx = !isNaN(parseFloat(document.getElementById("moveX").value)) ? parseFloat(document.getElementById("moveX").value) : 0;
+                this.my = !isNaN(parseFloat(document.getElementById("moveY").value)) ? parseFloat(document.getElementById("moveY").value) : 0;
+                this.code = GameManager.game.currentScene.track.getCode().split("#");
+                this.black = code[0];
+                this.grey = code[1];
+                this.powerups = code[2];
+                this.blackSegments = {};
+                this.greySegments = {};
+                this.Powerups = {};
+                this.newSegmentsBlack = black.split(",");
+                this.newSegmentsGrey = grey.split(",");
+                this.newPowerups = powerups.split(",");
+                if(black){
+                    newSegmentsBlack.forEach(segment => {
+                        blackSegments[segment] = segment.split(" ")
+                    });
+                    black = "";
+                    for(var i in blackSegments){
+                        blackSegments[i].filter((x, i) => i % 2 == 0).forEach(x=>{
+                            blackSegments[i][blackSegments[i].indexOf(x)] = encode(decode(x)+mx)
+                        });
+                        blackSegments[i].filter((x, i) => i % 2).forEach(y=>{
+                            blackSegments[i][blackSegments[i].indexOf(y)] = encode(decode(y)+my)
+                        });
+                        black += blackSegments[i].join(" ") + ",";
+                    }
+                }
+                if(grey){
+                    newSegmentsGrey.forEach(segment => {
+                        greySegments[segment] = segment.split(" ")
+                    });
+                    grey = "";
+                    for(var i in greySegments){
+                        greySegments[i].filter((x, i) => i % 2 == 0).forEach(x=>{
+                            greySegments[i][greySegments[i].indexOf(x)] = encode(decode(x)+mx)
+                        });
+                        greySegments[i].filter((x, i) => i % 2).forEach(y=>{
+                            greySegments[i][greySegments[i].indexOf(y)] = encode(decode(y)+my)
+                        });
+                        grey += greySegments[i].join(" ") + ",";
+                    }
+                }
+                if(powerups){
+                    newPowerups.forEach(powerup => {
+                        Powerups[powerup] = powerup.split(" ")
+                    });
+                    powerups = "";
+                    for(var i in Powerups){
+                        Powerups[i].filter((x, i) => i % 2).forEach(x=>{
+                            Powerups[i][Powerups[i].indexOf(x)] = encode(decode(x)+mx)
+                        });
+                        Powerups[i].filter((x, i) => i % 2 == 0 && i != 0).forEach(y=>{
+                            Powerups[i][Powerups[i].indexOf(y)] = encode(decode(y)+my)
+                        });        
+                        powerups += Powerups[i].join(" ") + ",";
+                    }
+                }
+                GameManager.game.currentScene.importCode = (black ? (black.endsWith(",") ? black.slice(0,-1) : black) : "") + "#" + (grey ? (grey.endsWith(",") ? grey.slice(0,-1) : grey) : "") + "#" + (powerups ? (powerups.endsWith(",") ? powerups.slice(0,-1) : powerups) : "")
+            }
+            combine(){
+                var i1 = document.getElementById("input1").value.split("#")
+                  , i2 = document.getElementById("input2").value.split("#")
+                  , output = document.getElementById("output");
+                output.value = `${i1[0]}${i2[0]}#${i1[1]}${i2[1]}#${i1[2]}${i2[2]}`
+            }
+            checkForUpdate(t) {
+                fetch("https://raw.githubusercontent.com/calculus-dev/free-rider-lite/master/update.json").then(response => response.json()).then(json => {
+                    if(json.version > t && this.getVar("update").dismissed != !0){
+                        this.setVar("update", {
+                            uptodate: !0
+                        })
+                    }
+                    if(this.getVar("update").uptodate != !1){
+                        const element = document.body;
+                        element.innerHTML += `<div class="mod-update-notification" id="update-notice" style="width:100%;height:50px;background-color:#2bb82b;color:#fff;position:fixed;top:0;z-index:1002;text-align:center;line-height:46px;cursor:pointer">A new version of Free Rider Lite is available!&nbsp;&nbsp;&nbsp;<button onclick="window.location.href='https://chrome.google.com/webstore/detail/mmmpacciomidmplocdcaheednkepbdkb'" id="update-button" style="height: 30px;background-color: #27ce35;border: none;border-radius: 4px;color: #fff">Update</button>&nbsp;<button class="mod-dismiss-button" id="dismiss-notice" style="height:30px;background-color:#27ce35;border:none;border-radius:4px;color: #fff">Dismiss</button></div>`;
+                        document.getElementById('dismiss-notice').onclick = (()=>{
+                            this.setVar("update", {
+                                uptodate: !1,
+                                dismissed: !0
+                            })
+                            document.getElementById('update-notice').style.display = "none";
+                        });
+                        document.getElementById('update-button').onclick = (()=>{
+                            this.setVar("update", {
+                                uptodate: !1,
+                                dismissed: !0
+                            })
+                            document.getElementById('update-notice').style.display = "none";
+                        });
+                    }
+                });
+            }
+            inject() {
+                var e = document.createElement("style");
+                e.type = "text/css",
+                e.innerHTML = ".lite.icon{background-image:url(https://i.imgur.com/bNBqU1b.png);margin:7px;width:32px;height:32px;position:fixed;bottom:40px;left:0;z-index:10}.lite.icon:hover{opacity:0.4;cursor:pointer}.lite.settings{background-color:#fff;border:1px solid grey;line-height:normal;padding:14px;position:fixed;bottom:0;left:0;z-index:11}.lite.settings input{height:auto}.lite.hacker-mode-text{font-family:monospace;line-height:20pt}#color{border:none;background-color:#ffffff00;font-size:13px;font-family:roboto_medium,Arial,Helvetica,sans-serif;color:#1b5264}#color:hover{cursor:pointer}#toggleDropdown{border:none;background-color:#ffffff00;font-size:13px;font-family:roboto_medium,Arial,Helvetica,sans-serif;color:#1b5264}#toggleDropdown:hover{cursor:pointer}#dropdown{display:none;position:absolute;background-color:#f1f1f1;min-width:100px;padding:5px;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)}#dropdown2{display:none;position:absolute;background-color:#f1f1f1;min-width:100px;padding:5px;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)}",
+                document.head.appendChild(e);
+                var i = document.createElement("div");
+                i.className += "lite icon",
+                document.body.appendChild(i);
+                var s = document.createElement("div");
+                s.className += "lite settings",
+                s.innerHTML = `<p style="text-align: center;"><b>Mod</b> <i>Settings</i></p><br>
+                <button id="toggleDropdown">Tools</button><br>
+                <div id="dropdown2">
+                    <input type="radio" name="toggle" id="move" ${this.getVar("toggle") ? "checked" : ""}> <label for="red">Move Tracks</label><br>
+                    <input type="radio" name="toggle" id="combine" ${!this.getVar("toggle") ? "checked" : ""}> <label for="orange">Combine Tracks</label><br>
+                </div>
+                <input title="Refresh your page for changes to take effect" type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> <label for="dark">Dark Mode</label><br>
+                <input title="Enables an input display." type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> <label for="di">Input Display</label><br>
+                <input title="Enables a beta feature" type="checkbox" id="frce" ${this.getVar("frce") ? "checked" : ""}> <label for="frce">FRCE Mod (limited)</label><br>
+                <input title="Hide grid lines" type="checkbox" id="invisible" ${this.getVar("invisible") ? "checked" : ""}> <label for="invisible">Invisible Grid</label><br>
                 <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : "disabled"}> <label for="isometric">Isometric Grid</label><br>
                 <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br><br>`;
                 i.onclick = (()=>{
@@ -16845,1187 +17943,4 @@ function curve(t, e, i) {
                 }
             },
             e.toDataURL = function(t, e) {
-                var i, s = this.canvas.getContext("2d"), n = this.canvas.width, r = this.canvas.height;
-                if (t) {
-                    i = s.getImageData(0, 0, n, r);
-                    var o = s.globalCompositeOperation;
-                    s.globalCompositeOperation = "destination-over",
-                    s.fillStyle = t,
-                    s.fillRect(0, 0, n, r)
-                }
-                var a = this.canvas.toDataURL(e || "image/png");
-                return t && (s.putImageData(i, 0, 0),
-                s.globalCompositeOperation = o),
-                a
-            },
-            e.enableMouseOver = function(t) {
-                if (this._mouseOverIntervalID && (clearInterval(this._mouseOverIntervalID),
-                this._mouseOverIntervalID = null,
-                0 == t && this._testMouseOver(!0)),
-                null == t)
-                    t = 20;
-                else if (0 >= t)
-                    return;
-                var e = this;
-                this._mouseOverIntervalID = setInterval(function() {
-                    e._testMouseOver()
-                }, 1e3 / min(50, t))
-            },
-            e.enableDOMEvents = function(t) {
-                null == t && (t = !0);
-                var e, i, s = this._eventListeners;
-                if (!t && s) {
-                    for (e in s)
-                        i = s[e],
-                        i.t.removeEventListener(e, i.f, !1);
-                    this._eventListeners = null
-                } else if (t && !s && this.canvas) {
-                    var n = window.addEventListener ? window : document
-                      , r = this;
-                    s = this._eventListeners = {},
-                    s.mouseup = {
-                        t: n,
-                        f: function(t) {
-                            r._handleMouseUp(t)
-                        }
-                    },
-                    s.mousemove = {
-                        t: n,
-                        f: function(t) {
-                            r._handleMouseMove(t)
-                        }
-                    },
-                    s.dblclick = {
-                        t: this.canvas,
-                        f: function(t) {
-                            r._handleDoubleClick(t)
-                        }
-                    },
-                    s.mousedown = {
-                        t: this.canvas,
-                        f: function(t) {
-                            r._handleMouseDown(t)
-                        }
-                    };
-                    for (e in s)
-                        i = s[e],
-                        i.t.addEventListener(e, i.f, !1)
-                }
-            },
-            e.clone = function() {
-                throw "Stage cannot be cloned."
-            },
-            e.toString = function() {
-                return "[Stage (name=" + this.name + ")]"
-            },
-            e._getElementRect = function(t) {
-                var e;
-                try {
-                    e = t.getBoundingClientRect()
-                } catch (i) {
-                    e = {
-                        top: t.offsetTop,
-                        left: t.offsetLeft,
-                        width: t.offsetWidth,
-                        height: t.offsetHeight
-                    }
-                }
-                var s = (window.pageXOffset || document.scrollLeft || 0) - (document.clientLeft || document.body.clientLeft || 0)
-                  , n = (window.pageYOffset || document.scrollTop || 0) - (document.clientTop || document.body.clientTop || 0)
-                  , r = window.getComputedStyle ? getComputedStyle(t, null) : t.currentStyle
-                  , o = parseInt(r.paddingLeft) + parseInt(r.borderLeftWidth)
-                  , a = parseInt(r.paddingTop) + parseInt(r.borderTopWidth)
-                  , h = parseInt(r.paddingRight) + parseInt(r.borderRightWidth)
-                  , l = parseInt(r.paddingBottom) + parseInt(r.borderBottomWidth);
-                return {
-                    left: e.left + s + o,
-                    right: e.right + s - h,
-                    top: e.top + n + a,
-                    bottom: e.bottom + n - l
-                }
-            },
-            e._getPointerData = function(t) {
-                var e = this._pointerData[t];
-                return e || (e = this._pointerData[t] = {
-                    x: 0,
-                    y: 0
-                }),
-                e
-            },
-            e._handleMouseMove = function(t) {
-                t || (t = window.event),
-                this._handlePointerMove(-1, t, t.pageX, t.pageY)
-            },
-            e._handlePointerMove = function(t, e, i, s, n) {
-                if ((!this._prevStage || void 0 !== n) && this.canvas) {
-                    var r = this._nextStage
-                      , o = this._getPointerData(t)
-                      , a = o.inBounds;
-                    this._updatePointerPosition(t, e, i, s),
-                    (a || o.inBounds || this.mouseMoveOutside) && (-1 === t && o.inBounds == !a && this._dispatchMouseEvent(this, a ? "mouseleave" : "mouseenter", !1, t, o, e),
-                    this._dispatchMouseEvent(this, "stagemousemove", !1, t, o, e),
-                    this._dispatchMouseEvent(o.target, "pressmove", !0, t, o, e)),
-                    r && r._handlePointerMove(t, e, i, s, null)
-                }
-            },
-            e._updatePointerPosition = function(t, e, i, s) {
-                var n = this._getElementRect(this.canvas);
-                i -= n.left,
-                s -= n.top;
-                var r = this.canvas.width
-                  , o = this.canvas.height;
-                i /= (n.right - n.left) / r,
-                s /= (n.bottom - n.top) / o;
-                var a = this._getPointerData(t);
-                (a.inBounds = i >= 0 && s >= 0 && r - 1 >= i && o - 1 >= s) ? (a.x = i,
-                a.y = s) : this.mouseMoveOutside && (a.x = 0 > i ? 0 : i > r - 1 ? r - 1 : i,
-                a.y = 0 > s ? 0 : s > o - 1 ? o - 1 : s),
-                a.posEvtObj = e,
-                a.rawX = i,
-                a.rawY = s,
-                (t === this._primaryPointerID || -1 === t) && (this.mouseX = a.x,
-                this.mouseY = a.y,
-                this.mouseInBounds = a.inBounds)
-            },
-            e._handleMouseUp = function(t) {
-                this._handlePointerUp(-1, t, !1)
-            },
-            e._handlePointerUp = function(t, e, i, s) {
-                var n = this._nextStage
-                  , r = this._getPointerData(t);
-                if (!this._prevStage || void 0 !== s) {
-                    r.down && this._dispatchMouseEvent(this, "stagemouseup", !1, t, r, e),
-                    r.down = !1;
-                    var o = null
-                      , a = r.target;
-                    s || !a && !n || (o = this._getObjectsUnderPoint(r.x, r.y, null, !0)),
-                    o == a && this._dispatchMouseEvent(a, "click", !0, t, r, e),
-                    this._dispatchMouseEvent(a, "pressup", !0, t, r, e),
-                    i ? (t == this._primaryPointerID && (this._primaryPointerID = null),
-                    delete this._pointerData[t]) : r.target = null,
-                    n && n._handlePointerUp(t, e, i, s || o && this)
-                }
-            },
-            e._handleMouseDown = function(t) {
-                this._handlePointerDown(-1, t, t.pageX, t.pageY)
-            },
-            e._handlePointerDown = function(t, e, i, s, n) {
-                this.preventSelection && e.preventDefault(),
-                (null == this._primaryPointerID || -1 === t) && (this._primaryPointerID = t),
-                null != s && this._updatePointerPosition(t, e, i, s);
-                var r = null
-                  , o = this._nextStage
-                  , a = this._getPointerData(t);
-                a.inBounds && (this._dispatchMouseEvent(this, "stagemousedown", !1, t, a, e),
-                a.down = !0),
-                n || (r = a.target = this._getObjectsUnderPoint(a.x, a.y, null, !0),
-                this._dispatchMouseEvent(a.target, "mousedown", !0, t, a, e)),
-                o && o._handlePointerDown(t, e, i, s, n || r && this)
-            },
-            e._testMouseOver = function(t, e, i) {
-                if (!this._prevStage || void 0 !== e) {
-                    var s = this._nextStage;
-                    if (!this._mouseOverIntervalID)
-                        return void (s && s._testMouseOver(t, e, i));
-                    var n = this._getPointerData(-1);
-                    if (n && (t || this.mouseX != this._mouseOverX || this.mouseY != this._mouseOverY || !this.mouseInBounds)) {
-                        var r, o, a, h = n.posEvtObj, l = i || h && h.target == this.canvas, c = null, u = -1, p = "";
-                        !e && (t || this.mouseInBounds && l) && (c = this._getObjectsUnderPoint(this.mouseX, this.mouseY, null, !0),
-                        this._mouseOverX = this.mouseX,
-                        this._mouseOverY = this.mouseY);
-                        var d = this._mouseOverTarget || []
-                          , f = d[d.length - 1]
-                          , v = this._mouseOverTarget = [];
-                        for (r = c; r; )
-                            v.unshift(r),
-                            null != r.cursor && (p = r.cursor),
-                            r = r.parent;
-                        for (this.canvas.style.cursor = p,
-                        !e && i && (i.canvas.style.cursor = p),
-                        o = 0,
-                        a = v.length; a > o && v[o] == d[o]; o++)
-                            u = o;
-                        for (f != c && this._dispatchMouseEvent(f, "mouseout", !0, -1, n, h),
-                        o = d.length - 1; o > u; o--)
-                            this._dispatchMouseEvent(d[o], "rollout", !1, -1, n, h);
-                        for (o = v.length - 1; o > u; o--)
-                            this._dispatchMouseEvent(v[o], "rollover", !1, -1, n, h);
-                        f != c && this._dispatchMouseEvent(c, "mouseover", !0, -1, n, h),
-                        s && s._testMouseOver(t, e || c && this, i || l && this)
-                    }
-                }
-            },
-            e._handleDoubleClick = function(t, e) {
-                var i = null
-                  , s = this._nextStage
-                  , n = this._getPointerData(-1);
-                e || (i = this._getObjectsUnderPoint(n.x, n.y, null, !0),
-                this._dispatchMouseEvent(i, "dblclick", !0, -1, n, t)),
-                s && s._handleDoubleClick(t, e || i && this)
-            },
-            e._dispatchMouseEvent = function(t, e, i, s, n, r) {
-                if (t && (i || t.hasEventListener(e))) {
-                    var o = new createjs.MouseEvent(e,i,!1,n.x,n.y,r,s,s === this._primaryPointerID || -1 === s,n.rawX,n.rawY);
-                    t.dispatchEvent(o)
-                }
-            },
-            createjs.Stage = createjs.promote(t, "Container")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            function t(t) {
-                this.DisplayObject_constructor(),
-                "string" == typeof t ? (this.image = document.createElement("img"),
-                this.image.src = t) : this.image = t,
-                this.sourceRect = null
-            }
-            var e = createjs.extend(t, createjs.DisplayObject);
-            e.initialize = t,
-            e.isVisible = function() {
-                var t = this.cacheCanvas || this.image && (this.image.complete || this.image.getContext || this.image.readyState >= 2);
-                return !!(this.visible && this.alpha > 0 && 0 != this.scaleX && 0 != this.scaleY && t)
-            },
-            e.draw = function(t, e) {
-                if (this.DisplayObject_draw(t, e) || !this.image)
-                    return !0;
-                var i = this.image
-                  , s = this.sourceRect;
-                if (s) {
-                    var n = s.x
-                      , r = s.y
-                      , o = n + s.width
-                      , a = r + s.height
-                      , h = 0
-                      , l = 0
-                      , c = i.width
-                      , u = i.height;
-                    0 > n && (h -= n,
-                    n = 0),
-                    o > c && (o = c),
-                    0 > r && (l -= r,
-                    r = 0),
-                    a > u && (a = u),
-                    t.drawImage(i, n, r, o - n, a - r, h, l, o - n, a - r)
-                } else
-                    t.drawImage(i, 0, 0);
-                return !0
-            },
-            e.getBounds = function() {
-                var t = this.DisplayObject_getBounds();
-                if (t)
-                    return t;
-                var e = this.sourceRect || this.image
-                  , i = this.image && (this.image.complete || this.image.getContext || this.image.readyState >= 2);
-                return i ? this._rectangle.setValues(0, 0, e.width, e.height) : null
-            },
-            e.clone = function() {
-                var e = new t(this.image);
-                return this.sourceRect && (e.sourceRect = this.sourceRect.clone()),
-                this._cloneProps(e),
-                e
-            },
-            e.toString = function() {
-                return "[Bitmap (name=" + this.name + ")]"
-            },
-            createjs.Bitmap = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t, e) {
-                this.DisplayObject_constructor(),
-                this.currentFrame = 0,
-                this.currentAnimation = null,
-                this.paused = !0,
-                this.spriteSheet = t,
-                this.currentAnimationFrame = 0,
-                this.framerate = 0,
-                this._animation = null,
-                this._currentFrame = null,
-                this._skipAdvance = !1,
-                e && this.gotoAndPlay(e)
-            }
-            var e = createjs.extend(t, createjs.DisplayObject);
-            e.isVisible = function() {
-                var t = this.cacheCanvas || this.spriteSheet.complete;
-                return !!(this.visible && this.alpha > 0 && 0 != this.scaleX && 0 != this.scaleY && t)
-            },
-            e.draw = function(t, e) {
-                if (this.DisplayObject_draw(t, e))
-                    return !0;
-                this._normalizeFrame();
-                var i = this.spriteSheet.getFrame(0 | this._currentFrame);
-                if (!i)
-                    return !1;
-                var s = i.rect;
-                return s.width && s.height && t.drawImage(i.image, s.x, s.y, s.width, s.height, -i.regX, -i.regY, s.width, s.height),
-                !0
-            },
-            e.play = function() {
-                this.paused = !1
-            },
-            e.stop = function() {
-                this.paused = !0
-            },
-            e.gotoAndPlay = function(t) {
-                this.paused = !1,
-                this._skipAdvance = !0,
-                this._goto(t)
-            },
-            e.gotoAndStop = function(t) {
-                this.paused = !0,
-                this._goto(t)
-            },
-            e.advance = function(t) {
-                var e = this.framerate || this.spriteSheet.framerate
-                  , i = e && null != t ? t / (1e3 / e) : 1;
-                this._normalizeFrame(i)
-            },
-            e.getBounds = function() {
-                return this.DisplayObject_getBounds() || this.spriteSheet.getFrameBounds(this.currentFrame, this._rectangle)
-            },
-            e.clone = function() {
-                return this._cloneProps(new t(this.spriteSheet))
-            },
-            e.toString = function() {
-                return "[Sprite (name=" + this.name + ")]"
-            },
-            e._cloneProps = function(t) {
-                return this.DisplayObject__cloneProps(t),
-                t.currentFrame = this.currentFrame,
-                t.currentAnimation = this.currentAnimation,
-                t.paused = this.paused,
-                t.currentAnimationFrame = this.currentAnimationFrame,
-                t.framerate = this.framerate,
-                t._animation = this._animation,
-                t._currentFrame = this._currentFrame,
-                t._skipAdvance = this._skipAdvance,
-                t
-            },
-            e._tick = function(t) {
-                this.paused || (this._skipAdvance || this.advance(t && t.delta),
-                this._skipAdvance = !1),
-                this.DisplayObject__tick(t)
-            },
-            e._normalizeFrame = function(t) {
-                t = t || 0;
-                var e, i = this._animation, s = this.paused, n = this._currentFrame;
-                if (i) {
-                    var r = i.speed || 1
-                      , o = this.currentAnimationFrame;
-                    if (e = i.frames.length,
-                    o + t * r >= e) {
-                        var a = i.next;
-                        if (this._dispatchAnimationEnd(i, n, s, a, e - 1))
-                            return;
-                        if (a)
-                            return this._goto(a, t - (e - o) / r);
-                        this.paused = !0,
-                        o = i.frames.length - 1
-                    } else
-                        o += t * r;
-                    this.currentAnimationFrame = o,
-                    this._currentFrame = i.frames[0 | o]
-                } else if (n = this._currentFrame += t,
-                e = this.spriteSheet.getNumFrames(),
-                n >= e && e > 0 && !this._dispatchAnimationEnd(i, n, s, e - 1) && (this._currentFrame -= e) >= e)
-                    return this._normalizeFrame();
-                n = 0 | this._currentFrame,
-                this.currentFrame != n && (this.currentFrame = n,
-                this.dispatchEvent("change"))
-            },
-            e._dispatchAnimationEnd = function(t, e, i, s, n) {
-                var r = t ? t.name : null;
-                if (this.hasEventListener("animationend")) {
-                    var o = new createjs.Event("animationend");
-                    o.name = r,
-                    o.next = s,
-                    this.dispatchEvent(o)
-                }
-                var a = this._animation != t || this._currentFrame != e;
-                return a || i || !this.paused || (this.currentAnimationFrame = n,
-                a = !0),
-                a
-            },
-            e._goto = function(t, e) {
-                if (this.currentAnimationFrame = 0,
-                isNaN(t)) {
-                    var i = this.spriteSheet.getAnimation(t);
-                    i && (this._animation = i,
-                    this.currentAnimation = t,
-                    this._normalizeFrame(e))
-                } else
-                    this.currentAnimation = this._animation = null,
-                    this._currentFrame = t,
-                    this._normalizeFrame()
-            },
-            createjs.Sprite = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t) {
-                this.DisplayObject_constructor(),
-                this.graphics = t ? t : new createjs.Graphics
-            }
-            var e = createjs.extend(t, createjs.DisplayObject);
-            e.isVisible = function() {
-                var t = this.cacheCanvas || this.graphics && !this.graphics.isEmpty();
-                return !!(this.visible && this.alpha > 0 && 0 != this.scaleX && 0 != this.scaleY && t)
-            },
-            e.draw = function(t, e) {
-                return this.DisplayObject_draw(t, e) ? !0 : (this.graphics.draw(t, this),
-                !0)
-            },
-            e.clone = function(e) {
-                var i = e && this.graphics ? this.graphics.clone() : this.graphics;
-                return this._cloneProps(new t(i))
-            },
-            e.toString = function() {
-                return "[Shape (name=" + this.name + ")]"
-            },
-            createjs.Shape = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t, e, i) {
-                this.DisplayObject_constructor(),
-                this.text = t,
-                this.font = e,
-                this.color = i,
-                this.textAlign = "left",
-                this.textBaseline = "top",
-                this.maxWidth = null,
-                this.outline = 0,
-                this.lineHeight = 0,
-                this.lineWidth = null
-            }
-            var e = createjs.extend(t, createjs.DisplayObject)
-              , i = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas");
-            i.getContext && (t._workingContext = i.getContext("2d"),
-            i.width = i.height = 1),
-            t.H_OFFSETS = {
-                start: 0,
-                left: 0,
-                center: -.5,
-                end: -1,
-                right: -1
-            },
-            t.V_OFFSETS = {
-                top: 0,
-                hanging: -.01,
-                middle: -.4,
-                alphabetic: -.8,
-                ideographic: -.85,
-                bottom: -1
-            },
-            e.isVisible = function() {
-                var t = this.cacheCanvas || null != this.text && "" !== this.text;
-                return !!(this.visible && this.alpha > 0 && 0 != this.scaleX && 0 != this.scaleY && t)
-            },
-            e.draw = function(t, e) {
-                if (this.DisplayObject_draw(t, e))
-                    return !0;
-                var i = this.color || "#000";
-                return this.outline ? (t.strokeStyle = i,
-                t.lineWidth = 1 * this.outline) : t.fillStyle = i,
-                this._drawText(this._prepContext(t)),
-                !0
-            },
-            e.getMeasuredWidth = function() {
-                return this._getMeasuredWidth(this.text)
-            },
-            e.getMeasuredLineHeight = function() {
-                return 1.2 * this._getMeasuredWidth("M")
-            },
-            e.getMeasuredHeight = function() {
-                return this._drawText(null, {}).height
-            },
-            e.getBounds = function() {
-                var e = this.DisplayObject_getBounds();
-                if (e)
-                    return e;
-                if (null == this.text || "" == this.text)
-                    return null;
-                var i = this._drawText(null, {})
-                  , s = this.maxWidth && this.maxWidth < i.width ? this.maxWidth : i.width
-                  , n = s * t.H_OFFSETS[this.textAlign || "left"]
-                  , r = this.lineHeight || this.getMeasuredLineHeight()
-                  , o = r * t.V_OFFSETS[this.textBaseline || "top"];
-                return this._rectangle.setValues(n, o, s, i.height)
-            },
-            e.getMetrics = function() {
-                var e = {
-                    lines: []
-                };
-                return e.lineHeight = this.lineHeight || this.getMeasuredLineHeight(),
-                e.vOffset = e.lineHeight * t.V_OFFSETS[this.textBaseline || "top"],
-                this._drawText(null, e, e.lines)
-            },
-            e.clone = function() {
-                return this._cloneProps(new t(this.text,this.font,this.color))
-            },
-            e.toString = function() {
-                return "[Text (text=" + (this.text.length > 20 ? this.text.substr(0, 17) + "..." : this.text) + ")]"
-            },
-            e._cloneProps = function(t) {
-                return this.DisplayObject__cloneProps(t),
-                t.textAlign = this.textAlign,
-                t.textBaseline = this.textBaseline,
-                t.maxWidth = this.maxWidth,
-                t.outline = this.outline,
-                t.lineHeight = this.lineHeight,
-                t.lineWidth = this.lineWidth,
-                t
-            },
-            e._prepContext = function(t) {
-                return t.font = this.font || "10px sans-serif",
-                t.textAlign = this.textAlign || "left",
-                t.textBaseline = this.textBaseline || "top",
-                t
-            },
-            e._drawText = function(e, i, s) {
-                var n = !!e;
-                n || (e = t._workingContext,
-                e.save(),
-                this._prepContext(e));
-                for (var r = this.lineHeight || this.getMeasuredLineHeight(), o = 0, a = 0, h = String(this.text).split(/(?:\r\n|\r|\n)/), l = 0, c = h.length; c > l; l++) {
-                    var u = h[l]
-                      , p = null;
-                    if (null != this.lineWidth && (p = e.measureText(u).width) > this.lineWidth) {
-                        var d = u.split(/(\s)/);
-                        u = d[0],
-                        p = e.measureText(u).width;
-                        for (var f = 1, v = d.length; v > f; f += 2) {
-                            var g = e.measureText(d[f] + d[f + 1]).width;
-                            p + g > this.lineWidth ? (n && this._drawTextLine(e, u, a * r),
-                            s && s.push(u),
-                            p > o && (o = p),
-                            u = d[f + 1],
-                            p = e.measureText(u).width,
-                            a++) : (u += d[f] + d[f + 1],
-                            p += g)
-                        }
-                    }
-                    n && this._drawTextLine(e, u, a * r),
-                    s && s.push(u),
-                    i && null == p && (p = e.measureText(u).width),
-                    p > o && (o = p),
-                    a++
-                }
-                return i && (i.width = o,
-                i.height = a * r),
-                n || e.restore(),
-                i
-            },
-            e._drawTextLine = function(t, e, i) {
-                this.outline ? t.strokeText(e, 0, i, this.maxWidth || 65535) : t.fillText(e, 0, i, this.maxWidth || 65535)
-            },
-            e._getMeasuredWidth = function(e) {
-                var i = t._workingContext;
-                i.save();
-                var s = this._prepContext(i).measureText(e).width;
-                return i.restore(),
-                s
-            },
-            createjs.Text = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t, e) {
-                this.Container_constructor(),
-                this.text = t || "",
-                this.spriteSheet = e,
-                this.lineHeight = 0,
-                this.letterSpacing = 0,
-                this.spaceWidth = 0,
-                this._oldProps = {
-                    text: 0,
-                    spriteSheet: 0,
-                    lineHeight: 0,
-                    letterSpacing: 0,
-                    spaceWidth: 0
-                }
-            }
-            var e = createjs.extend(t, createjs.Container);
-            t.maxPoolSize = 100,
-            t._spritePool = [],
-            e.draw = function(t, e) {
-                this.DisplayObject_draw(t, e) || (this._updateText(),
-                this.Container_draw(t, e))
-            },
-            e.getBounds = function() {
-                return this._updateText(),
-                this.Container_getBounds()
-            },
-            e.isVisible = function() {
-                var t = this.cacheCanvas || this.spriteSheet && this.spriteSheet.complete && this.text;
-                return !!(this.visible && this.alpha > 0 && 0 !== this.scaleX && 0 !== this.scaleY && t)
-            },
-            e.clone = function() {
-                return this._cloneProps(new t(this.text,this.spriteSheet))
-            },
-            e.addChild = e.addChildAt = e.removeChild = e.removeChildAt = e.removeAllChildren = function() {},
-            e._cloneProps = function(t) {
-                return this.DisplayObject__cloneProps(t),
-                t.lineHeight = this.lineHeight,
-                t.letterSpacing = this.letterSpacing,
-                t.spaceWidth = this.spaceWidth,
-                t
-            },
-            e._getFrameIndex = function(t, e) {
-                var i, s = e.getAnimation(t);
-                return s || (t != (i = t.toUpperCase()) || t != (i = t.toLowerCase()) || (i = null),
-                i && (s = e.getAnimation(i))),
-                s && s.frames[0]
-            },
-            e._getFrame = function(t, e) {
-                var i = this._getFrameIndex(t, e);
-                return null == i ? i : e.getFrame(i)
-            },
-            e._getLineHeight = function(t) {
-                var e = this._getFrame("1", t) || this._getFrame("T", t) || this._getFrame("L", t) || t.getFrame(0);
-                return e ? e.rect.height : 1
-            },
-            e._getSpaceWidth = function(t) {
-                var e = this._getFrame("1", t) || this._getFrame("l", t) || this._getFrame("e", t) || this._getFrame("a", t) || t.getFrame(0);
-                return e ? e.rect.width : 1
-            },
-            e._updateText = function() {
-                var e, i = 0, s = 0, n = this._oldProps, r = !1, o = this.spaceWidth, a = this.lineHeight, h = this.spriteSheet, l = t._spritePool, c = this.children, u = 0, p = c.length;
-                for (var d in n)
-                    n[d] != this[d] && (n[d] = this[d],
-                    r = !0);
-                if (r) {
-                    var f = !!this._getFrame(" ", h);
-                    f || o || (o = this._getSpaceWidth(h)),
-                    a || (a = this._getLineHeight(h));
-                    for (var v = 0, g = this.text.length; g > v; v++) {
-                        var m = this.text.charAt(v);
-                        if (" " != m || f)
-                            if ("\n" != m && "\r" != m) {
-                                var y = this._getFrameIndex(m, h);
-                                null != y && (p > u ? e = c[u] : (c.push(e = l.length ? l.pop() : new createjs.Sprite),
-                                e.parent = this,
-                                p++),
-                                e.spriteSheet = h,
-                                e.gotoAndStop(y),
-                                e.x = i,
-                                e.y = s,
-                                u++,
-                                i += e.getBounds().width + this.letterSpacing)
-                            } else
-                                "\r" == m && "\n" == this.text.charAt(v + 1) && v++,
-                                i = 0,
-                                s += a;
-                        else
-                            i += o
-                    }
-                    for (; p > u; )
-                        l.push(e = c.pop()),
-                        e.parent = null,
-                        p--;
-                    l.length > t.maxPoolSize && (l.length = t.maxPoolSize)
-                }
-            },
-            createjs.BitmapText = createjs.promote(t, "Container")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t() {
-                throw "SpriteSheetUtils cannot be instantiated"
-            }
-            var e = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas");
-            e.getContext && (t._workingCanvas = e,
-            t._workingContext = e.getContext("2d"),
-            e.width = e.height = 1),
-            t.addFlippedFrames = function(e, i, s, n) {
-                if (i || s || n) {
-                    var r = 0;
-                    i && t._flip(e, ++r, !0, !1),
-                    s && t._flip(e, ++r, !1, !0),
-                    n && t._flip(e, ++r, !0, !0)
-                }
-            },
-            t.extractFrame = function(e, i) {
-                isNaN(i) && (i = e.getAnimation(i).frames[0]);
-                var s = e.getFrame(i);
-                if (!s)
-                    return null;
-                var n = s.rect
-                  , r = t._workingCanvas;
-                r.width = n.width,
-                r.height = n.height,
-                t._workingContext.drawImage(s.image, n.x, n.y, n.width, n.height, 0, 0, n.width, n.height);
-                var o = document.createElement("img");
-                return o.src = r.toDataURL("image/png"),
-                o
-            },
-            t.mergeAlpha = function(t, e, i) {
-                i || (i = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas")),
-                i.width = max(e.width, t.width),
-                i.height = max(e.height, t.height);
-                var s = i.getContext("2d");
-                return s.save(),
-                s.drawImage(t, 0, 0),
-                s.globalCompositeOperation = "destination-in",
-                s.drawImage(e, 0, 0),
-                s.restore(),
-                i
-            },
-            t._flip = function(e, i, s, n) {
-                for (var r = e._images, o = t._workingCanvas, a = t._workingContext, h = r.length / i, l = 0; h > l; l++) {
-                    var c = r[l];
-                    c.__tmp = l,
-                    a.setTransform(1, 0, 0, 1, 0, 0),
-                    a.clearRect(0, 0, o.width + 1, o.height + 1),
-                    o.width = c.width,
-                    o.height = c.height,
-                    a.setTransform(s ? -1 : 1, 0, 0, n ? -1 : 1, s ? c.width : 0, n ? c.height : 0),
-                    a.drawImage(c, 0, 0);
-                    var u = document.createElement("img");
-                    u.src = o.toDataURL("image/png"),
-                    u.width = c.width,
-                    u.height = c.height,
-                    r.push(u)
-                }
-                var p = e._frames
-                  , d = p.length / i;
-                for (l = 0; d > l; l++) {
-                    c = p[l];
-                    var f = c.rect.clone();
-                    u = r[c.image.__tmp + h * i];
-                    var v = {
-                        image: u,
-                        rect: f,
-                        regX: c.regX,
-                        regY: c.regY
-                    };
-                    s && (f.x = u.width - f.x - f.width,
-                    v.regX = f.width - c.regX),
-                    n && (f.y = u.height - f.y - f.height,
-                    v.regY = f.height - c.regY),
-                    p.push(v)
-                }
-                var g = "_" + (s ? "h" : "") + (n ? "v" : "")
-                  , m = e._animations
-                  , y = e._data
-                  , w = m.length / i;
-                for (l = 0; w > l; l++) {
-                    var x = m[l];
-                    c = y[x];
-                    var _ = {
-                        name: x + g,
-                        speed: c.speed,
-                        next: c.next,
-                        frames: []
-                    };
-                    c.next && (_.next += g),
-                    p = c.frames;
-                    for (var b = 0, T = p.length; T > b; b++)
-                        _.frames.push(p[b] + d * i);
-                    y[_.name] = _,
-                    m.push(_.name)
-                }
-            },
-            createjs.SpriteSheetUtils = t
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t() {
-                this.EventDispatcher_constructor(),
-                this.maxWidth = 2048,
-                this.maxHeight = 2048,
-                this.spriteSheet = null,
-                this.scale = 1,
-                this.padding = 1,
-                this.timeSlice = .3,
-                this.progress = -1,
-                this._frames = [],
-                this._animations = {},
-                this._data = null,
-                this._nextFrameIndex = 0,
-                this._index = 0,
-                this._timerID = null,
-                this._scale = 1
-            }
-            var e = createjs.extend(t, createjs.EventDispatcher);
-            t.ERR_DIMENSIONS = "frame dimensions exceed max spritesheet dimensions",
-            t.ERR_RUNNING = "a build is already running",
-            e.addFrame = function(e, i, s, n, r) {
-                if (this._data)
-                    throw t.ERR_RUNNING;
-                var o = i || e.bounds || e.nominalBounds;
-                return !o && e.getBounds && (o = e.getBounds()),
-                o ? (s = s || 1,
-                this._frames.push({
-                    source: e,
-                    sourceRect: o,
-                    scale: s,
-                    funct: n,
-                    data: r,
-                    index: this._frames.length,
-                    height: o.height * s
-                }) - 1) : null
-            },
-            e.addAnimation = function(e, i, s, n) {
-                if (this._data)
-                    throw t.ERR_RUNNING;
-                this._animations[e] = {
-                    frames: i,
-                    next: s,
-                    frequency: n
-                }
-            },
-            e.addMovieClip = function(e, i, s, n, r, o) {
-                if (this._data)
-                    throw t.ERR_RUNNING;
-                var a = e.frameBounds
-                  , h = i || e.bounds || e.nominalBounds;
-                if (!h && e.getBounds && (h = e.getBounds()),
-                h || a) {
-                    var l, c, u = this._frames.length, p = e.timeline.duration;
-                    for (l = 0; p > l; l++) {
-                        var d = a && a[l] ? a[l] : h;
-                        this.addFrame(e, d, s, this._setupMovieClipFrame, {
-                            i: l,
-                            f: n,
-                            d: r
-                        })
-                    }
-                    var f = e.timeline._labels
-                      , v = [];
-                    for (var g in f)
-                        v.push({
-                            index: f[g],
-                            label: g
-                        });
-                    if (v.length)
-                        for (v.sort(function(t, e) {
-                            return t.index - e.index
-                        }),
-                        l = 0,
-                        c = v.length; c > l; l++) {
-                            for (var m = v[l].label, y = u + v[l].index, w = u + (l == c - 1 ? p : v[l + 1].index), x = [], _ = y; w > _; _++)
-                                x.push(_);
-                            (!o || (m = o(m, e, y, w))) && this.addAnimation(m, x, !0)
-                        }
-                }
-            },
-            e.build = function() {
-                if (this._data)
-                    throw t.ERR_RUNNING;
-                for (this._startBuild(); this._drawNext(); )
-                    ;
-                return this._endBuild(),
-                this.spriteSheet
-            },
-            e.buildAsync = function(e) {
-                if (this._data)
-                    throw t.ERR_RUNNING;
-                this.timeSlice = e,
-                this._startBuild();
-                var i = this;
-                this._timerID = setTimeout(function() {
-                    i._run()
-                }, 50 - 50 * max(.01, min(.99, this.timeSlice || .3)))
-            },
-            e.stopAsync = function() {
-                clearTimeout(this._timerID),
-                this._data = null
-            },
-            e.clone = function() {
-                throw "SpriteSheetBuilder cannot be cloned."
-            },
-            e.toString = function() {
-                return "[SpriteSheetBuilder]"
-            },
-            e._startBuild = function() {
-                var e = this.padding || 0;
-                this.progress = 0,
-                this.spriteSheet = null,
-                this._index = 0,
-                this._scale = this.scale;
-                var i = [];
-                this._data = {
-                    images: [],
-                    frames: i,
-                    animations: this._animations
-                };
-                var s = this._frames.slice();
-                if (s.sort(function(t, e) {
-                    return t.height <= e.height ? -1 : 1
-                }),
-                s[s.length - 1].height + 2 * e > this.maxHeight)
-                    throw t.ERR_DIMENSIONS;
-                for (var n = 0, r = 0, o = 0; s.length; ) {
-                    var a = this._fillRow(s, n, o, i, e);
-                    if (a.w > r && (r = a.w),
-                    n += a.h,
-                    !a.h || !s.length) {
-                        var h = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas");
-                        h.width = this._getSize(r, this.maxWidth),
-                        h.height = this._getSize(n, this.maxHeight),
-                        this._data.images[o] = h,
-                        a.h || (r = n = 0,
-                        o++)
-                    }
-                }
-            },
-            e._setupMovieClipFrame = function(t, e) {
-                var i = t.actionsEnabled;
-                t.actionsEnabled = !1,
-                t.gotoAndStop(e.i),
-                t.actionsEnabled = i,
-                e.f && e.f(t, e.d, e.i)
-            },
-            e._getSize = function(t, e) {
-                for (var i = 4; pow(2, ++i) < t; )
-                    ;
-                return min(e, pow(2, i))
-            },
-            e._fillRow = function(e, i, s, n, r) {
-                var o = this.maxWidth
-                  , a = this.maxHeight;
-                i += r;
-                for (var h = a - i, l = r, c = 0, u = e.length - 1; u >= 0; u--) {
-                    var p = e[u]
-                      , d = this._scale * p.scale
-                      , f = p.sourceRect
-                      , v = p.source
-                      , g = floor(d * f.x - r)
-                      , m = floor(d * f.y - r)
-                      , y = ceil(d * f.height + 2 * r)
-                      , w = ceil(d * f.width + 2 * r);
-                    if (w > o)
-                        throw t.ERR_DIMENSIONS;
-                    y > h || l + w > o || (p.img = s,
-                    p.rect = new createjs.Rectangle(l,i,w,y),
-                    c = c || y,
-                    e.splice(u, 1),
-                    n[p.index] = [l, i, w, y, s, round(-g + d * v.regX - r), round(-m + d * v.regY - r)],
-                    l += w)
-                }
-                return {
-                    w: l,
-                    h: c
-                }
-            },
-            e._endBuild = function() {
-                this.spriteSheet = new createjs.SpriteSheet(this._data),
-                this._data = null,
-                this.progress = 1,
-                this.dispatchEvent("complete")
-            },
-            e._run = function() {
-                for (var t = 50 * max(.01, min(.99, this.timeSlice || .3)), e = (new Date).getTime() + t, i = !1; e > (new Date).getTime(); )
-                    if (!this._drawNext()) {
-                        i = !0;
-                        break
-                    }
-                if (i)
-                    this._endBuild();
-                else {
-                    var s = this;
-                    this._timerID = setTimeout(function() {
-                        s._run()
-                    }, 50 - t)
-                }
-                var n = this.progress = this._index / this._frames.length;
-                if (this.hasEventListener("progress")) {
-                    var r = new createjs.Event("progress");
-                    r.progress = n,
-                    this.dispatchEvent(r)
-                }
-            },
-            e._drawNext = function() {
-                var t = this._frames[this._index]
-                  , e = t.scale * this._scale
-                  , i = t.rect
-                  , s = t.sourceRect
-                  , n = this._data.images[t.img]
-                  , r = n.getContext("2d");
-                return t.funct && t.funct(t.source, t.data),
-                r.save(),
-                r.beginPath(),
-                r.rect(i.x, i.y, i.width, i.height),
-                r.clip(),
-                r.translate(ceil(i.x - s.x * e), ceil(i.y - s.y * e)),
-                r.scale(e, e),
-                t.source.draw(r),
-                r.restore(),
-                ++this._index < this._frames.length
-            },
-            createjs.SpriteSheetBuilder = createjs.promote(t, "EventDispatcher")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t) {
-                this.DisplayObject_constructor(),
-                "string" == typeof t && (t = document.getElementById(t)),
-                this.mouseEnabled = !1;
-                var e = t.style;
-                e.position = "absolute",
-                e.transformOrigin = e.WebkitTransformOrigin = e.msTransformOrigin = e.MozTransformOrigin = e.OTransformOrigin = "0% 0%",
-                this.htmlElement = t,
-                this._oldProps = null
-            }
-            var e = createjs.extend(t, createjs.DisplayObject);
-            e.isVisible = function() {
-                return null != this.htmlElement
-            },
-            e.draw = function() {
-                return !0
-            },
-            e.cache = function() {},
-            e.uncache = function() {},
-            e.updateCache = function() {},
-            e.hitTest = function() {},
-            e.localToGlobal = function() {},
-            e.globalToLocal = function() {},
-            e.localToLocal = function() {},
-            e.clone = function() {
-                throw "DOMElement cannot be cloned."
-            },
-            e.toString = function() {
-                return "[DOMElement (name=" + this.name + ")]"
-            },
-            e._tick = function(t) {
-                var e = this.getStage();
-                e && e.on("drawend", this._handleDrawEnd, this, !0),
-                this.DisplayObject__tick(t)
-            },
-            e._handleDrawEnd = function() {
-                var t = this.htmlElement;
-                if (t) {
-                    var e = t.style
-                      , i = this.getConcatenatedDisplayProps(this._props)
-                      , s = i.matrix
-                      , n = i.visible ? "visible" : "hidden";
-                    if (n != e.visibility && (e.visibility = n),
-                    i.visible) {
-                        var r = this._oldProps
-                          , o = r && r.matrix
-                          , a = 1e4;
-                        if (!o || !o.equals(s)) {
-                            var h = "matrix(" + (s.a * a | 0) / a + "," + (s.b * a | 0) / a + "," + (s.c * a | 0) / a + "," + (s.d * a | 0) / a + "," + (s.tx + .5 | 0);
-                            e.transform = e.WebkitTransform = e.OTransform = e.msTransform = h + "," + (s.ty + .5 | 0) + ")",
-                            e.MozTransform = h + "px," + (s.ty + .5 | 0) + "px)",
-                            r || (r = this._oldProps = new createjs.DisplayProps(!0,0 / 0)),
-                            r.matrix.copy(s)
-                        }
-                        r.alpha != i.alpha && (e.opacity = "" + (i.alpha * a | 0) / a,
-                        r.alpha = i.alpha)
-                    }
-                }
-            },
-            createjs.DOMElement = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t() {}
-            var e = t.prototype;
-            e.getBounds = function(t) {
-                return t
-            },
-            e.applyFilter = function(t, e, i, s, n, r, o, a) {
-                r = r || t,
-                null == o && (o = e),
-                null == a && (a = i);
-                try {
-                    var h = t.getImageData(e, i, s, n)
-                } catch (l) {
-                    return !1
-                }
-                return this._applyFilter(h) ? (r.putImageData(h, o, a),
-                !0) : !1
-            },
-            e.toString = function() {
-                return "[Filter]"
-            },
-            e.clone = function() {
-                return new t
-            },
-            e._applyFilter = function() {
-                return !0
-            },
-            createjs.Filter = t
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t, e, i) {
-                (isNaN(t) || 0 > t) && (t = 0),
-                (isNaN(e) || 0 > e) && (e = 0),
-                (isNaN(i) || 1 > i) && (i = 1),
-                this.blurX = 0 | t,
-                this.blurY = 0 | e,
-                this.quality = 0 | i
-            }
-            var e = createjs.extend(t, createjs.Filter);
-            t.MUL_TABLE = [1, 171, 205, 293, 57, 373, 79, 137, 241, 27, 391, 357, 41, 19, 283, 265, 497, 469, 443, 421, 25, 191, 365, 349, 335, 161, 155, 149, 9, 278, 269, 261, 505, 245, 475, 231, 449, 437, 213, 415, 405, 395, 193, 377, 369, 361, 353, 345, 169, 331, 325, 319, 313, 307, 301, 37, 145, 285, 281, 69, 271, 267, 263, 259, 509, 501, 493, 243, 479, 118, 465, 459, 113, 446, 55, 435, 429, 423, 209, 413, 51, 403, 199, 393, 97, 3, 379, 375, 371, 367, 363, 359, 355, 351, 347, 43, 85, 337, 333, 165, 327, 323, 5, 317, 157, 311, 77, 305, 303, 75, 297, 294, 73, 289, 287, 71, 141, 279, 277, 275, 68, 135, 67, 133, 33, 262, 260, 129, 511, 507, 503, 499, 495, 491, 61, 121, 481, 477, 237, 235, 467, 232, 115, 457, 227, 451, 7, 445, 221, 439, 218, 433, 215, 427, 425, 211, 419, 417, 207, 411, 409, 203, 202, 401, 399, 396, 197, 49, 389, 387, 385, 383, 95, 189, 47, 187, 93, 185, 23, 183, 91, 181, 45, 179, 89, 177, 11, 175, 87, 173, 345, 343, 341, 339, 337, 21, 167, 83, 331, 329, 327, 163, 81, 323, 321, 319, 159, 79, 315, 313, 39, 155, 309, 307, 153, 305, 303, 151, 75, 299, 149, 37, 295, 147, 73, 291, 145, 289, 287, 143, 285, 71, 141, 281, 35, 279, 139, 69, 275, 137, 273, 17, 271, 135, 269, 267, 133, 265, 33, 263, 131, 261, 130, 259, 129, 257, 1],
-            t.SHG_TABLE = [0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13, 14, 14, 14, 14, 10, 13, 14, 14, 14, 13, 13, 13, 9, 14, 14, 14, 15, 14, 15, 14, 15, 15, 14, 15, 15, 15, 14, 15, 15, 15, 15, 15, 14, 15, 15, 15, 15, 15, 15, 12, 14, 15, 15, 13, 15, 15, 15, 15, 16, 16, 16, 15, 16, 14, 16, 16, 14, 16, 13, 16, 16, 16, 15, 16, 13, 16, 15, 16, 14, 9, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 14, 16, 16, 15, 16, 16, 10, 16, 15, 16, 14, 16, 16, 14, 16, 16, 14, 16, 16, 14, 15, 16, 16, 16, 14, 15, 14, 15, 13, 16, 16, 15, 17, 17, 17, 17, 17, 17, 14, 15, 17, 17, 16, 16, 17, 16, 15, 17, 16, 17, 11, 17, 16, 17, 16, 17, 16, 17, 17, 16, 17, 17, 16, 17, 17, 16, 16, 17, 17, 17, 16, 14, 17, 17, 17, 17, 15, 16, 14, 16, 15, 16, 13, 16, 15, 16, 14, 16, 15, 16, 12, 16, 15, 16, 17, 17, 17, 17, 17, 13, 16, 15, 17, 17, 17, 16, 15, 17, 17, 17, 16, 15, 17, 17, 14, 16, 17, 17, 16, 17, 17, 16, 15, 17, 16, 14, 17, 16, 15, 17, 16, 17, 17, 16, 17, 15, 16, 17, 14, 17, 16, 15, 17, 16, 17, 13, 17, 16, 17, 17, 16, 17, 14, 17, 16, 17, 16, 17, 16, 17, 9],
-            e.getBounds = function(t) {
-                var e = 0 | this.blurX
-                  , i = 0 | this.blurY;
-                if (0 >= e && 0 >= i)
-                    return t;
-                var s = pow(this.quality, .2);
-                return (t || new createjs.Rectangle).pad(e * s + 1, i * s + 1, e * s + 1, i * s + 1)
-            },
-            e.clone = function() {
-                return new t(this.blurX,this.blurY,this.quality)
-            },
-            e.toString = function() {
-                return "[BlurFilter]"
-            },
-            e._applyFilter = function(e) {
-                var i = this.blurX >> 1;
-                if (isNaN(i) || 0 > i)
-                    return !1;
-                var s = this.blurY >> 1;
-                if (isNaN(s) || 0 > s)
-                    return !1;
-                if (0 == i && 0 == s)
-                    return !1;
-                var n = this.quality;
-                (isNaN(n) || 1 > n) && (n = 1),
-                n |= 0,
-                n > 3 && (n = 3),
-                1 > n && (n = 1);
-                var r = e.data
-                  , o = 0
-                  , a = 0
-                  , h = 0
-                  , l = 0
-                  , c = 0
-                  , u = 0
-                  , p = 0
-                  , d = 0
-                  , f = 0
-                  , v = 0
-                  , g = 0
-                  , m = 0
-                  , y = 0
-                  , w = 0
-                  , x = 0
-                  , _ = i + i + 1 | 0
-                  , b = s + s + 1 | 0
-                  , T = 0 | e.width
-                  , C = 0 | e.height
-                  , k = T - 1 | 0
-                  , S = C - 1 | 0
-                  , P = i + 1 | 0
-                  , M = s + 1 | 0
-                  , A = {
-                    r: 0,
-                    b: 0,
-                    g: 0,
-                    a: 0
-                }
+                var 
