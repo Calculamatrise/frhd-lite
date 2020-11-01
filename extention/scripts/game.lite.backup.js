@@ -6570,17 +6570,17 @@ function curve(t, e, i) {
                   , c = null
                   , u = null;
                 for (h = floor(e / r),
-                l = 0; h >= l; l+=2) {
+                l = 0; h >= l; l++) {
                     for (h = floor(i / r),
                     b = 0; h >= b; b+=.5) {
                         a.beginPath();
-                        if((b - Math.floor(b)) === 0) {
+                        if(b - Math.floor(b) === 0) {
                             c = b * r,
                             u = l * r,
                             a.arc(c * 2, u, 2, 0, 2 * Math.PI);
                         } else {
                             c = b * r,
-                            u = (l + 1) * r,
+                            u = (l + .5) * r,
                             a.arc(c * 2, u, 2, 0, 2 * Math.PI);
                         }
                         a.fill(),
@@ -8108,15 +8108,15 @@ function curve(t, e, i) {
                 i.y = round(c);
                 var u = this.scene.settings;
                 if(this.scene.toolHandler.options.grid) {
-                    var p = u.toolHandler.gridSize;
+                    var p = u.toolHandler.gridSize | 0;
                     if(window.lite.getVar("isometric")) {
-                        function mod(a, b) {
-                            return ((a % b) + b) % b
+                        function Ab(t, e) {
+                            return ((t % e) + e) % e
                         }
-                        let adjusted = round(i.y / p),
-                            shifted = -p * (mod(adjusted, 2) + 1);
-                        i.x = i.x - mod(i.x - shifted, p * 2) + shifted + (mod(adjusted, 2) * p);
-                        i.y = adjusted * p;
+                        let g = p / 2,
+                            adjusted = round(i.x / p);
+                        i.x = adjusted * p;
+                        i.y = i.y - Ab(i.y + g * (Ab(adjusted, 2) + 1), p) - (g * (Ab(adjusted, 2) - 1)) + (Ab(adjusted, 2) * g);
                     } else {
                         i.x = round(i.x / p) * p
                         i.y = round(i.y / p) * p
@@ -16675,165 +16675,6 @@ function curve(t, e, i) {
         }()
     }
 });
-                  , n = this.localToGlobal(t, e);
-                return this._getObjectsUnderPoint(n.x, n.y, s, i > 0, 1 == i),
-                s
-            },
-            e.getObjectUnderPoint = function(t, e, i) {
-                var s = this.localToGlobal(t, e);
-                return this._getObjectsUnderPoint(s.x, s.y, null, i > 0, 1 == i)
-            },
-            e.getBounds = function() {
-                return this._getBounds(null, !0)
-            },
-            e.getTransformedBounds = function() {
-                return this._getBounds()
-            },
-            e.clone = function(e) {
-                var i = this._cloneProps(new t);
-                return e && this._cloneChildren(i),
-                i
-            },
-            e.toString = function() {
-                return "[Container (name=" + this.name + ")]"
-            },
-            e._tick = function(t) {
-                if (this.tickChildren)
-                    for (var e = this.children.length - 1; e >= 0; e--) {
-                        var i = this.children[e];
-                        i.tickEnabled && i._tick && i._tick(t)
-                    }
-                this.DisplayObject__tick(t)
-            },
-            e._cloneChildren = function(t) {
-                t.children.length && t.removeAllChildren();
-                for (var e = t.children, i = 0, s = this.children.length; s > i; i++) {
-                    var n = this.children[i].clone(!0);
-                    n.parent = t,
-                    e.push(n)
-                }
-            },
-            e._getObjectsUnderPoint = function(e, i, s, n, r, o) {
-                if (o = o || 0,
-                !o && !this._testMask(this, e, i))
-                    return null;
-                var a, h = createjs.DisplayObject._hitTestContext;
-                r = r || n && this._hasMouseEventListener();
-                for (var l = this.children, c = l.length, u = c - 1; u >= 0; u--) {
-                    var p = l[u]
-                      , d = p.hitArea;
-                    if (p.visible && (d || p.isVisible()) && (!n || p.mouseEnabled) && (d || this._testMask(p, e, i)))
-                        if (!d && p instanceof t) {
-                            var f = p._getObjectsUnderPoint(e, i, s, n, r, o + 1);
-                            if (!s && f)
-                                return n && !this.mouseChildren ? this : f
-                        } else {
-                            if (n && !r && !p._hasMouseEventListener())
-                                continue;
-                            var v = p.getConcatenatedDisplayProps(p._props);
-                            if (a = v.matrix,
-                            d && (a.appendMatrix(d.getMatrix(d._props.matrix)),
-                            v.alpha = d.alpha),
-                            h.globalAlpha = v.alpha,
-                            h.setTransform(a.a, a.b, a.c, a.d, a.tx - e, a.ty - i),
-                            (d || p).draw(h),
-                            !this._testHit(h))
-                                continue;
-                            if (h.setTransform(1, 0, 0, 1, 0, 0),
-                            h.clearRect(0, 0, 2, 2),
-                            !s)
-                                return n && !this.mouseChildren ? this : p;
-                            s.push(p)
-                        }
-                }
-                return null
-            },
-            e._testMask = function(t, e, i) {
-                var s = t.mask;
-                if (!s || !s.graphics || s.graphics.isEmpty())
-                    return !0;
-                var n = this._props.matrix
-                  , r = t.parent;
-                n = r ? r.getConcatenatedMatrix(n) : n.identity(),
-                n = s.getMatrix(s._props.matrix).prependMatrix(n);
-                var o = createjs.DisplayObject._hitTestContext;
-                return o.setTransform(n.a, n.b, n.c, n.d, n.tx - e, n.ty - i),
-                s.graphics.drawAsPath(o),
-                o.fillStyle = "#000",
-                o.fill(),
-                this._testHit(o) ? (o.setTransform(1, 0, 0, 1, 0, 0),
-                o.clearRect(0, 0, 2, 2),
-                !0) : !1
-            },
-            e._getBounds = function(t, e) {
-                var i = this.DisplayObject_getBounds();
-                if (i)
-                    return this._transformBounds(i, t, e);
-                var s = this._props.matrix;
-                s = e ? s.identity() : this.getMatrix(s),
-                t && s.prependMatrix(t);
-                for (var n = this.children.length, r = null, o = 0; n > o; o++) {
-                    var a = this.children[o];
-                    a.visible && (i = a._getBounds(s)) && (r ? r.extend(i.x, i.y, i.width, i.height) : r = i.clone())
-                }
-                return r
-            },
-            createjs.Container = createjs.promote(t, "DisplayObject")
-        }(),
-        this.createjs = this.createjs || {},
-        function() {
-            "use strict";
-            function t(t) {
-                this.Container_constructor(),
-                this.autoClear = !0,
-                this.canvas = "string" == typeof t ? document.getElementById(t) : t,
-                this.mouseX = 0,
-                this.mouseY = 0,
-                this.drawRect = null,
-                this.snapToPixelEnabled = !1,
-                this.mouseInBounds = !1,
-                this.tickOnUpdate = !0,
-                this.mouseMoveOutside = !1,
-                this.preventSelection = !0,
-                this._pointerData = {},
-                this._pointerCount = 0,
-                this._primaryPointerID = null,
-                this._mouseOverIntervalID = null,
-                this._nextStage = null,
-                this._prevStage = null,
-                this.enableDOMEvents(!0)
-            }
-            var e = createjs.extend(t, createjs.Container);
-            e._get_nextStage = function() {
-                return this._nextStage
-            },
-            e._set_nextStage = function(t) {
-                this._nextStage && (this._nextStage._prevStage = null),
-                t && (t._prevStage = this),
-                this._nextStage = t
-            }
-            ;
-            try {
-                Object.defineProperties(e, {
-                    nextStage: {
-                        get: e._get_nextStage,
-                        set: e._set_nextStage
-                    }
-                })
-            } catch (i) {}
-            e.update = function(t) {
-                if (this.canvas && (this.tickOnUpdate && this.tick(t),
-                !this.dispatchEvent("drawstart"))) {
-                    createjs.DisplayObject._snapToPixelEnabled = this.snapToPixelEnabled;
-                    var e = this.drawRect
-                      , i = this.canvas.getContext("2d");
-                    i.setTransform(1, 0, 0, 1, 0, 0),
-                    this.autoClear && (e ? i.clearRect(e.x, e.y, e.width, e.height) : i.clearRect(0, 0, this.canvas.width + 1, this.canvas.height + 1)),
-                    i.save(),
-                    this.drawRect && (i.beginPath(),
-                    i.rect(e.x, e.y, e.width, e.height),
-                    i.clip()),
-                    this.updateContext(i),
                     this.draw(i, !1),
                     i.restore(),
                     this.dispatchEvent("drawend")
