@@ -6570,17 +6570,17 @@ function curve(t, e, i) {
                   , c = null
                   , u = null;
                 for (h = floor(e / r),
-                l = 0; h >= l; l+=2) {
+                l = 0; h >= l; l++) {
                     for (h = floor(i / r),
                     b = 0; h >= b; b+=.5) {
                         a.beginPath();
-                        if((b - Math.floor(b)) === 0) {
+                        if(b - Math.floor(b) === 0) {
                             c = b * r,
                             u = l * r,
                             a.arc(c * 2, u, 2, 0, 2 * Math.PI);
                         } else {
                             c = b * r,
-                            u = (l + 1) * r,
+                            u = (l + .5) * r,
                             a.arc(c * 2, u, 2, 0, 2 * Math.PI);
                         }
                         a.fill(),
@@ -8108,15 +8108,15 @@ function curve(t, e, i) {
                 i.y = round(c);
                 var u = this.scene.settings;
                 if(this.scene.toolHandler.options.grid) {
-                    var p = u.toolHandler.gridSize;
+                    var p = u.toolHandler.gridSize | 0;
                     if(window.lite.getVar("isometric")) {
-                        function mod(a, b) {
-                            return ((a % b) + b) % b
+                        function Ab(t, e) {
+                            return ((t % e) + e) % e
                         }
-                        let adjusted = round(i.y / p),
-                            shifted = -p * (mod(adjusted, 2) + 1);
-                        i.x = i.x - mod(i.x - shifted, p * 2) + shifted + (mod(adjusted, 2) * p);
-                        i.y = adjusted * p;
+                        let g = p / 2,
+                            adjusted = round(i.x / p);
+                        i.x = adjusted * p;
+                        i.y = i.y - Ab(i.y + g * (Ab(adjusted, 2) + 1), p) - (g * (Ab(adjusted, 2) - 1)) + (Ab(adjusted, 2) * g);
                     } else {
                         i.x = round(i.x / p) * p
                         i.y = round(i.y / p) * p
@@ -16674,7 +16674,23 @@ function curve(t, e, i) {
             }
         }()
     }
-});                  , A = {
+});       , d = 0
+                  , f = 0
+                  , v = 0
+                  , g = 0
+                  , m = 0
+                  , y = 0
+                  , w = 0
+                  , x = 0
+                  , _ = i + i + 1 | 0
+                  , b = s + s + 1 | 0
+                  , T = 0 | e.width
+                  , C = 0 | e.height
+                  , k = T - 1 | 0
+                  , S = C - 1 | 0
+                  , P = i + 1 | 0
+                  , M = s + 1 | 0
+                  , A = {
                     r: 0,
                     b: 0,
                     g: 0,
@@ -17721,7 +17737,7 @@ function curve(t, e, i) {
                 <input title="Enables an input display." type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> <label for="di">Input Display</label><br>
                 <input title="Enables a beta feature" type="checkbox" id="frce" ${this.getVar("frce") ? "checked" : ""}> <label for="frce">FRCE Mod (limited)</label><br>
                 <input title="Hide grid lines" type="checkbox" id="invisible" ${this.getVar("invisible") ? "checked" : ""}> <label for="invisible">Invisible Grid</label><br>
-                <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : "disabled"}> <label for="isometric">Isometric Grid</label><br>
+                <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> <label for="isometric">Isometric Grid</label><br>
                 <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br><br>`;
                 i.onclick = (()=>{
                     var t = e=>{
@@ -17766,181 +17782,183 @@ function curve(t, e, i) {
             }
         }()
     }
-});tion() {
-                return this._getBounds(null, !0)
-            },
-            e.getTransformedBounds = function() {
-                return this._getBounds()
-            },
-            e.clone = function(e) {
-                var i = this._cloneProps(new t);
-                return e && this._cloneChildren(i),
-                i
-            },
-            e.toString = function() {
-                return "[Container (name=" + this.name + ")]"
-            },
-            e._tick = function(t) {
-                if (this.tickChildren)
-                    for (var e = this.children.length - 1; e >= 0; e--) {
-                        var i = this.children[e];
-                        i.tickEnabled && i._tick && i._tick(t)
+});                  , A = {
+                    r: 0,
+                    b: 0,
+                    g: 0,
+                    a: 0
+                }
+                  , D = A;
+                for (h = 1; _ > h; h++)
+                    D = D.n = {
+                        r: 0,
+                        b: 0,
+                        g: 0,
+                        a: 0
+                    };
+                D.n = A;
+                var I = {
+                    r: 0,
+                    b: 0,
+                    g: 0,
+                    a: 0
+                }
+                  , E = I;
+                for (h = 1; b > h; h++)
+                    E = E.n = {
+                        r: 0,
+                        b: 0,
+                        g: 0,
+                        a: 0
+                    };
+                E.n = I;
+                for (var O = null, z = 0 | t.MUL_TABLE[i], j = 0 | t.SHG_TABLE[i], L = 0 | t.MUL_TABLE[s], B = 0 | t.SHG_TABLE[s]; n-- > 0; ) {
+                    p = u = 0;
+                    var F = z
+                      , R = j;
+                    for (a = C; --a > -1; ) {
+                        for (d = P * (m = r[0 | u]),
+                        f = P * (y = r[u + 1 | 0]),
+                        v = P * (w = r[u + 2 | 0]),
+                        g = P * (x = r[u + 3 | 0]),
+                        D = A,
+                        h = P; --h > -1; )
+                            D.r = m,
+                            D.g = y,
+                            D.b = w,
+                            D.a = x,
+                            D = D.n;
+                        for (h = 1; P > h; h++)
+                            l = u + ((h > k ? k : h) << 2) | 0,
+                            d += D.r = r[l],
+                            f += D.g = r[l + 1],
+                            v += D.b = r[l + 2],
+                            g += D.a = r[l + 3],
+                            D = D.n;
+                        for (O = A,
+                        o = 0; T > o; o++)
+                            r[u++] = d * F >>> R,
+                            r[u++] = f * F >>> R,
+                            r[u++] = v * F >>> R,
+                            r[u++] = g * F >>> R,
+                            l = p + ((l = o + i + 1) < k ? l : k) << 2,
+                            d -= O.r - (O.r = r[l]),
+                            f -= O.g - (O.g = r[l + 1]),
+                            v -= O.b - (O.b = r[l + 2]),
+                            g -= O.a - (O.a = r[l + 3]),
+                            O = O.n;
+                        p += T
                     }
-                this.DisplayObject__tick(t)
-            },
-            e._cloneChildren = function(t) {
-                t.children.length && t.removeAllChildren();
-                for (var e = t.children, i = 0, s = this.children.length; s > i; i++) {
-                    var n = this.children[i].clone(!0);
-                    n.parent = t,
-                    e.push(n)
+                    for (F = L,
+                    R = B,
+                    o = 0; T > o; o++) {
+                        for (u = o << 2 | 0,
+                        d = M * (m = r[u]) | 0,
+                        f = M * (y = r[u + 1 | 0]) | 0,
+                        v = M * (w = r[u + 2 | 0]) | 0,
+                        g = M * (x = r[u + 3 | 0]) | 0,
+                        E = I,
+                        h = 0; M > h; h++)
+                            E.r = m,
+                            E.g = y,
+                            E.b = w,
+                            E.a = x,
+                            E = E.n;
+                        for (c = T,
+                        h = 1; s >= h; h++)
+                            u = c + o << 2,
+                            d += E.r = r[u],
+                            f += E.g = r[u + 1],
+                            v += E.b = r[u + 2],
+                            g += E.a = r[u + 3],
+                            E = E.n,
+                            S > h && (c += T);
+                        if (u = o,
+                        O = I,
+                        n > 0)
+                            for (a = 0; C > a; a++)
+                                l = u << 2,
+                                r[l + 3] = x = g * F >>> R,
+                                x > 0 ? (r[l] = d * F >>> R,
+                                r[l + 1] = f * F >>> R,
+                                r[l + 2] = v * F >>> R) : r[l] = r[l + 1] = r[l + 2] = 0,
+                                l = o + ((l = a + M) < S ? l : S) * T << 2,
+                                d -= O.r - (O.r = r[l]),
+                                f -= O.g - (O.g = r[l + 1]),
+                                v -= O.b - (O.b = r[l + 2]),
+                                g -= O.a - (O.a = r[l + 3]),
+                                O = O.n,
+                                u += T;
+                        else
+                            for (a = 0; C > a; a++)
+                                l = u << 2,
+                                r[l + 3] = x = g * F >>> R,
+                                x > 0 ? (x = 255 / x,
+                                r[l] = (d * F >>> R) * x,
+                                r[l + 1] = (f * F >>> R) * x,
+                                r[l + 2] = (v * F >>> R) * x) : r[l] = r[l + 1] = r[l + 2] = 0,
+                                l = o + ((l = a + M) < S ? l : S) * T << 2,
+                                d -= O.r - (O.r = r[l]),
+                                f -= O.g - (O.g = r[l + 1]),
+                                v -= O.b - (O.b = r[l + 2]),
+                                g -= O.a - (O.a = r[l + 3]),
+                                O = O.n,
+                                u += T
+                    }
                 }
+                return !0
             },
-            e._getObjectsUnderPoint = function(e, i, s, n, r, o) {
-                if (o = o || 0,
-                !o && !this._testMask(this, e, i))
-                    return null;
-                var a, h = createjs.DisplayObject._hitTestContext;
-                r = r || n && this._hasMouseEventListener();
-                for (var l = this.children, c = l.length, u = c - 1; u >= 0; u--) {
-                    var p = l[u]
-                      , d = p.hitArea;
-                    if (p.visible && (d || p.isVisible()) && (!n || p.mouseEnabled) && (d || this._testMask(p, e, i)))
-                        if (!d && p instanceof t) {
-                            var f = p._getObjectsUnderPoint(e, i, s, n, r, o + 1);
-                            if (!s && f)
-                                return n && !this.mouseChildren ? this : f
-                        } else {
-                            if (n && !r && !p._hasMouseEventListener())
-                                continue;
-                            var v = p.getConcatenatedDisplayProps(p._props);
-                            if (a = v.matrix,
-                            d && (a.appendMatrix(d.getMatrix(d._props.matrix)),
-                            v.alpha = d.alpha),
-                            h.globalAlpha = v.alpha,
-                            h.setTransform(a.a, a.b, a.c, a.d, a.tx - e, a.ty - i),
-                            (d || p).draw(h),
-                            !this._testHit(h))
-                                continue;
-                            if (h.setTransform(1, 0, 0, 1, 0, 0),
-                            h.clearRect(0, 0, 2, 2),
-                            !s)
-                                return n && !this.mouseChildren ? this : p;
-                            s.push(p)
-                        }
-                }
-                return null
-            },
-            e._testMask = function(t, e, i) {
-                var s = t.mask;
-                if (!s || !s.graphics || s.graphics.isEmpty())
-                    return !0;
-                var n = this._props.matrix
-                  , r = t.parent;
-                n = r ? r.getConcatenatedMatrix(n) : n.identity(),
-                n = s.getMatrix(s._props.matrix).prependMatrix(n);
-                var o = createjs.DisplayObject._hitTestContext;
-                return o.setTransform(n.a, n.b, n.c, n.d, n.tx - e, n.ty - i),
-                s.graphics.drawAsPath(o),
-                o.fillStyle = "#000",
-                o.fill(),
-                this._testHit(o) ? (o.setTransform(1, 0, 0, 1, 0, 0),
-                o.clearRect(0, 0, 2, 2),
-                !0) : !1
-            },
-            e._getBounds = function(t, e) {
-                var i = this.DisplayObject_getBounds();
-                if (i)
-                    return this._transformBounds(i, t, e);
-                var s = this._props.matrix;
-                s = e ? s.identity() : this.getMatrix(s),
-                t && s.prependMatrix(t);
-                for (var n = this.children.length, r = null, o = 0; n > o; o++) {
-                    var a = this.children[o];
-                    a.visible && (i = a._getBounds(s)) && (r ? r.extend(i.x, i.y, i.width, i.height) : r = i.clone())
-                }
-                return r
-            },
-            createjs.Container = createjs.promote(t, "DisplayObject")
+            createjs.BlurFilter = createjs.promote(t, "Filter")
         }(),
         this.createjs = this.createjs || {},
         function() {
             "use strict";
             function t(t) {
-                this.Container_constructor(),
-                this.autoClear = !0,
-                this.canvas = "string" == typeof t ? document.getElementById(t) : t,
-                this.mouseX = 0,
-                this.mouseY = 0,
-                this.drawRect = null,
-                this.snapToPixelEnabled = !1,
-                this.mouseInBounds = !1,
-                this.tickOnUpdate = !0,
-                this.mouseMoveOutside = !1,
-                this.preventSelection = !0,
-                this._pointerData = {},
-                this._pointerCount = 0,
-                this._primaryPointerID = null,
-                this._mouseOverIntervalID = null,
-                this._nextStage = null,
-                this._prevStage = null,
-                this.enableDOMEvents(!0)
+                this.alphaMap = t,
+                this._alphaMap = null,
+                this._mapData = null
             }
-            var e = createjs.extend(t, createjs.Container);
-            e._get_nextStage = function() {
-                return this._nextStage
+            var e = createjs.extend(t, createjs.Filter);
+            e.clone = function() {
+                var e = new t(this.alphaMap);
+                return e._alphaMap = this._alphaMap,
+                e._mapData = this._mapData,
+                e
             },
-            e._set_nextStage = function(t) {
-                this._nextStage && (this._nextStage._prevStage = null),
-                t && (t._prevStage = this),
-                this._nextStage = t
-            }
-            ;
-            try {
-                Object.defineProperties(e, {
-                    nextStage: {
-                        get: e._get_nextStage,
-                        set: e._set_nextStage
-                    }
-                })
-            } catch (i) {}
-            e.update = function(t) {
-                if (this.canvas && (this.tickOnUpdate && this.tick(t),
-                !this.dispatchEvent("drawstart"))) {
-                    createjs.DisplayObject._snapToPixelEnabled = this.snapToPixelEnabled;
-                    var e = this.drawRect
-                      , i = this.canvas.getContext("2d");
-                    i.setTransform(1, 0, 0, 1, 0, 0),
-                    this.autoClear && (e ? i.clearRect(e.x, e.y, e.width, e.height) : i.clearRect(0, 0, this.canvas.width + 1, this.canvas.height + 1)),
-                    i.save(),
-                    this.drawRect && (i.beginPath(),
-                    i.rect(e.x, e.y, e.width, e.height),
-                    i.clip()),
-                    this.updateContext(i),
-                    this.draw(i, !1),
-                    i.restore(),
-                    this.dispatchEvent("drawend")
+            e.toString = function() {
+                return "[AlphaMapFilter]"
+            },
+            e._applyFilter = function(t) {
+                if (!this.alphaMap)
+                    return !0;
+                if (!this._prepAlphaMap())
+                    return !1;
+                for (var e = t.data, i = this._mapData, s = 0, n = e.length; n > s; s += 4)
+                    e[s + 3] = i[s] || 0;
+                return !0
+            },
+            e._prepAlphaMap = function() {
+                if (!this.alphaMap)
+                    return !1;
+                if (this.alphaMap == this._alphaMap && this._mapData)
+                    return !0;
+                this._mapData = null;
+                var t, e = this._alphaMap = this.alphaMap, i = e;
+                e instanceof HTMLCanvasElement ? t = i.getContext("2d") : (i = createjs.createCanvas ? createjs.createCanvas() : document.createElement("canvas"),
+                i.width = e.width,
+                i.height = e.height,
+                t = i.getContext("2d"),
+                t.drawImage(e, 0, 0));
+                try {
+                    var s = t.getImageData(0, 0, e.width, e.height)
+                } catch (n) {
+                    return !1
                 }
+                return this._mapData = s.data,
+                !0
             },
-            e.tick = function(t) {
-                if (this.tickEnabled && !this.dispatchEvent("tickstart")) {
-                    var e = new createjs.Event("tick");
-                    if (t)
-                        for (var i in t)
-                            t.hasOwnProperty(i) && (e[i] = t[i]);
-                    this._tick(e),
-                    this.dispatchEvent("tickend")
-                }
-            },
-            e.handleEvent = function(t) {
-                "tick" == t.type && this.update(t)
-            },
-            e.clear = function() {
-                if (this.canvas) {
-                    var t = this.canvas.getContext("2d");
-                    t.setTransform(1, 0, 0, 1, 0, 0),
-                    t.clearRect(0, 0, this.canvas.width + 1, this.canvas.height + 1)
-                }
-            },
-            e.toDataURL = function(t, e) {
-                var 
+            createjs.AlphaMapFilter = createjs.promote(t, "Filter")
+        }(),
+        this.createjs = this.createjs || {},
+        function() {
+ 
