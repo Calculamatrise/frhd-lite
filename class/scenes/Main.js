@@ -85,10 +85,10 @@ export default class {
     showSkip = !1;
     injectLiteFeatures() {
         if (window.lite.getVar("feats")) {
-            fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then((response) => response.text()).then(data => {
-                var script = document.createElement('script');
-                script.innerHTML = data;
-                document.head.appendChild(script)
+            fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then(r => r.text()).then(data => {
+                document.head.appendChild(Object.assign(document.createElement("script"), {
+                    innerHTML: data
+                }));
             })
         }
     }

@@ -79,27 +79,24 @@ export default class {
     controls = null;
     verified = !1;
     injectLiteFeatures() {
-        var tm = document.createElement('div');
-        tm.id = 'trackMover';
-        tm.className = 'bottomToolOptions';
-        tm.title = 'Move your track!';
-        tm.innerHTML = `<a onClick="window.lite.moveTrack()">Move Track</a>
-        &emsp;<input type="number" id="moveX" placeholder="Position X"></input>
-        &emsp;<input type="number" id="moveY" placeholder="Position Y"></input>`;
-        var t = window.lite.getVar("toggle") ? tm : null;
-        window.lite.nodes.trackMover = tm;
-        window.lite.nodes.tools = t;
-        var script = document.createElement('script');
-        script.innerHTML = `([...document.querySelectorAll('input')]).forEach(n => {
-            n.addEventListener('keydown', e => e.stopPropagation());
-            n.addEventListener('keyup', e => e.stopPropagation());
-            n.addEventListener('keypress', e => e.stopPropagation());
-        });`;
         var it = setInterval(() => {
-            if(document.getElementsByClassName('bottomToolOptions_straightline').length > 0) {
-                document.getElementsByClassName('bottomToolOptions_straightline')[0].after(t);
-                document.body.appendChild(script);
-                clearInterval(it)
+            if (document.getElementsByClassName('bottomToolOptions_straightline').length > 0) {
+                document.getElementsByClassName('bottomToolOptions_straightline')[0].after(Object.assign(document.createElement("div"), {
+                    id: "trackMover",
+                    className: "bottomToolOptions",
+                    title: "Move your track quickly and easily",
+                    innerHTML: `<a onClick="window.lite.moveTrack()">Move Track</a>
+                    &emsp;<input type="number" id="moveX" placeholder="Position X"></input>
+                    &emsp;<input type="number" id="moveY" placeholder="Position Y"></input>`
+                }));
+                document.body.appendChild(Object.assign(document.createElement("script"), {
+                    innerHTML: `([...document.querySelectorAll('input')]).forEach(n => {
+                        n.addEventListener('keydown', e => e.stopPropagation());
+                        n.addEventListener('keyup', e => e.stopPropagation());
+                        n.addEventListener('keypress', e => e.stopPropagation());
+                    });`
+                }));
+                clearInterval(it);
             }
         })
         var st = document.createElement('div');
