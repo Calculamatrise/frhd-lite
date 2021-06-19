@@ -5,10 +5,7 @@ export default window.lite = new class Lite {
             dark: !1,
             di: !0,
             feats: !1,
-            invisible: !1,
             isometric: !1,
-            toggle: !1,
-            toggleDropdown: !1,
             update: {
                 dismissed: !1,
                 uptodate: !1
@@ -247,54 +244,109 @@ export default window.lite = new class Lite {
         });
     }
     inject() {
-        var e = document.createElement("style");
-        e.type = "text/css",
-        e.innerHTML = ".lite.icon{background-image:url(https://i.imgur.com/bNBqU1b.png);margin:7px;width:32px;height:32px;position:fixed;bottom:40px;left:0;z-index:10}.lite.icon:hover{opacity:0.4;cursor:pointer}.lite.settings{background-color:#fff;border:1px solid grey;line-height:normal;padding:14px;position:fixed;bottom:0;left:0;z-index:11}.lite.settings input{height:auto}.lite.hacker-mode-text{font-family:monospace;line-height:20pt}#color{border:none;background-color:#ffffff00;font-size:13px;font-family:roboto_medium,Arial,Helvetica,sans-serif;color:#1b5264}#color:hover{cursor:pointer}#toggleDropdown{border:none;background-color:#ffffff00;font-size:13px;font-family:roboto_medium,Arial,Helvetica,sans-serif;color:#1b5264}#toggleDropdown:hover{cursor:pointer}#dropdown{display:none;position:absolute;background-color:#f1f1f1;min-width:100px;padding:5px;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)}#dropdown2{display:none;position:absolute;background-color:#f1f1f1;min-width:100px;padding:5px;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)}",
-        document.head.appendChild(e);
-        var i = document.createElement("div");
-        i.className += "lite icon",
-        document.body.appendChild(i);
-        var s = document.createElement("div");
-        s.className += "lite settings",
-        s.innerHTML = `<p style="text-align: center;"><b>Mod</b> <i>Settings</i></p><br>
-            <button id="toggleDropdown">Tools</button><br>
-            <div id="dropdown2">
-                <input type="radio" name="toggle" id="move" ${this.getVar("toggle") ? "checked" : ""}> <label for="red">Move Tracks</label><br>
-            </div>
-            <input title="Refresh your page for changes to take effect" type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> <label for="dark">Dark Mode</label><br>
-            <input title="Enables an input display." type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> <label for="di">Input Display</label><br>
-            <input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> <label for="isometric">Isometric Grid</label><br>
-            <input title="Enables a beta feature" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> <label for="feats">Feat. Ghosts LB</label><br>
-            <label for="break">Curve Tool Smoothness:</label><br>
-            <input type="number" id="break" min="1" max="10" value="${this.getVar("break")}" onchange="lite.setVar('break', this.value)"><br>`;
-        i.onclick = (()=>{
-            var t = e=>{
-                s.contains(e.target) || (document.removeEventListener("click", t),
-                document.body.removeChild(s))
-            };
-            document.body.appendChild(s),
-            setTimeout(()=>document.addEventListener("click", t), 0)
+        document.head.appendChild(Object.assign(document.createElement("style"), {
+            type: "text/css",
+            innerHTML: `.lite.icon {
+                background-image:url(https://i.imgur.com/bNBqU1b.png);
+                margin:7px;
+                width:32px;
+                height:32px;
+                position:fixed;
+                bottom:40px;
+                left:0;
+                z-index:10
+            }
+            .lite.icon:hover {
+                opacity:0.4;
+                cursor:pointer
+            }
+            .lite.settings {
+                background-color:#fff;
+                border:1px solid grey;
+                line-height:normal;
+                padding:14px;
+                position:fixed;
+                bottom:0;left:0;
+                z-index:11
+            }
+            .lite.settings input{
+                height:auto
+            }
+            .lite.hacker-mode-text{
+                font-family:monospace;
+                line-height:20pt
+            }
+            #color{
+                border:none;
+                background-color:#ffffff00;
+                font-size:13px;
+                font-family:roboto_medium,Arial,Helvetica,sans-serif;
+                color:#1b5264
+            }
+            #color:hover{
+                cursor:pointer
+            }
+            .lite.settings .option{
+                padding:8px;
+                border:none;
+                background-color:#ffffff00;
+                font-size:13px;
+                font-family:roboto_medium,Arial,Helvetica,sans-serif;
+                color:#1b5264
+            }
+            .lite.settings .option:hover, .lite.settings .option:hover * {
+                cursor:pointer;
+                background:#f0f7ff;
+                border-radius: 8px
+            }
+            input[type="checkbox"] {
+                transform: scale(.85) rotate(90deg);
+                transition: all .2s;
+            }
+            input[type="checkbox"]:not(:checked):before {
+                transform: scale(0) rotate(90deg);
+                transition: all .1s;
+            }
+            input[type="checkbox"]:not(:checked):after {
+                transform: scale(0) rotate(90deg);
+                transition: all .1s;
+            }
+            input[type="checkbox"]:checked {
+                transform: scale(1) rotate(0);
+                transition: all .2s;
+            }`
+        }));
+        document.body.appendChild(Object.assign(document.createElement("div"), {
+            className: "lite icon",
+            onclick: () => {
+                var t = e => {
+                    s.contains(e.target) || (document.removeEventListener("click", t),
+                    document.body.removeChild(s))
+                }
+                document.body.appendChild(s),
+                setTimeout(() => document.addEventListener("click", t), 0)
+            }
+        }));
+        var s = Object.assign(document.createElement("div"), {
+            className: "lite settings",
+            innerHTML: `<p style="text-align: center;"><b>Mod</b> <i>Settings</i></p><br>
+            <div class="option"><input title="Dark mode..." type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark Mode</div>
+            <div class="option"><input title="Enables an input display" type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input Display</div>
+            <div class="option"><input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric Grid</div>
+            <div class="option"><input title="Displays featured ghosts on the leaderboard" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. Ghosts</div><br>`
         });
-        s.querySelector("#toggleDropdown").onclick = (()=>{
-            s.querySelector("#dropdown2").style.display = s.querySelector("#dropdown2").style.display == "none" && "block" || "none"
-        }),
-        s.querySelector("#move").onclick = (()=>{
-            this.setVar("toggle", !0),
-            document.getElementById('trackCombiner').parentNode.replaceChild(this.nodes.trackMover, document.getElementById('trackCombiner'))
-        }),
-        s.querySelector("#dark").onclick = (()=>{
-            this.setVar("dark", !this.getVar("dark")),
-            document.getElementsByClassName("game")[0].style.background = this.getVar("dark") && "#1d1d1d" || "#ffffff",
-            GameManager.game.currentScene.track.undraw()
-        }),
-        s.querySelector("#di").onclick = (()=>{
-            this.setVar("di", !this.getVar("di"))
-        }),
-        s.querySelector("#feats").onclick = (()=>{
-            this.setVar("feats", !this.getVar("feats"))
-        }),
-        s.querySelector("#isometric").onclick = (()=>{
-            this.setVar("isometric", !this.getVar("isometric"))
-        });
+        for (const t in this.vars) {
+            if (s.querySelector("#" + t)) {
+                s.querySelector("#" + t).parentElement.onclick = s.querySelector("#" + t).parentNode.onclick = s.querySelector("#" + t).onchange = () => {
+                    s.querySelector("#" + t).checked = !s.querySelector("#" + t).checked;
+                    this.setVar(t, !this.getVar(t));
+                    if (t == "dark") GameManager.game.currentScene.track.undraw()
+                }
+                s.querySelector("#" + t).onclick = () => {
+                    this.setVar(t, !this.getVar(t));
+                    if (t == "dark") GameManager.game.currentScene.track.undraw()
+                }
+            }
+        }
     }
 }
