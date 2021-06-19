@@ -90,8 +90,7 @@ export default class extends EventEmitter {
         this.updateRealPosition(e)
     }
     updateRealPosition(t) {
-        var e = (t.old,
-        t.pos)
+        let e = (t.old, t.pos)
           , i = t.real
           , s = this.scene
           , n = s.screen
@@ -102,11 +101,21 @@ export default class extends EventEmitter {
           , c = (e.y - a.y) / o.zoom + h.y;
         i.x = Math.round(l),
         i.y = Math.round(c);
-        var u = this.scene.settings;
+        let u = this.scene.settings;
         if (this.scene.toolHandler.options.grid) {
-            var p = u.toolHandler.gridSize;
-            i.x = Math.round(i.x / p) * p,
-            i.y = Math.round(i.y / p) * p
+            let p = u.toolHandler.gridSize | 0;
+            if (window.lite.getVar("isometric")) {
+                function Ab(t, e) {
+                    return ((t % e) + e) % e
+                }
+                let g = p / 2,
+                    adjusted = Math.round(i.x / p);
+                i.x = adjusted * p;
+                i.y = i.y - Ab(i.y + g * (Ab(adjusted, 2) + 1), p) - (g * (Ab(adjusted, 2) - 1)) + (Ab(adjusted, 2) * g);
+            } else {
+                i.x = Math.round(i.x / p) * p
+                i.y = Math.round(i.y / p) * p
+            }
         }
         this.updateCallback
     }

@@ -17,7 +17,7 @@ export default class {
             , i = "helsinki"
             , s = new createjs.Shape;
         s.graphics.setStrokeStyle(5, "round").beginStroke("rgba(242,144,66,1)").beginFill("rgba(242,144,66,0.5)").drawRoundRect(0, 0, 200, 60, 25);
-        var n = new createjs.Text("00:00","35px " + i,"#000000");
+        var n = new createjs.Text("00:00", "35px " + i, window.lite.getVar("dark") ? "#fdfdfd" : "#000");
         n.textAlign = "center",
         n.textBaseline = "middle",
         n.x = 100,

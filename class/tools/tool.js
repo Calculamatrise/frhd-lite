@@ -1,21 +1,21 @@
 export default class {
+    constructor(t) {
+        this.toolhandler = t;
+        this.scene = t.scene;
+        this.game = t.scene.game;
+        this.camera = t.scene.camera;
+        this.mouse = t.scene.mouse;
+        this.gamepad = t.gamepad;
+    }
     name = "";
     toolhandler = null;
     camera = null;
     mouse = null;
     scene = null;
-    init(t) {
-        this.toolhandler = t,
-        this.scene = t.scene,
-        this.game = t.scene.game,
-        this.camera = t.scene.camera,
-        this.mouse = t.scene.mouse,
-        this.gamepad = t.gamepad
-    }
     press() {}
     hold() {}
     release() {}
-    update() {
+    update = () => {
         var t = this.mouse
             , e = t.touch
             , i = t.secondaryTouch

@@ -10,16 +10,13 @@ let l = {
 
 export default class extends Vehicle {
     constructor(t, e) {
-        super();
-        this.vehicleInit(t);
+        super(t);
+        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
     }
     vehicleName = "Blob";
-    vehicleInit = this.init;
-    vehicleUpdate = this.update;
-    vehicleDraw = this.draw;
     masses = null;
     springs = null;
     slow = !1;
@@ -29,8 +26,7 @@ export default class extends Vehicle {
         e.push(new o(new n(t.x + -15,t.y + 40),this)),
         e.push(new o(new n(t.x + -15,t.y + 10),this)),
         e.push(new o(new n(t.x + 15,t.y + 10),this));
-        var i = new r;
-        i.init(new n(0,0), this),
+        var i = new r(new n(0,0), this);
         i.vel = new n(0,0),
         this.m0 = e[0],
         this.m1 = e[1],
@@ -69,26 +65,24 @@ export default class extends Vehicle {
             this.explosion.update();
         else {
             var t = this.masses
-                , e = t.length
-                , i = this.springs
-                , n = i.length;
-            for (s = n - 1; s >= 0; s--)
-                i[s].update();
-            for (m = e - 1; m >= 0; m--)
-                t[m].update();
+                , e = t.length;
+            for (const t of this.masses)
+                t.update();
+            for (const t of this.springs)
+                t.update();
             if ((t[0].contact || t[1].contact || t[2].contact || t[3].contact) && (this.slow = !1),
             !this.slow) {
-                for (this.control(),
-                s = n - 1; s >= 0; s--)
-                    i[s].update();
-                for (m = e - 1; m >= 0; m--)
-                    t[m].update()
+                this.control();
+                for (const t of this.masses)
+                    t.update();
+                for (const t of this.springs)
+                    t.update();
             }
             var r = 0
                 , o = 0;
-            for (m = 0; m < e; m++)
-                r += t[m].pos.x,
-                o += t[m].pos.y;
+            for (const t of this.masses)
+                r += t.pos.x,
+                o += t.pos.y;
             var a = this.head;
             a.pos.x = .25 * r,
             a.pos.y = .25 * o,
@@ -140,8 +134,8 @@ export default class extends Vehicle {
                 , a = e[3].pos.toScreen(i);
             t.globalAlpha = this.player._opacity,
             t.beginPath(),
-            t.strokeStyle = "#000000",
-            t.fillStyle = "#000000",
+            t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+            t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
             t.lineWidth = 20 * s,
             t.lineCap = "round",
             t.moveTo(n.x, n.y),

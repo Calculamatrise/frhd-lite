@@ -54,10 +54,10 @@ export default class extends Vehicle {
         c.lineTo(a + n, h),
         c.closePath(),
         c.restore(),
-        c.fillStyle = "#000000",
+        c.fillStyle = window.lite.getVar("dark") ? "#fff" : "#000",
         c.fill(),
         c.lineWidth = l,
-        c.strokeStyle = "black",
+        c.strokeStyle = window.lite.getVar("dark") ? "#fff" : "#000",
         c.stroke(),
         c.save(),
         c.translate(r / 2, o / 2),
@@ -66,20 +66,16 @@ export default class extends Vehicle {
         c.arc(a, h, n, 0, 1.5 * Math.PI, !0),
         c.restore(),
         c.lineWidth = l,
-        c.strokeStyle = "black",
+        c.strokeStyle = window.lite.getVar("dark") ? "#fff" : "#000",
         c.stroke()
     }
     createMasses(t) {
         var e = [];
         e.push(new a(new s(t.x + 0,t.y + 18),this));
-        var i = new n
-            , r = new n
-            , o = new n
-            , h = new n;
-        i.init(new s(t.x + -17,t.y + 42), this),
-        r.init(new s(t.x + 17,t.y + 42), this),
-        o.init(new s(t.x + -40,t.y + 15), this),
-        h.init(new s(t.x + 40,t.y + 15), this),
+        var i = new n(new s(t.x + -17,t.y + 42), this)
+            , r = new n(new s(t.x + 17,t.y + 42), this)
+            , o = new n(new s(t.x + -40,t.y + 15), this)
+            , h = new n(new s(t.x + 40,t.y + 15), this);
         e.push(i),
         e.push(r),
         e.push(o),
@@ -248,7 +244,7 @@ export default class extends Vehicle {
             r > 6.2831 && (r -= 6.2831),
             this.rotor = n,
             this.rotor2 = r,
-            t.strokeStyle = "#000000",
+            t.strokeStyle = window.lite.getVar("dark") ? "#fff" : "#000",
             t.lineWidth = 5 * a,
             t.beginPath(),
             t.moveTo(c.x + .5 * h.x, c.y + .5 * h.y),

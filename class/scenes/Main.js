@@ -51,6 +51,7 @@ export default class {
         this.restart();
         this.initializeAnalytics();
         this.stage.addEventListener("stagemousedown", this.tapToStartOrRestart.bind(this));
+        window.lite && this.injectLiteFeatures();
     }
     game = null;
     assets = null;
@@ -82,6 +83,15 @@ export default class {
     controls = null;
     message = null;
     showSkip = !1;
+    injectLiteFeatures() {
+        if (window.lite.getVar("feats")) {
+            fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then((response) => response.text()).then(data => {
+                var script = document.createElement('script');
+                script.innerHTML = data;
+                document.head.appendChild(script)
+            })
+        }
+    }
     getCanvasOffset() {
         var t = {
             height: 0,

@@ -3,8 +3,7 @@ import Mass from "./mass.js";
 
 export default class extends Mass {
     constructor(t, e) {
-        super();
-        this.init(t, e);
+        super(t, e);
         this.motor = 0;
         this.angle = new s(0, 0);
         this.radius = 10;

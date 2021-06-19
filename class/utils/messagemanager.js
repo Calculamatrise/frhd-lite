@@ -16,7 +16,7 @@ export default class {
         this.scene.state.paused && (i = !1,
         s = !1,
         t = this.scene.settings.mobile ? "Paused" : "Paused - Press Spacebar to Continue"),
-        i === !1 && (i = "#333333"),
+        i === !1 && (i = window.lite.getVar("dark") ? "#ccc" : "#333"),
         t) {
             var n = this.scene.game
               , r = this.scene

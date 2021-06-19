@@ -16,10 +16,10 @@ export default class {
     maxRaces = 10;
     createContainer() {
         var t = this.scene.game
-          , e = t.settings
-          , i = t.pixelRatio
-          , s = i / 2.5
-          , n = new createjs.Container;
+            , e = t.settings
+            , i = t.pixelRatio
+            , s = i / 2.5
+            , n = new createjs.Container;
         n.scaleX = n.scaleY = s,
         n.y = 80 * s,
         n.x = 15 * s,
@@ -34,10 +34,10 @@ export default class {
     }
     centerContainer() {
         var t = this.scene
-          , e = t.screen
-          , i = this.container
-          , s = i.getBounds()
-          , n = this.scene.game.pixelRatio;
+            , e = t.screen
+            , i = this.container
+            , s = i.getBounds()
+            , n = this.scene.game.pixelRatio;
         i.x = e.width / 2 - s.width / 2 * i.scaleY;
         var r = 40;
         t.settings.isCampaign && (i.visible = !1),
@@ -46,16 +46,16 @@ export default class {
     addRace(t, e) {
         if (this.raceCount < this.maxRaces) {
             var i = this.scene
-              , n = i.game
-              , r = (n.pixelRatio,
+                , n = i.game
+                , r = (n.pixelRatio,
             t.user)
-              , o = t.race
-              , a = i.settings
-              , h = a.drawFPS
-              , l = r.color
-              , c = "helsinki"
-              , u = new createjs.Container
-              , p = (i.camera,
+                , o = t.race
+                , a = i.settings
+                , h = a.drawFPS
+                , l = r.color
+                , c = "helsinki"
+                , u = new createjs.Container
+                , p = (i.camera,
             new createjs.Shape)
               , d = p.graphics;
             d.setStrokeStyle(4, "round"),
@@ -63,10 +63,10 @@ export default class {
             p.x = 25,
             p.y = 25;
             var f = s(parseInt(o.run_ticks) / h * 1e3)
-              , v = new createjs.Text(f,"30px " + c,"#000000");
+              , v = new createjs.Text(f,"30px " + c, window.lite.getVar("dark") ? "#f1f1f1" : "#000");
             v.x = 55,
             v.y = 9;
-            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c,"#000000");
+            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c, window.lite.getVar("dark") ? "#f1f1f1" : "#000");
             g.x = 17,
             g.y = 33,
             g.textBaseline = "alphabetic";
@@ -85,7 +85,18 @@ export default class {
         }
     }
     update() {
+        let s = this.scene;
         if (this.raceCount > 0) {
+          for (const i in this.raceTimes) {
+              for (const x in s.playerManager._players) {
+                  if (s.playerManager._players[x]._user.d_name == i) {
+                      var th = s.playerManager._players[x].getTargetsHit(),
+                          tt = s.track.targetCount;
+                      this.raceTimes[i].time.text = this.raceTimes[i].time.text.split(" ")[0] + " " + th + "/" + tt;
+                      this.raceTimes[i].time.color = window.lite.getVar("dark") ? "#f1f1f1" : "#000"
+                  }
+              }
+          }
             var t = this.scene.camera;
             t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace(),
             this.scene.settings.mobile && this.centerContainer()

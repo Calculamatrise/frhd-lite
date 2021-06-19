@@ -18,9 +18,9 @@ let d = {
 
 export default class extends Vehicle {
     constructor(t, e, i, s) {
-        super();
+        super(t);
+        super.init(t);
         this.color = "rgba(0,0,0,1)";
-        this.vehicleInit(t);
         this.createMasses(e, s);
         this.createSprings();
         this.updateCameraFocalPoint();
@@ -28,10 +28,6 @@ export default class extends Vehicle {
         -1 === i && this.swap();
     }
     vehicleName = "MTB";
-    vehicleInit = this.init;
-    vehicleUpdate = this.update;
-    vehicleControl = this.control;
-    vehicleDraw = this.draw;
     masses = null;
     springs = null;
     cosmetics = null;
@@ -42,10 +38,9 @@ export default class extends Vehicle {
     crashed = !1;
     createMasses(t, e) {
         this.masses = [];
-        var i = new n
-          , r = new a(new s(t.x + 23,t.y),this)
-          , o = new a(new s(t.x + -23,t.y),this);
-        i.init(new s(t.x + 2,t.y + -38), this),
+        var i = new n(new s(t.x + 2, t.y + -38), this)
+          , r = new a(new s(t.x + 23, t.y), this)
+          , o = new a(new s(t.x + -23, t.y), this);
         i.drive = this.createRagdoll.bind(this),
         o.radius = 14,
         r.radius = 14,
@@ -235,22 +230,31 @@ export default class extends Vehicle {
             this.drawBikeFrame()
         }
     }
-    drawBikeFrame() {
+    clone() {
+        if (this.explosion)
+            this.explosion.draw(1);
+        else {
+            this.cloneBikeFrame()
+        }
+    }
+    drawBikeFrame(old = this, alpha = this.player._opacity) {
         var t = this.scene
-          , e = this.frontWheel.pos.toScreen(t)
-          , i = this.rearWheel.pos.toScreen(t)
-          , n = this.head.pos.toScreen(t)
-          , r = (t.game.pixelRatio,
-        t.camera.zoom)
-          , o = t.game.canvas.getContext("2d")
-          , a = this.player._opacity
-          , h = e.sub(i)
-          , l = new s((e.y - i.y) * this.dir,(i.x - e.x) * this.dir)
-          , c = h.factor(.5);
+          , frontWheel = new s(old.frontWheel.pos.x, old.frontWheel.pos.y)
+          , rearWheel = new s(old.rearWheel.pos.x, old.rearWheel.pos.y)
+          , head = new s(old.head.pos.x, old.head.pos.y)
+          , e = frontWheel.toScreen(t)
+          , i = rearWheel.toScreen(t)
+          , n = head.toScreen(t)
+          , r = t.camera.zoom
+            , o = t.game.canvas.getContext("2d")
+            , a = alpha
+            , h = e.sub(i)
+            , l = new s((e.y - i.y) * old.dir,(i.x - e.x) * old.dir)
+            , c = h.factor(.5);
         i.addOut(c, c),
         n.subOut(c, c),
         o.globalAlpha = a,
-        o.strokeStyle = "#000000",
+        o.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         o.lineWidth = 3 * r,
         o.lineCap = "round",
         o.lineJoin = "round",
@@ -275,7 +279,7 @@ export default class extends Vehicle {
         o.fill(),
         o.stroke(),
         o.beginPath(),
-        o.strokeStyle = "#000000",
+        o.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         o.lineWidth = 5 * r,
         o.moveTo(i.x, i.y),
         o.lineTo(i.x + .4 * h.x + .05 * l.x, i.y + .4 * h.y + .05 * l.y),
@@ -285,7 +289,7 @@ export default class extends Vehicle {
         o.stroke(),
         o.beginPath(),
         o.lineWidth = 2 * r,
-        o.strokeStyle = "#000000",
+        o.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         o.moveTo(i.x + .72 * h.x + .64 * c.x, i.y + .72 * h.y + .64 * c.y),
         o.lineTo(i.x + .43 * h.x + .05 * l.x, i.y + .43 * h.y + .05 * l.y),
         o.stroke(),
@@ -315,8 +319,8 @@ export default class extends Vehicle {
         if (o.moveTo(i.x + .43 * h.x + .05 * l.x + u.x, i.y + .43 * h.y + .05 * l.y + u.y),
         o.lineTo(i.x + .43 * h.x + .05 * l.x - u.x, i.y + .43 * h.y + .05 * l.y - u.y),
         o.stroke(),
-        this.crashed)
-            this.ragdoll && this.ragdoll.draw();
+        old.crashed)
+            old.ragdoll.draw && old.ragdoll.draw();
         else {
             h.factorOut(.5, l),
             i.addOut(l, l),
@@ -328,15 +332,15 @@ export default class extends Vehicle {
             d.x = i.x + d.x + .05 * l.x,
             d.y = i.y + d.y + .05 * l.y;
             var f = d.add(u)
-              , v = d.sub(u)
-              , g = h.factor(.67);
+            , v = d.sub(u)
+            , g = h.factor(.67);
             g.x = i.x + g.x + .8 * l.x,
             g.y = i.y + g.y + .8 * l.y;
             var m = h.factor(-.05);
             m.x = p.x + m.x + .42 * l.x,
             m.y = p.y + m.y + .42 * l.y;
             var y = f.sub(m)
-              , w = y.lenSqr();
+            , w = y.lenSqr();
             c.x = y.y * this.dir,
             c.y = -y.x * this.dir,
             c.factorSelf(r * r);
@@ -357,7 +361,7 @@ export default class extends Vehicle {
             var T = y.factor(.12);
             T.x = v.x + T.x + c.x * (50 / w),
             T.y = v.y + T.y + c.y * (50 / w),
-            o.strokeStyle = "rgba(0,0,0," + .5 * a + ")",
+            o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "rgba(0,0,0," + .5 * a + ")",
             o.lineWidth = 6 * r,
             o.beginPath(),
             o.moveTo(v.x, v.y),
@@ -370,7 +374,7 @@ export default class extends Vehicle {
             o.lineTo(T.x, T.y),
             o.stroke(),
             o.lineWidth = 6 * r,
-            o.strokeStyle = "#000000",
+            o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000000",
             o.beginPath(),
             o.moveTo(f.x, f.y),
             o.lineTo(x.x, x.y),
@@ -396,8 +400,8 @@ export default class extends Vehicle {
             o.lineWidth = 2 * r,
             C.subOut(g, h);
             var S = h.lenSqr();
-            l.x = h.y * this.dir,
-            l.y = -h.x * this.dir,
+            l.x = h.y * old.dir,
+            l.y = -h.x * old.dir,
             l.factorSelf(r * r);
             var P = h.factor(.3);
             P.x = g.x + P.x + l.x * (80 / S),
@@ -408,11 +412,24 @@ export default class extends Vehicle {
             o.lineTo(P.x, P.y),
             o.lineTo(g.x, g.y),
             o.stroke();
-            var M = this.cosmetics
-              , A = GameInventoryManager.getItem(M.head)
-              , D = this.drawHeadAngle;
-            A.draw(o, k.x, k.y, D, r, this.dir),
+            var A = GameInventoryManager.getItem(window.lite.getVar("canvas-rider") ? window.lite.head : this.cosmetics.head);
+            A.draw(o, k.x, k.y, old.drawHeadAngle, r, old.dir),
             o.globalAlpha = 1
+        }
+    }
+    cloneBikeFrame() {
+        //this.player._checkpoints = this.player._checkpoints.slice(-101);
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                this.drawBikeFrame(JSON.parse(this.player._checkpoints[checkpoint]._baseVehicle), .03 * ++op);
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                this.drawBikeFrame(JSON.parse(this.player._cache[checkpoint]._baseVehicle), .03 * ++op);
+            }
         }
     }
 }

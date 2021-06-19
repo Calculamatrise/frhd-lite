@@ -1,5 +1,6 @@
 import "../libs/createjs.js";
 import "../libs/performance.js";
+import "./Lite.js";
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
@@ -80,6 +81,8 @@ export default window.Game = class {
     }
     update() {
         this.currentScene.update(),
+        this.canvas.style.background = window.lite.getVar("dark") ? "#1d1d1d" : "#fff",
+        window.lite.getVar("di") && window.lite.drawInputDisplay(this.canvas),
         this.tickCount++
     }
     switchScene(t) {

@@ -1,29 +1,29 @@
-import i from "../math/cartesian.js";
+import Vector from "../math/cartesian.js";
 import Tool from "./tool.js";
-import n from "../utils/path.js";
-import r from "../sector/physicsline.js";
-import o from "../sector/sceneryline.js";
+import Path from "../utils/path.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
-        this.p1 = new i(0, 0);
-        this.p2 = new i(0, 0);
-        this.selectedElements = [];
-        this.dashOffset = 0;
+        super(t);
+        this.p1 = new Vector(0,0),
+        this.p2 = new Vector(0,0),
+        this.addedObjects = [],
+        this.selectedElements = [],
+        this.selectedSectors = [],
+        this.selectedSegments = [],
+        this.dashOffset = 0
     }
-    toolInit = this.init;
     name = "Select";
     passive = !1;
     active = !1;
     p1 = null;
     p2 = null;
+    travelDistance = 1;
     selectedElements = [];
-    dashOffset = 0;
     selectedSectors = [];
+    selectedSegments = [];
     press() {
-        let t = this.mouse.touch.real;
+        var t = this.mouse.touch.real;
         this.passive = !1,
         this.active = !0,
         this.p1.x = t.x,
@@ -32,38 +32,177 @@ export default class extends Tool {
         this.p2.y = t.y
     }
     hold() {
-        let t = this.mouse.touch.real;
+        var t = this.mouse.touch.real;
         this.p2.x = t.x,
         this.p2.y = t.y
     }
     unselectElements() {
-        for (let t = this.selectedElements, e = t.length, i = 0; e > i; i++) {
-            let s = t[i];
-            s instanceof r && s.highlightLine(!1),
-            s instanceof o && s.highlightLine(!1)
+        this.selectedElements = [];
+        this.selectedSectors = [];
+        this.selectedSegments = [];
+    }
+    moveSelected(a) {
+        var selectedSectors = this.selectedSectors;
+        this.selectedSectors = [];
+        for(var i of selectedSectors) {
+            console.log(i)
+            if (i.p2) {
+                switch(a) {
+                    case "ArrowUp":
+                        i.p1.y-= this.travelDistance;
+                        i.p2.y-= this.travelDistance;
+                        break;
+                    case "ArrowDown":
+                        i.p1.y+= this.travelDistance;
+                        i.p2.y+= this.travelDistance;
+                        break;
+                    case "ArrowLeft":
+                        i.p1.x-= this.travelDistance;
+                        i.p2.x-= this.travelDistance;
+                        break;
+                    case "ArrowRight":
+                        i.p1.x+= this.travelDistance;
+                        i.p2.x+= this.travelDistance;
+                        break;
+                }
+                if (i.name) {
+                    this.selectedSectors.push(this.scene.track.addPowerup(i));
+                } else {
+                    if(i.type == "physics") {
+                        this.selectedSectors.push(this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
+                    } else if(i.type == "scenery") {
+                        this.selectedSectors.push(this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
+                    }
+                }
+                i.removeAllReferences();
+            } else {
+                switch(a) {
+                    case "ArrowUp":
+                        i.y-= this.travelDistance;
+                        break;
+                    case "ArrowDown":
+                        i.y+= this.travelDistance;
+                        break;
+                    case "ArrowLeft":
+                        i.x-= this.travelDistance;
+                        break;
+                    case "ArrowRight":
+                        i.x+= this.travelDistance;
+                }
+                this.selectedSegments.push(this.scene.track.addPowerup(i));
+            }
+        }
+        return this.selectedSegments
+    }
+    fillSelected() {
+        if(this.p1.x < this.p2.x && this.p1.y < this.p2.y){
+            for(let i = this.p1.y; i < this.p1.y + this.p2.y; i++) {
+                this.scene.track.addPhysicsLine(this.p1.x, i, this.p1.x + this.p2.x, i);
+            }
+        } else {
+            for(let i = this.p2.y; i < this.p2.y + this.p1.y; i++) {
+                this.scene.track.addPhysicsLine(this.p2.x, i, this.p2.x + this.p1.x, i);
+            }
+        }
+        return this.selectedSegments
+    }
+    rotateSelected() {
+        var selectedSegments = this.selectedSegments;
+        this.selectedSegments = [];
+        for(var i of selectedSegments) {
+            if(i.p1 || i.p2) {
+                i.p1.x--;
+                i.p1.y--;
+                i.p2.x++;
+                i.p2.y++;
+                if(i.name) {
+                    this.selectedSegments.push(this.scene.track.addPowerup(i));
+                } else {
+                    if(i.type == "physics") {
+                        this.selectedSegments.push(this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
+                    } else if(i.type == "scenery") {
+                        this.selectedSegments.push(this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
+                    }
+                }
+                i.removeAllReferences();
+            } else {
+                i.x--;
+                this.selectedSegments.push(this.scene.track.addPowerup(i));
+            }
+        }
+        return this.selectedSegments
+    }
+    copyAndPasteSelected() {
+        for(var i of this.selectedSectors) {
+            if(i.type == "physics") {
+                this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
+            } else if(i.type == "scenery") {
+                this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
+            }
         }
     }
     release() {
         this.unselectElements();
-        for (let t = (performance.now(),
-        this.scene.track.select(this.p1, this.p2)), e = t.length, i = [], s = 0; e > s; s++) {
-            let n = t[s];
-            this.intersectsLine(n.p1, n.p2) && (n.removeAllReferences(),
+        for (var t = this.scene.track.select(this.p1, this.p2), e = t.length, i = [], s = 0; e > s; s++) {
+            var n = t[s];
+            this.intersectsLine(n.x ? n : n.p1, n.x ? n : n.p2) && (this.selectedSectors.push(n),
             i.push(n))
         }
         this.selectedElements = i,
         this.active = !1,
-        this.passive = !0
+        this.passive = !0,
+        document.onkeydown = e => {
+            e.preventDefault();
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+            }
+            switch(e.key) {
+                case "=":
+                case "+":
+                    this.travelDistance++;
+                    this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000000", "#FFFFFF");
+                    break;
+                case "-":
+                    this.travelDistance--;
+                    this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000000", "#FFFFFF");
+                    break;
+                case "c":
+                    this.copyAndPasteSelected(e.key)
+                    this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
+                    break;
+                case "Delete":
+                    for(var i of this.selectedSegments) {
+                        i.removeAllReferences()
+                    }
+                    this.reset();
+                    this.scene.message.show("Deleted selected area", !1, "#000000", "#FFFFFF");
+                    break;
+                case "r":
+                    this.rotateSelected();
+                    this.scene.message.show("Rotated selected area", !1, "#000000", "#FFFFFF");
+                    break;
+                case "ArrowUp":
+                case "ArrowDown":
+                case "ArrowLeft":
+                case "ArrowRight":
+                    this.moveSelected(e.key);
+                    this.scene.message.show("Moved Selected Area", !1, "#000000", "#FFFFFF");
+                    break;
+                case "`":
+                    this.reset()
+            }
+            this.timeout = setTimeout(() => this.scene.message.hide(), 1000);
+        }
     }
     buildPaths(t) {
-        for (let e = []; t.length > 0; ) {
-            let i = new n;
+        for (var e = []; t.length > 0; ) {
+            var i = new Path;
             i.build(t),
             e.push(i)
         }
     }
     intersectsLine(t, e) {
-        let i = Math.min(this.p1.y, this.p2.y)
+        var i = Math.min(this.p1.y, this.p2.y)
           , s = Math.min(this.p1.x, this.p2.x)
           , n = Math.max(this.p1.y, this.p2.y)
           , r = Math.max(this.p1.x, this.p2.x)
@@ -77,17 +216,17 @@ export default class extends Tool {
         s > u && (u = s),
         u > p)
             return !1;
-        let d = t.y
+        var d = t.y
           , f = e.y
           , v = e.x - t.x;
         if (Math.abs(v) > 1e-7) {
-            let g = (e.y - t.y) / v
+            var g = (e.y - t.y) / v
               , m = t.y - g * t.x;
             d = g * u + m,
             f = g * p + m
         }
         if (d > f) {
-            let y = f;
+            var y = f;
             f = d,
             d = y
         }
@@ -96,35 +235,30 @@ export default class extends Tool {
         d > f ? !1 : !0
     }
     toScreen(t, e) {
-        let i = this.scene.camera
+        var i = this.scene.camera
           , s = this.scene.screen;
         return (t - i.position[e]) * i.zoom + s.center[e]
     }
     draw() {
-        let t = this.scene
+        var t = this.scene
           , e = (t.game.canvas,
         t.game.canvas.getContext("2d"));
-        if (this.drawText(e),
-        this.active || this.passive) {
-            let i = this.p1.toScreen(this.scene)
+        if (this.active || this.passive) {
+            var i = this.p1.toScreen(this.scene)
               , s = this.p2.toScreen(this.scene)
               , n = s.x - i.x
               , r = s.y - i.y;
             e.save(),
-            e.setLineDash && (e.setLineDash([6]),
-            e.lineDashOffset = this.dashOffset),
             this.active ? (e.beginPath(),
             e.rect(i.x, i.y, n, r),
-            e.fillStyle = "rgba(24, 132, 207, 0.3)",
+            e.fillStyle = "rgba(24, 132, 207, 0.2)",
             e.fill(),
             e.lineWidth = 2,
             e.strokeStyle = "rgba(24, 132, 207, 0.7)",
             e.stroke()) : this.passive && (e.strokeStyle = "rgba(24, 132, 207, 0.7)",
             e.lineWidth = 2,
             e.strokeRect(i.x, i.y, n, r)),
-            e.restore(),
-            this.dashOffset > 22 && (this.dashOffset = 0),
-            this.dashOffset++
+            e.restore()
         }
     }
     reset() {
@@ -137,13 +271,13 @@ export default class extends Tool {
         this.unselectElements()
     }
     drawSectors() {
-        for (let t = this.scene, e = t.camera, i = t.screen, s = t.game.canvas.getContext("2d"), n = e.zoom, r = e.position, o = t.screen.center, a = this.settings.drawSectorSize * n, h = r.x * n / a, l = r.y * n / a, c = i.width / a, u = i.height / a, p = u / 2, d = c / 2, f = h - d - 1, v = l - p - 1, g = h + d, m = l + p, y = this.totalSectors, w = y.length, x = 0; w > x; x++) {
-            let _ = y[x]
+        for (var t = this.scene, e = t.camera, i = t.screen, s = t.game.canvas.getContext("2d"), n = e.zoom, r = e.position, o = t.screen.center, a = this.settings.drawSectorSize * n, h = r.x * n / a, l = r.y * n / a, c = i.width / a, u = i.height / a, p = u / 2, d = c / 2, f = h - d - 1, v = l - p - 1, g = h + d, m = l + p, y = this.totalSectors, w = y.length, x = 0; w > x; x++) {
+            var _ = y[x]
               , b = _.row
               , T = _.column;
             if (T >= f && g >= T && b >= v && m >= b) {
                 _.drawn === !1 && _.image === !1 && _.draw();
-                let C = T * a - h * a + o.x
+                var C = T * a - h * a + o.x
                   , k = b * a - l * a + o.y;
                 C = 0 | C,
                 k = 0 | k,
@@ -151,20 +285,6 @@ export default class extends Tool {
             } else
                 _.drawn && _.clear()
         }
-    }
-    drawText(t) {
-        {
-            let e = this.name
-              , i = this.game.pixelRatio
-              , s = this.scene;
-            s.game.canvas,
-            this.radius
-        }
-        t.save(),
-        t.fillStyle = "#000000",
-        t.font = 12 * i + "pt arial",
-        t.fillText(e, 10 * i, 20 * i),
-        t.font = 8 * i + "pt arial"
     }
     close() {
         this.dashOffset = 0,

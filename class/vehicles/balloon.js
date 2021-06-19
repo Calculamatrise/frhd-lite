@@ -10,8 +10,8 @@ let h = {
 
 export default class extends Vehicle {
     constructor(t, e) {
-        super();
-        this.vehicleInit(t);
+        super(t);
+        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
@@ -23,14 +23,12 @@ export default class extends Vehicle {
     masses = null;
     springs = null;
     slow = !1;
-    vehicleInit = this.init;
     crashed = !1;
     createMasses(t) {
         this.masses = [];
         var e = new a(t.x,t.y - 10,this);
         e.radius = 30;
-        var i = new n;
-        i.init(new s(t.x,t.y + 35), this),
+        var i = new n(new s(t.x,t.y + 35), this);
         i.friction = .1,
         this.masses.push(e),
         this.masses.push(i),
@@ -101,7 +99,7 @@ export default class extends Vehicle {
             , a = -o
             , h = r;
         t.save(),
-        t.strokeStyle = "#999999",
+        t.strokeStyle = window.lite.getVar("dark") ? "#666" : "#999",
         t.lineWidth = 1,
         t.beginPath(),
         t.moveTo(i.x + .1 * a, i.y + .1 * h),
@@ -130,7 +128,7 @@ export default class extends Vehicle {
         t.closePath(),
         t.stroke()),
         t.beginPath(),
-        t.fillStyle = "#000000",
+        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.moveTo(i.x + .1 * a, i.y + .1 * h),
         t.lineTo(i.x - .1 * a, i.y - .1 * h),
         t.lineTo(i.x - .22 * r - .1 * a, i.y - .22 * o - .1 * h),

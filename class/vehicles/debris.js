@@ -4,8 +4,7 @@ let l = [1, .7, .8, .9, .5, 1, .7, 1];
 
 export default class extends Mass {
     constructor(t, e, i) {
-        super();
-        this.massInit(t, e);
+        super(t, e);
         this.color = i;
         this.pos.x = t.x + 5 * (Math.random() - Math.random());
         this.pos.y = t.y + 5 * (Math.random() - Math.random());
@@ -18,8 +17,6 @@ export default class extends Mass {
         this.speed = 1 * Math.random() - 1 * Math.random();
         this.friction = .05;
     }
-    massInit = this.init;
-    massUpdate = this.update;
     color = "black";
     drive(t, e) {
         var i = this.vel
@@ -38,13 +35,9 @@ export default class extends Mass {
             this.old.y += l * c
         }
     }
-    update() {
-        {
-            var t = this.scene;
-            t.settings
-        }
+    update = () => {
         this.angle += this.speed,
-        this.massUpdate()
+        super.update();
     }
     draw() {
         var t = this.scene.screen
@@ -59,7 +52,7 @@ export default class extends Mass {
           , p = s + c * Math.sin(o)
           , d = this.scene.game.canvas.getContext("2d");
         for (d.lineWidth = 1 * r,
-        d.strokeStyle = "#000000",
+        d.strokeStyle = window.lite.getVar("dark") && "#fff" || "#000",
         d.beginPath(),
         d.moveTo(u, p),
         d.fillStyle = this.color; n++ < 8; )

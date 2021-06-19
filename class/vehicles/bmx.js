@@ -15,7 +15,8 @@ let d = {
 
 export default class extends Vehicle {
     constructor(t, e, i, s) {
-        this.vehicleInit(t);
+        super(t);
+        super.init(t);
         this.createMasses(e, s);
         this.createSprings();
         this.updateCameraFocalPoint();
@@ -23,8 +24,6 @@ export default class extends Vehicle {
         -1 === i && this.swap();
     }
     vehicleName = "BMX";
-    vehicleInit = this.init;
-    vehicleUpdate = this.update;
     masses = null;
     springs = null;
     cosmetics = null;
@@ -37,10 +36,9 @@ export default class extends Vehicle {
     ragdoll = null;
     createMasses(t, e) {
         this.masses = [];
-        var i = new n
+        var i = new n(new s(t.x,t.y - 36), this)
             , r = new a(new s(t.x + 21,t.y + 3), this)
             , o = new a(new s(t.x + -21,t.y + 3), this);
-        i.init(new s(t.x,t.y - 36), this),
         i.drive = this.createRagdoll.bind(this),
         o.radius = 11.7,
         r.radius = 11.7,
@@ -225,6 +223,13 @@ export default class extends Vehicle {
             this.drawBikeFrame()
         }
     }
+    clone() {
+        if (this.explosion)
+            this.explosion.draw();
+        else {
+            this.cloneBikeFrame()
+        }
+    }
     updateDrawHeadAngle() {
         var t = this.frontWheel.pos
             , e = this.rearWheel.pos
@@ -236,21 +241,23 @@ export default class extends Vehicle {
             , a = s - r;
         this.drawHeadAngle = -(Math.atan2(o, a) - Math.PI / 2)
     }
-    drawBikeFrame() {
+    drawBikeFrame(old = this, alpha = this.player._opacity) {
         var t = this.scene
-            , e = this.rearWheel.pos.toScreen(t)
-            , i = this.frontWheel.pos.toScreen(t)
-            , n = this.head.pos.toScreen(t)
-            , r = (t.game.pixelRatio,
-        this.player._opacity)
-            , o = i.sub(e)
-            , a = new s((i.y - e.y) * this.dir,(e.x - i.x) * this.dir)
-            , h = this.pedala
-            , l = this.dir
-            , c = t.camera.zoom
-            , u = t.game.canvas.getContext("2d");
+          , rearWheel = new s(old.rearWheel.pos.x, old.rearWheel.pos.y)
+          , frontWheel = new s(old.frontWheel.pos.x, old.frontWheel.pos.y)
+          , head = new s(old.head.pos.x, old.head.pos.y)
+          , e = rearWheel.toScreen(t)
+          , i = frontWheel.toScreen(t)
+          , n = head.toScreen(t)
+          , r = alpha
+          , o = i.sub(e)
+          , l = old.dir
+          , a = new s((i.y - e.y) * l,(e.x - i.x) * l)
+          , h = old.pedala
+          , c = t.camera.zoom
+          , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = "rgba(0,0,0,1)",
+        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -264,11 +271,11 @@ export default class extends Vehicle {
         u.fill(),
         u.stroke();
         var p = e.add(o.factor(.3)).add(a.factor(.25))
-            , d = e.add(o.factor(.4)).add(a.factor(.05))
-            , f = e.add(o.factor(.84)).add(a.factor(.42))
-            , v = e.add(o.factor(.84)).add(a.factor(.37));
+        , d = e.add(o.factor(.4)).add(a.factor(.05))
+        , f = e.add(o.factor(.84)).add(a.factor(.42))
+        , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = "rgba(0,0,0,1)",
+        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -277,57 +284,57 @@ export default class extends Vehicle {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = "rgba(0,0,0,1)",
+        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
         var g = new s(6 * Math.cos(h) * c,6 * Math.sin(h) * c)
-            , m = d.add(g)
-            , y = d.sub(g);
+        , m = d.add(g)
+        , y = d.sub(g);
         u.beginPath(),
         u.moveTo(m.x, m.y),
         u.lineTo(y.x, y.y),
         u.stroke();
         var w = e.add(o.factor(.25)).add(a.factor(.4))
-            , x = e.add(o.factor(.17)).add(a.factor(.38))
-            , _ = e.add(o.factor(.3)).add(a.factor(.45));
+        , x = e.add(o.factor(.17)).add(a.factor(.38))
+        , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = "rgba(0,0,0,1)",
+        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),
         u.moveTo(d.x, d.y),
         u.lineTo(w.x, w.y);
         var b = e.add(o.factor(1)).add(a.factor(0))
-            , T = e.add(o.factor(.97)).add(a.factor(0))
-            , C = e.add(o.factor(.8)).add(a.factor(.48));
+        , T = e.add(o.factor(.97)).add(a.factor(0))
+        , C = e.add(o.factor(.8)).add(a.factor(.48));
         u.moveTo(b.x, b.y),
         u.lineTo(T.x, T.y),
         u.lineTo(C.x, C.y);
         var k = e.add(o.factor(.86)).add(a.factor(.5))
-            , S = e.add(o.factor(.82)).add(a.factor(.65))
-            , P = e.add(o.factor(.78)).add(a.factor(.67));
+        , S = e.add(o.factor(.82)).add(a.factor(.65))
+        , P = e.add(o.factor(.78)).add(a.factor(.67));
         if (u.moveTo(C.x, C.y),
         u.lineTo(k.x, k.y),
         u.lineTo(S.x, S.y),
         u.lineTo(P.x, P.y),
         u.stroke(),
-        this.crashed)
-            this.ragdoll && this.ragdoll.draw();
-        else {
+        old.crashed) {
+            old.ragdoll.draw && old.ragdoll.draw();
+        } else {
             a = n.sub(e.add(o.factor(.5)));
             var M = p.add(o.factor(-.1)).add(a.factor(.3))
-                , A = m.sub(M)
-                , D = new s(A.y * l,-A.x * l);
+            , A = m.sub(M)
+            , D = new s(A.y * l,-A.x * l);
             D = D.factor(c * c);
             var I = M.add(A.factor(.5)).add(D.factor(200 / A.lenSqr()))
-                , E = m.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
+            , E = m.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
             A = y.sub(M),
             D = new s(A.y * l,-A.x * l),
             D = D.factor(c * c);
             var O = M.add(A.factor(.5)).add(D.factor(200 / A.lenSqr()))
-                , z = y.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
-            u.strokeStyle = "rgba(0,0,0,0.5)",
+            , z = y.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
+            u.strokeStyle = window.lite.getVar("dark") ? "#fdfdfda5" : "#000000a5",
             u.lineWidth = 6 * c,
             u.beginPath(),
             u.moveTo(y.x, y.y),
@@ -340,7 +347,7 @@ export default class extends Vehicle {
             u.lineTo(z.x, z.y),
             u.stroke(),
             u.lineWidth = 6 * c,
-            u.strokeStyle = "rgba(0,0,0,1)",
+            u.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
             u.beginPath(),
             u.moveTo(m.x, m.y),
             u.lineTo(I.x, I.y),
@@ -368,11 +375,24 @@ export default class extends Vehicle {
             u.lineTo(B.x, B.y),
             u.lineTo(P.x, P.y),
             u.stroke();
-            var F = this.cosmetics
-                , R = GameInventoryManager.getItem(F.head)
-                , W = this.drawHeadAngle;
-            R.draw(u, L.x, L.y, W, c, this.dir),
+            var R = GameInventoryManager.getItem(window.lite.getVar("canvas-rider") ? window.lite.head : this.cosmetics.head);
+            R.draw(u, L.x, L.y, this.drawHeadAngle, c, this.dir),
             u.globalAlpha = 1
+        }
+    }
+    cloneBikeFrame() {
+        //this.player._checkpoints = this.player._checkpoints.slice(-101);
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                this.drawBikeFrame(JSON.parse(this.player._checkpoints[checkpoint]._baseVehicle), .03 * ++op);
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                this.drawBikeFrame(JSON.parse(this.player._cache[checkpoint]._baseVehicle), .03 * ++op);
+            }
         }
     }
 }

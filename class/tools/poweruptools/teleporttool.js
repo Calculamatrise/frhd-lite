@@ -4,15 +4,12 @@ import n from "../../sector/powerups/teleport.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
+        super(t);
         this.powerup = new n(0, 0, t.scene.track);
         this.p1 = new i(0, 0);
         this.p2 = new i(0, 0);
         this.active = !1;
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
     powerup = null;
     name = "teleport";
     p1 = null;

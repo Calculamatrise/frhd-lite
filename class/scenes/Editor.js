@@ -28,6 +28,9 @@ export default class {
         this.assets = t.assets;
         this.stage = t.stage;
         this.settings = t.settings;
+        this.settings.track = {
+            vehicle: "MTB"
+        };
         this.sound = new C(this);
         this.mouse = new s(this);
         this.mouse.disableContextMenu();
@@ -47,6 +50,7 @@ export default class {
         this.restart();
         this.initializeAnalytics();
         this.stage.addEventListener("stagemousedown", this.tapToStartOrRestart.bind(this));
+        window.lite && this.injectLiteFeatures();
     }
     game = null;
     assets = null;
@@ -74,6 +78,59 @@ export default class {
     inFocus = !0;
     controls = null;
     verified = !1;
+    injectLiteFeatures() {
+        var tm = document.createElement('div');
+        tm.id = 'trackMover';
+        tm.className = 'bottomToolOptions';
+        tm.title = 'Move your track!';
+        tm.innerHTML = `<a onClick="window.lite.moveTrack()">Move Track</a>
+        &emsp;<input type="number" id="moveX" placeholder="Position X"></input>
+        &emsp;<input type="number" id="moveY" placeholder="Position Y"></input>`;
+        var t = window.lite.getVar("toggle") ? tm : null;
+        window.lite.nodes.trackMover = tm;
+        window.lite.nodes.tools = t;
+        var script = document.createElement('script');
+        script.innerHTML = `([...document.querySelectorAll('input')]).forEach(n => {
+            n.addEventListener('keydown', e => e.stopPropagation());
+            n.addEventListener('keyup', e => e.stopPropagation());
+            n.addEventListener('keypress', e => e.stopPropagation());
+        });`;
+        var it = setInterval(() => {
+            if(document.getElementsByClassName('bottomToolOptions_straightline').length > 0) {
+                document.getElementsByClassName('bottomToolOptions_straightline')[0].after(t);
+                document.body.appendChild(script);
+                clearInterval(it)
+            }
+        })
+        var st = document.createElement('div');
+        st.className = 'sideButton sideButton-bottom sideButton_selectTool';
+        st.onclick = () => {
+            this.toolHandler.setTool('select'),
+            st.className = 'sideButton sideButton-bottom sideButton_selectTool active';
+        }
+        st.innerHTML = `<div style="width:40px;height:40px;display:flex"><img src="https://i.imgur.com/FLP6RhL.png" style="display:inline-flex;margin:auto;width:30px;height:30px;justify-content:center;align-items:center;float:center"></img></div>`;
+        var ith = setInterval(() => {
+            if(document.getElementsByClassName('sideButton').length > 0) {
+                [...document.getElementsByClassName('sideButton')].forEach(e => {
+                    e.onclick = () => {
+                        if(!['sideButton sideButton-bottom sideButton_selectTool'].includes(e.className)) {
+                            st.className = 'sideButton sideButton-bottom sideButton_selectTool';
+                        } else {
+                            this.toolHandler.setTool('select'),
+                            st.className = 'sideButton sideButton-bottom sideButton_selectTool active';
+                        }
+                    }
+                })
+                clearInterval(ith)
+            }
+        })
+        var is = setInterval(() => {
+            if(document.getElementsByClassName('sideButton_cameraTool').length > 0) {
+                document.getElementsByClassName('sideButton_cameraTool')[0].after(st)
+                clearInterval(is)
+            }
+        })
+    }
     getCanvasOffset() {
         var t = {
             height: 90,

@@ -4,6 +4,7 @@ import n from "./explosion.js";
 export default class {
     init(t) {
         this.player = t,
+        this.clones = [];
         this.scene = t._scene,
         this.gamepad = t._gamepad,
         this.settings = t._settings,
@@ -25,9 +26,7 @@ export default class {
         this.dead()
     }
     createCosmetics() {
-        var t = this.player._user
-          , e = t.cosmetics;
-        this.cosmetics = e
+        this.cosmetics = this.player._user.cosmetics;
     }
     updateSpeed() {
         this.speed = Math.abs(Math.round(this.focalPoint.vel.x + this.focalPoint.vel.y))

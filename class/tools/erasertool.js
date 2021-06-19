@@ -1,19 +1,13 @@
-import "../../libs/lodash.js";
-
 import i from "../math/cartesian.js";
 import Tool from "./tool.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
-        let e = t.scene.settings.eraser;
-        this.options = e;
+        super(t);
+        this.options = t.scene.settings.eraser;
         this.eraserPoint = new i;
         this.erasedObjects = [];
     }
-    toolInit = this.init;
-    toolUpdate = this.update();
     name = "Eraser";
     options = null;
     reset() {
@@ -25,7 +19,7 @@ export default class extends Tool {
     recordActionsToToolhandler() {
         this.erasedObjects.length > 0 && this.toolhandler.addActionToTimeline({
             type: "remove",
-            objects: n.flatten(this.erasedObjects)
+            objects: this.erasedObjects.flatMap(t => t)
         }),
         this.erasedObjects = []
     }
@@ -49,8 +43,7 @@ export default class extends Tool {
     }
     draw() {
         var t = this.scene
-          , e = (t.game.canvas,
-        t.game.canvas.getContext("2d"));
+          , e = t.game.canvas.getContext("2d");
         this.drawEraser(e)
     }
     drawEraser(t) {
@@ -77,7 +70,7 @@ export default class extends Tool {
         var t = this.toolhandler.gamepad
           , e = this.mouse;
         t.isButtonDown("shift") && e.mousewheel !== !1 && this.adjustRadius(e.mousewheel),
-        this.toolUpdate()
+        super.update();
     }
     adjustRadius(t) {
         var e = this.options.radius

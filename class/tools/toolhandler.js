@@ -49,15 +49,12 @@ export default class {
         this.scene.stateChanged()
     }
     registerTool(t) {
-        var t = new t(this)
-            , e = t.name.toLowerCase();
-        this.tools[e] = t
+        var t = new t(this),
+            e = t.name.toLowerCase();
+        this.tools[e] = t;
     }
     setTool(t) {
-        {
-            var t = t.toLowerCase();
-            this.scene
-        }
+        var t = t.toLowerCase();
         this.currentTool !== t && (this.resetTool(),
         this.currentTool = t,
         this.scene.stateChanged(),
@@ -225,7 +222,7 @@ export default class {
     drawGrid() {
         var t = this.scene.game.pixelRatio
             , e = this.scene.game.canvas.getContext("2d");
-        this.options.grid === !0 && this.options.visibleGrid && this.drawCachedGrid(e, t)
+        this.options.grid === !0 && this.options.visibleGrid && (window.lite.getVar("isometric") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
     }
     drawCachedGrid(t, e) {
         this.gridCache === !1 && this.cacheGrid(e);
@@ -248,6 +245,27 @@ export default class {
             }
         t.globalAlpha = 1
     }
+    drawCachedIsometricGrid(t, e) {
+        this.cacheIsometricGrid(e);
+        var i = this.gridCache
+          , s = i.width
+          , n = i.height
+          , r = this.scene.screen
+          , o = r.center
+          , a = (o.x / s | 0) + 2
+          , h = (o.y / n | 0) + 2
+          , l = this.camera.zoom
+          , c = this.camera.position.x * l % s
+          , u = this.camera.position.y * l % n;
+        t.globalAlpha = this.gridCacheAlpha;
+        for (var p = -a; a > p; p++)
+            for (var d = -h; h > d; d++) {
+                var f = p * s - c + o.x
+                  , v = d * n - u + o.y;
+                t.drawImage(i, 0, 0, n, s, f, v, s, n)
+            }
+        t.globalAlpha = 1
+    }
     cacheGrid() {
         var t = this.scene.camera.zoom
             , e = 200 * t
@@ -258,7 +276,7 @@ export default class {
         o.width = e,
         o.height = i;
         var a = o.getContext("2d");
-        a.strokeStyle = this.options.gridMinorLineColor,
+        a.strokeStyle = window.lite.getVar("dark") ? "#252525" : this.options.gridMinorLineColor,
         a.strokeWidth = 1,
         a.beginPath();
         var h = null
@@ -280,9 +298,49 @@ export default class {
         a.beginPath(),
         a.rect(0, 0, e, i),
         a.lineWidth = 2,
-        a.strokeStyle = this.options.gridMajorLineColor,
+        a.strokeStyle = window.lite.getVar("dark") ? "#3e3e3e" : this.options.gridMajorLineColor,
         a.stroke(),
         a.closePath(),
+        this.gridCache = o,
+        this.gridCacheAlpha = Math.min(t + .2, 1)
+    }
+    cacheIsometricGrid() {
+        var t = this.scene.camera.zoom
+          , e = 200 * t
+          , i = 200 * t
+          , n = this.options.gridSize
+          , r = n * t
+          , o = document.createElement("canvas");
+        o.width = e,
+        o.height = i;
+        var a = o.getContext("2d");
+        a.strokeStyle = window.lite.getVar("dark") ? "#252525" : this.options.gridMinorLineColor,
+        a.fillStyle = window.lite.getVar("dark") ? "#252525" : this.options.gridMinorLineColor,
+        a.strokeWidth = 1,
+        a.beginPath();
+        var h = null
+          , b = null
+          , l = null
+          , c = null
+          , u = null;
+        for (h = Math.floor(e / r),
+        l = 0; h >= l; l++) {
+            for (h = Math.floor(i / r),
+            b = 0; h >= b; b+=.5) {
+                a.beginPath();
+                if(b - Math.floor(b) === 0) {
+                    c = b * r,
+                    u = l * r,
+                    a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                } else {
+                    c = b * r,
+                    u = (l + .5) * r,
+                    a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                }
+                a.fill(),
+                a.stroke();
+            }
+        }
         this.gridCache = o,
         this.gridCacheAlpha = Math.min(t + .2, 1)
     }

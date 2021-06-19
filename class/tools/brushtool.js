@@ -5,8 +5,7 @@ import Tool from "./tool.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
+        super(t);
         this.p1 = new i(0, 0);
         this.p2 = new i(0, 0);
         this.active = !1;
@@ -147,7 +146,7 @@ export default class extends Tool {
           , i = this.options.breakLength
           , s = this.options.trailSpeed
           , n = this.game.pixelRatio;
-        t.fillStyle = "#000000",
+        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.font = 12 * n + "pt arial",
         t.fillText(e, 10 * n, 20 * n),
         t.font = 8 * n + "pt arial",
@@ -194,7 +193,7 @@ export default class extends Tool {
         2 * e > .5 ? 2 * e : .5)
           , n = this.toolhandler
           , r = n.options.lineType
-          , o = "physics" === r ? "#000" : "#AAA";
+          , o = "physics" === r ? window.lite.getVar("dark") ? "#fff" : "#000" : window.lite.getVar("dark") ? "#777" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

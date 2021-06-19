@@ -8,26 +8,16 @@ export default class extends Vehicle {
         super();
         this.parent = e;
         var i, o, a, h, l, c, u, p, d, f, v = [], g = [], m = new s(0,0);
-        i = new n,
-        o = new n,
-        a = new n,
-        h = new n,
-        c = new n,
-        l = new n,
-        u = new n,
-        p = new n,
-        d = new n,
-        f = new n,
-        i.init(m, e),
-        o.init(m, e),
-        a.init(m, e),
-        h.init(m, e),
-        c.init(m, e),
-        l.init(m, e),
-        u.init(m, e),
-        p.init(m, e),
-        d.init(m, e),
-        f.init(m, e),
+        i = new n(m, e),
+        o = new n(m, e),
+        a = new n(m, e),
+        h = new n(m, e),
+        c = new n(m, e),
+        l = new n(m, e),
+        u = new n(m, e),
+        p = new n(m, e),
+        d = new n(m, e),
+        f = new n(m, e),
         v.push(i),
         v.push(o),
         v.push(a),
@@ -71,7 +61,6 @@ export default class extends Vehicle {
         for (var y in t)
             this[y].pos.equ(t[y])
     }
-    init = super.initialize;
     parent = null;
     zero(t, e) {
         t = t.factor(.7),
@@ -169,29 +158,30 @@ export default class extends Vehicle {
         var M = S.toScreen(c);
         d.lineTo(M.x, M.y),
         d.stroke(),
-        v.inc(v.sub(x).factor(.25)),
-        d.lineWidth = 1 * p,
-        d.strokeStyle = "rgba(0,0,0," + f + ")",
-        d.fillStyle = "rgba(255,255,255," + f + ")",
-        d.beginPath(),
-        d.arc(v.x, v.y, 5 * p, 0, 1.99999 * Math.PI, !1),
-        d.fill(),
-        d.stroke(),
-        d.strokeStyle = "rgba(0,0,0," + f + ")",
-        d.lineWidth = .5 * p,
-        d.beginPath();
-        var A = this.parent.cosmetics
-            , D = GameInventoryManager.getItem(A.head)
+        v.inc(v.sub(x).factor(.25));
+        if (window.lite.getVar("canvas-rider")) {
+            let t = v.sub(x)
+              , e = new Vector(t.y,-t.x)
+              , i = v.add(e.factor(.15 * this.dir)).add(t.factor(-.05))
+              , s = v.add(e.factor(-.35 * this.dir)).add(t.factor(.15));
+            d.beginPath(),
+            d.arc(v.x, v.y, 5 * p, 0, 2 * PI, !1),
+            d.moveTo(i.x, i.y),
+            d.lineTo(s.x, s.y),
+            d.lineWidth = 2 * p,
+            d.strokeStyle = "#000000",
+            d.stroke()
+        } else {
+            var D = GameInventoryManager.getItem(this.parent.cosmetics.head)
             , I = this.drawHeadAngle;
-        D.draw(d, v.x, v.y, I, p, this.dir, 1)
+            D.draw(d, v.x, v.y, I, p, this.dir, 1)
+        }
     }
     update() {
-        for (var t = (this.springs,
-        this.masses,
-        this.springs.length - 1); t >= 0; t--)
-            this.springs[t].update();
-        for (var e = this.masses.length - 1; e >= 0; e--)
-            this.masses[e].update();
+        for (const t of this.springs)
+            t.update();
+        for (const t of this.masses)
+            t.update();
         this.updateDrawHeadAngle()
     }
     updateDrawHeadAngle() {

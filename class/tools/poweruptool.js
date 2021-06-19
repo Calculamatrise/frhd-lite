@@ -10,16 +10,13 @@ import c from "./poweruptools/teleporttool.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
+        super(t);
         this.powerupTools = {};
         this.registerPowerupTools();
         this.options = {
             selected: "goal"
         }
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
     name = "Powerup";
     powerupTools = null;
     registerPowerupTools() {
@@ -69,7 +66,7 @@ export default class extends Tool {
         t.isButtonDown("opt8") && Application.User.get("classic") && (e.selected = "teleport",
         t.setButtonUp("opt8"),
         this.scene.stateChanged()),
-        this.toolUpdate()
+        super.update.bind(this);
     }
     press() {
         var t = this.options.selected;

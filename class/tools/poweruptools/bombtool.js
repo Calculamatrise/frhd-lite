@@ -4,14 +4,12 @@ import n from "../../sector/powerups/bomb.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
+        super(t);
         this.powerup = new n(0, 0, t.scene.track);
         this.p1 = new i(0, 0);
         this.p2 = new i(0, 0);
         this.active = !1;
     }
-    toolInit = this.init;
     toolUpdate = this.update;
     powerup = null;
     name = "bomb";
@@ -20,19 +18,19 @@ export default class extends Tool {
     active = !1;
     draw(t) {
         var e = this.mouse.touch
-          , i = (e.pos,
+            , i = (e.pos,
         this.camera.zoom)
-          , s = this.scene.settings.device
-          , n = this.scene.screen;
+            , s = this.scene.settings.device
+            , n = this.scene.screen;
         if (this.active === !0) {
             var r = n.realToScreen(this.p1.x, "x")
-              , o = n.realToScreen(this.p1.y, "y");
+                , o = n.realToScreen(this.p1.y, "y");
             t.globalAlpha = .4,
             this.powerup.draw(r, o, i, t),
             t.globalAlpha = 1
         } else if ("desktop" === s) {
             var r = n.realToScreen(e.real.x, "x")
-              , o = n.realToScreen(e.real.y, "y");
+                , o = n.realToScreen(e.real.y, "y");
             t.globalAlpha = .8,
             this.powerup.draw(r, o, i, t),
             t.globalAlpha = 1
@@ -40,7 +38,7 @@ export default class extends Tool {
     }
     press() {
         var t = this.mouse.touch
-          , e = t.real;
+            , e = t.real;
         this.p1.x = e.x,
         this.p1.y = e.y,
         this.p2.x = e.x,
@@ -49,14 +47,14 @@ export default class extends Tool {
     }
     hold() {
         var t = this.mouse.touch
-          , e = t.real;
+            , e = t.real;
         this.p2.x = e.x,
         this.p2.y = e.y
     }
     release() {
         var t = (this.scene.screen,
         this.scene.track)
-          , e = new n(this.p1.x,this.p1.y,t);
+            , e = new n(this.p1.x,this.p1.y,t);
         t.addPowerup(e),
         this.active = !1,
         this.toolhandler.addActionToTimeline({

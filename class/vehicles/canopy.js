@@ -3,8 +3,7 @@ import n from "../math/cartesian.js";
 
 export default class extends Mass {
     constructor(t, e, i) {
-        super();
-        this.init(new n(t, e), i);
+        super(new n(t, e), i);
         this.radius = 10;
         this.collide = !0;
         this.wind = !0;
@@ -16,15 +15,15 @@ export default class extends Mass {
         this.contact = !0
     }
     update() {
-        var t = (this.parent,
-        this.vel)
+        var t = this.vel
             , e = this.pos
             , i = this.old
             , s = this.parent.gravity
             , n = this.parent.gamepad
             , r = n.isButtonDown("up")
             , o = n.isButtonDown("left")
-            , a = n.isButtonDown("right");
+            , a = n.isButtonDown("right")
+            , contact;
         (0 !== s.x || 0 !== s.y) && (t.x = .9 * t.x,
         t.y = .99 * t.y),
         o && (e.x += -.05),
@@ -46,7 +45,7 @@ export default class extends Mass {
             , i = this.pos.toScreen(e)
             , s = this.radius * e.camera.zoom;
         t.beginPath(),
-        t.fillStyle = "#000000",
+        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.arc(i.x, i.y, s, 0, 2 * Math.PI, !1),
         t.closePath(),
         t.fill()

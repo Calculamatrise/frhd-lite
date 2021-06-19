@@ -3,18 +3,13 @@ import Tool from "./tool.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.game = t.scene.game;
-        this.toolInit(t);
+        super(t);
         this.p1 = new i(0, 0);
         this.p2 = new i(0, 0);
         this.active = !1;
         this.shouldDrawMetadata = !1;
         this.options = {};
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
-    toolDraw = this.draw;
     name = "StraightLine";
     p1 = null;
     p2 = null;
@@ -32,7 +27,7 @@ export default class extends Tool {
     }
     getOptions() {
         var t = this.toolhandler
-          , e = this.options;
+            , e = this.options;
         return e.lineType = t.options.lineType,
         e.snap = t.options.snap,
         e
@@ -45,10 +40,10 @@ export default class extends Tool {
     }
     release() {
         var t = this.p1
-          , e = this.p2
-          , i = this.scene.track
-          , s = this.toolhandler
-          , n = !1;
+            , e = this.p2
+            , i = this.scene.track
+            , s = this.toolhandler
+            , n = !1;
         n = "physics" === s.options.lineType ? i.addPhysicsLine(t.x, t.y, e.x, e.y) : i.addSceneryLine(t.x, t.y, e.x, e.y),
         n && s.addActionToTimeline({
             type: "add",
@@ -60,9 +55,9 @@ export default class extends Tool {
         this.active = !1
     }
     update() {
-        this.toolUpdate();
+        super.update();
         var t = this.toolhandler
-          , e = t.gamepad;
+            , e = t.gamepad;
         t.options.snap && (this.active = !0,
         this.p1 = t.snapPoint,
         this.hold()),
@@ -70,10 +65,9 @@ export default class extends Tool {
     }
     draw() {
         var t = this.scene
-          , e = (t.game.canvas,
-        t.game.canvas.getContext("2d"))
-          , i = t.camera
-          , s = i.zoom;
+            , e = t.game.canvas.getContext("2d")
+            , i = t.camera
+            , s = i.zoom;
         e.save(),
         this.drawCursor(e),
         this.active && (this.drawLine(e, s),
@@ -84,12 +78,11 @@ export default class extends Tool {
     }
     drawCursor(t) {
         var e = this.mouse.touch
-          , i = e.real.toScreen(this.scene)
-          , s = this.camera.zoom
-          , n = this.toolhandler
-          , r = (n.options.lineType,
-        n.options.grid)
-          , o = "#1884cf";
+            , i = e.real.toScreen(this.scene)
+            , s = this.camera.zoom
+            , n = this.toolhandler
+            , r = n.options.grid
+            , o = "#1884cf";
         if (r) {
             var a = 5 * s;
             t.beginPath(),
@@ -122,7 +115,7 @@ export default class extends Tool {
             var s = this.p1.getAngleInDegrees(this.p2);
             s = s.toFixed(2);
             var n = this.game.pixelRatio;
-            t.fillStyle = "#000000",
+            t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
             t.font = 8 * n + "pt arial",
             t.fillText("" + s + "°", i.x + 10, i.y + 10),
             t.strokeText("" + s + "°", i.x + 10, i.y + 10)
@@ -130,11 +123,11 @@ export default class extends Tool {
     }
     drawLine(t, e) {
         var i = this.scene
-          , s = (i.game.canvas,
-        2 * e > .5 ? 2 * e : .5)
-          , n = this.toolhandler
-          , r = n.options.lineType
-          , o = "physics" === r ? "#000" : "#AAA";
+            , s = (i.game.canvas,
+          2 * e > .5 ? 2 * e : .5)
+            , n = this.toolhandler
+            , r = n.options.lineType
+            , o = "physics" === r ? window.lite.getVar("dark") ? "#fafafa" : "#000" : window.lite.getVar("dark") ? "#666" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

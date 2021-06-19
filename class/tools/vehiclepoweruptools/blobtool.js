@@ -4,15 +4,12 @@ import n from "../../sector/vehiclepowerups/blob.js";
 
 export default class extends Tool {
     constructor(t, e) {
-        super();
-        this.toolInit(e);
+        super(e);
         this.powerup = new n(0, 0, 0, e.scene.track);
         this.p1 = new i(0, 0);
         this.options = t.options;
         this.active = !1;
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
     powerup = null;
     name = "blob";
     p1 = null;

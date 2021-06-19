@@ -6,14 +6,11 @@ import n from "./vehiclepoweruptools/trucktool.js";
 
 export default class extends Tool {
     constructor(t) {
-        super();
-        this.toolInit(t);
+        super(t);
         this.powerupTools = {};
         this.options = t.scene.settings.vehiclePowerup;
         this.registerPowerupTools();
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
     name = "vehiclepowerup";
     powerupTools = null;
     registerPowerupTools() {
@@ -35,7 +32,7 @@ export default class extends Tool {
         this.toolhandler.gamepad,
         this.mouse,
         this.options;
-        this.toolUpdate()
+        super.update();
     }
     press() {
         var t = this.options.selected;

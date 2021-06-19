@@ -16,17 +16,17 @@ export default class {
     }
     build_interface() {
         var t = this.scene
-          , e = t.game.pixelRatio
-          , i = t.settings
-          , s = new createjs.Container
-          , n = "helsinki"
-          , r = new createjs.Text("00:00.00","40px " + n,"#000000")
-          , o = new createjs.Text("TIME:","20px " + n,"#999999")
-          , a = this.get_timer_sprite()
-          , h = new createjs.Text(" -- : --.--","35px " + n,"#999999")
-          , l = new createjs.Text("BEST:","20px " + n,"#999999")
-          , c = new createjs.Text("0/0","40px " + n,"#000000")
-          , u = new createjs.Bitmap(t.assets.getResult("targets_icon"))
+            , e = t.game.pixelRatio
+            , i = t.settings
+            , s = new createjs.Container
+            , n = "helsinki"
+            , r = new createjs.Text("00:00.00","40px " + n, window.lite &&  window.lite.getVar("dark") ? "#fdfdfd" : "#000000")
+            , o = new createjs.Text("TIME:","20px " + n, window.lite &&  window.lite.getVar("dark") ? "#666666" : "#999999")
+            , a = this.get_timer_sprite()
+            , h = new createjs.Text(" -- : --.--","35px " + n, window.lite &&  window.lite.getVar("dark") ? "#666666" : "#999999")
+            , l = new createjs.Text("BEST:","20px " + n, window.lite &&  window.lite.getVar("dark") ? "#666666" : "#999999")
+            , c = new createjs.Text("0/0","40px " + n, window.lite &&  window.lite.getVar("dark") ? "#fdfdfd" : "#000000")
+            , u = new createjs.Bitmap(t.assets.getResult("targets_icon"))
           , p = e / 2.5;
         i.mobile && (p = e / 2.5),
         r.y = 18,
@@ -63,27 +63,31 @@ export default class {
     }
     update() {
         var t = this.scene
-          , e = t.ticks
-          , i = t.settings
-          , n = t.track
-          , r = t.playerManager.firstPlayer;
+            , e = t.ticks
+            , i = t.settings
+            , n = t.track
+            , r = t.playerManager.firstPlayer;
         this.cached === !1 && e > 50 && (this.cached = !0,
         this.cache_fixed_text());
         var o = e / i.drawFPS;
         this.time.text = s(1e3 * o);
+        this.time.color = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
         var a = n.targetCount
-          , h = r.getTargetsHit();
+            , h = r.getTargetsHit();
         this.goals.text = h + "/" + a;
+        this.goals.color = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
         var l = " -- : --.--";
         i.isCampaign && i.campaignData.user.best_time ? l = i.campaignData.user.best_time : i.userTrackStats && i.userTrackStats.best_time && (l = i.userTrackStats.best_time),
         this.best_time.text = l,
-        i.mobile && this.center_container()
+        i.mobile && this.center_container();
+        this.best_time_title.color = window.lite.getVar("dark") ? "#666" : "#999";
+        this.best_time.color = window.lite.getVar("dark") ? "#666" : "#999"
     }
     center_container() {
         var t = this.container
-          , e = t.getBounds()
-          , i = this.scene.screen
-          , s = this.scene.game.pixelRatio;
+            , e = t.getBounds()
+            , i = this.scene.screen
+            , s = this.scene.game.pixelRatio;
         t.x = i.width / 2 - e.width / 2 * t.scaleY,
         t.y = 10 * s
     }
@@ -96,15 +100,15 @@ export default class {
     }
     get_timer_sprite() {
         var t = this.scene.assets.getResult("time_icon")
-          , e = {
-            images: [t],
-            frames: {
-                width: 60,
-                height: 60
+            , e = {
+                images: [t],
+                frames: {
+                    width: 60,
+                    height: 60
+                }
             }
-        }
-          , i = new createjs.SpriteSheet(e)
-          , s = new createjs.Sprite(i);
+            , i = new createjs.SpriteSheet(e)
+            , s = new createjs.Sprite(i);
         return s
     }
 }

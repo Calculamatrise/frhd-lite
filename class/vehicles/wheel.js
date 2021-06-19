@@ -2,8 +2,7 @@ import Mass from "./mass.js";
 
 export default class extends Mass {
     constructor(t, e) {
-        super();
-        this.init(t, e);
+        super(t, e);
         this.motor = 0;
         this.brake = !1;
         this.angle = 0;
@@ -33,7 +32,6 @@ export default class extends Mass {
         this.angle += this.speed,
         this.contact = !0
     }
-    massUpdate = this.update;
     update() {
         var t = this.parent.gravity
             , e = this.pos

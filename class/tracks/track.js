@@ -326,6 +326,37 @@ export default class {
             n.sector.powerupCanvasDrawn = !1
         }
     }
+    select(a, b) {
+        const segments = [];
+        if (a.x < b.x && a.y < b.y) {
+            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups]){
+                if (i.p1 || i.p2) {
+                    if (i.p1.x >= a.x && i.p1.y >= a.y || i.p2.x >= a.x && i.p2.y >= a.y && i.p1.x <= b.x && i.p1.y <= b.y ||
+                    i.p2.x <= b.x && i.p2.y <= b.y) {
+                        segments.push(i);
+                    }
+                } else {
+                    if (i.x >= a.x && i.y >= a.y && i.x <= b.x && i.y <= b.y) {
+                        segments.push(i);
+                    }
+                }
+            }
+        } else {
+            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups]){
+                if (i.p1 || i.p2) {
+                    if (i.p1.x <= a.x && i.p1.y <= a.y || i.p2.x <= a.x && i.p2.y <= a.y && i.p1.x >= b.x && i.p1.y >= b.y ||
+                    i.p2.x >= b.x && i.p2.y >= b.y) {
+                        segments.push(i);
+                    }
+                } else {
+                    if(i.x <= a.x && i.y <= a.y && i.x >= b.x && i.y >= b.y) {
+                        segments.push(i);
+                    }
+                }
+            }
+        }
+        return segments
+    }
     getCode() {
         this.cleanTrack();
         var t = this.powerups
@@ -384,7 +415,7 @@ export default class {
         for (var s = t.x - e, n = t.y - e, r = t.x + e, o = t.y + e, a = Math.max(s, r), p = Math.min(s, r), d = Math.max(n, o), f = Math.min(n, o), v = this.settings.drawSectorSize, g = Math.floor(a / v), m = Math.floor(p / v), y = Math.floor(d / v), w = Math.floor(f / v), x = this.sectors.drawSectors, _ = [], b = m; g >= b; b++)
             for (var T = w; y >= T; T++)
                 x[b] && x[b][T] && _.push(x[b][T].erase(t, e, i));
-        return h.flatten(_)
+        return _.flatMap(t => t)
     }
     drawAndCache() {
         for (var t = performance.now(), e = this.totalSectors, i = e.length, s = 0; i > s; s++) {

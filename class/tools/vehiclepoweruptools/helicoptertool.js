@@ -4,16 +4,13 @@ import n from "../../sector/vehiclepowerups/helicopter.js";
 
 export default class extends Tool {
     constructor(t, e) {
-        super();
-        this.toolInit(e);
+        super(e);
         this.powerup = new n(0, 0, 0, e.scene.track);
         this.p1 = new i(0, 0);
         this.p2 = new i(0, 0);
         this.options = t.options;
         this.active = !1;
     }
-    toolInit = this.init;
-    toolUpdate = this.update;
     powerup = null;
     name = "helicopter";
     p1 = null;

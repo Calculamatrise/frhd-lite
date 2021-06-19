@@ -17,15 +17,15 @@ export default class {
           , r = n.third
           , o = new createjs.Container
           , a = this.get_sprite("bronze_medal")
-          , r = new createjs.Text(r,"30px " + i,"#000000")
+          , r = new createjs.Text(r, "30px " + i, window.lite.getVar("dark") ? "#fdfdfd" : "#000")
           , h = n.second
           , l = new createjs.Container
           , c = this.get_sprite("silver_medal")
-          , h = new createjs.Text(h,"30px " + i,"#000000")
+          , h = new createjs.Text(h, "30px " + i, window.lite.getVar("dark") ? "#fdfdfd" : "#000")
           , u = n.first
           , p = new createjs.Container
           , d = this.get_sprite("gold_medal")
-          , u = new createjs.Text(u,"30px " + i,"#000000")
+          , u = new createjs.Text(u, "30px " + i, window.lite.getVar("dark") ? "#fdfdfd" : "#000")
           , f = t / 2.5;
         "phone" === this.settings.controls && (f = t / 2.5),
         a.y = 7,

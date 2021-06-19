@@ -55,6 +55,7 @@ export default class {
         this._temp_vehicle_options = null,
         this._addCheckpoint = !1,
         this._checkpoints = [],
+        this._cache = [],
         this._crashed = !1,
         this._effect = !1,
         this._effectTicks = 0,
@@ -103,7 +104,7 @@ export default class {
     }
     createBaseVehicle(t, e, i) {
         this._tempVehicle && this._tempVehicle.stopSounds(),
-        this._baseVehicle = new v[this._baseVehicleType](this,t,e,i),
+        this._baseVehicle = new v[this._baseVehicleType](this, t, e, i),
         this._tempVehicle = !1,
         this._tempVehicleType = !1,
         this._tempVehicleTicks = 0
@@ -186,7 +187,7 @@ export default class {
         a.lineTo(c.x + 5 * n, c.y - 50 * n),
         a.lineTo(c.x, c.y - 40 * n),
         a.fill();
-        var u = 9 * r * f(n, 1);
+        var u = 9 * r * Math.max(n, 1);
         a.font = u + "pt helsinki",
         a.textAlign = "center",
         a.fillStyle = e,
@@ -199,12 +200,23 @@ export default class {
         this._tempVehicleTicks > 0 && (t = this._tempVehicle),
         this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
         t.draw(),
+        this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
         this.isGhost() && this.drawName()
     }
     checkKeys() {
         var t = this._gamepad
           , e = this._ghost
           , i = this._scene;
+        if (!t.isButtonDown("enter") && !t.isButtonDown("backspace") && t.areKeysDown()) {
+            if (this._cache.length > 0) {
+                this._cache = [];
+            }
+        }
+        if (t.isButtonDown("shift") && t.isButtonDown("enter")) {
+            var s = t.getButtonDownOccurances("enter");
+            this.returnToCheckpoint(s),
+            t.setButtonUp("enter")
+        }
         if (e === !1 && (t.areKeysDown() && !this._crashed && i.play(),
         t.isButtonDown("restart") && (i.restartTrack = !0,
         t.setButtonUp("restart")),
@@ -222,7 +234,7 @@ export default class {
           , i = this.getActiveVehicle()
           , s = e.focalPoint.pos.x - i.focalPoint.pos.x
           , n = e.focalPoint.pos.y - i.focalPoint.pos.y;
-        return p(d(s, 2) + d(n, 2))
+        return Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2))
     }
     getActiveVehicle() {
         var t = this._baseVehicle;
@@ -237,6 +249,7 @@ export default class {
         t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
         t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
         t._crashed = this._crashed,
+        this._baseVehicle.cloneBikeFrame(),
         this._checkpoints.push(t)
     }
     _snapshotFilter(t, e) {
@@ -313,10 +326,17 @@ export default class {
     removeCheckpoint(t) {
         if (this._checkpoints.length > 1) {
             for (var e = 0; t > e; e++)
-                this._checkpoints.pop();
+                this._cache.push(this._checkpoints.pop());
             this.gotoCheckpoint()
         } else
             this.restartScene()
+    }
+    returnToCheckpoint(t) {
+        if (this._cache.length > 0) {
+            for (var e = 0; t > e; e++)
+                this._checkpoints.push(this._cache.pop());
+            this.gotoCheckpoint()
+        }
     }
     close() {
         this.id = null,
@@ -333,6 +353,7 @@ export default class {
         this._tempVehicleTicks = null,
         this._addCheckpoint = null,
         this._checkpoints = null,
+        this._cache = null,
         this._crashed = null,
         this._effect = null,
         this._effectTicks = null,

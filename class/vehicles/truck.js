@@ -10,8 +10,8 @@ let d = {
 
 export default class extends Vehicle {
     constructor(t, e) {
-        super();
-        this.vehicleInit(t);
+        super(t);
+        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
@@ -19,10 +19,6 @@ export default class extends Vehicle {
         -1 === i && this.swap();
     }
     vehicleName = "TRUCK";
-    vehicleInit = this.init;
-    vehicleUpdate = this.update;
-    vehicleControl = this.control;
-    vehicleDraw = this.draw;
     masses = null;
     springs = null;
     cosmetics = null;
@@ -32,10 +28,8 @@ export default class extends Vehicle {
     crashed = !1;
     createMasses(t) {
         this.masses = [],
-        this.masses.push(new n),
-        this.masses.push(new n),
-        this.masses[0].init(new s(t.x - 15,t.y + 7), this),
-        this.masses[1].init(new s(t.x + 15,t.y + 7), this),
+        this.masses.push(new n(new s(t.x - 15,t.y + 7), this)),
+        this.masses.push(new n(new s(t.x + 15,t.y + 7), this)),
         this.masses[0].friction = .1,
         this.masses[1].friction = .1,
         this.masses.push(new h(new s(t.x - 20,t.y + 35),this)),
@@ -178,7 +172,7 @@ export default class extends Vehicle {
             , f = (this.masses[1].pos.y - this.masses[0].pos.y) * i
             , v = (.5 * (this.masses[0].pos.x + this.masses[1].pos.x) - .5 * (this.masses[2].pos.x + this.masses[3].pos.x)) * i
             , g = (.5 * (this.masses[0].pos.y + this.masses[1].pos.y) - .5 * (this.masses[2].pos.y + this.masses[3].pos.y)) * i;
-        t.strokeStyle = "#000000",
+        t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.lineWidth = 3 * i,
         t.lineCap = "round",
         t.lineJoin = "round";
@@ -188,14 +182,14 @@ export default class extends Vehicle {
             , x = m / w
             , _ = y / w;
         n.draw(t, c.x - .5 * x * i * 20, c.y - _ * i * 20 * .5, r, .45 * i, o),
-        t.strokeStyle = "#444444",
+        t.strokeStyle = window.lite.getVar("dark") ? "#bbb" : "#444",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .9 * v, l.y - .4 * f - .9 * g),
         t.lineTo(l.x + .8 * d - .9 * v, l.y + .8 * f - .9 * g),
         t.stroke(),
         t.closePath(),
         t.save(),
-        t.fillStyle = "#777777",
+        t.fillStyle = window.lite.getVar("dark") ? "#888" : "#777",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.lineTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
@@ -209,7 +203,7 @@ export default class extends Vehicle {
         t.fill(),
         t.save(),
         t.lineWidth = 2 * i,
-        t.strokeStyle = "#444444",
+        t.strokeStyle = window.lite.getVar("dark") ? "#bbb" : "#444",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.lineTo(l.x - .35 * d + .2 * v, l.y - .35 * f + .2 * g),
@@ -220,7 +214,7 @@ export default class extends Vehicle {
         t.lineTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.closePath(),
         t.stroke(),
-        t.strokeStyle = "#444444",
+        t.strokeStyle = window.lite.getVar("dark") ? "#bbb" : "#444",
         t.lineWidth = i,
         t.beginPath(),
         t.moveTo(l.x + .5 * d - .1 * v, l.y + .5 * f - .1 * g),
@@ -239,17 +233,18 @@ export default class extends Vehicle {
         t.restore()
     }
     tire(t, e, i, s, n, r) {
+        let a;
         for (t.beginPath(),
         t.arc(e, i, 10 * n, 0, 2 * Math.PI, !1),
         t.fillStyle = "#888888",
         t.fill(),
         t.lineWidth = 5.9 * n,
-        t.strokeStyle = "#000000",
+        t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.closePath(),
         t.stroke(),
         t.beginPath(),
         t.lineWidth = 2 * n,
-        t.strokeStyle = "0x000000",
+        t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         a = 0,
         s += 3 * n; a++ < 8; )
             t.moveTo(e + s * Math.cos(r + 6.283 * a / 8), i + s * Math.sin(r + 6.283 * a / 8)),
@@ -258,7 +253,7 @@ export default class extends Vehicle {
         t.closePath(),
         t.beginPath(),
         t.lineWidth = 2 * n,
-        t.strokeStyle = "0x000000",
+        t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         a = 0,
         s += -9 * n; a++ < 5; )
             t.moveTo(e + s * Math.cos(r + 6.283 * a / 5), i + s * Math.sin(r + 6.283 * a / 5)),
