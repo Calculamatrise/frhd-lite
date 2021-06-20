@@ -22,7 +22,6 @@ export default class extends Tool {
             trailSpeedSensitivity: e.trailSpeedSensitivity
         }
     }
-    toolInit = this.init;
     toolUpdate = this.update;
     name = "Brush";
     p1 = null;
@@ -55,17 +54,17 @@ export default class extends Tool {
         }
     }
     hold() {
-        var t = this.mouse.touch.real
-          , e = this.p1
-          , i = this.p2
-          , s = this.options.trailSpeed
-          , n = this.options.breakLength;
+        var t = this.mouse.touch.real,
+            e = this.p1,
+            i = this.p2,
+            s = this.options.trailSpeed,
+            n = this.options.breakLength;
         i.inc(t.sub(i).factor(s));
         var r = screen.height + t.sub(i).len();
         if (r *= n,
         i.sub(e).lenSqr() > r) {
-            var o = this.scene.track
-              , a = !1;
+            var o = this.scene.track,
+                a = !1;
             a = "physics" === this.toolhandler.options.lineType ? o.addPhysicsLine(e.x, e.y, i.x, i.y) : o.addSceneryLine(e.x, e.y, i.x, i.y),
             a && this.addedObjects.push(a),
             e.equ(i),
@@ -75,10 +74,10 @@ export default class extends Tool {
         this.toolhandler.moveCameraTowardsMouse()
     }
     release() {
-        var t = this.p1
-          , e = this.p2
-          , i = this.scene.track
-          , s = !1;
+        var t = this.p1,
+            e = this.p2,
+            i = this.scene.track,
+            s = !1;
         s = "physics" === this.toolhandler.options.lineType ? i.addPhysicsLine(t.x, t.y, e.x, e.y) : i.addSceneryLine(t.x, t.y, e.x, e.y),
         s && this.addedObjects.push(s),
         this.recordActionsToToolhandler();
@@ -88,9 +87,9 @@ export default class extends Tool {
         r.y = e.y,
         this.active = !1
     }
-    update() {
-        var t = this.toolhandler.gamepad
-          , e = this.mouse;
+    update = () => {
+        var t = this.toolhandler.gamepad,
+            e = this.mouse;
         t.isButtonDown("alt") ? e.mousewheel !== !1 && this.adjustTrailSpeed(e.mousewheel) : t.isButtonDown("shift") && e.mousewheel !== !1 && this.adjustBreakLength(e.mousewheel);
         var i = this.toolhandler;
         i.options.snap && (this.active = !0,
@@ -101,20 +100,20 @@ export default class extends Tool {
         this.toolUpdate()
     }
     adjustTrailSpeed(t) {
-        var e = this.options.trailSpeed
-          , i = this.options.trailSpeedSensitivity
-          , s = this.options.maxTrailSpeed
-          , n = this.options.minTrailSpeed;
+        var e = this.options.trailSpeed,
+            i = this.options.trailSpeedSensitivity,
+            s = this.options.maxTrailSpeed,
+            n = this.options.minTrailSpeed;
         t > 0 ? (e += i,
         e > s && (e = s)) : (e -= i,
         n > e && (e = n)),
         this.setOption("trailSpeed", e)
     }
     adjustBreakLength(t) {
-        var e = this.options.breakLength
-          , i = this.options.breakLengthSensitivity
-          , s = this.options.maxBreakLength
-          , n = this.options.minBreakLength;
+        var e = this.options.breakLength,
+            i = this.options.breakLengthSensitivity,
+            s = this.options.maxBreakLength,
+            n = this.options.minBreakLength;
         t > 0 ? (e += i,
         e > s && (e = s)) : (e -= i,
         n > e && (e = n)),
@@ -124,28 +123,27 @@ export default class extends Tool {
         this.options[t] = e
     }
     getOptions() {
-        var t = this.toolhandler
-          , e = this.options;
+        var t = this.toolhandler,
+            e = this.options;
         return e.lineType = t.options.lineType,
         e.snap = t.options.snap,
         e
     }
     draw() {
-        var t = this.scene
-          , e = (t.game.canvas,
-        t.game.canvas.getContext("2d"))
-          , i = t.camera
-          , s = i.zoom;
+        var t = this.scene,
+            e = t.game.canvas.getContext("2d"),
+            i = t.camera,
+            s = i.zoom;
         this.drawCursor(e),
         this.active && (this.drawLine(e, s),
         this.drawPoint(e, this.p1, s),
         this.drawPoint(e, this.p2, s))
     }
     drawText(t) {
-        var e = this.name
-          , i = this.options.breakLength
-          , s = this.options.trailSpeed
-          , n = this.game.pixelRatio;
+        var e = this.name,
+            i = this.options.breakLength,
+            s = this.options.trailSpeed,
+            n = this.game.pixelRatio;
         t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.font = 12 * n + "pt arial",
         t.fillText(e, 10 * n, 20 * n),
@@ -156,13 +154,12 @@ export default class extends Tool {
         t.fillText("Break length : " + i, 10 * n, 60 * n)
     }
     drawCursor(t) {
-        var e = this.mouse.touch
-          , i = e.real.toScreen(this.scene)
-          , s = this.camera.zoom
-          , n = this.toolhandler
-          , r = (n.options.lineType,
-        n.options.grid)
-          , o = "#1884cf";
+        var e = this.mouse.touch,
+            i = e.real.toScreen(this.scene),
+            s = this.camera.zoom,
+            n = this.toolhandler,
+            r = n.options.grid,
+            o = "#1884cf";
         if (r) {
             var a = 5 * s;
             t.beginPath(),
@@ -188,12 +185,11 @@ export default class extends Tool {
         t.fill()
     }
     drawLine(t, e) {
-        var i = this.scene
-          , s = (i.game.canvas,
-        2 * e > .5 ? 2 * e : .5)
-          , n = this.toolhandler
-          , r = n.options.lineType
-          , o = "physics" === r ? window.lite.getVar("dark") ? "#fff" : "#000" : window.lite.getVar("dark") ? "#777" : "#AAA";
+        var i = this.scene,
+            s = 2 * e > .5 ? 2 * e : .5,
+            n = this.toolhandler,
+            r = n.options.lineType,
+            o = "physics" === r ? window.lite.getVar("dark") ? "#fff" : "#000" : window.lite.getVar("dark") ? "#777" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

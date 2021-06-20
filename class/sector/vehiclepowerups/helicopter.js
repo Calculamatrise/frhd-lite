@@ -9,13 +9,12 @@ let n = {
 
 export default class extends Powerup {
     constructor(t, e, i, s) {
-        super();
+        super(s);
         this.x = t;
         this.y = e;
         this.time = i;
         this.id = Math.random().toString(36).substr(2);
         this.hit = !1;
-        this.init(s);
     }
     x = 0;
     y = 0;
@@ -51,7 +50,8 @@ export default class extends Powerup {
         s.lineCap = "butt",
         s.lineJoin = "miter",
         s.miterLimit = 4 * i,
-        s.fillStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000";
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(15 * i, 4.5 * i),
         s.lineTo(15 * i, 2.5 * i),
@@ -96,14 +96,14 @@ export default class extends Powerup {
         s.fill(),
         s.stroke(),
         s.fillStyle = "#f59423",
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2 * i,
         s.beginPath(),
         s.arc(13 * i, 17 * i, 11 * i, 0 * i, 2 * Math.PI, !0),
         s.closePath(),
         s.fill(),
         s.stroke(),
-        s.fillStyle = "#000000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(21 * i, 17 * i),
         s.bezierCurveTo(21 * i, 12.6 * i, 17.4 * i, 9 * i, 13 * i, 9 * i),

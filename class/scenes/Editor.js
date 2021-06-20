@@ -122,8 +122,8 @@ export default class {
             }
         })
         var is = setInterval(() => {
-            if(document.getElementsByClassName('sideButton_cameraTool').length > 0) {
-                document.getElementsByClassName('sideButton_cameraTool')[0].after(st)
+            if (document.querySelector(".sideButton_cameraTool")) {
+                document.querySelector(".sideButton_cameraTool").after(st),
                 clearInterval(is)
             }
         })

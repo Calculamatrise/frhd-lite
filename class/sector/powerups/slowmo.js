@@ -9,10 +9,9 @@ let o = {
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
-        this.init(i);
     }
     x = 0;
     y = 0;
@@ -65,8 +64,8 @@ export default class extends Powerup {
         s.lineTo(116 * i, 114 * i),
         s.lineTo(0 * i, 114 * i),
         s.closePath(),
-        s.fillStyle = "#FFF",
-        s.strokeStyle = "#000000",
+        s.fillStyle = "#ffffff00",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = Math.max(3 * i, .5),
         s.beginPath(),
         s.moveTo(58 * i, 111 * i),

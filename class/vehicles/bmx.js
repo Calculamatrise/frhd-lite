@@ -257,7 +257,7 @@ export default class extends Vehicle {
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -275,7 +275,7 @@ export default class extends Vehicle {
         , f = e.add(o.factor(.84)).add(a.factor(.42))
         , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -284,7 +284,7 @@ export default class extends Vehicle {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
@@ -299,7 +299,7 @@ export default class extends Vehicle {
         , x = e.add(o.factor(.17)).add(a.factor(.38))
         , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),
@@ -314,13 +314,14 @@ export default class extends Vehicle {
         var k = e.add(o.factor(.86)).add(a.factor(.5))
         , S = e.add(o.factor(.82)).add(a.factor(.65))
         , P = e.add(o.factor(.78)).add(a.factor(.67));
-        if (u.moveTo(C.x, C.y),
+        u.moveTo(C.x, C.y),
         u.lineTo(k.x, k.y),
         u.lineTo(S.x, S.y),
         u.lineTo(P.x, P.y),
         u.stroke(),
-        old.crashed) {
-            old.ragdoll.draw && old.ragdoll.draw();
+        u.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
+        if (old.crashed) {
+            old.ragdoll.draw();
         } else {
             a = n.sub(e.add(o.factor(.5)));
             var M = p.add(o.factor(-.1)).add(a.factor(.3))

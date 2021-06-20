@@ -1,5 +1,5 @@
 export default class {
-    init(t) {
+    constructor(t) {
         this.game = t.scene.game,
         this.scene = t.scene,
         this.settings = this.game.settings,

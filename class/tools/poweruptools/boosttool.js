@@ -42,8 +42,7 @@ export default class extends Tool {
     }
     draw(t) {
         var e = this.mouse.touch
-          , i = (e.pos,
-        this.camera.zoom)
+          , i = this.camera.zoom
           , s = this.scene.screen
           , n = this.scene.settings.device;
         if (this.active === !0) {
@@ -53,11 +52,11 @@ export default class extends Tool {
               , c = this.p2
               , u = l.y - c.y
               , p = l.x - c.x
-              , d = o(l.y - c.y, l.x - c.x);
-            0 === p && 0 === u && (d = r - r / 2),
-            0 > d && (d += 2 * r),
+              , d = Math.atan2(l.y - c.y, l.x - c.x);
+            0 === p && 0 === u && (d = Math.PI - Math.PI / 2),
+            0 > d && (d += 2 * Math.PI),
             this.drawPathToMouse(t, d),
-            this.powerup.angle = d * (180 / r) - 90 | 0,
+            this.powerup.angle = d * (180 / Math.PI) - 90 | 0,
             this.powerup.draw(a, h, i, t)
         } else if ("desktop" === n) {
             t.globalAlpha = .8,
@@ -77,10 +76,10 @@ export default class extends Tool {
           , p = n.realToScreen(i.y, "y")
           , d = n.realToScreen(s.x, "x")
           , f = n.realToScreen(s.y, "y")
-          , v = h(a(d - u, 2) + a(f - p, 2));
+          , v = Math.sqrt(Math.pow(d - u, 2) + Math.pow(f - p, 2));
         30 * o > v && (v = 30 * o),
         t.strokeStyle = "#ADCF7D",
-        t.lineWidth = l(1, 2 * o),
+        t.lineWidth = Math.max(1, 2 * o),
         t.beginPath(),
         t.moveTo(u, p),
         t.lineTo(u + v, p),
@@ -90,8 +89,8 @@ export default class extends Tool {
         t.lineTo(d, f),
         t.stroke(),
         t.closePath();
-        var g = e + 180 * (r / 180)
-          , m = c(v, 50 * o);
+        var g = e + 180 * (Math.PI / 180)
+          , m = Math.min(v, 50 * o);
         t.beginPath(),
         t.moveTo(u, p),
         t.arc(u, p, m, g, 0, !1),

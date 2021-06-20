@@ -9,10 +9,9 @@ let r = {
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
-        this.init(i);
     }
     x = 0;
     y = 0;
@@ -65,7 +64,7 @@ export default class extends Powerup {
         s.translate(0, 0),
         s.scale(1, 1),
         s.translate(0, 0),
-        s.strokeStyle = "rgba(0,0,0,0)",
+        s.strokeStyle = "rgba(0, 0, 0, 0)",
         s.lineCap = "butt",
         s.lineJoin = "miter",
         s.miterLimit = 4,
@@ -82,7 +81,7 @@ export default class extends Powerup {
         s.translate(726, 131),
         s.save(),
         s.fillStyle = "#08faf3",
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.beginPath(),
         s.moveTo(25, 36),
@@ -95,7 +94,7 @@ export default class extends Powerup {
         s.stroke(),
         s.restore(),
         s.save(),
-        s.fillStyle = "#000000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(25, 35),
         s.bezierCurveTo(30.5228976, 35, 35, 30.5228976, 35, 25),
@@ -113,7 +112,7 @@ export default class extends Powerup {
         s.stroke(),
         s.restore(),
         s.save(),
-        s.fillStyle = "#000000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(1.0370609, 29.702878),
         s.lineTo(.571767448, 27.3196417),
@@ -193,15 +192,11 @@ export default class extends Powerup {
         s.restore()
     }
     collide(t) {
-        {
-            var e = t.parent
-                , i = e.player
-                , s = t.pos.x - this.x
-                , r = t.pos.y - this.y
-                , o = n(s, 2) + n(r, 2)
-                , a = e.masses;
-            a.length
-        }
+        var e = t.parent
+            , i = e.player
+            , s = t.pos.x - this.x
+            , r = t.pos.y - this.y
+            , o = Math.pow(s, 2) + Math.pow(r, 2);
         1e3 > o && i.isAlive() && (i.isGhost() === !1 && ((0 != e.gravity.x || 0 != e.gravity.y) && this.scene.sound.play("antigravity_sound", .3),
         this.scene.message.show("Antigravity Engaged", 50, "#08faf3")),
         e.gravity.x = 0,

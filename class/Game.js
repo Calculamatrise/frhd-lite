@@ -112,3 +112,9 @@ export default window.Game = class {
         this.width = null
     }
 }
+
+setTimeout(() => {
+    if (!GameManager.game) {
+        GameManager.loadGame()
+    }
+}, 500);

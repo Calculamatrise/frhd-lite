@@ -283,14 +283,12 @@ export default class {
             , l = null
             , c = null
             , u = null;
-        for (h = Math.floor(e / r),
-        l = 0; h >= l; l++)
+        for (h = Math.floor(e / r), l = 0; h >= l; l++)
             c = l * r,
             a.moveTo(c, 0),
             a.lineTo(c, i),
             a.stroke();
-        for (h = Math.floor(i / r),
-        l = 0; h >= l; l++)
+        for (h = Math.floor(i / r), l = 0; h >= l; l++)
             u = l * r,
             a.moveTo(0, u),
             a.lineTo(e, u),

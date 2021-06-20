@@ -16,20 +16,19 @@ export default class extends Tool {
     p2 = null;
     active = !1;
     draw(t) {
-        var e = this.mouse.touch
-          , i = (e.pos,
-        this.camera.zoom)
-          , s = this.scene.settings.device
-          , n = this.scene.screen;
+        var e = this.mouse.touch,
+            i = this.camera.zoom,
+            s = this.scene.settings.device,
+            n = this.scene.screen;
         if (this.active === !0) {
-            var r = n.realToScreen(this.p1.x, "x")
-              , o = n.realToScreen(this.p1.y, "y");
+            var r = n.realToScreen(this.p1.x, "x"),
+                o = n.realToScreen(this.p1.y, "y");
             t.globalAlpha = .4,
             this.powerup.draw(r, o, i, t),
             t.globalAlpha = 1
         } else if ("desktop" === s) {
-            var r = n.realToScreen(e.real.x, "x")
-              , o = n.realToScreen(e.real.y, "y");
+            var r = n.realToScreen(e.real.x, "x"),
+                o = n.realToScreen(e.real.y, "y");
             t.globalAlpha = .8,
             this.powerup.draw(r, o, i, t),
             t.globalAlpha = 1
@@ -51,9 +50,8 @@ export default class extends Tool {
         this.p2.y = e.y
     }
     release() {
-        var t = (this.scene.screen,
-        this.scene.track)
-          , e = new n(this.p1.x,this.p1.y,t);
+        var t = this.scene.track,
+            e = new n(this.p1.x,this.p1.y,t);
         t.addTarget(e),
         t.addPowerup(e),
         this.active = !1,

@@ -10,6 +10,7 @@ export default class extends Tool {
         this.shouldDrawMetadata = !1;
         this.options = {};
     }
+    toolUpdate = this.update;
     name = "StraightLine";
     p1 = null;
     p2 = null;
@@ -54,8 +55,8 @@ export default class extends Tool {
         r.y = e.y,
         this.active = !1
     }
-    update() {
-        super.update();
+    update = () => {
+        this.toolUpdate();
         var t = this.toolhandler
             , e = t.gamepad;
         t.options.snap && (this.active = !0,

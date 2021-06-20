@@ -9,11 +9,10 @@ let a = {
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
         this.id = Math.random().toString(36).substr(2);
-        this.init(i);
     }
     x = 0;
     y = 0;
@@ -61,7 +60,7 @@ export default class extends Powerup {
         s.lineTo(0 * i, 95 * i),
         s.closePath(),
         s.fillStyle = "#826cdc",
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 8 * i,
         s.beginPath(),
         s.moveTo(3 * i, 10 * i),

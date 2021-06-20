@@ -9,13 +9,12 @@ let n = {
 
 export default class extends Powerup {
     constructor(t, e, i, s) {
-        super();
+        super(s);
         this.x = t;
         this.y = e;
         this.time = i;
         this.id = Math.random().toString(36).substr(2);
         this.hit = !1;
-        this.init(s);
     }
     x = 0;
     y = 0;
@@ -105,7 +104,7 @@ export default class extends Powerup {
         s.restore(),
         s.restore(),
         s.save(),
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.beginPath(),
         s.moveTo(5, 1),

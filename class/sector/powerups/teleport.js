@@ -9,11 +9,10 @@ let a = {
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
-        this.id = Math.random().toString(36).substr(2),
-        this.init(i);
+        this.id = Math.random().toString(36).substr(2)
     }
     id = null;
     otherPortal = null;
@@ -87,7 +86,7 @@ export default class extends Powerup {
         s.save(),
         s.translate(790, 52),
         s.save(),
-        s.fillStyle = "#000000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(17, 3),
         s.bezierCurveTo(16.9424049, 2.83458834, 16.4420628, 2.62968665, 15.9196825, 2.4515011),
@@ -171,7 +170,7 @@ export default class extends Powerup {
         s.stroke(),
         s.restore(),
         s.save(),
-        s.fillStyle = "#fefefe",
+        s.fillStyle = lite.getVar("dark") ? "#1e1e1e" : "#fefefe",
         s.beginPath(),
         s.moveTo(5.22875817, 24.6992965),
         s.lineTo(5.22875817, 23.0451553),

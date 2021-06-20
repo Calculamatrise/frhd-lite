@@ -109,13 +109,13 @@ export default class extends Tool {
     rotateSelected() {
         var selectedSegments = this.selectedSegments;
         this.selectedSegments = [];
-        for(var i of selectedSegments) {
-            if(i.p1 || i.p2) {
+        for (var i of selectedSegments) {
+            if (i.p1 || i.p2) {
                 i.p1.x--;
                 i.p1.y--;
                 i.p2.x++;
                 i.p2.y++;
-                if(i.name) {
+                if (i.name) {
                     this.selectedSegments.push(this.scene.track.addPowerup(i));
                 } else {
                     if(i.type == "physics") {

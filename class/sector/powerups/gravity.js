@@ -9,7 +9,7 @@ let r = {
 
 export default class extends Powerup {
     constructor(t, e, i, s) {
-        super();
+        super(s);
         this.x = t;
         this.y = e;
         this.angle = i - 180;
@@ -17,7 +17,6 @@ export default class extends Powerup {
         let n = this.angle / 360 * 2 * Math.PI;
         this.directionX = (-.3 * Math.sin(n)).toFixed(15) / 1;
         this.directionY = (.3 * Math.cos(n)).toFixed(15) / 1;
-        this.init(s);
     }
     x = 0;
     y = 0;
@@ -74,7 +73,7 @@ export default class extends Powerup {
         s.lineWidth = Math.max(6 * i, 1),
         s.save(),
         s.fillStyle = "#376eb7",
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(41 * i, 70 * i),
         s.lineTo(41 * i, 95 * i),

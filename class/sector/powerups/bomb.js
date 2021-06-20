@@ -9,10 +9,9 @@ let n = {
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
-        this.init(i);
     }
     x = 0;
     y = 0;
@@ -50,8 +49,8 @@ export default class extends Powerup {
     }
     drawCircle(t, e, i, s) {
         i *= .2,
-        s.fillStyle = "#000",
-        s.strokeStyle = "#000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 8 * i,
         s.beginPath(),
         s.moveTo(53 * i, 105 * i),
@@ -92,7 +91,7 @@ export default class extends Powerup {
         s.beginPath(),
         s.arc(66 * i, 66 * i, 8 * i, 0 * i, 2 * Math.PI, !0),
         s.lineWidth = 2 * i,
-        s.fillStyle = "#000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.fill(),
         s.stroke()
     }

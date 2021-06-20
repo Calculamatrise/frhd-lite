@@ -14,18 +14,16 @@ let l = !0;
 
 export default class extends Powerup {
     constructor(t, e, i) {
-        super();
+        super(i);
         this.x = t;
         this.y = e;
         this.hit = !1,
-        this.id = Math.random().toString(36).substr(2),
-        this.init(i);
+        this.id = Math.random().toString(36).substr(2)
     }
     x = 0;
     y = 0;
     name = "goal";
     hit = !1;
-    superErase = this.erase;
     getCode() {
         return "T " + this.x.toString(32) + " " + this.y.toString(32)
     }
@@ -88,7 +86,7 @@ export default class extends Powerup {
           , u = Math.PI / i;
         s *= o,
         n *= o,
-        a.strokeSyle = "#000",
+        a.strokeSyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         a.beginPath(),
         a.moveTo(t, e - s);
         for (var p = 0; i > p; p++)
@@ -103,7 +101,7 @@ export default class extends Powerup {
         a.lineTo(t, e - s),
         a.closePath(),
         a.lineWidth = Math.max(2 * o, 1),
-        a.strokeStyle = "black",
+        a.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         a.stroke(),
         a.fillStyle = r ? "#FAE335" : "#FFFFFF",
         a.fill()

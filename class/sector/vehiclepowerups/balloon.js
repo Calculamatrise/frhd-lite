@@ -9,13 +9,12 @@ let n = {
 
 export default class extends Powerup {
     constructor(t, e, i, s) {
-        super();
+        super(s);
         this.x = t;
         this.y = e;
         this.time = i;
         this.id = Math.random().toString(36).substr(2);
         this.hit = !1;
-        this.init(s);
     }
     x = 0;
     y = 0;
@@ -82,7 +81,7 @@ export default class extends Powerup {
         s.save(),
         s.translate(12, 6),
         s.save(),
-        s.fillStyle = "#000000",
+        s.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.beginPath(),
         s.moveTo(7, 23),
         s.lineTo(14, 23),
@@ -98,7 +97,7 @@ export default class extends Powerup {
         s.stroke(),
         s.restore(),
         s.save(),
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.lineCap = "round",
         s.beginPath(),
@@ -108,7 +107,7 @@ export default class extends Powerup {
         s.stroke(),
         s.restore(),
         s.save(),
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.lineCap = "round",
         s.translate(7.03125, 21.84375),
@@ -132,7 +131,7 @@ export default class extends Powerup {
         s.restore(),
         s.restore(),
         s.save(),
-        s.strokeStyle = "#000000",
+        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.beginPath(),
         s.arc(10.5, 11.125, 9.5, 0, 6.283185307179586, !0),
