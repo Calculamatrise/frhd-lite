@@ -157,21 +157,21 @@ export default class extends Vehicle {
             t.globalAlpha = 1
         }
     }
-    drawTruck(t) {
+    drawTruck(t, self = this) {
         var e = this.scene
             , i = e.camera.zoom
-            , s = this.cosmetics
-            , n = GameInventoryManager.getItem(s.head)
-            , r = this.drawHeadAngle
-            , o = this.dir
-            , a = this.frontWheel.pos.toScreen(e)
-            , h = this.rearWheel.pos.toScreen(e)
-            , l = this.head.pos.toScreen(e)
-            , c = this.backMass.pos.toScreen(e)
-            , d = (this.masses[1].pos.x - this.masses[0].pos.x) * i
-            , f = (this.masses[1].pos.y - this.masses[0].pos.y) * i
-            , v = (.5 * (this.masses[0].pos.x + this.masses[1].pos.x) - .5 * (this.masses[2].pos.x + this.masses[3].pos.x)) * i
-            , g = (.5 * (this.masses[0].pos.y + this.masses[1].pos.y) - .5 * (this.masses[2].pos.y + this.masses[3].pos.y)) * i;
+            , n = GameInventoryManager.getItem(this.cosmetics.head)
+            , p = self.masses || [self.head, self.backMass, self.rearWheel, self.frontWheel]
+            , r = self.drawHeadAngle
+            , o = self.dir
+            , a = new s(self.frontWheel.pos.x, self.frontWheel.pos.y).toScreen(e)
+            , h = new s(self.rearWheel.pos.x, self.rearWheel.pos.y).toScreen(e)
+            , l = new s(self.head.pos.x, self.head.pos.y).toScreen(e)
+            , c = new s(self.backMass.pos.x, self.backMass.pos.y).toScreen(e)
+            , d = (p[1].pos.x - p[0].pos.x) * i
+            , f = (p[1].pos.y - p[0].pos.y) * i
+            , v = (.5 * (p[0].pos.x + p[1].pos.x) - .5 * (p[2].pos.x + p[3].pos.x)) * i
+            , g = (.5 * (p[0].pos.y + p[1].pos.y) - .5 * (p[2].pos.y + p[3].pos.y)) * i;
         t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.lineWidth = 3 * i,
         t.lineCap = "round",
@@ -225,10 +225,10 @@ export default class extends Vehicle {
         t.closePath(),
         t.stroke(),
         t.beginPath(),
-        this.tire(t, h.x, h.y, 10 * i, i, this.rearWheel.angle),
+        this.tire(t, h.x, h.y, 10 * i, i, self.rearWheel.angle),
         t.closePath(),
         t.beginPath(),
-        this.tire(t, a.x, a.y, 10 * i, i, this.frontWheel.angle),
+        this.tire(t, a.x, a.y, 10 * i, i, self.frontWheel.angle),
         t.closePath(),
         t.restore()
     }
@@ -260,5 +260,24 @@ export default class extends Vehicle {
             t.lineTo(e + s * Math.cos(r + 6.283 * (a + .2) / 5), i + s * Math.sin(r + 6.283 * (a + .2) / 5));
         t.closePath(),
         t.stroke()
+    }
+    clone() {
+        const t = this.scene.game.canvas.getContext("2d");
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                t.globalAlpha = .03 * ++op,
+                this.drawTruck(t, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle)),
+                t.globalAlpha = 1
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                t.globalAlpha = .03 * ++op,
+                this.drawTruck(t, JSON.parse(this.player._cache[checkpoint]._tempVehicle)),
+                t.globalAlpha = 1
+            }
+        }
     }
 }

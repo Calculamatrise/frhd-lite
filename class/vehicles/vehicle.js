@@ -4,7 +4,6 @@ import n from "./explosion.js";
 export default class {
     init(t) {
         this.player = t,
-        this.clones = [];
         this.scene = t._scene,
         this.gamepad = t._gamepad,
         this.settings = t._settings,

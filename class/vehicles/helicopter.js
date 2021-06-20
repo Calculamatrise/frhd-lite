@@ -11,7 +11,7 @@ let c = {
 export default class extends Vehicle {
     constructor(t, e) {
         super();
-        this.vehicleInit(t);
+        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.createCockpit();
@@ -20,7 +20,6 @@ export default class extends Vehicle {
         -1 === i && this.swap()
     }
     vehicleName = "Helicopter";
-    vehicleInit = this.init;
     vehicleUpdate = this.update;
     vehicleDraw = this.draw;
     masses = null;
@@ -31,9 +30,9 @@ export default class extends Vehicle {
         var t = document.createElement("canvas");
         this.canvasCockpit = t
     }
-    drawCockpit() {
+    drawCockpit(self = this) {
         var t = this.canvasCockpit
-            , e = this.masses
+            , e = self.masses || [self.head, self.mass2, self.mass3, self.mass4, self.mass5]
             , i = this.scene
             , s = i.camera.zoom
             , n = e[0].radius * s * .9
@@ -91,6 +90,7 @@ export default class extends Vehicle {
         this.mass2 = e[1],
         this.mass3 = e[2],
         this.mass4 = e[3],
+        this.mass5 = e[4],
         this.rotor = 0,
         this.rotor2 = 0,
         this.dir = 1;
@@ -219,7 +219,7 @@ export default class extends Vehicle {
             , l = n - o;
         this.cockpitAngle = -(Math.atan2(a, l) - Math.PI / 2)
     }
-    draw() {
+    draw(self = this, alpha) {
         if (this.explosion)
             this.explosion.draw(1);
         else {
@@ -227,23 +227,23 @@ export default class extends Vehicle {
             t.imageSmoothingEnabled = !0,
             t.webkitImageSmoothingEnabled = !0,
             t.mozImageSmoothingEnabled = !0,
-            t.globalAlpha = this.player._opacity;
-            var e = this.masses
-                , i = this.dir
-                , n = this.rotor
-                , r = this.rotor2
+            t.globalAlpha = alpha || this.player._opacity;
+            var e = self.masses || [self.head, self.mass2, self.mass3, self.mass4, self.mass5]
+                , i = self.dir
+                , n = self.rotor
+                , r = self.rotor2
                 , o = this.scene
-                , a = o.camera.zoom
-                , h = e[1].pos.add(e[2].pos).factor(.5);
-            h = e[0].pos.sub(h).factor(a);
+                , a = o.camera.zoom;
+            var h = new s(e[1].pos.x, e[1].pos.y).add(e[2].pos).factor(.5);
+            h = new s(e[0].pos.x, e[0].pos.y).sub(h).factor(a);
             var l = new s(-h.y * i,h.x * i)
-                , c = e[0].pos.toScreen(o);
+                , c = new s(e[0].pos.x, e[0].pos.y).toScreen(o);
             n += .5 * e[0].motor + .05,
             n > 6.2831 && (n -= 6.2831),
             r += .5,
             r > 6.2831 && (r -= 6.2831),
-            this.rotor = n,
-            this.rotor2 = r,
+            self.rotor = n,
+            self.rotor2 = r,
             t.strokeStyle = window.lite.getVar("dark") ? "#fff" : "#000",
             t.lineWidth = 5 * a,
             t.beginPath(),
@@ -256,8 +256,8 @@ export default class extends Vehicle {
             t.moveTo(c.x + .9 * h.x + l.x * u, c.y + .8 * h.y + l.y * u),
             t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
             t.stroke();
-            var p = e[1].pos.toScreen(o)
-                , d = e[2].pos.toScreen(o);
+            var p = new s(e[1].pos.x, e[1].pos.y).toScreen(o)
+                , d = new s(e[2].pos.x, e[2].pos.y).toScreen(o);
             t.lineWidth = 4 * a,
             t.stokeStyle = "#666666",
             t.beginPath(),
@@ -275,7 +275,7 @@ export default class extends Vehicle {
             t.lineWidth = 6 * a,
             t.stokeStyle = "#000000",
             t.beginPath();
-            var f = e[3].pos.toScreen(o);
+            var f = new s(e[3].pos.x, e[3].pos.y).toScreen(o);
             t.moveTo(c.x, c.y),
             t.lineTo(f.x, f.y),
             t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),
@@ -294,15 +294,11 @@ export default class extends Vehicle {
             t.lineWidth = 2 * a,
             t.arc(f.x, f.y, e[3].radius * a, 0, 2 * Math.PI, !1),
             t.stroke();
-            {
-                c.x,
-                c.y
-            }
-            this.drawCockpit();
+            this.drawCockpit(self);
             var m = this.canvasCockpit
                 , y = m.width
                 , w = m.height
-                , x = c.x + 5 * a * this.dir
+                , x = c.x + 5 * a * self.dir
                 , _ = c.y + 2 * a
                 , b = 0
                 , T = 0
@@ -310,11 +306,11 @@ export default class extends Vehicle {
                 , k = w
                 , S = b * a - C / 2
                 , P = T * a - k / 2
-                , M = this.cockpitAngle
+                , M = self.cockpitAngle
                 , A = -1 === i
                 , D = this.cosmetics
                 , I = GameInventoryManager.getItem(D.head)
-                , E = this.cockpitAngle;
+                , E = self.cockpitAngle;
             I.draw(t, x + 5 * a * i, _ - 5 * a, E, .7 * a, i),
             t.translate(x, _),
             t.rotate(M),
@@ -324,6 +320,20 @@ export default class extends Vehicle {
             t.rotate(-M),
             t.translate(-x, -_),
             t.globalAlpha = 1
+        }
+    }
+    clone() {
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), .03 * ++op);
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), .03 * ++op);
+            }
         }
     }
 }

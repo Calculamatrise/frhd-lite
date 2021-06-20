@@ -120,32 +120,47 @@ export default class extends Vehicle {
             for (e = u - 1; e >= 0; e--)
                 l[e].contract(0, 1.5)
     }
-    draw() {
+    draw(self = this, alpha = this.player._opacity) {
         if (this.explosion)
             this.explosion.draw(1);
         else {
             var t = this.scene.game.canvas.getContext("2d")
-                , e = this.masses
+                , e = self.masses || [self.m0, self.m1, self.m2, self.m3]
                 , i = this.scene
                 , s = i.camera.zoom
-                , n = e[0].pos.toScreen(i)
-                , r = e[1].pos.toScreen(i)
-                , o = e[2].pos.toScreen(i)
-                , a = e[3].pos.toScreen(i);
-            t.globalAlpha = this.player._opacity,
+                , m = new n(e[0].pos.x, e[0].pos.y).toScreen(i)
+                , r = new n(e[1].pos.x, e[1].pos.y).toScreen(i)
+                , o = new n(e[2].pos.x, e[2].pos.y).toScreen(i)
+                , a = new n(e[3].pos.x, e[3].pos.y).toScreen(i);
+            t.globalAlpha = alpha,
             t.beginPath(),
             t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
             t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
             t.lineWidth = 20 * s,
             t.lineCap = "round",
-            t.moveTo(n.x, n.y),
+            t.moveTo(m.x, m.y),
             t.lineTo(r.x, r.y),
             t.lineTo(o.x, o.y),
             t.lineTo(a.x, a.y),
-            t.lineTo(n.x, n.y),
+            t.lineTo(m.x, m.y),
             t.fill(),
             t.stroke(),
             t.globalAlpha = 1
+        }
+    }
+    clone() {
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                console.log(this, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle))
+                this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), .03 * ++op);
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), .03 * ++op);
+            }
         }
     }
 }

@@ -237,11 +237,11 @@ export default class extends Vehicle {
             this.cloneBikeFrame()
         }
     }
-    drawBikeFrame(old = this, alpha = this.player._opacity) {
+    drawBikeFrame(self = this, alpha = this.player._opacity) {
         var t = this.scene
-            , frontWheel = new s(old.frontWheel.pos.x, old.frontWheel.pos.y)
-            , rearWheel = new s(old.rearWheel.pos.x, old.rearWheel.pos.y)
-            , head = new s(old.head.pos.x, old.head.pos.y)
+            , frontWheel = new s(self.frontWheel.pos.x, self.frontWheel.pos.y)
+            , rearWheel = new s(self.rearWheel.pos.x, self.rearWheel.pos.y)
+            , head = new s(self.head.pos.x, self.head.pos.y)
             , e = frontWheel.toScreen(t)
             , i = rearWheel.toScreen(t)
             , n = head.toScreen(t)
@@ -249,7 +249,7 @@ export default class extends Vehicle {
             , o = t.game.canvas.getContext("2d")
             , a = alpha
             , h = e.sub(i)
-            , l = new s((e.y - i.y) * old.dir,(i.x - e.x) * old.dir)
+            , l = new s((e.y - i.y) * self.dir,(i.x - e.x) * self.dir)
             , c = h.factor(.5);
         i.addOut(c, c),
         n.subOut(c, c),
@@ -320,8 +320,8 @@ export default class extends Vehicle {
         o.lineTo(i.x + .43 * h.x + .05 * l.x - u.x, i.y + .43 * h.y + .05 * l.y - u.y),
         o.stroke(),
         o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
-        if (old.crashed)
-            old.ragdoll.draw();
+        if (self.crashed)
+            self.ragdoll.draw();
         else {
             h.factorOut(.5, l),
             i.addOut(l, l),
@@ -401,8 +401,8 @@ export default class extends Vehicle {
             o.lineWidth = 2 * r,
             C.subOut(g, h);
             var S = h.lenSqr();
-            l.x = h.y * old.dir,
-            l.y = -h.x * old.dir,
+            l.x = h.y * self.dir,
+            l.y = -h.x * self.dir,
             l.factorSelf(r * r);
             var P = h.factor(.3);
             P.x = g.x + P.x + l.x * (80 / S),
@@ -414,7 +414,7 @@ export default class extends Vehicle {
             o.lineTo(g.x, g.y),
             o.stroke();
             var A = GameInventoryManager.getItem(window.lite.getVar("canvas-rider") ? window.lite.head : this.cosmetics.head);
-            A.draw(o, k.x, k.y, old.drawHeadAngle, r, old.dir),
+            A.draw(o, k.x, k.y, self.drawHeadAngle, r, self.dir),
             o.globalAlpha = 1
         }
     }

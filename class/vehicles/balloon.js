@@ -26,7 +26,7 @@ export default class extends Vehicle {
     crashed = !1;
     createMasses(t) {
         this.masses = [];
-        var e = new a(t.x,t.y - 10,this);
+        var e = new a(t.x, t.y - 10, this);
         e.radius = 30;
         var i = new n(new s(t.x,t.y + 35), this);
         i.friction = .1,
@@ -89,30 +89,32 @@ export default class extends Vehicle {
             t.globalAlpha = 1
         }
     }
-    drawBalloon(t) {
+    drawBalloon(t, self = this) {
         var e = this.scene
-            , i = this.basket.pos.toScreen(e)
-            , s = this.head.pos.toScreen(e)
+            , i = new s(self.basket.pos.x, self.basket.pos.y).toScreen(e)
+            , m = new s(self.head.pos.x, self.head.pos.y).toScreen(e)
             , n = e.camera.zoom
-            , r = s.x - i.x
-            , o = s.y - i.y
-            , a = -o
+            , r = m.x - i.x
+            , o = m.y - i.y
+            , l = -o
             , h = r;
         t.save(),
         t.strokeStyle = window.lite.getVar("dark") ? "#666" : "#999",
         t.lineWidth = 1,
         t.beginPath(),
-        t.moveTo(i.x + .1 * a, i.y + .1 * h),
-        t.lineTo(i.x + .5 * r + .4 * a, i.y + .5 * o + .4 * h),
-        t.moveTo(i.x - .1 * a, i.y - .1 * h),
-        t.lineTo(i.x + .5 * r - .4 * a, i.y + .5 * o - .4 * h),
-        t.moveTo(i.x + .1 * a, i.y + .1 * h),
-        t.lineTo(i.x + .36 * r + .2 * a, i.y + .36 * o + .2 * h),
-        t.moveTo(i.x - .1 * a, i.y - .1 * h),
-        t.lineTo(i.x + .36 * r - .2 * a, i.y + .36 * o - .2 * h),
+        t.moveTo(i.x + .1 * l, i.y + .1 * h),
+        t.lineTo(i.x + .5 * r + .4 * l, i.y + .5 * o + .4 * h),
+        t.moveTo(i.x - .1 * l, i.y - .1 * h),
+        t.lineTo(i.x + .5 * r - .4 * l, i.y + .5 * o - .4 * h),
+        t.moveTo(i.x + .1 * l, i.y + .1 * h),
+        t.lineTo(i.x + .36 * r + .2 * l, i.y + .36 * o + .2 * h),
+        t.moveTo(i.x - .1 * l, i.y - .1 * h),
+        t.lineTo(i.x + .36 * r - .2 * l, i.y + .36 * o - .2 * h),
         t.closePath(),
-        t.stroke(),
-        this.head.draw(t),
+        t.stroke();
+        const head = new a(self.head.pos.x, self.head.pos.y, this);
+        head.radius = 30,
+        head.draw(t),
         this.gamepad.isButtonDown("up") && (t.beginPath(),
         t.strokeStyle = "#FFFF00",
         t.lineWidth = 8 * n,
@@ -129,13 +131,32 @@ export default class extends Vehicle {
         t.stroke()),
         t.beginPath(),
         t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
-        t.moveTo(i.x + .1 * a, i.y + .1 * h),
-        t.lineTo(i.x - .1 * a, i.y - .1 * h),
-        t.lineTo(i.x - .22 * r - .1 * a, i.y - .22 * o - .1 * h),
-        t.lineTo(i.x - .22 * r + .1 * a, i.y - .22 * o + .1 * h),
-        t.lineTo(i.x + .1 * a, i.y + .1 * h),
+        t.moveTo(i.x + .1 * l, i.y + .1 * h),
+        t.lineTo(i.x - .1 * l, i.y - .1 * h),
+        t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * h),
+        t.lineTo(i.x - .22 * r + .1 * l, i.y - .22 * o + .1 * h),
+        t.lineTo(i.x + .1 * l, i.y + .1 * h),
         t.closePath(),
         t.fill(),
         t.restore()
+    }
+    clone() {
+        const t = this.scene.game.canvas.getContext("2d");
+        let op = 0;
+        for (const checkpoint in this.player._checkpoints) {
+            if (checkpoint > this.player._checkpoints.length - 11) {
+                t.globalAlpha = .03 * ++op,
+                this.drawBalloon(t, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle)),
+                t.globalAlpha = 1
+            }
+        }
+        op = 0;
+        for (const checkpoint in this.player._cache) {
+            if (checkpoint > this.player._cache.length - 11) {
+                t.globalAlpha = .03 * ++op,
+                this.drawBalloon(t, JSON.parse(this.player._cache[checkpoint]._tempVehicle)),
+                t.globalAlpha = 1
+            }
+        }
     }
 }

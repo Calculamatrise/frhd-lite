@@ -249,7 +249,6 @@ export default class {
         t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
         t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
         t._crashed = this._crashed,
-        this._baseVehicle.cloneBikeFrame(),
         this._checkpoints.push(t)
     }
     _snapshotFilter(t, e) {

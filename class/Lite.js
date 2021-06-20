@@ -12,13 +12,50 @@ export default window.lite = new class Lite {
                 uptodate: false
             }
         }
-        this.nodes = {
-            trackMover: null,
-            tools: null
-        }
+        this.ui = [
+            {
+                id: "canvas-rider",
+                type: "checkbox",
+                title: "Canvas rider",
+                description: "Custom rider cosmetic",
+                get checked() {
+                    return window.lite && window.lite.getVar("canvas-rider") ? "checked" : "";
+                }
+            },
+            {
+                id: "dark",
+                type: "checkbox",
+                title: "Dark mode",
+                description: "Enable/Disable dark mode"
+            },
+            {
+                id: "di",
+                type: "checkbox",
+                title: "Input display",
+                description: "Enables an input display"
+            },
+            {
+                id: "feats",
+                type: "checkbox",
+                title: "Feat. ghosts",
+                description: "Displays featured ghosts on the leaderboard"
+            },
+            {
+                id: "isometric",
+                type: "checkbox",
+                title: "Isometric grid",
+                description: "Change grid style"
+            },
+            {
+                id: "custom-colour",
+                type: "color",
+                title: "Custom bike colour",
+                description: "Customize your bike frame"
+            }
+        ]
         this.inject(),
         this.saveToLocalStorage(),
-        this.checkForUpdate();
+        this.checkForUpdate()
     }
     static encode(t) {
         return t.toString(32);
@@ -166,10 +203,7 @@ export default window.lite = new class Lite {
         ctx.stroke();
     }
     saveToLocalStorage() {
-        const lite = JSON.stringify({
-            vars: this.vars
-        });
-        localStorage.setItem("lite", lite)
+        localStorage.setItem("lite", JSON.stringify({ vars: this.vars }))
     }
     getVar(t) {
         return localStorage.lite ? JSON.parse(localStorage.lite).vars[t] : this.vars[t]
@@ -186,7 +220,7 @@ export default window.lite = new class Lite {
     }
     updateVars() {
         this.vars = {};
-        for(var t in JSON.parse(localStorage.lite).vars) {
+        for (const t in JSON.parse(localStorage.lite).vars) {
             this.vars[t] = JSON.parse(localStorage.lite).vars[t];
         }
     }
@@ -220,7 +254,7 @@ export default window.lite = new class Lite {
     }
     checkForUpdate() {
         fetch("https://calculamatrise.github.io/free_rider_lite/version.json").then(r => r.json()).then(json => {
-            if (json.version > "3.3.2" && this.getVar("update").dismissed != !0) {
+            if (json.version > "4.0.2" && this.getVar("update").dismissed != !0) {
                 this.setVar("update", {
                     uptodate: !0
                 });
@@ -244,6 +278,30 @@ export default window.lite = new class Lite {
                 };
             }
         });
+    }
+    createOption({ checked, description, id, onclick, title, type }) {
+        const element = Object.assign(document.createElement("div"), {
+            className: "option",
+            innerHTML: " " + title,
+            onclick: onclick || (t => {
+                t.target.firstChild && (t.target.firstChild.checked = !t.target.firstChild.checked);
+                if (type == "color")
+                    this.setVar(id, t.target.firstChild ? t.target.firstChild.value : t.target.value);
+                else
+                    this.setVar(id, !this.getVar(id));
+                if (id == "dark")
+                    GameManager.game.currentScene.track.undraw(),
+                    GameInventoryManager.redraw()
+            })
+        });
+        element.prepend(Object.assign(document.createElement("input"), {
+            type,
+            id,
+            title: description,
+            checked: checked || false,
+            onclick: element.onclick
+        }));
+        return element;
     }
     inject() {
         document.head.appendChild(Object.assign(document.createElement("style"), {
@@ -357,14 +415,8 @@ export default window.lite = new class Lite {
                     }
                     continue;
                 }
-                s.querySelector("#" + t).parentElement.onclick = s.querySelector("#" + t).onchange = () => {
+                s.querySelector("#" + t).parentElement.onclick = s.querySelector("#" + t).onclick = () => {
                     s.querySelector("#" + t).checked = !s.querySelector("#" + t).checked,
-                    this.setVar(t, !this.getVar(t));
-                    if (t == "dark")
-                        GameManager.game.currentScene.track.undraw(),
-                        GameInventoryManager.redraw()
-                }
-                s.querySelector("#" + t).onclick = () => {
                     this.setVar(t, !this.getVar(t));
                     if (t == "dark")
                         GameManager.game.currentScene.track.undraw(),
