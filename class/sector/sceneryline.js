@@ -74,4 +74,7 @@ export default class {
             t[i].dirty = !0;
         this.sectors = []
     }
+    get scenery() {
+        return "physics"
+    }
 }

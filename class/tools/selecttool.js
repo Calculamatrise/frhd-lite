@@ -44,8 +44,7 @@ export default class extends Tool {
     moveSelected(a) {
         var selectedSectors = this.selectedSectors;
         this.selectedSectors = [];
-        for(var i of selectedSectors) {
-            console.log(i)
+        for (const i of selectedSectors) {
             if (i.p2) {
                 switch(a) {
                     case "ArrowUp":
@@ -68,11 +67,7 @@ export default class extends Tool {
                 if (i.name) {
                     this.selectedSectors.push(this.scene.track.addPowerup(i));
                 } else {
-                    if(i.type == "physics") {
-                        this.selectedSectors.push(this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                    } else if(i.type == "scenery") {
-                        this.selectedSectors.push(this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                    }
+                    this.selectedSectors.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
                 }
                 i.removeAllReferences();
             } else {
@@ -92,49 +87,38 @@ export default class extends Tool {
                 this.selectedSegments.push(this.scene.track.addPowerup(i));
             }
         }
-        return this.selectedSegments
     }
     fillSelected() {
-        if(this.p1.x < this.p2.x && this.p1.y < this.p2.y){
-            for(let i = this.p1.y; i < this.p1.y + this.p2.y; i++) {
-                this.scene.track.addPhysicsLine(this.p1.x, i, this.p1.x + this.p2.x, i);
+        if (this.p1.y < this.p2.y) {
+            for (let y = this.p1.y; y < this.p2.y; y++) {
+                this.scene.track.addPhysicsLine(this.p1.x, y, this.p2.x, y);
             }
         } else {
-            for(let i = this.p2.y; i < this.p2.y + this.p1.y; i++) {
-                this.scene.track.addPhysicsLine(this.p2.x, i, this.p2.x + this.p1.x, i);
+            for(let y = this.p2.y; y < this.p1.y; y++) {
+                this.scene.track.addPhysicsLine(this.p2.x, y, this.p1.x, y);
             }
         }
-        return this.selectedSegments
     }
     rotateSelected() {
-        var selectedSegments = this.selectedSegments;
-        this.selectedSegments = [];
-        for (var i of selectedSegments) {
-            if (i.p1 || i.p2) {
-                i.p1.x--;
-                i.p1.y--;
-                i.p2.x++;
-                i.p2.y++;
-                if (i.name) {
-                    this.selectedSegments.push(this.scene.track.addPowerup(i));
-                } else {
-                    if(i.type == "physics") {
-                        this.selectedSegments.push(this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                    } else if(i.type == "scenery") {
-                        this.selectedSegments.push(this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                    }
+        const x = (this.travelDistance || 0) * Math.PI / 180;
+        var selectedSectors = this.selectedSectors;
+        this.selectedSectors = [];
+        for (const i of selectedSectors) {
+            if (i.p2) {
+                i.p1.x = Math.round(i.p1.x * Math.cos(x) + i.p1.y * Math.sin(x));
+                i.p1.y = Math.round(i.p1.y * Math.cos(x) + i.p1.x * Math.sin(x));
+                i.p2.x = Math.round(i.p2.x * Math.cos(x) + i.p2.y * Math.sin(x));
+                i.p2.y = Math.round(i.p2.y * Math.cos(x) + i.p2.x * Math.sin(x));
+                if (!i.name) {
+                    this.selectedSectors.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
                 }
                 i.removeAllReferences();
-            } else {
-                i.x--;
-                this.selectedSegments.push(this.scene.track.addPowerup(i));
             }
         }
-        return this.selectedSegments
     }
     copyAndPasteSelected() {
-        for(var i of this.selectedSectors) {
-            if(i.type == "physics") {
+        for (const i of this.selectedSectors) {
+            if (i.type == "physics") {
                 this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
             } else if(i.type == "scenery") {
                 this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
@@ -171,11 +155,16 @@ export default class extends Tool {
                     this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
                     break;
                 case "Delete":
-                    for(var i of this.selectedSegments) {
-                        i.removeAllReferences()
+                    for (const t of this.selectedSegments) {
+                        t.removeAllReferences()
                     }
                     this.reset();
                     this.scene.message.show("Deleted selected area", !1, "#000000", "#FFFFFF");
+                    break;
+                case "f":
+                    if (confirm("Are you sure you would you like to fill the selected area?"))
+                        this.fillSelected(),
+                        this.scene.message.show("Filled selected area", !1, "#000000", "#FFFFFF");
                     break;
                 case "r":
                     this.rotateSelected();
@@ -189,6 +178,7 @@ export default class extends Tool {
                     this.scene.message.show("Moved Selected Area", !1, "#000000", "#FFFFFF");
                     break;
                 case "`":
+                case "Escape":
                     this.reset()
             }
             this.timeout = setTimeout(() => this.scene.message.hide(), 1000);
