@@ -28,9 +28,6 @@ export default class {
         this.assets = t.assets;
         this.stage = t.stage;
         this.settings = t.settings;
-        this.settings.track = {
-            vehicle: "MTB"
-        };
         this.sound = new C(this);
         this.mouse = new s(this);
         this.mouse.disableContextMenu();

@@ -10,7 +10,7 @@ let r = {
     Main
 };
 
-export default window.Game = class {
+window.Game = class {
     constructor(t, e, i) {
         this.assets = e,
         this.settings = i,
@@ -81,8 +81,8 @@ export default window.Game = class {
     }
     update() {
         this.currentScene.update(),
-        this.canvas.style.background = window.lite.getVar("dark") ? "#1d1d1d" : "#fff",
-        window.lite.getVar("di") && window.lite.drawInputDisplay(this.canvas),
+        this.canvas.style.background = lite.getVar("dark") ? "#1d1d1d" : "#fff",
+        lite.getVar("di") && lite.drawInputDisplay(this.canvas),
         this.tickCount++
     }
     switchScene(t) {
@@ -112,9 +112,3 @@ export default window.Game = class {
         this.width = null
     }
 }
-
-setTimeout(() => {
-    if (!GameManager.game) {
-        GameManager.loadGame()
-    }
-}, 500);

@@ -162,7 +162,7 @@ export default class extends Tool {
     drawText(t) {
         var e = this.name
             , i = this.game.pixelRatio;
-        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        t.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
         t.font = 12 * i + "pt arial",
         t.fillText(e, 10 * i, 20 * i),
         t.font = 8 * i + "pt arial"
@@ -173,7 +173,7 @@ export default class extends Tool {
         2 * e > .5 ? 2 * e : .5)
           , n = this.toolhandler
           , r = n.options.lineType
-          , o = "physics" === r ? window.lite.getVar("dark") ? "#fff" : "#000" : window.lite.getVar("dark") ? "#777" : "#AAA";
+          , o = "physics" === r ? lite.getVar("dark") ? "#fff" : "#000" : lite.getVar("dark") ? "#777" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

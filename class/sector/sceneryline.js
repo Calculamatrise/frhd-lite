@@ -27,8 +27,8 @@ export default class {
     checkForConnectedLine(t, e) {
         var i = t.settings.drawSectorSize
             , s = t.sectors.drawSectors
-            , n = Math.pow(e.x / i)
-            , o = Math.pow(e.y / i);
+            , n = Math.floor(e.x / i)
+            , o = Math.floor(e.y / i);
         return s[n][o].searchForLine("sceneryLines", e)
     }
     erase(t, e) {

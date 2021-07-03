@@ -1,4 +1,4 @@
-export default window.lite = new class Lite {
+window.lite = new class Lite {
     constructor() {
         this.vars = localStorage.lite ? JSON.parse(localStorage.lite).vars : {
             "canvas-rider": false,
@@ -19,7 +19,7 @@ export default window.lite = new class Lite {
                 title: "Canvas rider",
                 description: "Custom rider cosmetic",
                 get checked() {
-                    return window.lite && window.lite.getVar("canvas-rider") ? "checked" : "";
+                    return window.lite && lite.getVar("canvas-rider") ? "checked" : "";
                 }
             },
             {
@@ -54,6 +54,7 @@ export default window.lite = new class Lite {
             }
         ]
         this.inject(),
+        this.initCustomization(),
         this.saveToLocalStorage(),
         this.checkForUpdate()
     }
@@ -88,7 +89,7 @@ export default window.lite = new class Lite {
                     l=.17*e;
                     v.save(),
                     v.scale(l,l),
-                    v.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
+                    v.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000";
                     v.fillStyle = "#ffffff00";
                     v.lineCap = "round";
                     v.lineWidth = 11.5;
@@ -120,6 +121,12 @@ export default window.lite = new class Lite {
             }),
             type: "1"
         }
+    }
+    initCustomization() {
+        if (!location.pathname.match(/^\/customization/gi)) return;
+        fetch("https://raw.githubusercontent.com/Calculamatrise/Calculamatrise.github.io/master/header.html").then(t => t.text()).then(t => {
+            document.querySelector("#content").innerHTML = t;
+        });
     }
     drawInputDisplay(canvas = document.createElement('canvas')) {
         var gamepad = GameManager.game.currentScene.playerManager._players[GameManager.game.currentScene.camera.focusIndex]._gamepad.downButtons;
@@ -227,7 +234,7 @@ export default window.lite = new class Lite {
     moveTrack() {
         const x = parseInt(moveX.value) || 0;
         const y = parseInt(moveY.value) || 0;
-        const code = GameManager.game.currentScene.track.getCode().split("#").map(t => t?.split(/\u002C+/g));
+        const code = GameManager.game.currentScene.track.getCode().split("#").map(t => t && t.split(/\u002C+/g));
         const black = code[0].map(t => t.split(/\s+/g).map(t => Lite.decode(t))) || [];
         const grey = code[1].map(t => t.split(/\s+/g).map(t => Lite.decode(t))) || [];
         const powerups = code[2].map(t => t.split(/\s+/g).map((t, e, i) => (i[0] == "V" ? e > 0 && e < 3 : e > 0) ? Lite.decode(t) : t)) || [];
@@ -253,7 +260,7 @@ export default window.lite = new class Lite {
         GameManager.game.currentScene.importCode = black.map(t => t.map(t => Lite.encode(t)).join(" ")).join(",") + "#" + grey.map(t => t.map(t => Lite.encode(t)).join(" ")).join(",") + "#" + powerups.map(t => t.map((t, e, i) => (i[0] == "V" ? e > 0 && e < 3 : e > 0) ? Lite.encode(t) : t)).map(t => t.join(" ")).join(",");
     }
     checkForUpdate() {
-        fetch("https://calculamatrise.github.io/free_rider_lite/version.json").then(r => r.json()).then(json => {
+        fetch("https://calculamatrise.github.io/free_rider_lite/details.json").then(r => r.json()).then(json => {
             if (json.version > "4.0.2" && this.getVar("update").dismissed != !0) {
                 this.setVar("update", {
                     uptodate: !0
