@@ -30,6 +30,11 @@ export default class {
         this.scene = t;
         this.game = t.game;
         this.settings = t.game.settings;
+        if (!this.settings.track) {
+            this.settings.track = {
+                vehicle: this.settings.startVehicle
+            }
+        }
         this.camera = t.camera;
         this.sectors = {};
         this.sectors.drawSectors = [];

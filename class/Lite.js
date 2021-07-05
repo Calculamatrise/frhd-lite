@@ -328,6 +328,7 @@ window.lite = new class Lite {
                 cursor:pointer
             }
             .lite.settings {
+                font-family: Arial;
                 background-color:#fff;
                 border:1px solid grey;
                 line-height:normal;
@@ -353,6 +354,25 @@ window.lite = new class Lite {
             #color:hover {
                 cursor:pointer
             }
+            .lite.settings .lite-tabs {
+                font-family:roboto_medium,Arial,Helvetica,sans-serif;
+                margin-bottom: 10px;
+                text-align: center;
+                font-size:13px;
+            }
+            .lite.settings .lite-tabs .tablinks {
+                background: white;
+                color:#1b5264;
+                border: none;
+            }
+            .lite.settings .lite-tabs .tablinks:hover {
+                background:#f0f7ff;
+                cursor:pointer
+            }
+            .lite.settings .lite-content {
+                font-size:13px;
+                padding: 5px
+            }
             .lite.settings .option {
                 padding:8px;
                 border:none;
@@ -362,9 +382,9 @@ window.lite = new class Lite {
                 color:#1b5264
             }
             .lite.settings .option:hover, .lite.settings .option:hover * {
-                cursor:pointer;
                 background:#f0f7ff;
-                border-radius: 8px
+                border-radius: 8px;
+                cursor:pointer
             }
             .lite.settings .option input[type="checkbox"] {
                 transform: scale(.85) rotate(90deg);
@@ -394,23 +414,40 @@ window.lite = new class Lite {
         document.body.appendChild(Object.assign(document.createElement("div"), {
             className: "lite icon", //fed7d7  fb3737
             onclick: () => {
-                var t = e => {
-                    s.contains(e.target) || (document.removeEventListener("click", t),
-                    document.body.removeChild(s))
-                }
                 document.body.appendChild(s),
-                setTimeout(() => document.addEventListener("click", t), 0)
+                setTimeout(() => document.addEventListener("click", function t(e) {
+                    if (!this.querySelector(".lite.settings").contains(e.target)) {
+                        this.removeEventListener("click", t),
+                        this.body.removeChild(this.querySelector(".lite.settings"))
+                    }
+                }))
             }
         }));
         var s = Object.assign(document.createElement("div"), {
             className: "lite settings",
             innerHTML: `<p style="text-align: center;"><b>Mod</b> <i>Settings</i></p><br>
-            <div class="option"><input title="Custom rider cosmetic" type="checkbox" id="canvas-rider" ${this.getVar("canvas-rider") ? "checked" : ""}> Canvas rider</div>
-            <div class="option"><input title="Dark mode..." type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark mode</div>
-            <div class="option"><input title="Enables an input display" type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
-            <div class="option"><input title="Displays featured ghosts on the leaderboard" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
-            <div class="option"><input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
-            <div class="option"><input title="Customize your bike frame" type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000"}" style="background: ${this.getVar("custom-colour") || "#000"}"> Custom bike colour</div><br>`
+            <div class="lite-tabs">
+                <button class="tablinks" onclick="[...document.querySelectorAll('.lite.settings .lite-content')].forEach(t => t.style.display = 'none'), document.getElementById('lite-options').style.display = 'block'">Options</button>
+                <button class="tablinks" onclick="[...document.querySelectorAll('.lite.settings .lite-content')].forEach(t => t.style.display = 'none'), document.getElementById('lite-changes').style.display = 'block'">Changes</button>
+            </div>
+            <div class="lite-content" id="lite-options">
+                <div class="option"><input title="Custom rider cosmetic" type="checkbox" id="canvas-rider" ${this.getVar("canvas-rider") ? "checked" : ""}> Canvas rider</div>
+                <div class="option"><input title="Dark mode..." type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark mode</div>
+                <div class="option"><input title="Enables an input display" type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
+                <div class="option"><input title="Displays featured ghosts on the leaderboard" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
+                <div class="option"><input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
+                <div class="option"><input title="Customize your bike frame" type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000"}" style="background: ${this.getVar("custom-colour") || "#000"}"> Custom bike colour</div>
+            </div>
+            <div class="lite-content" id="lite-changes" style="display:none">
+                <ul>
+                    <li title="This would occur when collecting a checkpoint whilst dying.">
+                        Fixed death glitch
+                    </li>
+                    <li title="This would only occur in the editor.">
+                        Fixed inability to switch between vehicles
+                    </li>
+                </ul>
+            </div><br>`
         });
         for (const t in this.vars) {
             if (s.querySelector("#" + t)) {

@@ -321,7 +321,7 @@ export default class extends Vehicle {
         o.stroke(),
         o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
         if (self.crashed)
-            self.ragdoll.draw();
+            self.ragdoll.draw && self.ragdoll.draw();
         else {
             h.factorOut(.5, l),
             i.addOut(l, l),

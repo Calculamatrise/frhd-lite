@@ -241,19 +241,19 @@ export default class extends Vehicle {
             , a = s - r;
         this.drawHeadAngle = -(Math.atan2(o, a) - Math.PI / 2)
     }
-    drawBikeFrame(old = this, alpha = this.player._opacity) {
+    drawBikeFrame(self = this, alpha = this.player._opacity) {
         var t = this.scene
-          , rearWheel = new s(old.rearWheel.pos.x, old.rearWheel.pos.y)
-          , frontWheel = new s(old.frontWheel.pos.x, old.frontWheel.pos.y)
-          , head = new s(old.head.pos.x, old.head.pos.y)
+          , rearWheel = new s(self.rearWheel.pos.x, self.rearWheel.pos.y)
+          , frontWheel = new s(self.frontWheel.pos.x, self.frontWheel.pos.y)
+          , head = new s(self.head.pos.x, self.head.pos.y)
           , e = rearWheel.toScreen(t)
           , i = frontWheel.toScreen(t)
           , n = head.toScreen(t)
           , r = alpha
           , o = i.sub(e)
-          , l = old.dir
+          , l = self.dir
           , a = new s((i.y - e.y) * l,(e.x - i.x) * l)
-          , h = old.pedala
+          , h = self.pedala
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
@@ -320,8 +320,8 @@ export default class extends Vehicle {
         u.lineTo(P.x, P.y),
         u.stroke(),
         u.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
-        if (old.crashed) {
-            old.ragdoll.draw();
+        if (self.crashed) {
+            self.ragdoll.draw && self.ragdoll.draw();
         } else {
             a = n.sub(e.add(o.factor(.5)));
             var M = p.add(o.factor(-.1)).add(a.factor(.3))
