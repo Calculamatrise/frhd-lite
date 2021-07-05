@@ -446,8 +446,11 @@ window.lite = new class Lite {
                     <li title="This would only occur in the editor.">
                         Fixed inability to switch between vehicles
                     </li>
+                    <li title="A flaw in my code allowed deleted lines to reoccur on the track.">
+                        Fixed the select tool
+                    </li>
                 </ul>
-            </div><br>`
+            </div>`
         });
         for (const t in this.vars) {
             if (s.querySelector("#" + t)) {

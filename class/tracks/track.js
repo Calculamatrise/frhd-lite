@@ -333,28 +333,27 @@ export default class {
     }
     select(a, b) {
         const segments = [];
-        if (a.x < b.x && a.y < b.y) {
-            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups]){
+        if (a.y < b.y) {
+            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
                 if (i.p1 || i.p2) {
-                    if (i.p1.x >= a.x && i.p1.y >= a.y || i.p2.x >= a.x && i.p2.y >= a.y && i.p1.x <= b.x && i.p1.y <= b.y ||
-                    i.p2.x <= b.x && i.p2.y <= b.y) {
+                    if ((i.p1.x > a.x && i.p1.y > a.y || i.p2.x > a.x && i.p2.y > a.y) && ((i.p1.x < b.x && i.p1.y < b.y) || (i.p2.x < b.x && i.p2.y < b.y))) {
                         segments.push(i);
                     }
                 } else {
-                    if (i.x >= a.x && i.y >= a.y && i.x <= b.x && i.y <= b.y) {
+                    if (i.x > a.x && i.y > a.y && i.x < b.x && i.y < b.y) {
                         segments.push(i);
                     }
                 }
             }
         } else {
-            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups]){
+            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)){
                 if (i.p1 || i.p2) {
                     if (i.p1.x <= a.x && i.p1.y <= a.y || i.p2.x <= a.x && i.p2.y <= a.y && i.p1.x >= b.x && i.p1.y >= b.y ||
                     i.p2.x >= b.x && i.p2.y >= b.y) {
                         segments.push(i);
                     }
                 } else {
-                    if(i.x <= a.x && i.y <= a.y && i.x >= b.x && i.y >= b.y) {
+                    if (i.x < a.x && i.y < a.y && i.x > b.x && i.y > b.y) {
                         segments.push(i);
                     }
                 }

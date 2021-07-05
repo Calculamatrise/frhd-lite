@@ -42,7 +42,7 @@ export default class extends Tool {
         this.selectedSegments = [];
     }
     moveSelected(a) {
-        var selectedSectors = this.selectedSectors;
+        let selectedSectors = this.selectedSectors;
         this.selectedSectors = [];
         for (const i of selectedSectors) {
             if (i.p2) {
@@ -127,12 +127,10 @@ export default class extends Tool {
     }
     release() {
         this.unselectElements();
-        for (var t = this.scene.track.select(this.p1, this.p2), e = t.length, i = [], s = 0; e > s; s++) {
-            var n = t[s];
-            this.intersectsLine(n.x ? n : n.p1, n.x ? n : n.p2) && (this.selectedSectors.push(n),
-            i.push(n))
+        for (const t of this.scene.track.select(this.p1, this.p2)) {
+            this.intersectsLine(t.x ? t : t.p1, t.x ? t : t.p2) && this.selectedSectors.push(t)
         }
-        this.selectedElements = i,
+        this.selectedElements = this.selectedSectors,
         this.active = !1,
         this.passive = !0,
         document.onkeydown = e => {
