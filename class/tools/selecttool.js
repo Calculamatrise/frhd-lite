@@ -5,11 +5,10 @@ import Path from "../utils/path.js";
 export default class extends Tool {
     constructor(t) {
         super(t);
-        this.p1 = new Vector(0,0),
-        this.p2 = new Vector(0,0),
+        this.p1 = new Vector(0, 0),
+        this.p2 = new Vector(0, 0),
         this.addedObjects = [],
         this.selectedElements = [],
-        this.selectedSectors = [],
         this.selectedSegments = [],
         this.dashOffset = 0
     }
@@ -20,7 +19,6 @@ export default class extends Tool {
     p2 = null;
     travelDistance = 1;
     selectedElements = [];
-    selectedSectors = [];
     selectedSegments = [];
     press() {
         var t = this.mouse.touch.real;
@@ -37,37 +35,36 @@ export default class extends Tool {
         this.p2.y = t.y
     }
     unselectElements() {
-        this.selectedElements = [];
-        this.selectedSectors = [];
+        this.selectedElements = [],
         this.selectedSegments = [];
     }
     moveSelected(a) {
-        let selectedSectors = this.selectedSectors;
-        this.selectedSectors = [];
-        for (const i of selectedSectors) {
+        let selectedSegments = this.selectedSegments;
+        this.selectedSegments = [];
+        for (const i of selectedSegments) {
             if (i.p2) {
                 switch(a) {
                     case "ArrowUp":
-                        i.p1.y-= this.travelDistance;
-                        i.p2.y-= this.travelDistance;
+                        i.p1.y -= this.travelDistance;
+                        i.p2.y -= this.travelDistance;
                         break;
                     case "ArrowDown":
-                        i.p1.y+= this.travelDistance;
-                        i.p2.y+= this.travelDistance;
+                        i.p1.y += this.travelDistance;
+                        i.p2.y += this.travelDistance;
                         break;
                     case "ArrowLeft":
-                        i.p1.x-= this.travelDistance;
-                        i.p2.x-= this.travelDistance;
+                        i.p1.x -= this.travelDistance;
+                        i.p2.x -= this.travelDistance;
                         break;
                     case "ArrowRight":
-                        i.p1.x+= this.travelDistance;
-                        i.p2.x+= this.travelDistance;
+                        i.p1.x += this.travelDistance;
+                        i.p2.x += this.travelDistance;
                         break;
                 }
                 if (i.name) {
-                    this.selectedSectors.push(this.scene.track.addPowerup(i));
+                    this.selectedSegments.push(this.scene.track.addPowerup(i));
                 } else {
-                    this.selectedSectors.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
+                    this.selectedSegments.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
                 }
                 i.removeAllReferences();
             } else {
@@ -91,33 +88,32 @@ export default class extends Tool {
     fillSelected() {
         if (this.p1.y < this.p2.y) {
             for (let y = this.p1.y; y < this.p2.y; y++) {
-                this.scene.track.addPhysicsLine(this.p1.x, y, this.p2.x, y);
+                this.selectedSegments.push(this.scene.track.addPhysicsLine(this.p1.x, y, this.p2.x, y));
             }
         } else {
             for(let y = this.p2.y; y < this.p1.y; y++) {
-                this.scene.track.addPhysicsLine(this.p2.x, y, this.p1.x, y);
+                this.selectedSegments.push(this.scene.track.addPhysicsLine(this.p2.x, y, this.p1.x, y));
             }
         }
+        this.selectedElements.push(...this.selectedSegments);
+        this.selectedSegments.length > 0 && this.toolhandler.addActionToTimeline({
+            type: "add",
+            objects: this.selectedSegments.flatMap(t => t)
+        });
     }
     rotateSelected() {
         const x = (this.travelDistance || 0) * Math.PI / 180;
-        var selectedSectors = this.selectedSectors;
-        this.selectedSectors = [];
-        for (const i of selectedSectors) {
-            if (i.p2) {
-                i.p1.x = Math.round(i.p1.x * Math.cos(x) + i.p1.y * Math.sin(x));
-                i.p1.y = Math.round(i.p1.y * Math.cos(x) + i.p1.x * Math.sin(x));
-                i.p2.x = Math.round(i.p2.x * Math.cos(x) + i.p2.y * Math.sin(x));
-                i.p2.y = Math.round(i.p2.y * Math.cos(x) + i.p2.x * Math.sin(x));
-                if (!i.name) {
-                    this.selectedSectors.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                }
+        let selectedSegments = this.selectedSegments;
+        this.selectedSegments = [];
+        for (const i of selectedSegments) {
+            if (i.p2 && !i.name) {
+                this.selectedSegments.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](Math.cos(x) * i.p1.x + Math.sin(x) * i.p1.y, -Math.sin(x) * i.p1.x + Math.cos(x) * i.p1.y, Math.cos(x) * i.p2.x + Math.sin(x) * i.p2.y, -Math.sin(x) * i.p2.x + Math.cos(x) * i.p2.y));
                 i.removeAllReferences();
             }
         }
     }
     copyAndPasteSelected() {
-        for (const i of this.selectedSectors) {
+        for (const i of this.selectedSegments) {
             if (i.type == "physics") {
                 this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
             } else if(i.type == "scenery") {
@@ -128,16 +124,13 @@ export default class extends Tool {
     release() {
         this.unselectElements();
         for (const t of this.scene.track.select(this.p1, this.p2)) {
-            this.intersectsLine(t.x ? t : t.p1, t.x ? t : t.p2) && this.selectedSectors.push(t)
+            this.intersectsLine(t.x ? t : t.p1, t.x ? t : t.p2) && this.selectedSegments.push(t)
         }
-        this.selectedElements = this.selectedSectors,
+        this.selectedElements = this.selectedSegments,
         this.active = !1,
         this.passive = !0,
         document.onkeydown = e => {
             e.preventDefault();
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-            }
             switch(e.key) {
                 case "=":
                 case "+":
@@ -149,11 +142,15 @@ export default class extends Tool {
                     this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000000", "#FFFFFF");
                     break;
                 case "c":
-                    this.copyAndPasteSelected(e.key)
+                    this.copyAndPasteSelected(e.key),
                     this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
                     break;
                 case "Delete":
-                    for (const t of this.selectedSegments) {
+                    this.selectedElements.length > 0 && this.toolhandler.addActionToTimeline({
+                        type: "remove",
+                        objects: this.selectedElements.flatMap(t => t)
+                    });
+                    for (const t of this.selectedElements) {
                         t.removeAllReferences()
                     }
                     this.reset();

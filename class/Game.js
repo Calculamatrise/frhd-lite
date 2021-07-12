@@ -1,14 +1,8 @@
 import "../libs/createjs.js";
-import "../libs/performance.js";
 import "./Lite.js";
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
-
-let r = {
-    Editor,
-    Main
-};
 
 window.Game = class {
     constructor(t, e, i) {
@@ -87,7 +81,7 @@ window.Game = class {
     }
     switchScene(t) {
         null !== this.currentScene && this.currentScene.close(),
-        this.currentScene = new r[t](this)
+        this.currentScene = new { Editor, Main }[t](this)
     }
     command() {
         this.currentScene.command.apply(this.currentScene, arguments)

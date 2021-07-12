@@ -431,12 +431,12 @@ window.lite = new class Lite {
                 <button class="tablinks" onclick="[...document.querySelectorAll('.lite.settings .lite-content')].forEach(t => t.style.display = 'none'), document.getElementById('lite-changes').style.display = 'block'">Changes</button>
             </div>
             <div class="lite-content" id="lite-options">
-                <div class="option"><input title="Custom rider cosmetic" type="checkbox" id="canvas-rider" ${this.getVar("canvas-rider") ? "checked" : ""}> Canvas rider</div>
-                <div class="option"><input title="Dark mode..." type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark mode</div>
-                <div class="option"><input title="Enables an input display" type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
-                <div class="option"><input title="Displays featured ghosts on the leaderboard" type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
-                <div class="option"><input title="Change grid style" type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
-                <div class="option"><input title="Customize your bike frame" type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000"}" style="background: ${this.getVar("custom-colour") || "#000"}"> Custom bike colour</div>
+                <div class="option" title="Custom rider cosmetic"><input type="checkbox" id="canvas-rider" ${this.getVar("canvas-rider") ? "checked" : ""}> Canvas rider</div>
+                <div class="option" title="Toggle dark mode"><input type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark mode</div>
+                <div class="option" title="Toggle an input display"><input type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
+                <div class="option" title="Displays featured ghosts on the leaderboard"><input type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
+                <div class="option" title="Change grid style"><input type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
+                <div class="option" title="Customize your bike frame"><input type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000"}" style="background: ${this.getVar("custom-colour") || "#000"}"> Custom bike colour</div>
             </div>
             <div class="lite-content" id="lite-changes" style="display:none">
                 <ul>

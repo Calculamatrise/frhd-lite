@@ -1,9 +1,9 @@
-import s from "../math/cartesian.js";
+import Vector from "../math/cartesian.js";
 
 export default class {
     constructor(t, e, i, n) {
-        this.p1 = new s(t,e);
-        this.p2 = new s(i,n);
+        this.p1 = new Vector(t,e);
+        this.p2 = new Vector(i,n);
         this.pp = this.p2.sub(this.p1);
         this.len = this.pp.len();
         this.sectors = [];

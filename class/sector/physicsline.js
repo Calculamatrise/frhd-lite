@@ -1,9 +1,9 @@
-import s from "../math/cartesian.js";
+import Vector from "../math/cartesian.js";
 
 export default class {
     constructor(t, e, i, n) {
-        let r = new s(t,e),
-            o = new s(i,n),
+        let r = new Vector(t,e),
+            o = new Vector(i,n),
             a = o.sub(r);
         this.p1 = r,
         this.p2 = o,
@@ -15,15 +15,15 @@ export default class {
         this.highlight = !1,
         this.recorded = !1
     }
-    sectors = null
-    p1 = null
-    p2 = null
-    pp = null
-    len = 0
-    collided = !1
-    remove = !1
-    highlight = !1
-    recorded = !1
+    sectors = null;
+    p1 = null;
+    p2 = null;
+    pp = null;
+    len = 0;
+    collided = !1;
+    remove = !1;
+    highlight = !1;
+    recorded = !1;
     getCode(t) {
         this.recorded = !0;
         var e = this.p2

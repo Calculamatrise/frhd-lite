@@ -379,8 +379,7 @@ export default class {
             for (var a in e)
                 e[a].recorded = !1
         }
-        if (s += "#",
-        r > 0) {
+        if (s += "#", r > 0) {
             for (var l in i) {
                 var h = i[l];
                 h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")

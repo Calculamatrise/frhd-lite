@@ -1,4 +1,3 @@
-
 export default function(t, e, i, a, h) {
     var l = []
         , c = t
