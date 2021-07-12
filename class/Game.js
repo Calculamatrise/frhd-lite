@@ -27,32 +27,26 @@ window.Game = class {
     fullscreen = !1;
     onStateChange = null;
     initCanvas() {
-        var t = document.createElement("canvas")
-            , e = document.getElementById(this.settings.defaultContainerID);
-        e.appendChild(t),
-        this.gameContainer = e,
-        this.canvas = t
+        this.gameContainer = document.getElementById(this.settings.defaultContainerID),
+        this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
     }
     initStage() {
-        var t = new createjs.Stage(this.canvas);
-        t.autoClear = !1,
-        createjs.Touch.enable(t),
-        t.enableMouseOver(30),
-        t.mouseMoveOutside = !0,
-        t.preventSelection = !1,
-        this.stage = t
+        this.stage = new createjs.Stage(this.canvas);
+        this.stage.autoClear = !1,
+        createjs.Touch.enable(this.stage),
+        this.stage.enableMouseOver(30),
+        this.stage.mouseMoveOutside = !0,
+        this.stage.preventSelection = !1;
     }
     setSize() {
-        var t = window.innerHeight
-            , e = window.innerWidth;
+        let t = window.innerHeight,
+            e = window.innerWidth;
         if (!this.settings.fullscreen && !this.settings.isStandalone) {
-            var i = this.gameContainer;
-            t = i.clientHeight,
-            e = i.clientWidth
+            t = this.gameContainer.clientHeight,
+            e = this.gameContainer.clientWidth
         }
         if (this.currentScene) {
-            var s = this.currentScene.getCanvasOffset();
-            t -= s.height
+            t -= this.currentScene.getCanvasOffset().height
         }
         var n = 1;
         void 0 !== window.devicePixelRatio && (n = window.devicePixelRatio),
@@ -80,7 +74,7 @@ window.Game = class {
         this.tickCount++
     }
     switchScene(t) {
-        null !== this.currentScene && this.currentScene.close(),
+        this.currentScene !== null && this.currentScene.close(),
         this.currentScene = new { Editor, Main }[t](this)
     }
     command() {

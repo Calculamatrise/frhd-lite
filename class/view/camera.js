@@ -1,14 +1,13 @@
-import s from "../math/cartesian.js";
+import Vector from "../math/cartesian.js";
 
 export default class {
     constructor(t) {
-        let e = t.settings;
-        this.settings = e;
+        this.settings = t.settings;
         this.scene = t;
-        this.zoom = e.cameraStartZoom * t.game.pixelRatio;
-        this.desiredZoom = e.cameraStartZoom * t.game.pixelRatio;
+        this.zoom = t.settings.cameraStartZoom * t.game.pixelRatio;
+        this.desiredZoom = t.settings.cameraStartZoom * t.game.pixelRatio;
         this.zooming = !1;
-        this.position = new s(0,0);
+        this.position = new Vector(0, 0);
         this.zoomPercentage = this.getZoomAsPercentage();
         this.zoomPoint = !1;
     }
@@ -21,79 +20,42 @@ export default class {
     focusIndex = 0
     playerFocus = null
     focusOnNextPlayer() {
-        var t = this.scene.playerManager.getPlayerCount();
-        this.focusIndex = (this.focusIndex + 1) % t,
+        this.focusIndex = (this.focusIndex + 1) % this.scene.playerManager.getPlayerCount(),
         this.focusOnPlayer()
     }
     focusOnPlayer() {
-        var t = this.scene
-            , e = t.playerManager
-            , i = e.getPlayerCount();
-        i <= this.focusIndex && (this.focusIndex = 0);
-        var s = e.getPlayerByIndex(this.focusIndex);
+        this.scene.playerManager.getPlayerCount() <= this.focusIndex && (this.focusIndex = 0);
+        let s = this.scene.playerManager.getPlayerByIndex(this.focusIndex);
         if (this.playerFocus !== s) {
-            var n = this.playerFocus;
-            if (this.playerFocus = s,
-            t.vehicleTimer.setPlayer(s),
-            n) {
-                var r = s.getDistanceBetweenPlayers(n);
-                r > 1500 && this.fastforward()
+            if (this.playerFocus = s, this.scene.vehicleTimer.setPlayer(s), this.playerFocus) {
+                s.getDistanceBetweenPlayers(this.playerFocus) > 1500 && this.fastforward()
             } else
                 this.fastforward()
         }
     }
     focusOnMainPlayer() {
-        0 === this.focusIndex && this.playerFocus || (this.focusIndex = 0,
-        this.focusOnPlayer())
+        this.focusIndex === 0 && this.playerFocus || (this.focusIndex = 0, this.focusOnPlayer())
     }
     update() {
         if (this.playerFocus) {
-            var t = this.playerFocus.getActiveVehicle()
-                , e = t.focalPoint
-                , i = this.position
-                , s = 3
-                , n = e.pos.x - i.x
-                , r = e.pos.y - i.y
-                , h = Math.sqrt(Math.pow(n, 2) + Math.pow(r, 2));
-            h > 1500 && (s = 1),
-            i.x += (e.pos.x - i.x) / s,
-            i.y += (e.pos.y - i.y) / s
+            let t = this.playerFocus.getActiveVehicle(), s = 3;
+            Math.sqrt(Math.pow(t.focalPoint.pos.x - this.position.x, 2) + Math.pow(t.focalPoint.pos.y - this.position.y, 2)) > 1500 && (s = 1),
+            this.position.x += (t.focalPoint.pos.x - this.position.x) / s,
+            this.position.y += (t.focalPoint.pos.y - this.position.y) / s
         }
     }
     updateZoom() {
-        var t = this.zoom
-            , e = this.desiredZoom;
-        t !== e && (this.scene.loading = !0,
-        this._performZoom(),
-        this.zoom === this.desiredZoom && this.zoomComplete())
+        this.desiredZoom !== this.zoom && (this.scene.loading = !0, this._performZoom(), this.zoom === this.desiredZoom && this.zoomComplete())
     }
     zoomToPoint(t) {
-        var e = (this.zoom,
-        this.scene)
-            , i = e.screen
-            , s = this.position
-            , n = this.zoomPoint
-            , r = i.toReal(n.x, "x")
-            , o = i.toReal(n.y, "y")
-            , a = n.x / i.width
-            , h = n.y / i.height
-            , l = i.width / t
-            , c = i.height / t;
-        s.x = r - l * a + l / 2,
-        s.y = o - c * h + c / 2
+        this.position.x = this.scene.screen.toReal(this.zoomPoint.x, "x") - this.scene.screen.width / t * this.zoomPoint.x / this.scene.screen.width + this.scene.screen.width / t / 2,
+        this.position.y = this.scene.screen.toReal(this.zoomPoint.y, "y") - this.scene.screen.height / t * this.zoomPoint.y / this.scene.screen.height + this.scene.screen.height / t / 2
     }
     _performZoom() {
-        var t = this.scene
-            , e = (t.screen,
-        this.position,
-        this.zoom)
-            , i = this.desiredZoom
-            , s = i - e
-            , n = s / 3;
-        e += n,
-        Math.abs(s) < .05 && (e = i),
+        let e = this.zoom + (this.desiredZoom - this.zoom) / 3;
+        Math.abs(this.desiredZoom - this.zoom) < .05 && (e = this.desiredZoom),
         this.zoomPoint && this.zoomToPoint(e),
-        this.zoom = e
+        this.zoom = e;
     }
     zoomComplete() {
         this.scene.redraw(),
@@ -101,44 +63,27 @@ export default class {
         this.scene.loading = !1
     }
     setZoom(t, e) {
-        var i = this.scene;
-        this.desiredZoom = Math.round(t * i.game.pixelRatio * 10) / 10,
+        this.desiredZoom = Math.round(t * this.scene.game.pixelRatio * 10) / 10,
         this.zooming = !0,
-        this.desiredZoom === this.zoom && (this.zooming = !1,
-        this.scene.state.loading = !1),
+        this.desiredZoom === this.zoom && (this.zooming = !1, this.scene.state.loading = !1),
         this.zoomPoint = !1,
         null === this.playerFocus && e && (this.zoomPoint = e),
         this.zoomPercentage = this.getZoomAsPercentage(),
-        i.stateChanged()
+        this.scene.stateChanged()
     }
     resetZoom() {
-        var t = this.settings.cameraStartZoom;
-        this.setZoom(t)
+        this.setZoom(this.settings.cameraStartZoom)
     }
     getZoomAsPercentage() {
-        var t = this.scene.settings
-            , e = this.desiredZoom / this.scene.game.pixelRatio / t.cameraStartZoom * 100;
-        return 0 | e
+        return this.desiredZoom / this.scene.game.pixelRatio / this.scene.settings.cameraStartZoom * 100 | 0
     }
     increaseZoom() {
-        var t = this.scene.settings
-            , e = t.cameraSensitivity
-            , i = this.desiredZoom + 2 * e
-            , s = this.scene.game.pixelRatio
-            , n = t.cameraZoomMax
-            , r = n * s;
-        this.setZoom(i / s),
-        this.desiredZoom > r && this.setZoom(n)
+        this.setZoom(this.desiredZoom + 2 * this.scene.settings.cameraSensitivity / this.scene.game.pixelRatio),
+        this.desiredZoom > this.scene.settings.cameraZoomMax * this.scene.game.pixelRatio && this.setZoom(this.scene.settings.cameraZoomMax)
     }
     decreaseZoom() {
-        var t = this.scene.settings
-            , e = t.cameraSensitivity
-            , i = this.desiredZoom - 2 * e
-            , s = this.scene.game.pixelRatio
-            , n = t.cameraZoomMin
-            , r = n * s;
-        this.setZoom(i / s),
-        this.desiredZoom < r && this.setZoom(n)
+        this.setZoom(this.desiredZoom - 2 * this.scene.settings.cameraSensitivity / this.scene.game.pixelRatio),
+        this.desiredZoom < this.scene.settings.cameraZoomMin * this.scene.game.pixelRatio && this.setZoom(this.scene.settings.cameraZoomMin)
     }
     unfocus() {
         this.playerFocus = null,
@@ -146,10 +91,9 @@ export default class {
     }
     fastforward() {
         if (this.playerFocus) {
-            var t = this.playerFocus.getActiveVehicle()
-                , e = t.focalPoint;
-            this.position.x = e.pos.x,
-            this.position.y = e.pos.y
+            let t = this.playerFocus.getActiveVehicle();
+            this.position.x = t.focalPoint.pos.x,
+            this.position.y = t.focalPoint.pos.y
         }
     }
     close() {

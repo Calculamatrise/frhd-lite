@@ -1,23 +1,21 @@
-import "../../libs/lodash.js";
-
 import o from "../math/bresenham.js";
-import s from "../math/cartesian.js";
-import n from "../sector/physicsline.js";
-import _ from "../sector/powerups/antigravity.js";
-import v from "../sector/powerups/bomb.js";
-import m from "../sector/powerups/boost.js";
-import y from "../sector/powerups/checkpoint.js";
-import g from "../sector/powerups/gravity.js";
-import x from "../sector/powerups/slowmo.js";
-import w from "../sector/powerups/target.js";
-import b from "../sector/powerups/teleport.js";
-import r from "../sector/sceneryline.js";
-import a from "../sector/sector.js";
-import k from "../sector/vehiclepowerups/balloon.js";
-import S from "../sector/vehiclepowerups/blob.js";
-import T from "../sector/vehiclepowerups/helicopter.js";
-import C from "../sector/vehiclepowerups/truck.js";
-import P from "../utils/canvaspool.js";
+import Vector from "../math/cartesian.js";
+import PhysicsLine from "../sector/physicsline.js";
+import Antigravity from "../sector/powerups/antigravity.js";
+import Bomb from "../sector/powerups/bomb.js";
+import Boost from "../sector/powerups/boost.js";
+import Checkpoint from "../sector/powerups/checkpoint.js";
+import Gravity from "../sector/powerups/gravity.js";
+import Slowmo from "../sector/powerups/slowmo.js";
+import Target from "../sector/powerups/target.js";
+import Teleport from "../sector/powerups/teleport.js";
+import SceneryLine from "../sector/sceneryline.js";
+import Sector from "../sector/sector.js";
+import Balloon from "../sector/vehiclepowerups/balloon.js";
+import Blob from "../sector/vehiclepowerups/blob.js";
+import Helicopter from "../sector/vehiclepowerups/helicopter.js";
+import Truck from "../sector/vehiclepowerups/truck.js";
+import CanvasPool from "../utils/canvaspool.js";
 
 let M = {
     LINE: 1,
@@ -46,12 +44,12 @@ export default class {
         this.sceneryLines = [];
         this.targets = [];
         this.allowedVehicles = ["MTB", "BMX"];
-        this.canvasPool = new P(t);
+        this.canvasPool = new CanvasPool(t);
         this.createPowerupCache();
     }
     defaultLine = {
-        p1: new s(-40,50),
-        p2: new s(40,50)
+        p1: new Vector(-40,50),
+        p2: new Vector(40,50)
     }
     game = null;
     scene = null;
@@ -69,42 +67,39 @@ export default class {
     allowedVehicles = null;
     dirty = !1;
     createPowerupCache() {
-        A.push(new m(0,0,0,this)),
-        A.push(new x(0,0,this)),
-        A.push(new v(0,0,this)),
-        A.push(new g(0,0,0,this)),
-        A.push(new y(0,0,this)),
-        A.push(new w(0,0,this)),
-        A.push(new _(0,0,this)),
-        A.push(new b(0,0,this)),
-        A.push(new T(0,0,0,this)),
-        A.push(new C(0,0,0,this)),
-        A.push(new k(0,0,0,this)),
-        A.push(new S(0,0,0,this))
+        A.push(new Boost(0, 0, 0, this)),
+        A.push(new Slowmo(0, 0, this)),
+        A.push(new Bomb(0, 0, this)),
+        A.push(new Gravity(0, 0, 0, this)),
+        A.push(new Checkpoint(0, 0, this)),
+        A.push(new Target(0, 0, this)),
+        A.push(new Antigravity(0, 0, this)),
+        A.push(new Teleport(0, 0, this)),
+        A.push(new Helicopter(0, 0, 0, this)),
+        A.push(new Truck(0, 0, 0, this)),
+        A.push(new Balloon(0, 0, 0, this)),
+        A.push(new Blob(0, 0, 0, this))
     }
     recachePowerups(t) {
-        for (var e in A)
-            A[e].recache(t)
+        for (const e of A)
+            e.recache(t)
     }
     read(t) {
-        var e = t.split("#")
-          , i = e[0].split(",")
+        let e = t.split("#")
           , s = []
           , n = [];
         if (e.length > 2)
-            var s = e[1].split(",")
-              , n = e[2].split(",");
+            s = e[1].split(","),
+            n = e[2].split(",");
         else if (e.length > 1)
-            var n = e[1].split(",");
-        this.addLines(i, this.addPhysicsLine),
+            n = e[1].split(",");
+        this.addLines(e[0].split(","), this.addPhysicsLine),
         this.addLines(s, this.addSceneryLine),
         this.addPowerups(n)
     }
     addPowerups(t) {
-        for (var e = t.length, i = [], s = ((new Date).getTime(),
-        0); e > s; s++)
-            if (i = t[s].split(" "),
-            i.length >= 2) {
+        for (var e = t.length, i = [], s = 0; e > s; s++)
+            if (i = t[s].split(" "), i.length >= 2) {
                 for (var n = [], r = i.length, o = 1; r > o; o++) {
                     var a = parseInt(i[o], 32);
                     n.push(a)
@@ -114,32 +109,32 @@ export default class {
                   , p = null;
                 switch (i[0]) {
                 case "B":
-                    p = new m(h,l,n[2],this),
+                    p = new Boost(h,l,n[2],this),
                     this.addPowerup(p);
                     break;
                 case "S":
-                    p = new x(h,l,this),
+                    p = new Slowmo(h,l,this),
                     this.addPowerup(p);
                     break;
                 case "O":
-                    p = new v(h,l,this),
+                    p = new Bomb(h,l,this),
                     this.addPowerup(p);
                     break;
                 case "G":
-                    p = new g(h,l,n[2],this),
+                    p = new Gravity(h,l,n[2],this),
                     this.addPowerup(p);
                     break;
                 case "C":
-                    p = new y(h,l,this),
+                    p = new Checkpoint(h,l,this),
                     this.addPowerup(p);
                     break;
                 case "T":
-                    p = new w(h,l,this),
+                    p = new Target(h,l,this),
                     this.addTarget(p),
                     this.addPowerup(p);
                     break;
                 case "A":
-                    p = new _(h,l,this),
+                    p = new Antigravity(h,l,this),
                     this.addPowerup(p);
                     break;
                 case "V":
@@ -153,16 +148,16 @@ export default class {
                     var p;
                     switch (d) {
                     case 1:
-                        p = new T(h,l,P,this);
+                        p = new Helicopter(h,l,P,this);
                         break;
                     case 2:
-                        p = new C(h,l,P,this);
+                        p = new Truck(h,l,P,this);
                         break;
                     case 3:
-                        p = new k(h,l,P,this);
+                        p = new Balloon(h,l,P,this);
                         break;
                     case 4:
-                        p = new S(h,l,P,this);
+                        p = new Blob(h,l,P,this);
                         break;
                     default:
                         continue
@@ -174,8 +169,8 @@ export default class {
                       , I = n[1]
                       , E = n[2]
                       , O = n[3]
-                      , z = new b(D,I,this)
-                      , j = new b(E,O,this);
+                      , z = new Teleport(D,I,this)
+                      , j = new Teleport(E,O,this);
                     z.addOtherPortalRef(j),
                     j.addOtherPortalRef(z),
                     this.addPowerup(z),
@@ -189,26 +184,17 @@ export default class {
         this.targets.push(t)
     }
     addPowerup(t) {
-        var e = this.sectors.drawSectors
-          , i = this.sectors.physicsSectors
-          , s = t.x
-          , n = t.y
-          , r = this.settings.drawSectorSize
-          , o = this.settings.physicsSectorSize;
-        this.addRef(s, n, t, M.POWERUPS, i, o);
-        var a = this.addRef(s, n, t, M.POWERUPS, e, r);
-        return a !== !1 && this.totalSectors.push(a),
-        null !== t && (this.powerups.push(t),
-        t.id && (this.powerupsLookupTable[t.id] = t)),
-        t
+        this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.physicsSectors, this.settings.physicsSectorSize);
+        let a = this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.drawSectors, this.settings.drawSectorSize);
+        return a !== !1 && this.totalSectors.push(a), t !== null && (this.powerups.push(t), t.id && (this.powerupsLookupTable[t.id] = t)), t
     }
     addLines(t, e) {
-        for (var i = t.length, s = 0; i > s; s++) {
-            var n = t[s].split(" ")
+        for (let i = t.length, s = 0; i > s; s++) {
+            let n = t[s].split(" ")
               , r = n.length;
             if (r > 3)
-                for (var o = 0; r - 2 > o; o += 2) {
-                    var a = parseInt(n[o], 32)
+                for (let o = 0; r - 2 > o; o += 2) {
+                    let a = parseInt(n[o], 32)
                       , h = parseInt(n[o + 1], 32)
                       , l = parseInt(n[o + 2], 32)
                       , c = parseInt(n[o + 3], 32)
@@ -218,79 +204,52 @@ export default class {
         }
     }
     addPhysicsLine(t, e, i, s) {
-        var t = Math.round(t)
-          , e = Math.round(e)
-          , i = Math.round(i)
-          , s = Math.round(s)
-          , r = i - t
-          , o = s - e
-          , a = Math.sqrt(Math.pow(r, 2) + Math.pow(o, 2));
-        if (a >= 2) {
-            var h = new n(t,e,i,s);
-            this.addPhysicsLineToTrack(h)
+        if (Math.sqrt(Math.pow(Math.round(i) - Math.round(t), 2) + Math.pow(Math.round(s) - Math.round(e), 2)) >= 2) {
+            return this.addPhysicsLineToTrack(new PhysicsLine(Math.round(t), Math.round(e), Math.round(i), Math.round(s)))
         }
-        return h
     }
     addPhysicsLineToTrack(t) {
-        for (var e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
-            var d = l[p]
-              , f = l[p + 1]
-              , v = this.addRef(d, f, t, M.LINE, c, e);
+        for (let l = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.drawSectorSize), p = 0; l.length > p; p += 2) {
+            let v = this.addRef(l[p], l[p + 1], t, M.LINE, this.sectors.drawSectors, this.settings.drawSectorSize);
             v !== !1 && this.totalSectors.push(v)
         }
-        for (var g = this.settings.physicsSectorSize, m = o(n, r, a, h, g), y = this.sectors.physicsSectors, w = m.length, p = 0; w > p; p += 2) {
-            var d = m[p]
-              , f = m[p + 1];
-            this.addRef(d, f, t, M.LINE, y, g)
+        for (let m = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.physicsSectorSize), p = 0; m.length > p; p += 2) {
+            this.addRef(m[p], m[p + 1], t, M.LINE, this.sectors.physicsSectors, this.settings.physicsSectorSize)
         }
-        return this.physicsLines.push(t),
-        t
+        return this.physicsLines.push(t), t
     }
     addSceneryLine(t, e, i, s) {
-        var t = Math.round(t)
-          , e = Math.round(e)
-          , i = Math.round(i)
-          , s = Math.round(s)
-          , n = i - t
-          , o = s - e
-          , a = Math.sqrt(Math.pow(n, 2) + Math.pow(o, 2));
-        if (a >= 2) {
-            var h = new r(t,e,i,s);
-            this.addSceneryLineToTrack(h)
+        if (Math.sqrt(Math.pow(Math.round(i) - Math.round(t), 2) + Math.pow(Math.round(s) - Math.round(e), 2)) >= 2) {
+            return this.addSceneryLineToTrack(new SceneryLine(Math.round(t), Math.round(e), Math.round(i), Math.round(s)))
         }
-        return h
     }
     addSceneryLineToTrack(t) {
-        for (var e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
-            var d = l[p]
-              , f = l[p + 1]
-              , v = this.addRef(d, f, t, M.LINE, c, e);
+        for (let e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
+            let v = this.addRef(l[p], l[p + 1], t, M.LINE, c, e);
             v !== !1 && this.totalSectors.push(v)
         }
-        return this.sceneryLines.push(t),
-        t
+        return this.sceneryLines.push(t), t
     }
     addRef(t, e, i, s, n, r) {
-        var o = Math.floor(t / r)
+        let o = Math.floor(t / r)
           , h = Math.floor(e / r)
           , c = !1;
-        if (void 0 === n[o] && (n[o] = []),
-        void 0 === n[o][h]) {
-            var u = new a(o,h,this);
+        if (void 0 === n[o] && (n[o] = []), void 0 === n[o][h]) {
+            let u = new Sector(o, h, this);
             n[o][h] = u,
             c = u
         }
         switch (s) {
-        case M.LINE:
-            n[o][h].addLine(i),
-            i.addSectorReference(n[o][h]);
+            case M.LINE:
+                n[o][h].addLine(i),
+                i.addSectorReference(n[o][h]);
             break;
-        case M.POWERUPS:
-            n[o][h].addPowerup(i),
-            i.addSectorReference(n[o][h])
+
+            case M.POWERUPS:
+                n[o][h].addPowerup(i),
+                i.addSectorReference(n[o][h])
         }
-        return this.dirty = !0,
-        c
+        return this.dirty = !0, c
     }
     cleanTrack() {
         this.cleanLines(),
@@ -303,32 +262,23 @@ export default class {
             e[r].remove && e.splice(r, 1)
     }
     cleanPowerups() {
-        for (var t = this.powerups, e = this.targets, i = this.targets.length, s = t.length, n = (this.powerupsLookupTable,
-        s - 1); n >= 0; n--)
-            t[n].remove && t.splice(n, 1);
-        for (var r = i - 1; r >= 0; r--)
-            e[r].remove && e.splice(r, 1);
-        this.targetCount = e.length
+        for (const t in this.powerups)
+            this.powerups[t].remove && this.powerups.splice(t, 1);
+        for (const t in this.targets)
+            this.targets[t].remove && this.targets.splice(t, 1);
+        this.targetCount = this.targets.length
     }
     updatePowerupState(t) {
-        var e = t._powerupsConsumed;
         this.resetPowerups();
-        var i = e.targets
-          , s = e.checkpoints
-          , n = e.misc;
-        this.setPowerupStates(i),
-        this.setPowerupStates(s),
-        this.setPowerupStates(n)
+        this.setPowerupStates(t._powerupsConsumed.targets),
+        this.setPowerupStates(t._powerupsConsumed.checkpoints),
+        this.setPowerupStates(t._powerupsConsumed.misc)
     }
     setPowerupStates(t) {
-        var e = this.powerupsLookupTable;
-        for (var i in t) {
-            var s = t[i]
-              , n = e[s];
-            n.remove && n.id && (delete e[s],
-            delete t[s]),
-            n.hit = !0,
-            n.sector.powerupCanvasDrawn = !1
+        for (const e of t) {
+            this.powerupsLookupTable[e].remove && this.powerupsLookupTable[e].id && (delete this.powerupsLookupTable[e], delete t[e]),
+            this.powerupsLookupTable[e].hit = !0,
+            this.powerupsLookupTable[e].sector.powerupCanvasDrawn = !1
         }
     }
     select(a, b) {
@@ -363,157 +313,89 @@ export default class {
     }
     getCode() {
         this.cleanTrack();
-        var t = this.powerups
-          , e = this.physicsLines
-          , i = this.sceneryLines
-          , s = ""
-          , n = e.length
-          , r = i.length
-          , o = t.length;
-        if (n > 0) {
-            for (var a in e) {
-                var h = e[a];
-                h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
-            }
-            s = s.slice(0, -1);
-            for (var a in e)
-                e[a].recorded = !1
-        }
-        if (s += "#", r > 0) {
-            for (var l in i) {
-                var h = i[l];
-                h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
-            }
-            s = s.slice(0, -1);
-            for (var l in i)
-                i[l].recorded = !1
-        }
-        if (s += "#",
-        o > 0) {
-            for (var c in t) {
-                var u = t[c]
-                  , p = u.getCode();
-                p && (s += p + ",")
-            }
-            s = s.slice(0, -1)
-        }
-        return s
+        return this.physicsLines.map(t => t.p1.x.toString(32) + " " + t.p1.y.toString(32) + t.getCode(this)).join(",") + "#" + this.sceneryLines.map(t => t.p1.x.toString(32) + " " + t.p1.y.toString(32) + t.getCode(this)).join(",") + "#" + this.powerups.map(t => t.getCode()).join(",")
     }
     resetPowerups() {
-        var t = this.powerups;
-        for (var e in t) {
-            var i = t[e];
-            i.hit && !i.remove && (i.hit = !1,
-            i.sector.powerupCanvasDrawn = !1)
+        for (const t of this.powerups) {
+            t.hit && !t.remove && (t.hit = !1, t.sector.powerupCanvasDrawn = !1)
         }
     }
     addDefaultLine() {
-        var t = this.defaultLine
-          , e = t.p1
-          , i = t.p2;
-        this.addPhysicsLine(e.x, e.y, i.x, i.y)
+        this.addPhysicsLine(this.defaultLine.p1.x, this.defaultLine.p1.y, this.defaultLine.p2.x, this.defaultLine.p2.y)
     }
     erase(t, e, i) {
+        let _ = [];
         this.dirty = !0;
-        for (var s = t.x - e, n = t.y - e, r = t.x + e, o = t.y + e, a = Math.max(s, r), p = Math.min(s, r), d = Math.max(n, o), f = Math.min(n, o), v = this.settings.drawSectorSize, g = Math.floor(a / v), m = Math.floor(p / v), y = Math.floor(d / v), w = Math.floor(f / v), x = this.sectors.drawSectors, _ = [], b = m; g >= b; b++)
-            for (var T = w; y >= T; T++)
-                x[b] && x[b][T] && _.push(x[b][T].erase(t, e, i));
+        for (var b = Math.floor(Math.min(t.x - e, t.x + e) / this.settings.drawSectorSize); Math.floor(Math.max(t.x - e, t.x + e) / this.settings.drawSectorSize) >= b; b++)
+            for (var T = Math.floor(Math.min(t.y - e, t.y + e) / this.settings.drawSectorSize); Math.floor(Math.max(t.y - e, t.y + e) / this.settings.drawSectorSize) >= T; T++)
+                this.sectors.drawSectors[b] && this.sectors.drawSectors[b][T] && _.push(this.sectors.drawSectors[b][T].erase(t, e, i));
         return _.flatMap(t => t)
     }
     drawAndCache() {
         for (var t = performance.now(), e = this.totalSectors, i = e.length, s = 0; i > s; s++) {
-            var n = e[s];
             !function(t) {
                 setTimeout(function() {
                     t.draw(),
                     t.cacheAsImage()
                 }, 250 * s)
-            }(n)
+            }(e[s])
         }
-        var r = performance.now();
+        let r = performance.now();
         console.log("Track :: Time to draw entire track : " + (r - t) + "ms")
     }
     undraw() {
-        var t = (performance.now(),
-        this.totalSectors);
-        for (var e in t) {
-            var i = t[e];
-            i.drawn && i.clear(!0)
+        for (const t of this.totalSectors) {
+            t.drawn && t.clear(!0)
         }
-        var s = this.camera.zoom;
-        this.recachePowerups(Math.max(s, 1)),
+        this.recachePowerups(Math.max(this.camera.zoom, 1)),
         this.canvasPool.update()
     }
     collide(t) {
-        var e = this.settings.physicsSectorSize
-          , i = Math.floor(t.pos.x / e - .5)
-          , s = Math.floor(t.pos.y / e - .5)
-          , n = this.sectors.physicsSectors;
-        n[i] && n[i][s] && n[i][s].resetCollided(),
-        n[i + 1] && n[i + 1][s] && n[i + 1][s].resetCollided(),
-        n[i + 1] && n[i + 1][s + 1] && n[i + 1][s + 1].resetCollided(),
-        n[i] && n[i][s + 1] && n[i][s + 1].resetCollided(),
-        n[i] && n[i][s] && n[i][s].collide(t),
-        n[i + 1] && n[i + 1][s] && n[i + 1][s].collide(t),
-        n[i + 1] && n[i + 1][s + 1] && n[i + 1][s + 1].collide(t),
-        n[i] && n[i][s + 1] && n[i][s + 1].collide(t)
+        let i = Math.floor(t.pos.x / this.settings.physicsSectorSize - .5),
+            s = Math.floor(t.pos.y / this.settings.physicsSectorSize - .5);
+        this.sectors.physicsSectors[i] && this.sectors.physicsSectors[i][s] && this.sectors.physicsSectors[i][s].resetCollided(),
+        this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s] && this.sectors.physicsSectors[i + 1][s].resetCollided(),
+        this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s + 1] && this.sectors.physicsSectors[i + 1][s + 1].resetCollided(),
+        this.sectors.physicsSectors[i] && this.sectors.physicsSectors[i][s + 1] && this.sectors.physicsSectors[i][s + 1].resetCollided(),
+        this.sectors.physicsSectors[i] && this.sectors.physicsSectors[i][s] && this.sectors.physicsSectors[i][s].collide(t),
+        this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s] && this.sectors.physicsSectors[i + 1][s].collide(t),
+        this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s + 1] && this.sectors.physicsSectors[i + 1][s + 1].collide(t),
+        this.sectors.physicsSectors[i] && this.sectors.physicsSectors[i][s + 1] && this.sectors.physicsSectors[i][s + 1].collide(t)
     }
     getDrawSector(t, e) {
-        var i = this.settings.drawSectorSize
-          , s = Math.floor(t / i)
-          , n = Math.floor(e / i)
-          , r = this.sectors.drawSectors
-          , o = !1;
-        return "undefined" != typeof r[s] && "undefined" != typeof r[s][n] && (o = r[s][n]),
-        o
+        let s = Math.floor(t / this.settings.drawSectorSize),
+            n = Math.floor(e / this.settings.drawSectorSize),
+            o = !1;
+        return typeof this.sectors.drawSectors[s] != "undefined" && typeof this.sectors.drawSectors[s][n] != "undefined" && (o = this.sectors.drawSectors[s][n]), o
     }
     draw() {
-        var t = this.scene
-          , e = t.camera
-          , i = t.screen
-          , s = t.game.canvas.getContext("2d")
-          , n = e.zoom
-          , r = e.position
-          , o = t.screen.center
-          , a = this.settings.drawSectorSize * n
-          , h = r.x * n / a
-          , l = r.y * n / a
-          , c = i.width / a
-          , u = i.height / a
-          , p = u / 2
-          , d = c / 2
-          , f = h - d - 1
-          , v = l - p - 1
-          , g = h + d
-          , m = l + p;
-        s.imageSmoothingEnabled = !1,
-        s.mozImageSmoothingEnabled = !1,
-        s.oImageSmoothingEnabled = !1,
-        s.webkitImageSmoothingEnabled = !1;
-        for (var y = h * a - o.x, w = l * a - o.y, x = this.totalSectors, _ = x.length, b = 0; _ > b; b++) {
-            var T = x[b]
-              , C = T.row
-              , k = T.column;
-            if (T.dirty && T.cleanSector(),
-            k >= f && g >= k && C >= v && m >= C) {
-                T.drawn === !1 && T.draw(),
-                T.hasPowerups && (T.powerupCanvasDrawn || T.cachePowerupSector());
-                var S = k * a - y
-                  , P = C * a - w;
-                if (S = 0 | S,
-                P = 0 | P,
-                s.drawImage(T.canvas, S, P, a, a),
-                T.hasPowerups && T.powerupCanvasDrawn) {
-                    var M = T.powerupCanvasOffset * n;
-                    s.drawImage(T.powerupCanvas, S - M / 2, P - M / 2, a + M, a + M)
+        const ctx = this.scene.game.canvas.getContext("2d");
+        let f = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
+            v = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
+            g = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2,
+            m = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2;
+        ctx.imageSmoothingEnabled = !1,
+        ctx.mozImageSmoothingEnabled = !1,
+        ctx.oImageSmoothingEnabled = !1,
+        ctx.webkitImageSmoothingEnabled = !1;
+        for (const t of this.totalSectors) {
+            if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
+                t.drawn === !1 && t.draw(),
+                t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
+                let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.x) | 0,
+                    P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.y) | 0;
+                ctx.drawImage(t.canvas, S, P, this.settings.drawSectorSize * this.scene.camera.zoom, this.settings.drawSectorSize * this.scene.camera.zoom);
+                if (t.hasPowerups && t.powerupCanvasDrawn) {
+                    ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * this.scene.camera.zoom / 2, P - t.powerupCanvasOffset * this.scene.camera.zoom / 2, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom)
                 }
             } else
-                T.drawn && T.clear()
+                t.drawn && t.clear()
         }
     }
     closeSectors() {
-        for (var t = this.totalSectors, e = t.length, i = 0; e > i; i++)
-            t[i].close()
+        for (const t of this.totalSectors) {
+            t.close()
+        }
     }
     close() {
         this.scene = null,

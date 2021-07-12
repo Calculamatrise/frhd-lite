@@ -89,7 +89,7 @@ window.lite = new class Lite {
                     l=.17*e;
                     v.save(),
                     v.scale(l,l),
-                    v.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000";
+                    v.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000000";
                     v.fillStyle = "#ffffff00";
                     v.lineCap = "round";
                     v.lineWidth = 11.5;
@@ -134,8 +134,8 @@ window.lite = new class Lite {
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
         ctx.lineWidth = 5;
-        ctx.strokeStyle = this.getVar("dark") ? "#fff" : "#000";
-        ctx.fillStyle = this.getVar("dark") ? "#fff" : "#000";
+        ctx.strokeStyle = this.getVar("dark") ? "#fff" : "#000000";
+        ctx.fillStyle = this.getVar("dark") ? "#fff" : "#000000";
         ctx.beginPath();
         ctx.moveTo(10, canvas.height - 10);
         ctx.lineTo(10, canvas.height - 50);
@@ -177,32 +177,32 @@ window.lite = new class Lite {
         !!gamepad.right && ctx.fill();
         ctx.stroke();
         ctx.lineWidth = 3;
-        ctx.strokeStyle = !!gamepad.left ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+        ctx.strokeStyle = !!gamepad.left ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
         ctx.beginPath();
         ctx.moveTo(35, canvas.height - 38);
         ctx.lineTo(22, canvas.height - 30);
         ctx.lineTo(35, canvas.height - 22);
         ctx.stroke();
-        ctx.strokeStyle = !!gamepad.z ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+        ctx.strokeStyle = !!gamepad.z ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
         ctx.beginPath();
         ctx.moveTo(22, canvas.height - 90);
         ctx.lineTo(37, canvas.height - 90);
         ctx.lineTo(22, canvas.height - 70);
         ctx.lineTo(37, canvas.height - 70);
         ctx.stroke();
-        ctx.strokeStyle = !!gamepad.up ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+        ctx.strokeStyle = !!gamepad.up ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
         ctx.beginPath();
         ctx.moveTo(72, canvas.height - 72);
         ctx.lineTo(80, canvas.height - 88);
         ctx.lineTo(88, canvas.height - 72);
         ctx.stroke();
-        ctx.strokeStyle = !!gamepad.down ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+        ctx.strokeStyle = !!gamepad.down ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
         ctx.beginPath();
         ctx.moveTo(72, canvas.height - 37);
         ctx.lineTo(80, canvas.height - 22);
         ctx.lineTo(88, canvas.height - 37);
         ctx.stroke();
-        ctx.strokeStyle = !!gamepad.right ? (this.getVar("dark") ? "#000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000");
+        ctx.strokeStyle = !!gamepad.right ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
         ctx.beginPath();
         ctx.moveTo(125, canvas.height - 38);
         ctx.lineTo(138, canvas.height - 30);
@@ -261,7 +261,7 @@ window.lite = new class Lite {
     }
     checkForUpdate() {
         fetch("https://calculamatrise.github.io/free_rider_lite/details.json").then(r => r.json()).then(json => {
-            if (json.version > "4.0.2" && this.getVar("update").dismissed != !0) {
+            if (json.version > sessionStorage.getItem("lite_version") && this.getVar("update").dismissed != !0) {
                 this.setVar("update", {
                     uptodate: !0
                 });
@@ -402,7 +402,7 @@ window.lite = new class Lite {
                 padding: 0;
                 width: 13px;
                 height: 13px;
-                background: #000
+                background: #000000
             }
             .lite.settings .option input[type="color"]::-webkit-color-swatch-wrapper {
                 padding: 0;
@@ -436,7 +436,7 @@ window.lite = new class Lite {
                 <div class="option" title="Toggle an input display"><input type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
                 <div class="option" title="Displays featured ghosts on the leaderboard"><input type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
                 <div class="option" title="Change grid style"><input type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
-                <div class="option" title="Customize your bike frame"><input type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000"}" style="background: ${this.getVar("custom-colour") || "#000"}"> Custom bike colour</div>
+                <div class="option" title="Customize your bike frame"><input type="color" id="custom-colour" value="${this.getVar("custom-colour") || "#000000"}" style="background: ${this.getVar("custom-colour") || "#000000"}"> Custom bike colour</div>
             </div>
             <div class="lite-content" id="lite-changes" style="display:none">
                 <ul>
@@ -456,7 +456,7 @@ window.lite = new class Lite {
             if (s.querySelector("#" + t)) {
                 if (t == "custom-colour") {
                     s.querySelector("#" + t).parentElement.onclick = s.querySelector("#" + t).onchange = () => {
-                        s.querySelector("#" + t).style.background = s.querySelector("#" + t).value || "#000",
+                        s.querySelector("#" + t).style.background = s.querySelector("#" + t).value || "#000000",
                         this.setVar(t, s.querySelector("#" + t).value),
                         s.querySelector("#custom-colour").click()
                     }

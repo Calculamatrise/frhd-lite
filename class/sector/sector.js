@@ -118,7 +118,7 @@ export default class {
         this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
         this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0;
         const ctx = this.canvas.getContext("2d");
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height),
         ctx.beginPath(),
         ctx.lineWidth = 2 * this.scene.camera.zoom > .5 ? 2 * this.scene.camera.zoom : .5,
         ctx.lineCap = "round",

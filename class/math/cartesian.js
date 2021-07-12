@@ -66,8 +66,8 @@ export default class {
         this.y = t.y
     }
     normalize() {
-        var t = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-        return new this.constructor(this.x / t,this.y / t)
+        let t = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        return new this.constructor(this.x / t, this.y / t)
     }
     getAngleInDegrees(t) {
         var e = t.sub(this)

@@ -1,11 +1,11 @@
-import s from "../math/cartesian.js";
+import Vector from "../math/cartesian.js";
 
 export default class {
     constructor(t) {
         this.scene = t;
         this.game = t.game;
-        this.size = new s(0, 0);
-        this.center = new s(0, 0);
+        this.size = new Vector(0, 0);
+        this.center = new Vector(0, 0);
         this.setScreen();
     }
     game = null;
@@ -15,30 +15,21 @@ export default class {
     width = 0;
     height = 0;
     setScreen() {
-        var t = this.game.width
-            , e = this.game.height;
-        this.width = t,
-        this.height = e,
-        this.size.x = t,
-        this.size.y = e,
-        this.center.x = t / 2,
-        this.center.y = e / 2
+        this.width = this.game.width,
+        this.height = this.game.height,
+        this.size.x = this.game.width,
+        this.size.y = this.game.height,
+        this.center.x = this.game.width / 2,
+        this.center.y = this.game.height / 2
     }
     update() {
-        var t = this.game;
-        (t.width !== this.width || t.height !== this.height) && this.setScreen()
+        (this.game.width !== this.width || this.game.height !== this.height) && this.setScreen()
     }
     realToScreen(t, e) {
-        var i = this.scene
-            , s = i.camera
-            , n = i.screen;
-        return (t - s.position[e]) * s.zoom + n.center[e]
+        return (t - this.scene.camera.position[e]) * this.scene.camera.zoom + this.scene.screen.center[e]
     }
     toReal(t, e) {
-        var i = this.scene
-            , s = i.camera
-            , n = i.screen;
-        return (t - n.center[e]) / s.zoom + s.position[e]
+        return (t - this.scene.screen.center[e]) / this.scene.camera.zoom + this.scene.camera.position[e]
     }
     close() {
         this.width = null,

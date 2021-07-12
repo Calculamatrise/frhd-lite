@@ -26,11 +26,9 @@ export default class {
     recorded = !1;
     getCode(t) {
         this.recorded = !0;
-        var e = this.p2
-            , i = " " + e.x.toString(32) + " " + e.y.toString(32)
-            , s = this.checkForConnectedLine(t, e);
-        return s && (i += s.getCode(t)),
-        i
+        let i = " " + this.p2.x.toString(32) + " " + this.p2.y.toString(32),
+            s = this.checkForConnectedLine(t, this.p2);
+        return s && (i += s.getCode(t)), i
     }
     checkForConnectedLine(t, e) {
         var i = t.settings.physicsSectorSize
