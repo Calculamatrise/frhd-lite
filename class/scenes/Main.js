@@ -51,7 +51,7 @@ export default class {
         this.restart();
         this.initializeAnalytics();
         this.stage.addEventListener("stagemousedown", this.tapToStartOrRestart.bind(this));
-        window.lite && this.injectLiteFeatures();
+        lite && this.injectLiteFeatures();
     }
     game = null;
     assets = null;
@@ -84,10 +84,13 @@ export default class {
     message = null;
     showSkip = !1;
     injectLiteFeatures() {
-        if (window.lite.getVar("feats")) {
+        if (lite.getVar("feats")) {
             fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then(r => r.text()).then(data => {
                 document.head.appendChild(Object.assign(document.createElement("script"), {
-                    innerHTML: data
+                    innerHTML: data,
+                    onload: function() {
+                        this.remove()
+                    }
                 }));
             })
         }
@@ -415,8 +418,7 @@ export default class {
             this.state.playing = !1);
             break;
         case "add track":
-            var n = t[0];
-            this.importCode = n.code;
+            this.importCode = t[0].code;
             break;
         case "clear race":
             this.races = [],

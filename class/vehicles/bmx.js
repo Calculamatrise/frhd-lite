@@ -257,7 +257,7 @@ export default class extends Vehicle {
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -275,7 +275,7 @@ export default class extends Vehicle {
         , f = e.add(o.factor(.84)).add(a.factor(.42))
         , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -284,7 +284,7 @@ export default class extends Vehicle {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
@@ -299,7 +299,7 @@ export default class extends Vehicle {
         , x = e.add(o.factor(.17)).add(a.factor(.38))
         , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = window.lite.getVar("custom-colour") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),
@@ -376,7 +376,7 @@ export default class extends Vehicle {
             u.lineTo(B.x, B.y),
             u.lineTo(P.x, P.y),
             u.stroke();
-            var R = GameInventoryManager.getItem(window.lite.getVar("canvas-rider") ? window.lite.head : this.cosmetics.head);
+            var R = GameInventoryManager.getItem(window.lite.getVar("cr") ? window.lite.head : this.cosmetics.head);
             R.draw(u, L.x, L.y, this.drawHeadAngle, c, this.dir),
             u.globalAlpha = 1
         }

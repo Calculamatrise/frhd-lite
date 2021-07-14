@@ -158,7 +158,7 @@ export default class extends Vehicle {
         d.lineTo(M.x, M.y),
         d.stroke(),
         v.inc(v.sub(x).factor(.25));
-        if (window.lite.getVar("canvas-rider")) {
+        if (window.lite.getVar("cr")) {
             let t = v.sub(x)
               , e = new Vector(t.y,-t.x)
               , i = v.add(e.factor(.15 * this.dir)).add(t.factor(-.05))

@@ -47,7 +47,7 @@ export default class {
         this.restart();
         this.initializeAnalytics();
         this.stage.addEventListener("stagemousedown", this.tapToStartOrRestart.bind(this));
-        window.lite && this.injectLiteFeatures();
+        lite && this.injectLiteFeatures();
     }
     game = null;
     assets = null;
@@ -452,8 +452,7 @@ export default class {
             this.toolHandler.toggleSnap();
             break;
         case "add track":
-            this.track.read(demo.code),
-            track = null;
+            this.importCode = t[0].code;
             break;
         case "redraw":
             this.redraw();
