@@ -38,51 +38,15 @@ export default class extends Tool {
         this.selectedElements = [],
         this.selectedSegments = [];
     }
-    moveSelected(a) {
-        let selectedSegments = this.selectedSegments;
-        this.selectedSegments = [];
-        for (const i of selectedSegments) {
-            if (i.p2) {
-                switch(a) {
-                    case "ArrowUp":
-                        i.p1.y -= this.travelDistance;
-                        i.p2.y -= this.travelDistance;
-                        break;
-                    case "ArrowDown":
-                        i.p1.y += this.travelDistance;
-                        i.p2.y += this.travelDistance;
-                        break;
-                    case "ArrowLeft":
-                        i.p1.x -= this.travelDistance;
-                        i.p2.x -= this.travelDistance;
-                        break;
-                    case "ArrowRight":
-                        i.p1.x += this.travelDistance;
-                        i.p2.x += this.travelDistance;
-                        break;
-                }
-                if (i.name) {
-                    this.selectedSegments.push(this.scene.track.addPowerup(i));
-                } else {
-                    this.selectedSegments.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](i.p1.x, i.p1.y, i.p2.x, i.p2.y));
-                }
-                i.removeAllReferences();
-            } else {
-                switch(a) {
-                    case "ArrowUp":
-                        i.y-= this.travelDistance;
-                        break;
-                    case "ArrowDown":
-                        i.y+= this.travelDistance;
-                        break;
-                    case "ArrowLeft":
-                        i.x-= this.travelDistance;
-                        break;
-                    case "ArrowRight":
-                        i.x+= this.travelDistance;
-                }
-                this.selectedSegments.push(this.scene.track.addPowerup(i));
+    moveSelected(t) {
+        for (const e in this.selectedSegments) {
+            if (this.selectedSegments.find(e => e.otherPortal == t)) {
+                this.selectedSegments.splice(selectedSegments.indexOf(t), 1);
+                continue;
             }
+            this.selectedSegments[e] = this.selectedSegments[e].move(t == "ArrowLeft" ? -this.travelDistance : t == "ArrowRight" ? this.travelDistance : 0, t == "ArrowUp" ? -this.travelDistance : t == "ArrowDown" ? this.travelDistance : 0);
+            this.scene.track.undraw();
+            // this.selectedSegments.push(this.scene.track[e.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](e.p1.x, e.p1.y, e.p2.x, e.p2.y));
         }
     }
     fillSelected() {

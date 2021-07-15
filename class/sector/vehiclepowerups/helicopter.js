@@ -127,8 +127,7 @@ export default class extends Powerup {
                 x: this.x,
                 y: this.y
             }, e.dir),
-            l.camera.playerFocus === i && (l.camera.focusOnPlayer(),
-            l.vehicleTimer.playerAddedTime(i)),
+            l.camera.playerFocus === i && (l.camera.focusOnPlayer()),
             i.isGhost() === !1 && (this.hit = !0,
             this.sector.powerupCanvasDrawn = !1,
             this.scene.message.show("Helicopter Powerup!", 50, "#F2902E", !1))

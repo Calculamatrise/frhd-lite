@@ -296,7 +296,7 @@ export default class {
                 }
             }
         } else {
-            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)){
+            for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
                 if (i.p1 || i.p2) {
                     if (i.p1.x <= a.x && i.p1.y <= a.y || i.p2.x <= a.x && i.p2.y <= a.y && i.p1.x >= b.x && i.p1.y >= b.y ||
                     i.p2.x >= b.x && i.p2.y >= b.y) {

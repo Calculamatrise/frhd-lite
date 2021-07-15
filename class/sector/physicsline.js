@@ -24,6 +24,13 @@ export default class {
     remove = !1;
     highlight = !1;
     recorded = !1;
+    move(t, e) {
+        this.p1.x += parseInt(t) | 0;
+        this.p1.y += parseInt(e) | 0;
+        this.p2.x += parseInt(t) | 0;
+        this.p2.y += parseInt(e) | 0;
+        return this;
+    }
     getCode(t) {
         this.recorded = !0;
         let i = " " + this.p2.x.toString(32) + " " + this.p2.y.toString(32),

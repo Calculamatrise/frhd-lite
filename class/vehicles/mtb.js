@@ -419,7 +419,7 @@ export default class extends Vehicle {
         }
     }
     cloneBikeFrame() {
-        //this.player._checkpoints = this.player._checkpoints.slice(-101);
+        // this.player._checkpoints = this.player._checkpoints.slice(-101);
         let op = 0;
         for (const checkpoint in this.player._checkpoints) {
             if (checkpoint > this.player._checkpoints.length - 11) {

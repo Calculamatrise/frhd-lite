@@ -41,4 +41,9 @@ export default class {
     addSectorReference(t) {
         this.sector = t
     }
+    move(t, e) {
+        this.x += parseInt(t) | 0;
+        this.y += parseInt(e) | 0;
+        return this;
+    }
 }

@@ -50,8 +50,8 @@ export default class {
         this.setStartingVehicle();
         this.restart();
         this.initializeAnalytics();
-        this.stage.addEventListener("stagemousedown", this.tapToStartOrRestart.bind(this));
-        lite && this.injectLiteFeatures();
+        window.addEventListener("mousedown", this.tapToStartOrRestart.bind(this));
+        this.injectLiteFeatures();
     }
     game = null;
     assets = null;
@@ -343,7 +343,9 @@ export default class {
         this.drawPlayers(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
         this.loading && this.loadingcircle.draw(),
-        this.message.draw()
+        this.message.draw(),
+        this.score.draw(),
+        this.vehicleTimer.draw()
     }
     redraw() {
         this.track.undraw(),

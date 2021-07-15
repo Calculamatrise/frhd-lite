@@ -1,9 +1,15 @@
-import s from "./formatnumber.js";
+import format from "./formatnumber.js";
 
 export default class {
     constructor(t) {
         this.scene = t;
         this.maxRaces = this.scene.settings.mobile ? 3 : 10;
+        this.container = {
+            scaleX: this.scene.game.pixelRatio / 2.5,
+            scaleY: this.scene.game.pixelRatio / 2.5,
+            x: 80 * this.scene.game.pixelRatio / 2.5,
+            y: 15 * this.scene.game.pixelRatio / 2.5
+        }
         this.createContainer();
     }
     container = null;
@@ -15,17 +21,12 @@ export default class {
     mobileRaceXOffset = 180;
     maxRaces = 10;
     createContainer() {
-        var t = this.scene.game
-            , e = t.settings
-            , i = t.pixelRatio
-            , s = i / 2.5
-            , n = new createjs.Container;
-        n.scaleX = n.scaleY = s,
-        n.y = 80 * s,
-        n.x = 15 * s,
-        e.isCampaign && (n.y += 55 * s),
-        this.container = n,
-        t.stage.addChild(n)
+        this.container = new createjs.Container;
+        this.container.scaleX = this.container.scaleY = this.scene.game.pixelRatio / 2.5,
+        this.container.y = 80 * this.scene.game.pixelRatio / 2.5,
+        this.container.x = 15 * this.scene.game.pixelRatio / 2.5,
+        this.scene.game.settings.isCampaign && (this.container.y += 55 * this.scene.game.pixelRatio / 2.5),
+        this.scene.game.stage.addChild(this.container)
     }
     clear() {
         this.container.removeAllChildren(),
@@ -33,51 +34,35 @@ export default class {
         this.raceCount = 0
     }
     centerContainer() {
-        var t = this.scene
-            , e = t.screen
-            , i = this.container
-            , s = i.getBounds()
-            , n = this.scene.game.pixelRatio;
-        i.x = e.width / 2 - s.width / 2 * i.scaleY;
-        var r = 40;
-        t.settings.isCampaign && (i.visible = !1),
-        i.y = r * n
+        let t = this.container.getBounds();
+        this.container.x = this.scene.screen.width / 2 - t.width / 2 * this.container.scaleY;
+        this.scene.settings.isCampaign && (this.container.visible = !1),
+        this.container.y = 40 * this.scene.game.pixelRatio
     }
     addRace(t, e) {
         if (this.raceCount < this.maxRaces) {
-            var i = this.scene
-                , n = i.game
-                , r = (n.pixelRatio,
-            t.user)
-                , o = t.race
-                , a = i.settings
-                , h = a.drawFPS
-                , l = r.color
-                , c = "helsinki"
-                , u = new createjs.Container
-                , p = (i.camera,
-            new createjs.Shape)
-              , d = p.graphics;
-            d.setStrokeStyle(4, "round"),
-            d.beginFill(l).drawCircle(0, 0, 20),
+            let u = new createjs.Container,
+                p = new createjs.Shape;
+            p.graphics.setStrokeStyle(4, "round"),
+            p.graphics.beginFill(t.user.color).drawCircle(0, 0, 20),
             p.x = 25,
             p.y = 25;
-            var f = s(parseInt(o.run_ticks) / h * 1e3)
-              , v = new createjs.Text(f,"30px " + c, window.lite.getVar("dark") ? "#f1f1f1" : "#000");
+            let f = format(parseInt(t.race.run_ticks) / this.scene.settings.drawFPS * 1e3),
+                v = new createjs.Text(f,"30px helsinki", lite.getVar("dark") ? "#f1f1f1" : "#000");
             v.x = 55,
             v.y = 9;
-            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c, window.lite.getVar("dark") ? "#f1f1f1" : "#000");
+            let g = new createjs.Text(t.user.d_name.charAt(0),"25px helsinki", lite.getVar("dark") ? "#f1f1f1" : "#000");
             g.x = 17,
             g.y = 33,
             g.textBaseline = "alphabetic";
-            var m = new createjs.Container;
+            let m = new createjs.Container;
             m.addChild(p),
             m.addChild(g),
             m.cache(0, 0, 50, 50),
             m.removeAllChildren(),
             u.addChild(m, v),
             u.alpha = this.raceOpacity,
-            a.mobile ? u.x = e * this.mobileRaceXOffset : (u.x = -2,
+            this.scene.settings.mobile ? u.x = e * this.mobileRaceXOffset : (u.x = -2,
             u.y = e * this.raceYOffset),
             this.raceList.push(u),
             this.container.addChild(u),
@@ -85,20 +70,16 @@ export default class {
         }
     }
     update() {
-        let s = this.scene;
         if (this.raceCount > 0) {
-          for (const i in this.raceTimes) {
-              for (const x in s.playerManager._players) {
-                  if (s.playerManager._players[x]._user.d_name == i) {
-                      var th = s.playerManager._players[x].getTargetsHit(),
-                          tt = s.track.targetCount;
-                      this.raceTimes[i].time.text = this.raceTimes[i].time.text.split(" ")[0] + " " + th + "/" + tt;
-                      this.raceTimes[i].time.color = window.lite.getVar("dark") ? "#f1f1f1" : "#000"
-                  }
-              }
-          }
-            var t = this.scene.camera;
-            t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace(),
+            for (const i in this.raceTimes) {
+                for (const x in this.scene.playerManager._players) {
+                    if (this.scene.playerManager._players[x]._user.d_name == i) {
+                        this.raceTimes[i].time.text = this.raceTimes[i].time.text.split(" ")[0] + " " + this.scene.playerManager._players[x].getTargetsHit() + "/" + this.scene.track.targetCount;
+                        this.raceTimes[i].time.color = lite.getVar("dark") ? "#f1f1f1" : "#000"
+                    }
+                }
+            }
+            this.scene.camera.focusIndex > 0 && this.scene.camera.focusIndex < this.maxRaces ? this.highlightRace(this.scene.camera.focusIndex - 1) : this.unhighlightRace(),
             this.scene.settings.mobile && this.centerContainer()
         }
     }

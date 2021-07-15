@@ -19,7 +19,7 @@ export default class extends Powerup {
     hit = !1;
     x = 0;
     y = 0;
-    name = "slowmo";
+    name = "teleport";
     recorded = !1;
     erase(t, e) {
         var i = !1;
@@ -53,9 +53,7 @@ export default class extends Powerup {
         i.width = e.width * t,
         i.height = e.height * t;
         var s = i.getContext("2d")
-          , n = (s.width / 2,
-        s.height / 2,
-        .65 * t);
+          , n = .65 * t;
         s.save(),
         s.scale(n, n),
         s.save(),
@@ -228,32 +226,25 @@ export default class extends Powerup {
     }
     draw(t, e, i, s) {
         a.dirty && this.recache(i);
-        {
-            var n = a.width * i
-              , r = a.height * i
-              , o = n / 2
-              , h = r / 2
-              , l = t
-              , c = e;
-            (this.angle - 90) * (Math.PI / 180)
-        }
+        let n = a.width * i
+            , r = a.height * i
+            , o = n / 2
+            , h = r / 2
+            , l = t
+            , c = e;
         s.globalAlpha = this.hit === !1 ? 1 : .2,
         s.translate(l, c),
         s.drawImage(a.canvas, -o, -h, n, r),
         s.translate(-l, -c)
     }
     collide(t) {
-        var e = t.parent
+        let e = t.parent
           , i = e.player
           , s = i._powerupsConsumed.misc;
         if (-1 === s.indexOf(this.id)) {
-            {
-                var n = t.pos.x - this.x
-                  , o = t.pos.y - this.y
-                  , a = Math.pow(n, 2) + Math.pow(o, 2)
-                  , h = e.masses;
-                h.length
-            }
+            var n = t.pos.x - this.x
+                , o = t.pos.y - this.y
+                , a = Math.pow(n, 2) + Math.pow(o, 2);
             1e3 > a && i.isAlive() && (s.push(this.id),
             s.push(this.otherPortal.id),
             e.moveVehicle(this.otherPortal.x - this.x, this.otherPortal.y - this.y),
@@ -264,5 +255,12 @@ export default class extends Powerup {
             this.scene.sound.play("teleport_sound", .3),
             this.scene.message.show("Teleport Engaged", 50, "#8ac832")))
         }
+    }
+    move(t, e) {
+        this.x += parseInt(t) | 0;
+        this.y += parseInt(e) | 0;
+        this.otherPortal.x += parseInt(t) | 0;
+        this.otherPortal.y += parseInt(e) | 0;
+        return this;
     }
 }

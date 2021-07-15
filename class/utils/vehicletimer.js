@@ -1,82 +1,64 @@
-import s from "../../libs/tween.js";
-
 export default class {
     constructor(t) {
         this.scene = t;
         this.settings = t.settings;
         this.player = !1;
-        this.build_interface();
-        this.createPulseTween();
+        this.container = {
+            visible: true,
+            scaleX: this.scene.game.pixelRatio / 2,
+            scaleY: this.scene.game.pixelRatio / 2,
+            x: 100,
+            y: 30
+        };
+        this.timeText = {
+            text: "00:00"
+        };
     }
     scene = null;
     container = null;
     cached = !1;
-    build_interface() {
-        var t = this.scene.game.pixelRatio
-            , e = new createjs.Container
-            , i = "helsinki"
-            , s = new createjs.Shape;
-        s.graphics.setStrokeStyle(5, "round").beginStroke("rgba(242,144,66,1)").beginFill("rgba(242,144,66,0.5)").drawRoundRect(0, 0, 200, 60, 25);
-        var n = new createjs.Text("00:00", "35px " + i, window.lite.getVar("dark") ? "#fdfdfd" : "#000");
-        n.textAlign = "center",
-        n.textBaseline = "middle",
-        n.x = 100,
-        n.y = 30,
-        e.addChild(s),
-        e.addChild(n),
-        e.visible = !1,
-        e.scaleX = e.scaleY = t / 2,
-        this.timeText = n,
-        this.container = e,
-        this.scene.game.stage.addChild(e),
-        this.center_container()
-    }
     setPlayer(t) {
         this.player = t
     }
     removePlayer() {
         this.player = !1
     }
-    playerAddedTime(t) {
-        this.player === t && this.createPulseTween()
-    }
-    createPulseTween() {
-        var t = this.container
-            , e = this.scene.game.pixelRatio
-            , i = e / 2
-            , n = {
-            scale: i
-        }
-            , r = {
-            scale: 1.2 * i
-        };
-        this.pulse = new s.Tween(n).to(r, 200).repeat(1).yoyo(!0).easing(s.Easing.Cubic.InOut).onUpdate(function() {
-            t.scaleX = t.scaleY = this.scale
-        }).start()
-    }
     center_container() {
-        var t = this.scene.screen
-            , e = this.container;
-        e.x = t.width / 2 - 100 * e.scaleX,
-        e.y = t.height - 100 * e.scaleY
+        this.container.x = this.scene.screen.width / 2 - 100 * this.container.scaleX,
+        this.container.y = this.scene.screen.height - 100 * this.container.scaleY
     }
     update() {
-        s.update(),
         this.player && this.player._tempVehicleTicks > 0 ? (this.center_container(),
         this.updateTime()) : this.container.visible = !1
     }
+    draw() {
+        if (!this.container.visible) return;
+        const ctx = this.scene.game.canvas.getContext("2d");
+        ctx.strokeStyle = "rgba(242,144,66,1)";
+        ctx.fillStyle = "rgba(242,144,66,0.5)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.container.x, this.container.y + 15);
+        ctx.arc(this.container.x + 10, this.container.y + 10, 10, Math.PI, -Math.PI / 2);
+        ctx.lineTo(this.container.x + 50, this.container.y);
+        ctx.arc(this.container.x + 90, this.container.y + 10, 10, -Math.PI / 2, 0);
+        ctx.lineTo(this.container.x + 100, this.container.y + 15);
+        ctx.arc(this.container.x + 90, this.container.y + 20, 10, 0, Math.PI / 2);
+        ctx.lineTo(this.container.x + 20, this.container.y + 30);
+        ctx.arc(this.container.x + 10, this.container.y + 20, 10, Math.PI / 2, Math.PI);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
+        ctx.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000000";
+        ctx.font = "18px helsinki";
+        ctx.fillText(this.timeText.text, this.container.x + 27, this.container.y + 20);
+    }
     updateTime() {
-        var t = (this.container,
-        this.timeText)
-            , e = (this.player,
-        this.player._tempVehicleTicks)
-            , i = this.scene.settings.drawFPS
-            , s = e / i;
-        s = s.toFixed(2);
-        var n = "";
-        10 > s && (n = "0"),
+        let s = (this.player._tempVehicleTicks / this.scene.settings.drawFPS).toFixed(2);
+        let n = "";
+        s < 10 && (n = "0"),
         n += s,
-        t.text = n,
+        this.timeText.text = n,
         this.container.visible = !0
     }
     close() {
