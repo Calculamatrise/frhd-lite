@@ -2,8 +2,20 @@ import Controls from "./controls.js";
 
 export default class extends Controls {
     constructor(t) {
-        super();
-        this.initialize(t);
+        super(t);
+        this.container = {
+            alpha: .8,
+            parent: this,
+            image: 154,
+            scaleX: this.scene.game.pixelRatio / 2.5,
+            scaleY: this.scene.game.pixelRatio / 2.5,
+            get x() {
+                return this.parent.scene.screen.width - 55
+            },
+            get y() {
+                return 25 * this.parent.scene.game.pixelRatio / 2.5
+            }
+        }
     }
     name = "pause_controls";
     pauseControl = null;
@@ -25,16 +37,16 @@ export default class extends Controls {
         }
     }
     update() {
-        var t = this.scene.state.paused;
-        this.paused !== t && (t ? (this.pauseControl.gotoAndStop("play_btn-hover"),
-        this.paused = !0) : (this.pauseControl.gotoAndStop("pause_btn-hover"),
-        this.paused = !1))
+        this.paused !== this.scene.state.paused && (this.paused = this.scene.state.paused)
     }
-    addControls() {
-        var t = new createjs.Container;
-        t.addChild(this.createControl("pause_btn-hover")),
-        this.controlsContainer = t,
-        this.pauseControl = t.getChildByName("pause_btn-hover"),
-        this.stage.addChild(t)
+    draw() {
+        let frame = this.controlsSpriteSheetData.frames[this.controlsSpriteSheetData.animations[(this.paused ? "play_btn" : "pause_btn") + (this.mouse.touch.pos.x < this.container.x + 76 / 2 && this.mouse.touch.pos.x > this.container.x && this.mouse.touch.pos.y < this.container.y + 76 / 2 && this.mouse.touch.pos.y > this.container.y ? "-hover" : "")]];
+        const ctx = this.scene.game.canvas.getContext("2d");
+        ctx.globalAlpha = this.container.alpha;
+        ctx.drawImage(this.scene.assets.getResult("pause_controls"), frame[0], frame[1], frame[2], frame[3], this.container.x, this.container.y, 40, 40);
+        ctx.globalAlpha = 1;
+    }
+    click() {
+        this.scene.state.paused = !this.scene.state.paused;
     }
 }

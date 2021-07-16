@@ -59,6 +59,11 @@ export default class extends EventEmitter {
         2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
         this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
         this.touch.down = !0)
+        if (this.scene.pauseControls.check(this.touch.pos)) this.scene.pauseControls.click()
+        else if (this.scene.fullscreenControls && this.scene.fullscreenControls.check(this.touch.pos)) this.scene.fullscreenControls.click();
+        else if (this.scene.settingsControls && this.scene.settingsControls.check(this.touch.pos)) this.scene.settingsControls.click();
+        else if (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos) == 1) this.scene.redoundoControls.click(true);
+        else if (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos) == 2) this.scene.redoundoControls.click(false);
     }
     disableContextMenu() {
         this.scene.game.canvas.oncontextmenu = function() {
@@ -108,7 +113,16 @@ export default class extends EventEmitter {
     }
     onMouseMove(t) {
         this.updatePosition(t, this.touch),
-        this.updatePosition(t, this.secondaryTouch)
+        this.updatePosition(t, this.secondaryTouch);
+        if (this.scene.pauseControls.check(this.touch.pos) ||
+        (this.scene.fullscreenControls && this.scene.fullscreenControls.check(this.touch.pos)) ||
+        (this.scene.settingsControls && this.scene.settingsControls.check(this.touch.pos)) ||
+        (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos)))
+            this.scene.game.canvas.style.cursor = "pointer",
+            this.enabled = !1;
+        else
+            this.scene.game.canvas.style.cursor = "default",
+            this.enabled = !0
     }
     update() {
         this.enabled && (this.updateTouch(this.touch),

@@ -3,9 +3,11 @@ const defaults = {
     cc: false,
     dark: false,
     di: true,
+    di_size: 10,
     feats: true,
     isometric: false,
     move: false,
+    snapshots: 10,
     cloud: {
         dismissed: false,
         notification: sessionStorage.getItem("lite_version")
@@ -22,6 +24,7 @@ window.lite = new class Lite {
         this.icon = document.createElement("div"),
         this.interface = document.createElement("div"),
         this.stylesheet = document.createElement("link"),
+        document.body = document.body || document.documentElement,
         this.createIcon(),
         this.createInterface(),
         this.createStyleSheet(),
@@ -103,33 +106,28 @@ window.lite = new class Lite {
         for (const t in this.vars) {
             let element = this.interface.querySelector("#" + t);
             if (element) {
-                if (t == "cc") {
-                    element.parentElement.onclick = element.onchange = () => {
-                        element.style.background = element.value || "#000000",
-                        this.setVar(t, element.value),
-                        element.click()
-                    }
-                    continue
-                }
-                element.parentElement.onclick = element.onclick = () => {
-                    element.checked = !element.checked,
-                    this.setVar(t, !this.getVar(t));
-                    if (t == "dark")
-                        GameManager.game.currentScene.track.undraw(),
-                        document.querySelector(".lite.icon").style["background-color"] = this.getVar("dark") ? "#1d1d1d" : "#ffffff",
-                        document.querySelector(".lite.icon").style.fill = this.getVar("dark") ? "#ffffff" : "#1d1d1d";
+                element.parentElement.onclick = () => element.click();
+                element.oninput = () => {
+                    if (t == "cc") return this.setVar(t, element.value), element.style.background = this.getVar(t) || "#000000"
+                    else if (t == "snapshots") return this.setVar(t, element.value), element.parentElement.querySelector(".name").innerText = "Snapshot Count (" + this.getVar(t) + ")";
+                    else if (t == "di_size") return this.setVar(t, element.value), element.parentElement.querySelector(".name").innerText = "Input display size (" + this.getVar(t) + ")";
+                    this.setVar(t, !this.getVar(t)),
+                    element.checked = this.getVar(t),
+                    this.icon.style["background-color"] = this.getVar("dark") ? "#1d1d1d" : "#ffffff",
+                    this.icon.style.fill = this.getVar("dark") ? "#ffffff" : "#1d1d1d",
+                    GameManager.game && GameManager.game.currentScene.redraw()
                 }
             }
         }
         let loc = location.pathname;
         window.onclick = () => {
             if (location.pathname != loc) {
-                this.initCustomization();
                 loc = location.pathname;
+                this.initCustomization()
             }
         }
         window.onpopstate = () => {
-            this.initCustomization();
+            this.initCustomization()
         }
     }
     createIcon() {
@@ -180,23 +178,34 @@ window.lite = new class Lite {
             <p style="text-align: center;"><b>Free Rider Lite</b></p><br>
             <div class="lite-tabs">
                 <button class="tablinks" name="options" onclick="[...document.querySelectorAll('.lite.overlay .lite-content')].forEach(t => t.style.display = 'none'), document.querySelector('.lite.overlay .lite-content.options').style.display = 'block'">Options</button>
+                <button class="tablinks" name="options" onclick="[...document.querySelectorAll('.lite.overlay .lite-content')].forEach(t => t.style.display = 'none'), document.querySelector('.lite.overlay .lite-content.advanced').style.display = 'block'">Advanced Options</button>
                 <button class="tablinks" name="changes" onclick="[...document.querySelectorAll('.lite.overlay .lite-content')].forEach(t => t.style.display = 'none'), document.querySelector('.lite.overlay .lite-content.changes').style.display = 'block', this.lastElementChild.style.display = 'none', lite.setVar('cloud', { dismissed: true, notification: '4.0.22' })">
                     Changes
-                    <p class="lite-notification new" style="display: ${(!this.getVar("cloud").dismissed && this.getVar("cloud").notification <= "4.0.22") ? "inline-block" : "none"}">NEW!</p>
+                    <p class="lite-notification new" style="display: ${(!this.getVar("cloud").dismissed && this.getVar("cloud").notification <= "4.0.23") ? "inline-block" : "none"}">NEW!</p>
                 </button>
             </div>
             <div class="lite-content options">
-                <div class="option" title="Custom rider cosmetic"><input type="checkbox" id="cr" ${this.getVar("cr") ? "checked" : ""}> Canvas rider</div>
-                <div class="option" title="Toggle dark mode"><input type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}> Dark mode</div>
-                <div class="option" title="Toggle an input display"><input type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}> Input display</div>
-                <div class="option" title="Displays featured ghosts on the leaderboard"><input type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}> Feat. ghosts</div>
+                <div class="option" title="Custom rider cosmetic"><input type="checkbox" id="cr" ${this.getVar("cr") ? "checked" : ""}>Canvas rider</div>
+                <div class="option" title="Toggle dark mode"><input type="checkbox" id="dark" ${this.getVar("dark") ? "checked" : ""}>Dark mode</div>
+                <div class="option" title="Toggle an input display"><input type="checkbox" id="di" ${this.getVar("di") ? "checked" : ""}>Input display</div>
+                <div class="option" title="Displays featured ghosts on the leaderboard"><input type="checkbox" id="feats" ${this.getVar("feats") ? "checked" : ""}>Feat. ghosts</div>
                 <div class="option" title="Change grid style"><input type="checkbox" id="isometric" ${this.getVar("isometric") ? "checked" : ""}> Isometric grid</div>
-                <div class="option" title="Customize your bike frame"><input type="color" id="cc" value="${this.getVar("cc") || "#000000"}" style="background: ${this.getVar("cc") || "#000000"}"> Custom bike colour</div>
+                <div class="option" title="Customize your bike frame"><input type="color" id="cc" value="${this.getVar("cc") || "#000000"}" style="background: ${this.getVar("cc") || "#000000"}">Custom bike colour</div>
+            </div>
+            <div class="lite-content advanced" style="display:none">
+                <div class="option" title="Change the size of the input display"><span class="name" style="background-color:rgba(0,0,0,0)">Input display size (${this.getVar("di_size") || "10"})</span><br><input type="range" id="di_size" min="1" max="10" value="${this.getVar("di_size") || "10"}" style="padding:0"></div>
+                <div class="option" title="Change the number of snaphsots shown on checkpoints"><span class="name" style="background-color:rgba(0,0,0,0)">Snapshot Count (${this.getVar("snapshots") || "10"})</span><br><input type="range" id="snapshots" min="0" max="15" value="${this.getVar("snapshots") || "10"}" style="padding:0"></div>
             </div>
             <div class="lite-content changes" style="display:none">
                 <ul>
                     <li title="Normally, you could only see them from your own.">
                         Added the ability to see the last time a user has logged in from other's friends lists
+                    </li>
+                    <li title="See the advanced tab for more details.">
+                        Added the advanced tab with extra settings. Maily resizing and such
+                    </li>
+                    <li title="Work in progress...">
+                        Replacing createjs library (programmers' update)
                     </li>
                 </ul>
             </div>
@@ -236,82 +245,62 @@ window.lite = new class Lite {
     drawInputDisplay(canvas = document.createElement('canvas')) {
         const gamepad = GameManager.game.currentScene.playerManager._players[GameManager.game.currentScene.camera.focusIndex]._gamepad.downButtons;
         const ctx = canvas.getContext('2d');
+
+        let size = parseInt(this.getVar("di_size"));
+        let dark = this.getVar("dark");
+        let offset = {
+            x: size,
+            y: canvas.height - size * 10
+        }
+
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = this.getVar("dark") ? "#fff" : "#000000";
-        ctx.fillStyle = this.getVar("dark") ? "#fff" : "#000000";
+        ctx.lineWidth = size / 2;
+        ctx.strokeStyle = dark ? "#fff" : "#000000";
+        ctx.fillStyle = dark ? "#fff" : "#000000";
+
+        ctx.strokeRect(offset.x, offset.y, size * 4, size * 4);
+        gamepad.z && ctx.fillRect(offset.x, offset.y, size * 4, size * 4);
+        ctx.strokeRect(offset.x + 5 * size, offset.y, size * 4, size * 4);
+        gamepad.up && ctx.fillRect(offset.x + 5 * size, offset.y, size * 4, size * 4);
+        ctx.strokeRect(offset.x, offset.y + 5 * size, size * 4, size * 4);
+        gamepad.left && ctx.fillRect(offset.x, offset.y + 5 * size, size * 4, size * 4);
+        ctx.strokeRect(offset.x + 5 * size, offset.y + 5 * size, size * 4, size * 4);
+        gamepad.down && ctx.fillRect(offset.x + 5 * size, offset.y + 5 * size, size * 4, size * 4);
+        ctx.strokeRect(offset.x + 10 * size, offset.y + 5 * size, size * 4, size * 4);
+        gamepad.right && ctx.fillRect(offset.x + 10 * size, offset.y + 5 * size, size * 4, size * 4);
+
+        ctx.lineWidth = size / 3;
+        ctx.strokeStyle = gamepad.z ? (dark ? "#000000" : "#fff") : (dark ? "#fff" : "#000000");
         ctx.beginPath();
-        ctx.moveTo(10, canvas.height - 10);
-        ctx.lineTo(10, canvas.height - 50);
-        ctx.lineTo(50, canvas.height - 50);
-        ctx.lineTo(50, canvas.height - 10);
-        ctx.lineTo(10, canvas.height - 10);
-        !!gamepad.left && ctx.fill();
+        ctx.moveTo(offset.x + 2.7 * size, offset.y + 3 * size);
+        ctx.lineTo(offset.x + 1.2 * size, offset.y + 3 * size);
+        ctx.lineTo(offset.x + 2.7 * size, offset.y + 1 * size);
+        ctx.lineTo(offset.x + 1.2 * size, offset.y + 1 * size);
         ctx.stroke();
+        ctx.strokeStyle = gamepad.up ? (dark ? "#000000" : "#fff") : (dark ? "#fff" : "#000000");
         ctx.beginPath();
-        ctx.moveTo(10, canvas.height - 60);
-        ctx.lineTo(10, canvas.height - 100);
-        ctx.lineTo(50, canvas.height - 100);
-        ctx.lineTo(50, canvas.height - 60);
-        ctx.lineTo(10, canvas.height - 60);
-        !!gamepad.z && ctx.fill();
+        ctx.moveTo(offset.x + 6.2 * size, offset.y + 2.7 * size);
+        ctx.lineTo(offset.x + 7 * size, offset.y + 1.2 * size);
+        ctx.lineTo(offset.x + 7.8 * size, offset.y + 2.7 * size);
         ctx.stroke();
+        ctx.strokeStyle = gamepad.left ? (dark ? "#000000" : "#fff") : (dark ? "#fff" : "#000000");
         ctx.beginPath();
-        ctx.moveTo(60, canvas.height - 60);
-        ctx.lineTo(60, canvas.height - 100);
-        ctx.lineTo(100, canvas.height - 100);
-        ctx.lineTo(100, canvas.height - 60);
-        ctx.lineTo(60, canvas.height - 60);
-        !!gamepad.up && ctx.fill();
+        ctx.moveTo(offset.x + 2.5 * size, offset.y + 7.8 * size);
+        ctx.lineTo(offset.x + 1.2 * size, offset.y + 7 * size);
+        ctx.lineTo(offset.x + 2.5 * size, offset.y + 6.2 * size);
         ctx.stroke();
+        ctx.strokeStyle = gamepad.down ? (dark ? "#000000" : "#fff") : (dark ? "#fff" : "#000000");
         ctx.beginPath();
-        ctx.moveTo(60, canvas.height - 10);
-        ctx.lineTo(60, canvas.height - 50);
-        ctx.lineTo(100, canvas.height - 50);
-        ctx.lineTo(100, canvas.height - 10);
-        ctx.lineTo(60, canvas.height - 10);
-        !!gamepad.down && ctx.fill();
+        ctx.moveTo(offset.x + 6.2 * size, offset.y + 6.2 * size);
+        ctx.lineTo(offset.x + 7 * size, offset.y + 7.8 * size);
+        ctx.lineTo(offset.x + 7.8 * size, offset.y + 6.2 * size);
         ctx.stroke();
+        ctx.strokeStyle = gamepad.right ? (dark ? "#000000" : "#fff") : (dark ? "#fff" : "#000000");
         ctx.beginPath();
-        ctx.moveTo(110, canvas.height - 10);
-        ctx.lineTo(110, canvas.height - 50);
-        ctx.lineTo(150, canvas.height - 50);
-        ctx.lineTo(150, canvas.height - 10);
-        ctx.lineTo(110, canvas.height - 10);
-        !!gamepad.right && ctx.fill();
-        ctx.stroke();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = !!gamepad.left ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
-        ctx.beginPath();
-        ctx.moveTo(35, canvas.height - 38);
-        ctx.lineTo(22, canvas.height - 30);
-        ctx.lineTo(35, canvas.height - 22);
-        ctx.stroke();
-        ctx.strokeStyle = !!gamepad.z ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
-        ctx.beginPath();
-        ctx.moveTo(22, canvas.height - 90);
-        ctx.lineTo(37, canvas.height - 90);
-        ctx.lineTo(22, canvas.height - 70);
-        ctx.lineTo(37, canvas.height - 70);
-        ctx.stroke();
-        ctx.strokeStyle = !!gamepad.up ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
-        ctx.beginPath();
-        ctx.moveTo(72, canvas.height - 72);
-        ctx.lineTo(80, canvas.height - 88);
-        ctx.lineTo(88, canvas.height - 72);
-        ctx.stroke();
-        ctx.strokeStyle = !!gamepad.down ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
-        ctx.beginPath();
-        ctx.moveTo(72, canvas.height - 37);
-        ctx.lineTo(80, canvas.height - 22);
-        ctx.lineTo(88, canvas.height - 37);
-        ctx.stroke();
-        ctx.strokeStyle = !!gamepad.right ? (this.getVar("dark") ? "#000000" : "#fff") : (this.getVar("dark") ? "#fff" : "#000000");
-        ctx.beginPath();
-        ctx.moveTo(125, canvas.height - 38);
-        ctx.lineTo(138, canvas.height - 30);
-        ctx.lineTo(125, canvas.height - 22);
+        ctx.moveTo(offset.x + 11.5 * size, offset.y + 7.8 * size);
+        ctx.lineTo(offset.x + 12.8 * size, offset.y + 7 * size);
+        ctx.lineTo(offset.x + 11.5 * size, offset.y + 6.2 * size);
         ctx.stroke();
     }
     saveToLocalStorage() {

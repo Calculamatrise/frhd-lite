@@ -141,21 +141,35 @@ export default class extends Vehicle {
         t.restore()
     }
     clone() {
-        const t = this.scene.game.canvas.getContext("2d");
-        let op = 0;
+        const ctx = this.scene.game.canvas.getContext("2d");
+        let t = 0;
+        let e = lite.getVar("snapshots");
+        if (e < 1) return;
         for (const checkpoint in this.player._checkpoints) {
-            if (checkpoint > this.player._checkpoints.length - 11) {
-                t.globalAlpha = .03 * ++op,
-                this.drawBalloon(t, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle)),
-                t.globalAlpha = 1
+            if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {
+                try {
+                    if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._tempVehicle) {
+                        ctx.globalAlpha = e / 3e2 * ++t % 1,
+                        this.drawBalloon(ctx, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle)),
+                        ctx.globalAlpha = 1
+                    }
+                } catch(e) {
+                    console.error(e, this.player._checkpoints, checkpoint)
+                }
             }
         }
-        op = 0;
+        t = 0;
         for (const checkpoint in this.player._cache) {
-            if (checkpoint > this.player._cache.length - 11) {
-                t.globalAlpha = .03 * ++op,
-                this.drawBalloon(t, JSON.parse(this.player._cache[checkpoint]._tempVehicle)),
-                t.globalAlpha = 1
+            if (checkpoint > this.player._cache.length - (parseInt(e) + 1)) {
+                try {
+                    if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._tempVehicle) {
+                        ctx.globalAlpha = e / 3e2 * ++t % 1,
+                        this.drawBalloon(ctx, JSON.parse(this.player._cache[checkpoint]._tempVehicle)),
+                        ctx.globalAlpha = 1
+                    }
+                } catch(e) {
+                    console.error(e, this.player._cache, checkpoint)
+                }
             }
         }
     }

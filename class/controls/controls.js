@@ -1,6 +1,12 @@
-import s from "../../libs/lodash.js";
-
 export default class {
+    constructor(t) {
+        this.scene = t,
+        this.game = t.game,
+        this.assets = t.assets,
+        this.settings = t.settings,
+        this.mouse = t.mouse,
+        this.playerManager = t.playerManager
+    }
     defaultControlOptions = {
         visible: !0
     }
@@ -10,31 +16,10 @@ export default class {
     game = null;
     scene = null;
     settings = null;
-    stage = null;
     controlsContainer = null;
     controlsSprite = null;
     gamepad = null;
-    initialize(t) {
-        this.scene = t,
-        this.game = t.game,
-        this.assets = t.assets,
-        this.settings = t.settings,
-        this.stage = t.game.stage,
-        this.mouse = t.mouse,
-        this.playerManager = t.playerManager,
-        this.createSprite(),
-        this.addControls(),
-        this.resize()
-    }
     addControls() {}
-    createSprite() {
-        var t = this.scene.assets.getResult(this.name)
-            , e = this.controlsSpriteSheetData;
-        e.images = [t];
-        var i = new createjs.SpriteSheet(e)
-            , s = new createjs.Sprite(i);
-        this.controlsSprite = s
-    }
     isVisible() {
         return this.controlsContainer.visible
     }
@@ -47,92 +32,56 @@ export default class {
     setVisibility(t) {
         this.controlsContainer.visible = t
     }
-    createControl(t) {
-        var e = this.controlsSprite
-            , i = s.extend({}, this.defaultControlOptions, this.controlData[t])
-            , n = e.clone();
-        n.gotoAndStop(t),
-        n.buttonDetails = i,
-        n.cursor = "pointer",
-        n.on("mousedown", this.controlDown.bind(this)),
-        n.on("pressup", this.controlUp.bind(this)),
-        n.on("mouseover", this.mouseOver.bind(this)),
-        n.on("mouseout", this.mouseOut.bind(this));
-        var r = n.getBounds();
-        if (n.regX = r.width / 2,
-        n.regY = r.height / 2,
-        n.alpha = .5,
-        n.name = t,
-        n.visible = i.visible,
-        i.hitArea) {
-            var o = i.hitArea
-                , a = new createjs.Shape;
-            o.radius ? a.graphics.beginFill("#000").drawCircle(o.x, o.y, o.radius) : a.graphics.beginFill("#000").drawRect(o.x, o.y, o.width, o.height),
-            n.hitArea = a
-        }
-        return n
-    }
     mouseOver(t) {
-        var e = t.target;
-        e.alpha = .8,
+        t.target.alpha = .8,
         this.mouse.enabled = !1
     }
     mouseOut(t) {
-        var e = t.target;
-        e.alpha = .5,
+        t.target.alpha = .5,
         this.mouse.enabled = !0
     }
     controlDown(t) {
-        var e = t.target
-            , i = e.buttonDetails
-            , s = this.playerManager.firstPlayer.getGamepad();
-        if (i.key) {
-            var n = i.key;
-            s.setButtonDown(n)
+        let e = this.playerManager.firstPlayer.getGamepad();
+        if (t.target.buttonDetails.key) {
+            e.setButtonDown(t.target.buttonDetails.key)
         }
-        if (i.keys)
-            for (var r = i.keys, o = r.length, a = 0; o > a; a++) {
-                var n = r[a];
-                s.setButtonDown(n)
+        if (t.target.buttonDetails.keys)
+            for (var r = t.target.buttonDetails.keys, o = r.length, a = 0; o > a; a++) {
+                e.setButtonDown(r[a])
             }
-        i.downCallback && i.downCallback(t),
+            t.target.buttonDetails.downCallback && t.target.buttonDetails.downCallback(t),
         this.settings.mobile && (this.mouse.enabled = !1),
-        e.alpha = 1
+        t.target.alpha = 1
     }
     controlUp(t) {
-        var e = t.target
-            , i = e.buttonDetails
-            , s = this.playerManager.firstPlayer.getGamepad();
-        if (i.key) {
-            var n = i.key;
-            s.setButtonUp(n)
+        let e = this.playerManager.firstPlayer.getGamepad();
+        if (t.target.buttonDetails.key) {
+            e.setButtonUp(t.target.buttonDetails.key)
         }
-        if (i.keys)
-            for (var r = i.keys, o = r.length, a = 0; o > a; a++) {
-                var n = r[a];
-                s.setButtonUp(n)
+        if (t.target.buttonDetails.keys)
+            for (var r = t.target.buttonDetails.keys, o = r.length, a = 0; o > a; a++) {
+                e.setButtonUp(r[a])
             }
-        i.upCallback && i.upCallback(t),
+            t.target.buttonDetails.upCallback && t.target.buttonDetails.upCallback(t),
         this.settings.mobile ? (this.mouse.enabled = !0,
-        e.alpha = .5) : e.alpha = .8
+            t.target.alpha = .5) : t.target.alpha = .8
     }
     close() {}
     update() {}
     resize() {
-        var t = this.scene.game
-            , e = (this.scene.screen,
-        t.width)
-            , i = t.height
-            , s = t.pixelRatio
-            , n = this.controlsContainer.children;
-        for (var r in n) {
-            var o = n[r]
-                , a = o.buttonDetails;
-            a.bottom && (o.y = i - a.bottom * (s / 2)),
-            a.left && (o.x = a.left * (s / 2)),
-            a.right && (o.x = e - a.right * (s / 2)),
-            a.top && (o.y = a.top * (s / 2)),
-            o.scaleX = o.scaleY = s / 2
+        if (!this.controlsContainer) return;
+        for (const t in this.controlsContainer.children) {
+            this.controlsContainer.children[t].buttonDetails.bottom && (this.controlsContainer.children[t].y = this.scene.game.height - this.controlsContainer.children[t].buttonDetails.bottom * (this.scene.game.pixelRatio / 2)),
+            this.controlsContainer.children[t].buttonDetails.left && (this.controlsContainer.children[t].x = this.controlsContainer.children[t].buttonDetails.left * (this.scene.game.pixelRatio / 2)),
+            this.controlsContainer.children[t].buttonDetails.right && (this.controlsContainer.children[t].x = this.scene.game.width - this.controlsContainer.children[t].buttonDetails.right * (this.scene.game.pixelRatio / 2)),
+            this.controlsContainer.children[t].buttonDetails.top && (this.controlsContainer.children[t].y = this.controlsContainer.children[t].buttonDetails.top * (this.scene.game.pixelRatio / 2)),
+            this.controlsContainer.children[t].scaleX = this.controlsContainer.children[t].scaleY = this.scene.game.pixelRatio / 2
         }
+    }
+    check(t) {
+        if (t.x > this.container.x && t.x < this.container.x + 38 && t.y > this.container.y && t.y < this.container.y + 38) {
+            return true;
+        }
+        return false;
     }
 }

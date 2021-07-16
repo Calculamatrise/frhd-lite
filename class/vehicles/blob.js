@@ -149,17 +149,30 @@ export default class extends Vehicle {
         }
     }
     clone() {
-        let op = 0;
+        let t = 0;
+        let e = lite.getVar("snapshots");
+        if (e < 1) return;
         for (const checkpoint in this.player._checkpoints) {
-            if (checkpoint > this.player._checkpoints.length - 11) {
-                console.log(this, JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle))
-                this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), .03 * ++op);
+            if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {
+                try {
+                    if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._tempVehicle) {
+                        this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
+                    }
+                } catch(e) {
+                    console.error(e, this.player._checkpoints, checkpoint)
+                }
             }
         }
-        op = 0;
+        t = 0;
         for (const checkpoint in this.player._cache) {
-            if (checkpoint > this.player._cache.length - 11) {
-                this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), .03 * ++op);
+            if (checkpoint > this.player._cache.length - (parseInt(e) + 1)) {
+                try {
+                    if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._tempVehicle) {
+                        this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
+                    }
+                } catch(e) {
+                    console.error(e, this.player._cache, checkpoint)
+                }
             }
         }
     }

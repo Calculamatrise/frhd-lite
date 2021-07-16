@@ -25,21 +25,20 @@ export default class {
             text: "-- : --.--"
         }
     }
-    container = null
-    cached = !1
-    scene = null
-    state = null
+    container = null;
+    cached = !1;
+    scene = null;
+    state = null;
     offset = {
         y: 0,
         x: 0
     }
     update() {
-        this.cached === !1 && this.scene.ticks > 50 && (this.cached = !0, this.cache_fixed_text());
+        this.cached === !1 && this.scene.ticks > 50 && (this.cached = !0);
         this.time.text = format(1e3 * this.scene.ticks / this.scene.settings.drawFPS);
         this.goals.text = this.scene.playerManager.firstPlayer.getTargetsHit() + "/" + this.scene.track.targetCount;
-        let l = "-- : --.--";
-        this.scene.settings.isCampaign && this.scene.settings.campaignData.user.best_time ? l = this.scene.settings.campaignData.user.best_time : this.scene.settings.userTrackStats && this.scene.settings.userTrackStats.best_time && (l = this.scene.settings.userTrackStats.best_time),
-        this.best_time.text = l,
+        this.best_time.text = "-- : --.--";
+        this.scene.settings.isCampaign && this.scene.settings.campaignData.user.best_time ? this.best_time.text = this.scene.settings.campaignData.user.best_time : this.scene.settings.userTrackStats && this.scene.settings.userTrackStats.best_time && (this.best_time.text = this.scene.settings.userTrackStats.best_time),
         this.scene.settings.mobile && this.center_container();
     }
     draw() {
@@ -62,14 +61,7 @@ export default class {
         ctx.fillText(this.goals.text, this.container.x + (GameManager.scene == "Editor" ? 184 : 194), this.container.y + 20);
     }
     center_container() {
-        let t = this.container.getBounds();
-        this.container.x = this.scene.screen.width / 2 - t.width / 2 * this.container.scaleY,
+        this.container.x = this.scene.screen.width * this.container.scaleY,
         this.container.y = 10 * this.scene.game.pixelRatio
-    }
-    cache_fixed_text() {
-        let t = this.best_time_title.getBounds();
-        this.best_time_title.cache(t.x, t.y, t.width, t.height + 10),
-        t = this.time_title.getBounds(),
-        this.time_title.cache(t.x, t.y, t.width, t.height + 10)
     }
 }

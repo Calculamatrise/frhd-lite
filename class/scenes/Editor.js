@@ -1,7 +1,5 @@
 import b from "../controls/pause.js";
-import _ from "../controls/phone.js";
 import T from "../controls/redoundo.js";
-import x from "../controls/tablet.js";
 import p from "../tools/brushtool.js";
 import l from "../tools/cameratool.js";
 import c from "../tools/curvetool.js";
@@ -26,7 +24,6 @@ export default class {
     constructor(t) {
         this.game = t;
         this.assets = t.assets;
-        this.stage = t.stage;
         this.settings = t.settings;
         this.sound = new C(this);
         this.mouse = new s(this);
@@ -51,7 +48,6 @@ export default class {
     }
     game = null;
     assets = null;
-    stage = null;
     canvas = null;
     settings = null;
     camera = null;
@@ -153,10 +149,6 @@ export default class {
         this.playerManager.addPlayer(e)
     }
     createControls() {
-        "tablet" === this.settings.controls && (this.controls = new x(this),
-        this.controls.hide()),
-        "phone" === this.settings.controls && (this.controls = new _(this),
-        this.controls.hide()),
         this.redoundoControls = new T(this),
         this.pauseControls = new b(this)
     }
@@ -222,9 +214,8 @@ export default class {
         this.vehicleTimer.update(),
         (this.importCode || this.clear) && this.createTrack(),
         this.isStateDirty() && this.updateState(),
-        this.stage.clear(),
+        this.game.canvas.getContext("2d").clearRect(0, 0, this.game.canvas.width, this.game.canvas.height),
         this.draw(),
-        this.stage.update(),
         this.camera.updateZoom()
     }
     isStateDirty() {
@@ -296,9 +287,7 @@ export default class {
     }
     toggleFullscreen() {
         if (this.settings.embedded) {
-            var t = this.settings
-                , e = t.basePlatformUrl + "/t/" + t.track.url;
-            window.open(e)
+            window.open(this.settings.basePlatformUrl + "/t/" + this.settings.track.url)
         } else
             this.settings.fullscreenAvailable && (this.settings.fullscreen = this.state.fullscreen = !this.settings.fullscreen)
     }
@@ -313,6 +302,8 @@ export default class {
         this.track.draw(),
         this.drawPlayers(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
+        this.redoundoControls.draw(),
+        this.pauseControls.draw(),
         this.state.loading && this.loadingcircle.draw(),
         this.message.draw(),
         this.score.draw(),
@@ -533,7 +524,6 @@ export default class {
         this.game = null,
         this.assets = null,
         this.settings = null,
-        this.stage = null,
         this.track = null,
         this.state = null,
         this.stopAudio()

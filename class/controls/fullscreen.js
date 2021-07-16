@@ -2,8 +2,20 @@ import Controls from "./controls.js";
 
 export default class extends Controls {
     constructor(t) {
-        super();
-        this.initialize(t);
+        super(t);
+        this.container = {
+            parent: this,
+            alpha: .8,
+            image: 154,
+            scaleX: this.scene.game.pixelRatio / 2.5,
+            scaleY: this.scene.game.pixelRatio / 2.5,
+            get x() {
+                return this.parent.scene.screen.width - 95
+            },
+            get y() {
+                return 25 * this.parent.scene.game.pixelRatio / 2.5
+            }
+        }
     }
     name = "fullscreen_controls";
     fullscreenControl = null;
@@ -25,15 +37,16 @@ export default class extends Controls {
         }
     }
     update() {
-        var t = this.scene.settings.fullscreen;
-        this.fullscreen !== t && (this.fullscreenControl.gotoAndStop(t ? "exit_fullscreen_btn-hover" : "fullscreen_btn-hover"),
-        this.fullscreen = t)
+        this.fullscreen !== this.scene.settings.fullscreen && (this.fullscreen = this.scene.settings.fullscreen)
     }
-    addControls() {
-        var t = new createjs.Container;
-        t.addChild(this.createControl("fullscreen_btn-hover")),
-        this.controlsContainer = t,
-        this.fullscreenControl = t.getChildByName("fullscreen_btn-hover"),
-        this.stage.addChild(t)
+    draw() {
+        let frame = this.controlsSpriteSheetData.frames[this.controlsSpriteSheetData.animations[(this.fullscreen ? "exit_fullscreen_btn" : "fullscreen_btn") + (this.mouse.touch.pos.x < this.container.x + 76 / 2 && this.mouse.touch.pos.x > this.container.x && this.mouse.touch.pos.y < this.container.y + 76 / 2 && this.mouse.touch.pos.y > this.container.y ? "-hover" : "")]];
+        const ctx = this.scene.game.canvas.getContext("2d");
+        ctx.globalAlpha = this.container.alpha;
+        ctx.drawImage(this.scene.assets.getResult("fullscreen_controls"), frame[0], frame[1], frame[2], frame[3], this.container.x, this.container.y, 40, 40);
+        ctx.globalAlpha = 1;
+    }
+    click() {
+        this.scene.game.settings.fullscreen = !this.scene.game.settings.fullscreen;
     }
 }

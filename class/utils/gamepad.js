@@ -146,8 +146,7 @@ export default class {
     updateRecording() {
         var t = this.scene.ticks
           , e = this.records
-          , i = (this.keymap,
-        this.keysToRecord)
+          , i = this.keysToRecord
           , s = this.tickDownButtons
           , n = this.previousTickDownButtons;
         for (var r in i) {

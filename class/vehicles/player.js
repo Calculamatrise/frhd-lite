@@ -120,7 +120,7 @@ export default class {
     }
     createTempVehicle(t, e, i, s) {
         if (this._temp_vehicle_options) {
-            var n = this._temp_vehicle_options;
+            let n = this._temp_vehicle_options;
             t = n.type,
             e = n.ticks,
             i = n.position,
@@ -152,51 +152,39 @@ export default class {
         }
     }
     isInFocus() {
-        var t = this._scene.camera
-          , e = !1;
-        return t.playerFocus && t.playerFocus === this && (e = !0),
+        let e = !1;
+        return this._scene.camera.playerFocus && this._scene.camera.playerFocus === this && (e = !0),
         e
     }
     updateOpacity() {
-        var t = 1
-          , e = this._scene.camera;
-        if (e.playerFocus && e.playerFocus !== this) {
-            var i = this.getDistanceBetweenPlayers(e.playerFocus);
+        let t = 1;
+        if (this._scene.camera.playerFocus && this._scene.camera.playerFocus !== this) {
+            var i = this.getDistanceBetweenPlayers(this._scene.camera.playerFocus);
             1200 > i && (t = Math.min(i / 500, 1))
         }
         this._opacity = t
     }
     drawName() {
-        var t = this._scene
-          , e = (t.settings,
-        this._color)
-          , i = this._user.d_name
-          , s = t.game
-          , n = t.camera.zoom
-          , r = s.pixelRatio
-          , o = s.canvas
-          , a = o.getContext("2d")
-          , h = this._opacity
+        const ctx = this._scene.game.canvas.getContext("2d")
           , l = this.getActiveVehicle()
-          , c = l.focalPoint.pos.toScreen(t);
-        a.globalAlpha = h,
-        a.beginPath(),
-        a.fillStyle = e,
-        a.moveTo(c.x, c.y - 40 * n),
-        a.lineTo(c.x - 5 * n, c.y - 50 * n),
-        a.lineTo(c.x + 5 * n, c.y - 50 * n),
-        a.lineTo(c.x, c.y - 40 * n),
-        a.fill();
-        var u = 9 * r * Math.max(n, 1);
-        a.font = u + "pt helsinki",
-        a.textAlign = "center",
-        a.fillStyle = e,
-        a.fillText(i, c.x, c.y - 60 * n),
-        a.globalAlpha = 1
+          , c = l.focalPoint.pos.toScreen(this._scene);
+        ctx.globalAlpha = this._opacity,
+        ctx.beginPath(),
+        ctx.fillStyle = this._color,
+        ctx.moveTo(c.x, c.y - 40 * this._scene.camera.zoom),
+        ctx.lineTo(c.x - 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
+        ctx.lineTo(c.x + 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
+        ctx.lineTo(c.x, c.y - 40 * this._scene.camera.zoom),
+        ctx.fill();
+        ctx.font = (9 * this._scene.game.pixelRatio * Math.max(this._scene.camera.zoom, 1)) + "pt helsinki",
+        ctx.textAlign = "center",
+        ctx.fillStyle = this._color,
+        ctx.fillText(this._user.d_name, c.x, c.y - 60 * this._scene.camera.zoom),
+        ctx.globalAlpha = 1
     }
     draw() {
         this.updateOpacity();
-        var t = this._baseVehicle;
+        let t = this._baseVehicle;
         this._tempVehicleTicks > 0 && (t = this._tempVehicle),
         this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
         t.draw(),
