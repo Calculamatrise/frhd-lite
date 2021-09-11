@@ -6,4 +6,4 @@ Extension: https://chrome.google.com/webstore/detail/mmmpacciomidmplocdcaheednke
 ## Features
 Night mode
 
-Calculus © 2020
+Calculus © 2021
