@@ -60,7 +60,7 @@ export default class extends Powerup {
         s.lineTo(0 * i, 95 * i),
         s.closePath(),
         s.fillStyle = "#826cdc",
-        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
+        s.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 8 * i,
         s.beginPath(),
         s.moveTo(3 * i, 10 * i),

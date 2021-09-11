@@ -2,7 +2,7 @@ let s = {},
     n = {},
     r = {};
 
-export default class GameInventoryManager {
+class GameInventoryManager {
     getItem(t) {
         let e = t.classname
           , i = t.script

@@ -9,9 +9,7 @@ export default class extends Mass {
         this.wind = !0;
     }
     drive(t, e) {
-        var i = this.pos
-            , s = this.vel;
-        i.x += .05 * t * -t * (t * s.x + e * s.y),
+        this.pos.x += .05 * t * -t * (t * this.vel.x + e * this.vel.y),
         this.contact = !0
     }
     update() {
@@ -45,7 +43,7 @@ export default class extends Mass {
             , i = this.pos.toScreen(e)
             , s = this.radius * e.camera.zoom;
         t.beginPath(),
-        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        t.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
         t.arc(i.x, i.y, s, 0, 2 * Math.PI, !1),
         t.closePath(),
         t.fill()

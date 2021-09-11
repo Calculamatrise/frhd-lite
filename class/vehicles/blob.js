@@ -64,8 +64,7 @@ export default class extends Vehicle {
         this.explosion)
             this.explosion.update();
         else {
-            var t = this.masses
-                , e = t.length;
+            let t = this.masses;
             for (const t of this.masses)
                 t.update();
             for (const t of this.springs)
@@ -78,15 +77,14 @@ export default class extends Vehicle {
                 for (const t of this.springs)
                     t.update();
             }
-            var r = 0
-                , o = 0;
+            let r = 0,
+                o = 0;
             for (const t of this.masses)
                 r += t.pos.x,
                 o += t.pos.y;
-            var a = this.head;
-            a.pos.x = .25 * r,
-            a.pos.y = .25 * o,
-            a.vel = t[0].vel
+            this.head.pos.x = .25 * r,
+            this.head.pos.y = .25 * o,
+            this.head.vel = t[0].vel
         }
     }
     updateSound() {
@@ -134,8 +132,8 @@ export default class extends Vehicle {
                 , a = new n(e[3].pos.x, e[3].pos.y).toScreen(i);
             t.globalAlpha = alpha,
             t.beginPath(),
-            t.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
-            t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+            t.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+            t.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
             t.lineWidth = 20 * s,
             t.lineCap = "round",
             t.moveTo(m.x, m.y),
@@ -150,7 +148,7 @@ export default class extends Vehicle {
     }
     clone() {
         let t = 0;
-        let e = lite.getVar("snapshots");
+        let e = inviolable.storage.get("snapshots");
         if (e < 1) return;
         for (const checkpoint in this.player._checkpoints) {
             if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {

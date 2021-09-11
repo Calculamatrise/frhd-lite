@@ -254,7 +254,7 @@ export default class extends Vehicle {
         i.addOut(c, c),
         n.subOut(c, c),
         o.globalAlpha = a,
-        o.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        o.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
         o.lineWidth = 3 * r,
         o.lineCap = "round",
         o.lineJoin = "round",
@@ -279,7 +279,7 @@ export default class extends Vehicle {
         o.fill(),
         o.stroke(),
         o.beginPath(),
-        o.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        o.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
         o.lineWidth = 5 * r,
         o.moveTo(i.x, i.y),
         o.lineTo(i.x + .4 * h.x + .05 * l.x, i.y + .4 * h.y + .05 * l.y),
@@ -289,7 +289,7 @@ export default class extends Vehicle {
         o.stroke(),
         o.beginPath(),
         o.lineWidth = 2 * r,
-        o.strokeStyle = window.lite.getVar("cc") || (window.lite.getVar("dark") ? "#fdfdfd" : "#000"),
+        o.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
         o.moveTo(i.x + .72 * h.x + .64 * c.x, i.y + .72 * h.y + .64 * c.y),
         o.lineTo(i.x + .43 * h.x + .05 * l.x, i.y + .43 * h.y + .05 * l.y),
         o.stroke(),
@@ -319,7 +319,7 @@ export default class extends Vehicle {
         o.moveTo(i.x + .43 * h.x + .05 * l.x + u.x, i.y + .43 * h.y + .05 * l.y + u.y),
         o.lineTo(i.x + .43 * h.x + .05 * l.x - u.x, i.y + .43 * h.y + .05 * l.y - u.y),
         o.stroke(),
-        o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000";
+        o.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000";
         if (self.crashed)
             self.ragdoll.draw && self.ragdoll.draw();
         else {
@@ -362,7 +362,7 @@ export default class extends Vehicle {
             var T = y.factor(.12);
             T.x = v.x + T.x + c.x * (50 / w),
             T.y = v.y + T.y + c.y * (50 / w),
-            o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfda5" : "rgba(0,0,0," + .5 * a + ")",
+            o.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfda5" : "rgba(0,0,0," + .5 * a + ")",
             o.lineWidth = 6 * r,
             o.beginPath(),
             o.moveTo(v.x, v.y),
@@ -375,7 +375,7 @@ export default class extends Vehicle {
             o.lineTo(T.x, T.y),
             o.stroke(),
             o.lineWidth = 6 * r,
-            o.strokeStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000000",
+            o.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000000",
             o.beginPath(),
             o.moveTo(f.x, f.y),
             o.lineTo(x.x, x.y),
@@ -413,14 +413,14 @@ export default class extends Vehicle {
             o.lineTo(P.x, P.y),
             o.lineTo(g.x, g.y),
             o.stroke();
-            var A = GameInventoryManager.getItem(window.lite.getVar("cr") ? window.lite.head : this.cosmetics.head);
+            var A = GameInventoryManager.getItem(window.inviolable.storage.get("cr") ? window.inviolable.head : this.cosmetics.head);
             A.draw(o, k.x, k.y, self.drawHeadAngle, r, self.dir),
             o.globalAlpha = 1
         }
     }
     cloneBikeFrame() {
         // this.player._checkpoints = this.player._checkpoints.slice(-101);
-        let t = lite.getVar("snapshots");
+        let t = inviolable.storage.get("snapshots");
         let e = 0;
         if (t < 1) return;
         for (const checkpoint in this.player._checkpoints) {

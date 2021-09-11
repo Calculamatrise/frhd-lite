@@ -49,7 +49,7 @@ export default class {
         ctx.closePath();
         ctx.stroke();
         ctx.fill();
-        ctx.fillStyle = lite.getVar("dark") ? "#fdfdfd" : "#000000";
+        ctx.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000000";
         ctx.font = "18px helsinki";
         ctx.fillText(this.timeText.text, this.container.x + 27, this.container.y + 20);
     }

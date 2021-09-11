@@ -97,6 +97,32 @@ export default class {
         this.addLines(s, this.addSceneryLine),
         this.addPowerups(n)
     }
+    move(x = 0, y = 0) {
+        for (const t in this.physicsLines)
+            this.physicsLines[t].p1.x -= x,
+            this.physicsLines[t].p1.y -= y,
+            this.physicsLines[t].p2.x -= x,
+            this.physicsLines[t].p2.y -= y,
+            this.addPhysicsLineToTrack(this.physicsLines[t]),
+            this.physicsLines.splice(i, 1);
+        for (const t in this.sceneryLines)
+            this.sceneryLines[t].p1.x -= x,
+            this.sceneryLines[t].p1.y -= y,
+            this.sceneryLines[t].p2.x -= x,
+            this.sceneryLines[t].p2.y -= y,
+            this.addSceneryLineToTrack(t),
+            this.sceneryLines.splice(i, 1);
+        for (const t in this.powerups) {
+            this.powerups[t].x -= x,
+            this.powerups[t].y -= y;
+            if (this.powerups[t].otherPortal)
+                this.powerups[t].otherPortal.x -= x,
+                this.powerups[t].otherPortal.y -= y;
+            this.addPowerup(this.powerups[t]),
+            this.powerups.splice(t, 1);
+        }
+        this.scene.redraw()
+    }
     addPowerups(t) {
         for (var e = t.length, i = [], s = 0; e > s; s++)
             if (i = t[s].split(" "), i.length >= 2) {

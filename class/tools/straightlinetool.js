@@ -116,7 +116,7 @@ export default class extends Tool {
             var s = this.p1.getAngleInDegrees(this.p2);
             s = s.toFixed(2);
             var n = this.game.pixelRatio;
-            t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+            t.fillStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
             t.font = 8 * n + "pt arial",
             t.fillText("" + s + "°", i.x + 10, i.y + 10),
             t.strokeText("" + s + "°", i.x + 10, i.y + 10)
@@ -128,7 +128,7 @@ export default class extends Tool {
           2 * e > .5 ? 2 * e : .5)
             , n = this.toolhandler
             , r = n.options.lineType
-            , o = "physics" === r ? window.lite.getVar("dark") ? "#fafafa" : "#000" : window.lite.getVar("dark") ? "#666" : "#AAA";
+            , o = "physics" === r ? window.inviolable.storage.get("dark") ? "#fafafa" : "#000" : window.inviolable.storage.get("dark") ? "#666" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

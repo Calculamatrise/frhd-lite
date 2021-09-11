@@ -144,7 +144,7 @@ export default class extends Tool {
             i = this.options.breakLength,
             s = this.options.trailSpeed,
             n = this.game.pixelRatio;
-        t.fillStyle = window.lite.getVar("dark") ? "#fdfdfd" : "#000",
+        t.fillStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
         t.font = 12 * n + "pt arial",
         t.fillText(e, 10 * n, 20 * n),
         t.font = 8 * n + "pt arial",
@@ -189,7 +189,7 @@ export default class extends Tool {
             s = 2 * e > .5 ? 2 * e : .5,
             n = this.toolhandler,
             r = n.options.lineType,
-            o = "physics" === r ? window.lite.getVar("dark") ? "#fff" : "#000" : window.lite.getVar("dark") ? "#777" : "#AAA";
+            o = "physics" === r ? window.inviolable.storage.get("dark") ? "#fff" : "#000" : window.inviolable.storage.get("dark") ? "#777" : "#AAA";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

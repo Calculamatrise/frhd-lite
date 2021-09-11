@@ -36,7 +36,8 @@ export default class {
             helicopters: [],
             trucks: [],
             balloons: [],
-            blobs: []
+            blobs: [],
+            gliders: []
         }
     }
     image = !1;
@@ -76,7 +77,7 @@ export default class {
     }
     addPowerup(t) {
         this.powerups.all.push(t);
-        if (["goal", "gravity", "slowmo", "boost", "checkpoint", "bomb", "antigravity", "teleport", "helicopter", "truck", "balloon", "blob"].includes(t.name)) {
+        if (["goal", "gravity", "slowmo", "boost", "checkpoint", "bomb", "antigravity", "teleport", "helicopter", "truck", "balloon", "blob", "glider"].includes(t.name)) {
             this.powerups[t.name + "s"].push(t);
         }
         this.powerupsCount++,
@@ -122,11 +123,11 @@ export default class {
         ctx.beginPath(),
         ctx.lineWidth = 2 * this.scene.camera.zoom > .5 ? 2 * this.scene.camera.zoom : .5,
         ctx.lineCap = "round",
-        ctx.strokeStyle = lite.getVar("dark") ? "#707070" : this.settings.sceneryLineColor,
+        ctx.strokeStyle = inviolable.storage.get("dark") ? "#707070" : this.settings.sceneryLineColor,
         this.drawLines(this.sceneryLines, this.scene.camera.zoom, ctx),
         ctx.stroke(),
         ctx.beginPath(),
-        ctx.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : this.settings.physicsLineColor,
+        ctx.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : this.settings.physicsLineColor,
         this.drawLines(this.physicsLines, this.scene.camera.zoom, ctx),
         ctx.stroke(),
         this.settings.developerMode && (ctx.beginPath(),
@@ -170,6 +171,7 @@ export default class {
             this.drawPowerups(this.powerups.trucks, this.scene.camera.zoom, ctx),
             this.drawPowerups(this.powerups.balloons, this.scene.camera.zoom, ctx),
             this.drawPowerups(this.powerups.blobs, this.scene.camera.zoom, ctx),
+            this.drawPowerups(this.powerups.gliders, this.scene.camera.zoom, ctx),
             this.settings.developerMode && (ctx.beginPath(),
             ctx.strokeStyle = "red",
             ctx.rect(0, 0, this.powerupCanvas.width, this.powerupCanvas.height),

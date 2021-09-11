@@ -104,7 +104,7 @@ export default class extends Powerup {
         s.restore(),
         s.restore(),
         s.save(),
-        s.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
+        s.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
         s.lineWidth = 2,
         s.beginPath(),
         s.moveTo(5, 1),

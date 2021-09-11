@@ -1,5 +1,5 @@
 import "../libs/createjs.js";
-import "./Lite.js";
+import "./Inviolable.js";
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
@@ -25,7 +25,7 @@ window.Game = class {
     fullscreen = !1;
     onStateChange = null;
     initCanvas() {
-        this.gameContainer = document.getElementById(this.settings.defaultContainerID),
+        this.gameContainer = document.getElementById(this.settings && this.settings.defaultContainerID),
         this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
     }
     setSize() {
@@ -59,8 +59,8 @@ window.Game = class {
     }
     update() {
         this.currentScene.update(),
-        this.canvas.style.background = lite.getVar("dark") ? "#1d1d1d" : "#fff",
-        lite.getVar("di") && lite.drawInputDisplay(this.canvas),
+        this.canvas.style.background = inviolable.storage.get("dark") ? "#1d1d1d" : "#fff",
+        inviolable.storage.get("di") && inviolable.drawInputDisplay(this.canvas),
         this.tickCount++
     }
     switchScene(t) {

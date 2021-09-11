@@ -14,10 +14,10 @@ export default class extends Tool {
     name = "vehiclepowerup";
     powerupTools = null;
     registerPowerupTools() {
-        this.registerTool(new s(this,this.toolhandler)),
-        this.registerTool(new n(this,this.toolhandler)),
-        this.registerTool(new r(this,this.toolhandler)),
-        this.registerTool(new o(this,this.toolhandler))
+        this.registerTool(new s(this, this.toolhandler)),
+        this.registerTool(new n(this, this.toolhandler)),
+        this.registerTool(new r(this, this.toolhandler)),
+        this.registerTool(new o(this, this.toolhandler))
     }
     registerTool(t) {
         this.powerupTools[t.name] = t
@@ -27,12 +27,6 @@ export default class extends Tool {
     }
     getOptions() {
         return this.options
-    }
-    update() {
-        this.toolhandler.gamepad,
-        this.mouse,
-        this.options;
-        super.update();
     }
     press() {
         var t = this.options.selected;
@@ -47,10 +41,6 @@ export default class extends Tool {
         this.powerupTools[t].release()
     }
     draw() {
-        var t = this.scene
-          , e = (t.game.canvas,
-        t.game.canvas.getContext("2d"))
-          , i = this.options;
-        this.powerupTools[i.selected].draw(e)
+        this.powerupTools[this.options.selected].draw(this.scene.game.canvas.getContext("2d"))
     }
 }

@@ -43,7 +43,6 @@ export default class {
         this.oldState = this.setStateDefaults();
         this.restart();
         this.initializeAnalytics();
-        window.addEventListener("mousedown", this.tapToStartOrRestart.bind(this));
         this.injectLiteFeatures();
     }
     game = null;
@@ -72,25 +71,33 @@ export default class {
     controls = null;
     verified = !1;
     injectLiteFeatures() {
+        if (!this.game) return;
         let it = setInterval(() => {
             if (this.game.gameContainer.querySelector('.bottomToolOptions_straightline')) {
                 this.game.gameContainer.querySelector('.bottomToolOptions_straightline').after(Object.assign(document.createElement("div"), {
-                    id: "trackMover",
                     className: "bottomMenu-button bottomMenu-button-left bottomMenu-button",
-                    title: "Move your track quickly and easily",
-                    innerHTML: `<span class="name">Move Track</span>
-                    &emsp;<input type="number" id="moveX" placeholder="Position X" onkeydown="event.stopPropagation()" onkeypress="event.stopPropagation()" onkeyup="event.stopPropagation()"></input>
-                    &emsp;<input type="number" id="moveY" placeholder="Position Y" onkeydown="event.stopPropagation()" onkeypress="event.stopPropagation()" onkeyup="event.stopPropagation()"></input>`,
-                    onclick() {
-                        lite.setVar("move", !lite.getVar("move"));
-                        // lite.moveTrack()
+                    id: "trackMover",
+                    innerHTML: "Move Track",
+                    onclick: () => {
+                        let t = this.game.gameContainer.querySelector("#trackMover");
+                        let e = t.onclick;
+                        let i = this.toolHandler.currentTool;
+                        t.innerHTML = "Stop";
+                        this.toolHandler.setTool("camera");
+                        this.toolHandler.tools.camera.frozen = true;
+                        t.onclick = () => {
+                            t.innerHTML = "Move Track";
+                            this.toolHandler.setTool(i);
+                            this.toolHandler.tools.camera.frozen = false;
+                            t.onclick = e;
+                        }
                     }
                 }));
                 clearInterval(it);
             }
         });
-        let is = setInterval(() => {
-            if (this.game.gameContainer.querySelector(".sideButton_cameraTool")) {
+        let ie = setInterval(() => {
+            if (this.game.gameContainer.querySelector(".sideButton_cameraTool") && !this.game.gameContainer.querySelector(".sideButton-bottom.sideButton_selectTool")) {
                 this.game.gameContainer.querySelector(".sideButton_cameraTool").after(Object.assign(document.createElement('div'), {
                     className: "sideButton sideButton-bottom sideButton_selectTool",
                     innerHTML: `<span style="width:44px;height:44px;display:flex"><img src="https://i.imgur.com/FLP6RhL.png" style="display:inline-flex;margin:auto;width:30px;height:30px;"></span>`,
@@ -104,30 +111,35 @@ export default class {
                             }
                         });
                     }
-                })),
-                clearInterval(is)
+                }))
+                //clearInterval(ie)
+            }
+        });
+        setInterval(() => {
+            if (this.game.gameContainer.querySelector(".editorgui_icons.editorgui_icons-blob") && !this.game.gameContainer.querySelector(".icons-glider")) {
+                this.game.gameContainer.querySelector(".editorgui_icons.editorgui_icons-blob").parentElement.after(Object.assign(document.createElement('div'), {
+                    className: "sideButton sideButton_powerupTool",
+                    innerHTML: `<span style="width:44px;height:44px;display:flex" class="icons-glider"><img src="https://calculamatrise.github.io/free_rider_lite/assets/media/glider.png" style="display:inline-flex;margin:auto;width:32px;height:32px;"></span>`,
+                    onclick() {
+                        GameManager.game.currentScene.toolHandler.setTool("vehiclepowerup"),
+                        GameManager.game.currentScene.toolHandler.tools.vehiclepowerup.setOption("selected", "glider"),
+                        GameManager.game.gameContainer.querySelector(".sideButton.sideButton_powerupTool.active") && (GameManager.game.gameContainer.querySelector(".sideButton.sideButton_powerupTool.active").className = "sideButton sideButton_powerupTool"),
+                        this.className = "sideButton sideButton_powerupTool active";
+                        [...document.querySelectorAll(".sideButton.sideButton_powerupTool")].forEach(e => {
+                            if (e.className.includes("sideButton sideButton_powerupTool active")) return;
+                            e.onclick = () => {
+                                this.className = 'sideButton sideButton_powerupTool';
+                            }
+                        });
+                    }
+                }))
             }
         });
     }
     getCanvasOffset() {
-        var t = {
-            height: 90,
+        return {
+            height: this.settings.isStandalone ? 202 : 90,
             width: 0
-        };
-        return this.settings.isStandalone && (t = {
-            height: 202,
-            width: 0
-        }),
-        t
-    }
-    tapToStartOrRestart() {
-        if (this.settings.mobile) {
-            var t = this.playerManager.firstPlayer;
-            if (t && t._crashed && !this.state.paused) {
-                var e = t.getGamepad();
-                e.setButtonDown("enter")
-            } else
-                this.play()
         }
     }
     analytics = null;
@@ -154,7 +166,7 @@ export default class {
     }
     createTrack() {
         this.track && this.track.close();
-        var t = new m(this)
+        let t = new m(this)
             , e = this.getAvailableTrackCode();
         0 != e ? (t.read(e),
         this.track = t,
@@ -178,18 +190,17 @@ export default class {
         this.pauseControls.update()
     }
     registerTools() {
-        var t = new h(this);
-        t.enableGridUse(),
-        this.toolHandler = t,
-        t.registerTool(l),
-        t.registerTool(c),
-        t.registerTool(u),
-        t.registerTool(p),
-        t.registerTool(d),
-        t.registerTool(f),
-        t.registerTool(v),
-        t.registerTool(g),
-        t.setTool(this.settings.startTool)
+        this.toolHandler = new h(this);
+        this.toolHandler.enableGridUse(),
+        this.toolHandler.registerTool(l),
+        this.toolHandler.registerTool(c),
+        this.toolHandler.registerTool(u),
+        this.toolHandler.registerTool(p),
+        this.toolHandler.registerTool(d),
+        this.toolHandler.registerTool(f),
+        this.toolHandler.registerTool(v),
+        this.toolHandler.registerTool(g),
+        this.toolHandler.setTool(this.settings.startTool)
     }
     updateToolHandler() {
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update()
@@ -208,7 +219,7 @@ export default class {
         this.sound.update(),
         this.restartTrack && this.restart(),
         !this.state.paused && this.state.playing && (this.message.update(),
-        this.updatePlayers(),
+        this.playerManager.update(),
         this.score.update(),
         this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
         this.vehicleTimer.update(),
@@ -219,12 +230,10 @@ export default class {
         this.camera.updateZoom()
     }
     isStateDirty() {
-        var t = this.oldState
-            , e = this.state
-            , i = !1;
-        for (var s in e)
-            e[s] !== t[s] && (i = !0,
-            this.oldState[s] = e[s]);
+        let i = !1;
+        for (let s in this.state)
+            this.state[s] !== this.oldState[s] && (i = !0,
+            this.oldState[s] = this.state[s]);
         return i
     }
     updateGamepads() {
@@ -232,9 +241,6 @@ export default class {
     }
     checkGamepads() {
         this.playerManager.checkKeys()
-    }
-    stopAudio() {
-        createjs.Sound.stop()
     }
     restart() {
         this.verified = !this.settings.requireTrackVerification,
@@ -291,16 +297,10 @@ export default class {
         } else
             this.settings.fullscreenAvailable && (this.settings.fullscreen = this.state.fullscreen = !this.settings.fullscreen)
     }
-    updatePlayers() {
-        this.playerManager.update()
-    }
-    drawPlayers() {
-        this.playerManager.draw()
-    }
     draw() {
         this.toolHandler.drawGrid(),
         this.track.draw(),
-        this.drawPlayers(),
+        this.playerManager.draw(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
         this.redoundoControls.draw(),
         this.pauseControls.draw(),
@@ -501,9 +501,6 @@ export default class {
             , e = t.getGamepad();
         e.unlisten()
     }
-    stopAudio() {
-        createjs.Sound.stop()
-    }
     close() {
         this.trackAction("editor-exit", "exit"),
         this.pauseControls = null,
@@ -525,7 +522,6 @@ export default class {
         this.assets = null,
         this.settings = null,
         this.track = null,
-        this.state = null,
-        this.stopAudio()
+        this.state = null
     }
 }

@@ -41,6 +41,7 @@ export default class {
         this.sounds[t] && (this.sounds[t].pause(), delete this.sounds[t])
     }
     close() {
+        this.stop_all(),
         this.sounds = null
     }
 }

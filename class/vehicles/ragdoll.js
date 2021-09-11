@@ -105,7 +105,7 @@ export default class extends Vehicle {
             p = u.zoom,
             d = c.game.canvas.getContext("2d"),
             f = this.parent.alpha || 1;
-        d.strokeStyle = lite.getVar("dark") ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
+        d.strokeStyle = inviolable.storage.get("dark") ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
         d.lineWidth = 5 * p,
         d.lineCap = "round",
         d.lineJoin = "round";
@@ -117,7 +117,7 @@ export default class extends Vehicle {
         var m = r.pos.toScreen(c);
         d.lineTo(m.x, m.y),
         d.stroke(),
-        d.strokeStyle = lite.getVar("dark") ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
+        d.strokeStyle = inviolable.storage.get("dark") ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
         d.beginPath(),
         d.moveTo(v.x, v.y);
         var y = s.pos.toScreen(c);
@@ -125,7 +125,7 @@ export default class extends Vehicle {
         var w = n.pos.toScreen(c);
         d.lineTo(w.x, w.y),
         d.stroke(),
-        d.strokeStyle = lite.getVar("dark") ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
+        d.strokeStyle = inviolable.storage.get("dark") ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
         d.lineWidth = 8 * p,
         d.beginPath(),
         d.moveTo(v.x, v.y);
@@ -144,7 +144,7 @@ export default class extends Vehicle {
         var C = T.toScreen(c);
         d.lineTo(C.x, C.y),
         d.stroke(),
-        d.strokeStyle = lite.getVar("dark") ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
+        d.strokeStyle = inviolable.storage.get("dark") ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
         d.lineWidth = 5 * p,
         d.beginPath(),
         d.moveTo(x.x, x.y);
@@ -158,7 +158,7 @@ export default class extends Vehicle {
         d.lineTo(M.x, M.y),
         d.stroke(),
         v.inc(v.sub(x).factor(.25));
-        if (window.lite.getVar("cr")) {
+        if (inviolable.storage.get("cr")) {
             let t = v.sub(x)
               , e = new Vector(t.y,-t.x)
               , i = v.add(e.factor(.15 * this.dir)).add(t.factor(-.05))
@@ -168,7 +168,7 @@ export default class extends Vehicle {
             d.moveTo(i.x, i.y),
             d.lineTo(s.x, s.y),
             d.lineWidth = 2 * p,
-            d.strokeStyle = lite.getVar("dark") ? "#fdfdfd" : "#000",
+            d.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
             d.stroke()
         } else {
             var D = GameInventoryManager.getItem(this.parent.cosmetics.head)
