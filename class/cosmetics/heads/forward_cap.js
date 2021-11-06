@@ -37,7 +37,7 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
         l.scale(d, d),
         l.translate(0, 0),
         l.beginPath(),
-        l.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "rgba(0,0,0,0)",
+        l.strokeStyle = lite.storage.get("dark") ? "#FBFBFB" : "rgba(0,0,0,0)",
         l.lineCap = "butt",
         l.lineJoin = "miter",
         l.miterLimit = 4,

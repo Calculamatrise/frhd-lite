@@ -45,19 +45,19 @@ export default class {
         const ctx = this.scene.game.canvas.getContext("2d");
         ctx.drawImage(this.scene.assets.getResult("time_icon"), 0, this.scene.pauseControls.paused ? 60 : 0, 60, 60, this.container.x, this.container.y, 24, 24);
         ctx.font = "8px helsinki";
-        ctx.fillStyle = inviolable.storage.get("dark") ? "#666666" : "#999999";
+        ctx.fillStyle = lite.storage.get("dark") ? "#666666" : "#999999";
         ctx.fillText(this.time_title.text, this.container.x + (GameManager.scene == "Editor" ? 24 : 34), this.container.y + 8);
         ctx.font = "16px helsinki";
-        ctx.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000000";
+        ctx.fillStyle = lite.storage.get("dark") ? "#fdfdfd" : "#000000";
         ctx.fillText(this.time.text, this.container.x + (GameManager.scene == "Editor" ? 24 : 54), this.container.y + 20);
         ctx.font = "8px helsinki";
-        ctx.fillStyle = inviolable.storage.get("dark") ? "#666666" : "#999999";
+        ctx.fillStyle = lite.storage.get("dark") ? "#666666" : "#999999";
         ctx.fillText(this.best_time_title.text, this.container.x + (GameManager.scene == "Editor" ? 96 : 106), this.container.y + 8);
         ctx.font = "14px helsinki";
         ctx.fillText(this.best_time.text, this.container.x + (GameManager.scene == "Editor" ? 96 : 120), this.container.y + 20);
         ctx.drawImage(this.scene.assets.getResult("targets_icon"), 0, 0, 60, 60, this.container.x + 160, this.container.y, 24, 24);
         ctx.font = "16px helsinki";
-        ctx.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000000";
+        ctx.fillStyle = lite.storage.get("dark") ? "#fdfdfd" : "#000000";
         ctx.fillText(this.goals.text, this.container.x + (GameManager.scene == "Editor" ? 184 : 194), this.container.y + 20);
     }
     center_container() {

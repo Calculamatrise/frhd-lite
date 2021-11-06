@@ -52,9 +52,9 @@ export default class extends Tool {
         t.beginPath(),
         t.arc(i.x, i.y, this.options.radius, 0, 2 * Math.PI, !1),
         t.lineWidth = 1,
-        t.fillStyle = inviolable.storage.get("dark") ? "rgba(33,33,33,0.8)" : "rgba(255,255,255,0.8)",
+        t.fillStyle = lite.storage.get("dark") ? "rgba(33,33,33,0.8)" : "rgba(255,255,255,0.8)",
         t.fill(),
-        t.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.strokeStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
         t.stroke()
     }
     setOption(t, e) {

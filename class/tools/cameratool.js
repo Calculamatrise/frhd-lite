@@ -15,7 +15,7 @@ export default class extends Tool {
         this.scene.game.canvas.getContext("2d")
     }
     drawText(t) {
-        t.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000000",
+        t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000000",
         t.font = 12 * this.game.pixelRatio + "pt arial",
         t.fillText(this.name, 10 * this.game.pixelRatio, 20 * this.game.pixelRatio),
         t.font = 8 * this.game.pixelRatio + "pt arial"

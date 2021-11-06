@@ -99,7 +99,7 @@ export default class extends Vehicle {
             , l = -o
             , h = r;
         t.save(),
-        t.strokeStyle = inviolable.storage.get("dark") ? "#666" : "#999",
+        t.strokeStyle = lite.storage.get("dark") ? "#666" : "#999",
         t.lineWidth = 1,
         t.beginPath(),
         t.moveTo(i.x + .1 * l, i.y + .1 * h),
@@ -130,7 +130,7 @@ export default class extends Vehicle {
         t.closePath(),
         t.stroke()),
         t.beginPath(),
-        t.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
         t.moveTo(i.x + .1 * l, i.y + .1 * h),
         t.lineTo(i.x - .1 * l, i.y - .1 * h),
         t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * h),
@@ -143,7 +143,7 @@ export default class extends Vehicle {
     clone() {
         const ctx = this.scene.game.canvas.getContext("2d");
         let t = 0;
-        let e = inviolable.storage.get("snapshots");
+        let e = lite.storage.get("snapshots");
         if (e < 1) return;
         for (const checkpoint in this.player._checkpoints) {
             if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {

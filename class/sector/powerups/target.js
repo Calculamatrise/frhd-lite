@@ -86,7 +86,7 @@ export default class extends Powerup {
           , u = Math.PI / i;
         s *= o,
         n *= o,
-        a.strokeSyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        a.strokeSyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
         a.beginPath(),
         a.moveTo(t, e - s);
         for (var p = 0; i > p; p++)
@@ -101,7 +101,7 @@ export default class extends Powerup {
         a.lineTo(t, e - s),
         a.closePath(),
         a.lineWidth = Math.max(2 * o, 1),
-        a.strokeStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        a.strokeStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
         a.stroke(),
         a.fillStyle = r ? "#FAE335" : "#FFFFFF",
         a.fill()

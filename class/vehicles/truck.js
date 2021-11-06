@@ -172,7 +172,7 @@ export default class extends Vehicle {
             , f = (p[1].pos.y - p[0].pos.y) * i
             , v = (.5 * (p[0].pos.x + p[1].pos.x) - .5 * (p[2].pos.x + p[3].pos.x)) * i
             , g = (.5 * (p[0].pos.y + p[1].pos.y) - .5 * (p[2].pos.y + p[3].pos.y)) * i;
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
         t.lineWidth = 3 * i,
         t.lineCap = "round",
         t.lineJoin = "round";
@@ -182,14 +182,14 @@ export default class extends Vehicle {
             , x = m / w
             , _ = y / w;
         n.draw(t, c.x - .5 * x * i * 20, c.y - _ * i * 20 * .5, r, .45 * i, o),
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#bbb" : "#444",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#bbb" : "#444",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .9 * v, l.y - .4 * f - .9 * g),
         t.lineTo(l.x + .8 * d - .9 * v, l.y + .8 * f - .9 * g),
         t.stroke(),
         t.closePath(),
         t.save(),
-        t.fillStyle = window.inviolable.storage.get("dark") ? "#888" : "#777",
+        t.fillStyle = window.lite.storage.get("dark") ? "#888" : "#777",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.lineTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
@@ -203,7 +203,7 @@ export default class extends Vehicle {
         t.fill(),
         t.save(),
         t.lineWidth = 2 * i,
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#bbb" : "#444",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#bbb" : "#444",
         t.beginPath(),
         t.moveTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.lineTo(l.x - .35 * d + .2 * v, l.y - .35 * f + .2 * g),
@@ -214,7 +214,7 @@ export default class extends Vehicle {
         t.lineTo(l.x - .4 * d - .7 * v, l.y - .4 * f - .7 * g),
         t.closePath(),
         t.stroke(),
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#bbb" : "#444",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#bbb" : "#444",
         t.lineWidth = i,
         t.beginPath(),
         t.moveTo(l.x + .5 * d - .1 * v, l.y + .5 * f - .1 * g),
@@ -239,12 +239,12 @@ export default class extends Vehicle {
         t.fillStyle = "#888888",
         t.fill(),
         t.lineWidth = 5.9 * n,
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
         t.closePath(),
         t.stroke(),
         t.beginPath(),
         t.lineWidth = 2 * n,
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
         a = 0,
         s += 3 * n; a++ < 8; )
             t.moveTo(e + s * Math.cos(r + 6.283 * a / 8), i + s * Math.sin(r + 6.283 * a / 8)),
@@ -253,7 +253,7 @@ export default class extends Vehicle {
         t.closePath(),
         t.beginPath(),
         t.lineWidth = 2 * n,
-        t.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+        t.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
         a = 0,
         s += -9 * n; a++ < 5; )
             t.moveTo(e + s * Math.cos(r + 6.283 * a / 5), i + s * Math.sin(r + 6.283 * a / 5)),
@@ -264,7 +264,7 @@ export default class extends Vehicle {
     clone() {
         const ctx = this.scene.game.canvas.getContext("2d");
         let t = 0;
-        let e = inviolable.storage.get("snapshots");
+        let e = lite.storage.get("snapshots");
         if (e < 1) return;
         for (const checkpoint in this.player._checkpoints) {
             if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {

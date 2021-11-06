@@ -55,6 +55,11 @@ export default class extends EventEmitter {
         this.mouseWheelListener = this.onMouseWheel
     }
     onMouseDown(t) {
+        if (t.ctrlKey) {
+            this.scene.toolHandler.lastTool = this.scene.toolHandler.currentTool,
+            this.scene.toolHandler.setTool("select");
+        }
+
         this.analytics.clicks++,
         2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
         this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
@@ -88,7 +93,7 @@ export default class extends EventEmitter {
         i.y = Math.round((t.pos.y - this.scene.screen.center.y) / this.scene.camera.zoom + this.scene.camera.position.y);
         if (this.scene.toolHandler.options.grid) {
             let p = this.scene.settings.toolHandler.gridSize | 0;
-            if (inviolable.storage.get("isometric")) {
+            if (lite.storage.get("isometric")) {
                 function Ab(t, e) {
                     return ((t % e) + e) % e
                 }

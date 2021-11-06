@@ -1,5 +1,6 @@
 import "../libs/createjs.js";
-import "./Inviolable.js";
+// import "./Lite.js";
+import("https://calculamatrise.github.io/frhd/lite/class/Lite.js");
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
@@ -24,6 +25,18 @@ window.Game = class {
     height = 0;
     fullscreen = !1;
     onStateChange = null;
+    static init() {
+        const loadGame = GameManager.loadGame;
+        GameManager.loadGame = function() {
+            if (GameManager.hasOwnProperty("game")) {
+                GameManager.closeGame();
+            }
+            
+            loadGame.bind(this)();
+        }
+        
+        GameManager.loadGame();
+    }
     initCanvas() {
         this.gameContainer = document.getElementById(this.settings && this.settings.defaultContainerID),
         this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
@@ -59,8 +72,8 @@ window.Game = class {
     }
     update() {
         this.currentScene.update(),
-        this.canvas.style.background = inviolable.storage.get("dark") ? "#1d1d1d" : "#fff",
-        inviolable.storage.get("di") && inviolable.drawInputDisplay(this.canvas),
+        this.canvas.style.background = lite.storage.get("dark") ? "#1B1B1B" : "#fff",
+        lite.storage.get("di") && lite.drawInputDisplay(this.canvas),
         this.tickCount++
     }
     switchScene(t) {
@@ -84,3 +97,5 @@ window.Game = class {
         this.width = null
     }
 }
+
+Game.init();

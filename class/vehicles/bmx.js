@@ -256,7 +256,7 @@ export default class extends Vehicle {
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -274,7 +274,7 @@ export default class extends Vehicle {
         , f = e.add(o.factor(.84)).add(a.factor(.42))
         , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -283,7 +283,7 @@ export default class extends Vehicle {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
@@ -298,7 +298,7 @@ export default class extends Vehicle {
         , x = e.add(o.factor(.17)).add(a.factor(.38))
         , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = window.inviolable.storage.get("cc") || (window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),
@@ -318,7 +318,7 @@ export default class extends Vehicle {
         u.lineTo(S.x, S.y),
         u.lineTo(P.x, P.y),
         u.stroke(),
-        u.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000";
+        u.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000000";
         if (self.crashed) {
             self.ragdoll.draw && self.ragdoll.draw();
         } else {
@@ -334,7 +334,7 @@ export default class extends Vehicle {
             D = D.factor(c * c);
             var O = M.add(A.factor(.5)).add(D.factor(200 / A.lenSqr()))
             , z = y.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
-            u.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfda5" : "#000000a5",
+            u.strokeStyle = window.lite.storage.get("dark") ? "#fdfdfda5" : "#000000a5",
             u.lineWidth = 6 * c,
             u.beginPath(),
             u.moveTo(y.x, y.y),
@@ -347,7 +347,7 @@ export default class extends Vehicle {
             u.lineTo(z.x, z.y),
             u.stroke(),
             u.lineWidth = 6 * c,
-            u.strokeStyle = window.inviolable.storage.get("dark") ? "#fdfdfd" : "#000",
+            u.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000000",
             u.beginPath(),
             u.moveTo(m.x, m.y),
             u.lineTo(I.x, I.y),
@@ -375,14 +375,14 @@ export default class extends Vehicle {
             u.lineTo(B.x, B.y),
             u.lineTo(P.x, P.y),
             u.stroke();
-            var R = GameInventoryManager.getItem(window.inviolable.storage.get("cr") ? window.inviolable.head : this.cosmetics.head);
+            var R = GameInventoryManager.getItem(window.lite.storage.get("cr") ? window.lite.head : this.cosmetics.head);
             R.draw(u, L.x, L.y, self.drawHeadAngle, c, this.dir),
             u.globalAlpha = 1
         }
     }
     cloneBikeFrame() {
         //this.player._checkpoints = this.player._checkpoints.slice(-101);
-        let t = inviolable.storage.get("snapshots");
+        let t = lite.storage.get("snapshots");
         let e = 0;
         if (t < 1) return;
         for (const checkpoint in this.player._checkpoints) {

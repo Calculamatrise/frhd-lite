@@ -45,7 +45,7 @@ export default class {
                 for (const x in this.scene.playerManager._players) {
                     if (this.scene.playerManager._players[x]._user.d_name == i) {
                         this.raceTimes[i].time.text = this.raceTimes[i].time.text.split(" ")[0] + " " + this.scene.playerManager._players[x].getTargetsHit() + "/" + this.scene.track.targetCount;
-                        this.raceTimes[i].time.color = inviolable.storage.get("dark") ? "#f1f1f1" : "#000"
+                        this.raceTimes[i].time.color = lite.storage.get("dark") ? "#f1f1f1" : "#000"
                     }
                 }
             }
@@ -62,7 +62,7 @@ export default class {
             ctx.arc(this.container.x + this.raceList[t].offset.x, this.container.y + this.raceList[t].offset.y, 8, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
-            ctx.fillStyle = inviolable.storage.get("dark") ? "#fdfdfd" : "#000000";
+            ctx.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000000";
             ctx.font = "10px helsinki";
             ctx.fillText(this.raceList[t].char, this.container.x + this.raceList[t].offset.x, this.container.y + this.raceList[t].offset.y + 4);
             ctx.font = "12.5px helsinki";

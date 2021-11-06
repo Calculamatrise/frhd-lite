@@ -222,7 +222,7 @@ export default class {
     drawGrid() {
         var t = this.scene.game.pixelRatio
             , e = this.scene.game.canvas.getContext("2d");
-        this.options.grid === !0 && this.options.visibleGrid && (window.inviolable.storage.get("isometric") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
+        this.options.grid === !0 && this.options.visibleGrid && (window.lite.storage.get("isometric") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
     }
     drawCachedGrid(t, e) {
         this.gridCache === !1 && this.cacheGrid(e);
@@ -276,7 +276,7 @@ export default class {
         o.width = e,
         o.height = i;
         var a = o.getContext("2d");
-        a.strokeStyle = window.inviolable.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
+        a.strokeStyle = window.lite.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
         a.strokeWidth = 1,
         a.beginPath();
         var h = null
@@ -296,7 +296,7 @@ export default class {
         a.beginPath(),
         a.rect(0, 0, e, i),
         a.lineWidth = 2,
-        a.strokeStyle = window.inviolable.storage.get("dark") ? "#3e3e3e" : this.options.gridMajorLineColor,
+        a.strokeStyle = window.lite.storage.get("dark") ? "#3e3e3e" : this.options.gridMajorLineColor,
         a.stroke(),
         a.closePath(),
         this.gridCache = o,
@@ -312,8 +312,8 @@ export default class {
         o.width = e,
         o.height = i;
         var a = o.getContext("2d");
-        a.strokeStyle = window.inviolable.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
-        a.fillStyle = window.inviolable.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
+        a.strokeStyle = window.lite.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
+        a.fillStyle = window.lite.storage.get("dark") ? "#252525" : this.options.gridMinorLineColor,
         a.strokeWidth = 1,
         a.beginPath();
         var h = null

@@ -31,10 +31,10 @@ export default class {
                 , v = c + f * Math.cos(d)
                 , g = u + f * Math.sin(d);
             for (l.lineWidth = 0,
-            l.strokeStyle = window.inviolable.storage.get("dark") ? "#fff" : "#000",
+            l.strokeStyle = window.lite.storage.get("dark") ? "#fff" : "#000",
             l.beginPath(),
             l.moveTo(v, g),
-            l.fillStyle = window.inviolable.storage.get("dark") ? "#fff" : "#000"; p++ < 16; )
+            l.fillStyle = window.lite.storage.get("dark") ? "#fff" : "#000"; p++ < 16; )
                 f = (e + 30 * Math.random()) * n,
                 v = c + f * Math.cos(d + 6.283 * p / 16),
                 g = u + f * Math.sin(d + 6.283 * p / 16),
@@ -50,13 +50,13 @@ export default class {
     }
     createMasses(t) {
         this.masses = [],
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000")),
-        this.masses.push(new n(t, this, window.inviolable.storage.get("dark") ? "#fff" : "#000"))
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000")),
+        this.masses.push(new n(t, this, window.lite.storage.get("dark") ? "#fff" : "#000"))
     }
     update() {
         var t = this.masses;

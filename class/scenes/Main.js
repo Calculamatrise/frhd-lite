@@ -79,7 +79,7 @@ export default class {
     message = null;
     showSkip = !1;
     injectLiteFeatures() {
-        if (inviolable.storage.get("feats")) {
+        if (lite.storage.get("feats")) {
             fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then(r => r.text()).then(data => {
                 document.head.appendChild(Object.assign(document.createElement("script"), {
                     innerHTML: data,
