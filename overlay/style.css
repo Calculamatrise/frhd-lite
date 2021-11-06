@@ -1,44 +1,46 @@
+@keyframes load {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
 .lite.icon {
-    margin:8px;
-    width:32px;
-    height:32px;
-    position:fixed;
-    bottom:40px;
-    left:0;
-    z-index:3;
+    margin: 8px;
+    width: 32px;
+    height: 32px;
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    z-index: 3;
     border-radius: 30px;
+    overflow: hidden;
 }
 
 .lite.icon:hover {
-    opacity:0.4;
-    cursor:pointer
+    opacity: 0.4;
+    cursor: pointer
 }
 
 .lite.overlay {
-    position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 2;
-}
-
-.lite.overlay .content {
     font-family: Arial;
-    position: absolute;
-    padding: 50px;
-    top: 50%;
-    left: 50%;
-    width: 40%;
-    overflow: auto;
     font-size: 50px;
     color: white;
-    transform: translate(-50%,-50%);
-    -ms-transform: translate(-50%,-50%);
+    position: fixed;
+    display: none;
+    width: 80vw;
+    height: 80vh;
+    top: 10vh;
+    left: 10vw;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    padding: 15vh 15vw 20vh;
+    background: #00000080;
+    box-shadow: inset 0px 5px 8px -10px #00000080;
+    z-index: 2;
 }
 
 .lite.overlay input {
@@ -76,6 +78,8 @@
     border-radius: 5px;
     padding: 5px 30px 5px 30px;
     border: none;
+    position: relative;
+    overflow: hidden;
 }
 
 .lite.overlay .lite-tabs .tablinks:hover {
@@ -98,12 +102,14 @@
 }
 
 .lite.overlay .option {
-    padding:8px;
-    border:none;
-    background-color:#ffffff00;
-    font-size:13px;
-    font-family:roboto_medium,Arial,Helvetica,sans-serif;
-    color:#1b5264
+    padding: 8px;
+    border: none;
+    overflow: hidden;
+    position: relative;
+    background-color: #ffffff00;
+    font-size: 13px;
+    font-family: roboto_medium, Arial, Helvetica, sans-serif;
+    color: #1b5264
 }
 
 .lite.overlay .option:hover, .lite.overlay .option:hover * {
@@ -131,6 +137,27 @@
     width: 13px;
     height: 13px;
     background: #000000
+}
+
+.lite.overlay .ripple::before, .lite.icon.ripple::before {
+    top: calc(var(--clientY) * 1px);
+	left: calc(var(--clientX) * 1px);
+    opacity: 0;
+    content: "";
+    padding: 50%;
+	position: absolute;
+    transform: translate(-50%, -50%) scale(3);
+	transition: transform 800ms, opacity 1s;
+    border-radius: 50%;
+    pointer-events: none;
+    background-color: black;
+}
+
+.lite.overlay .ripple:not(.focus):active::before, .lite.icon.ripple:active::before,
+.lite.overlay .ripple.focus:active:not(:focus-within)::before {
+    transition: 0s;
+    opacity: .5;
+    transform: translate(-50%, -50%) scale(0);
 }
 
 .lite.overlay .option input[type="color"]::-webkit-color-swatch-wrapper {

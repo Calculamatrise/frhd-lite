@@ -1,0 +1,33 @@
+body {
+    width: 200px;
+    transition: all .2s;
+}
+
+.option {
+    padding:8px;
+    border:none;
+    background-color:#ffffff00;
+    font-size:13px;
+    font-family:roboto_medium,Arial,Helvetica,sans-serif;
+}
+
+html {
+    background-color: #1d2328;
+    transition: all 200ms;
+    color: #da2222;
+}
+
+html:hover {
+    cursor:pointer;
+    background-color:#1d2024;
+    border-radius: 8px
+}
+
+html:active {
+    background-color: #1d2328;
+    transition: all 20ms;
+}
+
+.enabled {
+    color: #00a708;
+}

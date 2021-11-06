@@ -1,0 +1,68 @@
+{
+	"name": "Free Rider Lite",
+	"version": "1.0.0",
+	"author": "Calculamatrise",
+	"manifest_version": 3,
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"*://frhd.kanoapps.com/*",
+				"*://www.freeriderhd.com/*"
+			],
+			"js": [
+				"bootstrap.js"
+			]
+		}
+	],
+	"declarative_net_request": {
+		"rule_resources": [{
+			"id": "ruleset_1",
+			"enabled": true,
+			"path": "rules.json"
+		}]
+	},
+	"permissions": [
+		"storage",
+		"declarativeNetRequest"
+	],
+	"host_permissions": [
+		"*://frhd.kanoapps.com/*",
+		"*://www.freeriderhd.com/*",
+		"*://cdn.kanoapps.com/free_rider_hd/assets/scripts/game/game.min.*.js",
+		"*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js"
+	],
+	"web_accessible_resources": [{
+		"resources": [
+			"bootstrap.js",
+			"overlay/*",
+			"styles/*",
+			"class/*",
+			"libs/*"
+		],
+		"matches": [
+			"*://frhd.kanoapps.com/*",
+			"*://www.freeriderhd.com/*"
+		]
+	}],
+	"icons": {
+		"256": "icons/icon_256.png",
+		"128": "icons/icon_128.png",
+		"64": "icons/icon_64.png",
+		"32": "icons/icon_32.png",
+		"16": "icons/icon_16.png"
+	},
+	"action": {
+		"default_icon": {
+			"256": "icons/icon_256.png",
+			"128": "icons/icon_128.png",
+			"64": "icons/icon_64.png",
+			"32": "icons/icon_32.png",
+			"16": "icons/icon_16.png"
+		},
+		"default_popup": "popup.html"
+	}
+}
