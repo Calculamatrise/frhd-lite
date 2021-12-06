@@ -1,3 +1,5 @@
+// Changes on line 78 onwards
+
 import "../libs/createjs.js";
 import "./Lite.js";
 // import("https://calculamatrise.github.io/frhd/lite/class/Lite.js");
@@ -8,7 +10,7 @@ import Main from "./scenes/Main.js";
 window.Game = class {
     constructor(t, e, i) {
         this.assets = e,
-        this.settings = i,
+        this.settings = i || window.hasOwnProperty("GameSettings") && window.GameSettings,
         this.initCanvas(),
         this.setSize(),
         this.switchScene(t),
@@ -38,10 +40,9 @@ window.Game = class {
         GameManager.loadGame();
     }
     initCanvas() {
-        try {
-            this.gameContainer = document.getElementById(this.settings.defaultContainerID),
-            this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
-        } catch(error) {}
+        this.canvas = document.createElement("canvas");
+        this.gameContainer = document.getElementById(this.settings.defaultContainerID),
+        this.gameContainer.appendChild(this.canvas);
     }
     setSize() {
         let t = window.innerHeight,
@@ -73,6 +74,7 @@ window.Game = class {
         createjs.Ticker.on("tick", this.update.bind(this))
     }
     update() {
+        // Implemented dark mode and input display
         this.canvas.style.setProperty("background-color", lite.storage.get("dark") ? "#1b1b1b" : "#fff"),
         this.currentScene.update(),
         lite.storage.get("di") && lite.drawInputDisplay(this.canvas),
