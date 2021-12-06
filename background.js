@@ -30,6 +30,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case "setStorageItem":
         case "toggleStorageItem":
             chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                // if (tabs[0].hasOwnProperty("url") && tabs[0].url.match(/https?:\/\/.+fr(.+)?hd\.com/gi))
                 chrome.tabs.sendMessage(tabs[0].id, request, sendResponse);
             });
 
