@@ -1,13 +1,10 @@
-if (typeof chrome === "undefined")
-    chrome = browser;
-
 const state = {
     enabled: true
 }
 
 chrome.runtime.onInstalled.addListener(function() {
-    chrome.storage.local.get(t => {
-        setEnabled({ enabled: t.enabled ? state.enabled : true });
+    chrome.storage.local.get(data => {
+        setEnabled({ enabled: data.enabled ? state.enabled : true });
     });
 });
 
@@ -18,14 +15,28 @@ chrome.runtime.onStartup.addListener(function() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     switch(request.action) {
         case "getEnabled":
-            sendResponse(state)
-        break;
+            sendResponse(state.enabled)
+
+            break;
 
         case "toggleEnabled":
             setEnabled({ enabled: !state.enabled });
-            sendResponse(state);
-        break;
+            sendResponse(state.enabled);
+
+            break;
+
+        case "getStorage":
+        case "resetSettings":
+        case "setStorageItem":
+        case "toggleStorageItem":
+            chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, request, sendResponse);
+            });
+
+            break;
     }
+
+    return true;
 });
 
 function setEnabled({ enabled }) {

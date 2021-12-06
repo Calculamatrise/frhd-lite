@@ -2,14 +2,58 @@
     <head>
         <meta charset="UTF-8"/>
         <title>Free Rider Lite</title>
-        <link rel="stylesheet" href="./popup.css">
-        <script async src="./popup.js"></script>
+        <link rel="stylesheet" href="popup.css">
+        <script defer src="popup.js"></script>
     </head>
     <body>
-        <div class="option" checked="true">
-            Lite is enabled.
-            <br>
-            Click to disable.
-        </div>
+        <lite-state>Disabled</lite-state>
+        <lite-tabs>
+            <tab class="ripple">Options</tab>
+            <tab class="ripple">Advanced Options</tab>
+            <tab class="ripple">Hotkeys</tab>
+            <tab class="ripple">Changes</tab>
+        </lite-tabs>
+        <lite-content class="options">
+            <lite-option class="ripple" title="Custom rider cosmetic">
+                <input type="checkbox" id="cr">Canvas rider</lite-option>
+            <lite-option class="ripple" title="Toggle dark mode">
+                <input type="checkbox" id="dark">Dark mode</lite-option>
+            <lite-option class="ripple" title="Toggle an input display">
+                <input type="checkbox" id="di">Input display</lite-option>
+            <lite-option class="ripple" title="Displays featured ghosts on the leaderboard">
+                <input type="checkbox" id="feats">Feat. ghosts</lite-option>
+            <lite-option class="ripple" title="Change grid style">
+                <input type="checkbox" id="isometric"> Isometric grid</lite-option>
+            <lite-option class="ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);">
+                <input type="color" id="cc" value="#000000" style="margin-left: 4px; visibility: hidden;">Custom bike colour</div>
+        </lite-content>
+        <lite-content class="advanced" style="display: none">
+            <lite-option class="ripple" title="Change the size of the input display">
+                <span class="name" style="background-color:rgba(0,0,0,0)">Input display size (10)</span><br>
+                <input type="range" class="override-pointer-events" id="di_size" min="1" max="10" value="10" style="padding:0"></lite-option>
+            <lite-option class="ripple" title="Change the number of snaphsots shown on checkpoints">
+                <span class="name" style="background-color:rgba(0,0,0,0)">Snapshot Count (10)</span><br>
+                <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="padding:0"></lite-option>
+            <lite-option class="ripple" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)" id="reset">Reset settings</lite-option>
+        </lite-content>
+        <lite-content class="hotkeys" style="display: none;">
+            <span>Select Tool</span>
+            <button>
+                Ctrl + Left Mouse Button
+            </button>
+        </lite-content>
+        <lite-content class="changes" style="display:none">
+            <ul>
+                <li title="Normally, you could only see them from your own.">
+                    Added the ability to see the last time a user has logged in from other's friends lists
+                </li>
+                <li title="See the advanced tab for more details.">
+                    Added the advanced tab with extra settings. Maily resizing and such
+                </li>
+                <li title="Work in progress...">
+                    Replacing createjs library (programmers' update)
+                </li>
+            </ul>
+        </lite-content>
     </body>
 </html>

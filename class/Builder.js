@@ -30,8 +30,11 @@ export default class {
             this.interface = document.body.appendChild(this.constructor.createElement("div", this.createInterface()));
         }
     }
+
     $name = "default";
+    
     $defaults = {};
+    
     get scene() {
         if ((window || {}).hasOwnProperty("GameManager") && typeof window.GameManager.game === "object") {
             return window.GameManager.game.currentScene;
@@ -39,6 +42,7 @@ export default class {
         
         return null;
     }
+
     get storage() {
         localStorage.getItem(this.$name) ?? (this.storage = this.$defaults);
 
@@ -94,7 +98,14 @@ export default class {
 
         return this.storage;
     }
-    static createElement(t, e) {
-        return Object.assign(document.createElement(t), e);
+
+    /**
+     * 
+     * @param {element} element 
+     * @param {attributes} attributes 
+     * @returns arbitrary
+     */
+    static createElement(element, attributes) {
+        return Object.assign(document.createElement(element), attributes);
     }
 }

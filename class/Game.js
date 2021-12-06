@@ -1,6 +1,6 @@
 import "../libs/createjs.js";
-// import "./Lite.js";
-import("https://calculamatrise.github.io/frhd/lite/class/Lite.js");
+import "./Lite.js";
+// import("https://calculamatrise.github.io/frhd/lite/class/Lite.js");
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
@@ -38,8 +38,10 @@ window.Game = class {
         GameManager.loadGame();
     }
     initCanvas() {
-        this.gameContainer = document.getElementById(this.settings && this.settings.defaultContainerID),
-        this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
+        try {
+            this.gameContainer = document.getElementById(this.settings.defaultContainerID),
+            this.gameContainer.appendChild(this.canvas = document.createElement("canvas"));
+        } catch(error) {}
     }
     setSize() {
         let t = window.innerHeight,
@@ -71,8 +73,8 @@ window.Game = class {
         createjs.Ticker.on("tick", this.update.bind(this))
     }
     update() {
+        this.canvas.style.setProperty("background-color", lite.storage.get("dark") ? "#1b1b1b" : "#fff"),
         this.currentScene.update(),
-        this.canvas.style.background = lite.storage.get("dark") ? "#1B1B1B" : "#fff",
         lite.storage.get("di") && lite.drawInputDisplay(this.canvas),
         this.tickCount++
     }
