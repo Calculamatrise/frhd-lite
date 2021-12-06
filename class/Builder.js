@@ -1,3 +1,5 @@
+let events = new Map();
+
 function deepMerge(original, object) {
     for (const key in object) {
         if (object.hasOwnProperty(key)) {
@@ -29,6 +31,16 @@ export default class {
         if (typeof this.createInterface === "function") {
             this.interface = document.body.appendChild(this.constructor.createElement("div", this.createInterface()));
         }
+
+        let wait = setInterval(() => {
+            try {
+                if (this.scene ?? true) {
+                    this.emit("ready");
+
+                    clearInterval(wait);
+                }
+            } catch(error) {}
+        });
     }
 
     $name = "default";
@@ -36,7 +48,7 @@ export default class {
     $defaults = {};
     
     get scene() {
-        if ((window || {}).hasOwnProperty("GameManager") && typeof window.GameManager.game === "object") {
+        if ((window || {}).hasOwnProperty("GameManager") && window.GameManager.hasOwnProperty("game") && typeof window.GameManager.game === "object") {
             return window.GameManager.game.currentScene;
         }
         
@@ -97,6 +109,25 @@ export default class {
         localStorage.setItem(this.$name, JSON.stringify(JSON.parse(localStorage.getItem(this.$name)) ? deepMerge(JSON.parse(localStorage.getItem(this.$name)), items) : items));
 
         return this.storage;
+    }
+
+    on(event, listener = function() {}) {
+        if (typeof event !== "string") {
+            throw new Error("Event name must be of type String.");
+        } else if (typeof listener !== "function") {
+            throw new Error("Event listener must be of type Function.");
+        }
+
+        events.set(event, listener);
+    }
+
+    emit(event, ...args) {
+        if (typeof event === "string" && events.has(event)) {
+            let listener = events.get(event);
+            if (typeof listener === "function") {
+                listener(...args);
+            }
+        }
     }
 
     /**

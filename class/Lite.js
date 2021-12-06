@@ -17,7 +17,10 @@ window.lite = new class extends Builder {
 		});
 		
 		this.init(),
-		this.initFeatures(),
+		this.displayLastPlayed(),
+        this.on("ready", function() {
+            console.log("works")
+        });
 
         window.addEventListener("message", this.listener.bind(this));
 	}
@@ -99,12 +102,12 @@ window.lite = new class extends Builder {
 			if (location.pathname != loc) {
 				loc = location.pathname;
 
-				this.initFeatures();
+				this.displayLastPlayed();
 			}
 		});
 	}
 
-	initFeatures() {
+	displayLastPlayed() {
 		if (location.pathname.match(/^\/u\//gi)) {
 			fetch(`${location.href}?ajax=true`).then(t => t.json()).then(t => {
 				if (!document.querySelector(".friend-list.friends-all.active")) return;
@@ -121,6 +124,15 @@ window.lite = new class extends Builder {
 		}
 	}
     
+    draw() {
+        this.drawMTB();
+        this.drawInputDisplay();
+    }
+
+    drawMTB() {
+
+    }
+
 	drawInputDisplay(canvas = document.createElement("canvas")) {
 		if (!this.scene)
 			return;
