@@ -1,54 +1,16 @@
-// forgot what I was going to do with this
-// onmessage = function() {}
-
-onload = onfocus = function() {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        switch(request.action) {
-            case "getStorage":
-                sendResponse(JSON.parse(localStorage.getItem("lite")));
-
-                break;
-
-            case "resetSettings":
-                localStorage.setItem("lite", JSON.stringify({
-                    cr: false,
-                    cc: false,
-                    dark: false,
-                    di: true,
-                    di_size: 10,
-                    feats: true,
-                    isometric: false,
-                    snapshots: 10
-                }));
-
-                sendResponse(JSON.parse(localStorage.getItem("lite")));
-
-                break;
-
-            case "setStorageItem":
-                localStorage.setItem("lite", JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("lite")), {
-                    [request.item]: request.data
-                })));
-
-                sendResponse(JSON.parse(localStorage.getItem("lite")));
-
-                break;
-
-            case "toggleStorageItem":
-                localStorage.setItem("lite", JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("lite")), {
-                    [request.item]: !JSON.parse(localStorage.getItem("lite"))[request.item]
-                })));
-
-                sendResponse(JSON.parse(localStorage.getItem("lite")));
-
-                break;
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    onmessage = function({ data }) {
+        if (data.sender) {
+            return;
         }
+        
+        sendResponse(data);
+    }
 
-        postMessage({ action: "update" }, location.origin);
+    postMessage(Object.assign(request, { sender: true }));
 
-        return true;
-    });
-}
+    return true;
+});
 
 try {
 	chrome.storage.local.get(({ enabled }) => {
@@ -62,7 +24,7 @@ try {
 			}
 
 			document.head.appendChild(Object.assign(document.createElement("script"), {
-				src: `chrome-extension://${chrome.runtime.id}/class/Game.js`,//*/"https://calculamatrise.github.io/frhd/lite/class/Game.js",
+				src: /*`chrome-extension://${chrome.runtime.id}/class/Lite.js`,//*/`chrome-extension://${chrome.runtime.id}/class/Game.js`,//*/"https://calculamatrise.github.io/frhd/lite/class/Game.js",
 				type: "module"
 			}));
 		});

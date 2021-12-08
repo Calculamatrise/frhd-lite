@@ -21,7 +21,7 @@ function setState(enabled) {
 
 function restoreSettings(data) {
     for (const item in data) {
-        const element = document.getElementById(item);
+        let element = document.getElementById(item);
         if (element) {
             switch(item) {
                 case "cc":
@@ -29,16 +29,6 @@ function restoreSettings(data) {
                     element.addEventListener("input", function(event) {
                         chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
                             this.parentElement.style.setProperty("background-color", (this.value = response[item] || "#000000") + "33");
-                        });
-                    });
-
-                    break;
-
-                case "snapshots":
-                    element.parentElement.querySelector(".name").innerText = `Snapshot Count (${element.value = data[item]})`;
-                    element.addEventListener("input", function(event) {
-                        chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
-                            element.parentElement.querySelector(".name").innerText = `Snapshot Count (${this.value = response[item]})`;
                         });
                     });
 
@@ -54,8 +44,23 @@ function restoreSettings(data) {
 
                     break;
 
+                case "snapshots":
+                    element.parentElement.querySelector(".name").innerText = `Snapshot Count (${element.value = data[item]})`;
+                    element.addEventListener("input", function(event) {
+                        chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
+                            element.parentElement.querySelector(".name").innerText = `Snapshot Count (${this.value = response[item]})`;
+                        });
+                    });
+
+                    break;
+
                 default:
                     element.checked = data[item];
+            }
+        } else if (item === "theme") {
+            element = document.getElementById(data[item]);
+            if (element) {
+                element.checked = true;
             }
         }
     }
@@ -72,20 +77,33 @@ document.addEventListener("mousedown", function(event) {
 document.body.addEventListener("click", function(event) {
     switch(event.target.tagName) {
         case "LITE-OPTION":
-            const checkbox = event.target.firstElementChild;
-            if (checkbox) {
-                switch(checkbox.id) {
+            if (event.target.classList.contains("disabled")) {
+                break;
+            }
+            
+            const input = event.target.firstElementChild;
+            if (input) {
+                switch(input.id) {
                     case "cc":
-                        checkbox.click();
+                        input.click();
                         break;
 
-                    case "snapshots":
                     case "di_size":
+                    case "snapshots":
+                        break;
+
+                    case "light":
+                    case "midnight":
+                    case "dark":
+                    case "darker":
+                        chrome.runtime.sendMessage({ action: "setStorageItem", item: "theme", data: input.id }, (response) => {
+                            input.checked = response["theme"] === input.id;
+                        });
                         break;
 
                     default:
-                        chrome.runtime.sendMessage({ action: "toggleStorageItem", item: checkbox.id }, (response) => {
-                            checkbox.checked = response[checkbox.id];
+                        chrome.runtime.sendMessage({ action: "toggleStorageItem", item: input.id }, (response) => {
+                            input.checked = response[input.id];
                         });
                 }
             }

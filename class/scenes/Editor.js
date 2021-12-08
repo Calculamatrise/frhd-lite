@@ -24,6 +24,7 @@ export default class {
     constructor(t) {
         this.game = t;
         this.assets = t.assets;
+        this.stage = t.stage,
         this.settings = t.settings;
         this.sound = new C(this);
         this.mouse = new s(this);
@@ -47,6 +48,7 @@ export default class {
     }
     game = null;
     assets = null;
+    stage = null;
     canvas = null;
     settings = null;
     camera = null;
@@ -218,8 +220,9 @@ export default class {
         this.vehicleTimer.update(),
         (this.importCode || this.clear) && this.createTrack(),
         this.isStateDirty() && this.updateState(),
-        this.game.canvas.getContext("2d").clearRect(0, 0, this.game.canvas.width, this.game.canvas.height),
+        this.stage.clear(),
         this.draw(),
+        this.stage.update(),
         this.camera.updateZoom()
     }
     isStateDirty() {
@@ -295,12 +298,8 @@ export default class {
         this.track.draw(),
         this.playerManager.draw(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
-        this.redoundoControls.draw(),
-        this.pauseControls.draw(),
         this.state.loading && this.loadingcircle.draw(),
-        this.message.draw(),
-        this.score.draw(),
-        this.vehicleTimer.draw()
+        this.message.draw()
     }
     getAvailableTrackCode() {
         let e = !1;
@@ -494,6 +493,9 @@ export default class {
             , e = t.getGamepad();
         e.unlisten()
     }
+    stopAudio() {
+        createjs.Sound.stop()
+    }
     close() {
         this.trackAction("editor-exit", "exit"),
         this.pauseControls = null,
@@ -514,7 +516,9 @@ export default class {
         this.game = null,
         this.assets = null,
         this.settings = null,
+        this.stage = null,
         this.track = null,
-        this.state = null
+        this.state = null,
+        this.stopAudio()
     }
 }

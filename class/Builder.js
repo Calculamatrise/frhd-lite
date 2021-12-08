@@ -32,24 +32,29 @@ export default class {
             this.interface = document.body.appendChild(this.constructor.createElement("div", this.createInterface()));
         }
 
-        let wait = setInterval(() => {
-            try {
-                if (this.scene ?? true) {
-                    this.emit("ready");
+        // this.load();
 
-                    clearInterval(wait);
-                }
-            } catch(error) {}
-        });
+        // let loc = location.pathname;
+        // window.addEventListener("popstate", window.onclick = () => {
+		// 	if (location.pathname != loc) {
+		// 		loc = location.pathname;
+
+        //         this.load();
+                
+		// 		this.childLoad();
+		// 	}
+		// });
+
+        this.storage = this.storage || {};
     }
 
     $name = "default";
     
     $defaults = {};
     
-    get scene() {
+    get game() {
         if ((window || {}).hasOwnProperty("GameManager") && window.GameManager.hasOwnProperty("game") && typeof window.GameManager.game === "object") {
-            return window.GameManager.game.currentScene;
+            return window.GameManager.game;
         }
         
         return null;
@@ -61,6 +66,11 @@ export default class {
         self = this;
 
         return Object.defineProperties(JSON.parse(localStorage.getItem(this.$name)), {
+            has: {
+                value(key) {
+                    return this.hasOwnProperty(key);
+                }
+            },
             get: {
                 value(key) {
                     if (this[key] !== void 0)
@@ -76,6 +86,8 @@ export default class {
                             [key]: deepMerge(this[key], value)
                         }
                     }
+
+                    self.emit("storageUpdate", key, self.storage.get(key), value);
 
                     self.storage = {
                         [key]: value
@@ -99,14 +111,17 @@ export default class {
             reset: {
                 value() {
                     localStorage.removeItem(self.$name);
+
+                    self.emit("storageReset");
                     
                     return self.storage;
                 }
             }
         });
     }
+
     set storage(items) {
-        localStorage.setItem(this.$name, JSON.stringify(JSON.parse(localStorage.getItem(this.$name)) ? deepMerge(JSON.parse(localStorage.getItem(this.$name)), items) : items));
+        localStorage.setItem(this.$name, JSON.stringify(Object.assign(this.$defaults, JSON.parse(localStorage.getItem(this.$name)) ? deepMerge(JSON.parse(localStorage.getItem(this.$name)), items) : items)));
 
         return this.storage;
     }
@@ -118,16 +133,35 @@ export default class {
             throw new Error("Event listener must be of type Function.");
         }
 
-        events.set(event, listener);
+        return !!events.set(event, listener.bind(this));
     }
 
     emit(event, ...args) {
         if (typeof event === "string" && events.has(event)) {
             let listener = events.get(event);
             if (typeof listener === "function") {
-                listener(...args);
+                return !!listener(...args);
             }
         }
+    }
+
+    load() {
+        let wait = setInterval(() => {
+            if (this.game) {
+                // Rebinding the game loop.
+                if (typeof this.update === "function") {
+                    createjs.Ticker.removeAllEventListeners("tick");
+                    this.emit("ready");
+                    createjs.Ticker.on("tick", (() => {
+                        this.game.currentScene.update(),
+                        this.update(),
+                        this.game.tickCount++;
+                    }).bind(this.game));
+                }
+
+                clearInterval(wait);
+            }
+        });
     }
 
     /**

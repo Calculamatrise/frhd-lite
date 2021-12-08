@@ -53,10 +53,10 @@ export default class extends Vehicle {
         c.lineTo(a + n, h),
         c.closePath(),
         c.restore(),
-        c.fillStyle = window.lite.storage.get("dark") ? "#fff" : "#000",
+        c.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
         c.fill(),
         c.lineWidth = l,
-        c.strokeStyle = window.lite.storage.get("dark") ? "#fff" : "#000",
+        c.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
         c.stroke(),
         c.save(),
         c.translate(r / 2, o / 2),
@@ -65,7 +65,7 @@ export default class extends Vehicle {
         c.arc(a, h, n, 0, 1.5 * Math.PI, !0),
         c.restore(),
         c.lineWidth = l,
-        c.strokeStyle = window.lite.storage.get("dark") ? "#fff" : "#000",
+        c.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
         c.stroke()
     }
     createMasses(t) {
@@ -244,7 +244,7 @@ export default class extends Vehicle {
             r > 6.2831 && (r -= 6.2831),
             self.rotor = n,
             self.rotor2 = r,
-            t.strokeStyle = window.lite.storage.get("dark") ? "#fff" : "#000",
+            t.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
             t.lineWidth = 5 * a,
             t.beginPath(),
             t.moveTo(c.x + .5 * h.x, c.y + .5 * h.y),

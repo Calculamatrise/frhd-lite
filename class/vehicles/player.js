@@ -136,7 +136,7 @@ export default class {
     }
     update() {
         if (this.complete === !1) {
-            var t = this._baseVehicle;
+            let t = this._baseVehicle, e = {};
             this._temp_vehicle_options && this.createTempVehicle(),
             this._tempVehicleTicks > 0 && (t = this._tempVehicle,
             this._crashed === !1 && this._tempVehicleTicks--,
@@ -146,6 +146,14 @@ export default class {
             t = this._baseVehicle)),
             this._effectTicks > 0 && (this._effectTicks--,
             this._effect.update()),
+            this.isGhost() || window.hasOwnProperty("lite") && window.lite.storage.get("trail") && (e = {},
+            this._tempVehicleTicks > 0 ? (e._tempVehicleType = this._tempVehicleType,
+            e._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
+            e._tempVehicleTicks = this._tempVehicleTicks) : (e._baseVehicleType = this._baseVehicleType,
+            e._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
+            e._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
+            e._crashed = this._crashed,
+            window.lite.snapshots.push(e)),
             t.update(),
             this._addCheckpoint && (this._createCheckpoint(),
             this._addCheckpoint = !1)
@@ -230,7 +238,7 @@ export default class {
         t
     }
     _createCheckpoint() {
-        var t = {};
+        let t = {};
         this._tempVehicleTicks > 0 ? (t._tempVehicleType = this._tempVehicleType,
         t._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
         t._tempVehicleTicks = this._tempVehicleTicks) : (t._baseVehicleType = this._baseVehicleType,

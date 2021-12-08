@@ -1,4 +1,4 @@
-import s from "../../libs/lodash.js";
+import s from "../../libs/lodash-3.10.1.js";
 
 export default class {
     constructor(t) {

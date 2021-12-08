@@ -2,28 +2,65 @@ export default class {
     constructor(t) {
         this.scene = t,
         this.settings = t.settings,
-        this.container = {
-            scaleX: this.scene.game.pixelRatio / 2.5,
-            scaleY: this.scene.game.pixelRatio / 2.5,
-            x: 0,
-            y: 80 * this.scene.game.pixelRatio / 2.5
-        },
-        this.bronze_container = {
-            alpha: .4,
-            text: this.settings.campaignData.goals.third
-        },
-        this.silver_container = {
-            alpha: .4,
-            text: this.settings.campaignData.goals.second
-        },
-        this.gold_container = {
-            alpha: .4,
-            text: this.settings.campaignData.goals.first
-        }
+        this.build_interface()
     }
     scene = null;
     container = null;
     cached = !1;
+    build_interface() {
+        this.sprite_sheet = this.create_sprite_sheet();
+        var t = this.scene.game.pixelRatio
+          , e = new createjs.Container
+          , i = "helsinki"
+          , s = this.settings.campaignData
+          , n = s.goals
+          , r = n.third
+          , o = new createjs.Container
+          , a = this.get_sprite("bronze_medal")
+          , r = new createjs.Text(r,"30px " + i,"#000000")
+          , h = n.second
+          , l = new createjs.Container
+          , c = this.get_sprite("silver_medal")
+          , h = new createjs.Text(h,"30px " + i,"#000000")
+          , u = n.first
+          , p = new createjs.Container
+          , d = this.get_sprite("gold_medal")
+          , u = new createjs.Text(u,"30px " + i,"#000000")
+          , f = t / 2.5;
+        a.y = 7,
+        a.x = 16,
+        r.x = 69,
+        r.y = 14,
+        c.y = 7,
+        c.x = 175,
+        h.x = 229,
+        h.y = 14,
+        d.y = 7,
+        d.x = 350,
+        u.y = 14,
+        u.x = 400,
+        o.addChild(a),
+        o.addChild(r),
+        l.addChild(c),
+        l.addChild(h),
+        p.addChild(d),
+        p.addChild(u),
+        o.alpha = .4,
+        l.alpha = .4,
+        p.alpha = .4,
+        e.addChild(o),
+        e.addChild(l),
+        e.addChild(p),
+        e.scaleX = e.scaleY = f,
+        e.y = 80 * f,
+        e.x = 0,
+        this.bronze_container = o,
+        this.silver_container = l,
+        this.gold_container = p,
+        this.container = e,
+        this.scene.game.stage.addChild(e),
+        this.update_state()
+    }
     update_state() {
         switch (this.settings.campaignData.user.has_goal) {
             case 1:
@@ -39,25 +76,16 @@ export default class {
         }
     }
     center_container() {
-        this.container.x = this.scene.screen.width * this.container.scaleY,
-        this.container.y = 40 * this.scene.game.pixelRatio
+        let t = this.scene.screen
+          , e = this.container
+          , i = e.getBounds()
+          , s = this.scene.game.pixelRatio;
+        e.x = t.width / 2 - i.width / 2 * e.scaleY,
+        e.y = 40 * s
     }
     update() {
         this.settings.mobile && this.center_container(),
         this.update_state()
-    }
-    draw() {
-        const ctx = this.scene.game.canvas.getContext("2d");
-        ctx.font = "12px helsinki";
-        ctx.drawImage(this.scene.assets.getResult("campaign_icons"), 545, 65, 49, 49, this.container.x + 5, this.container.y, 20, 20);
-        ctx.globalAlpha = this.bronze_container.alpha;
-        ctx.fillText(this.bronze_container.text, this.container.x + 46, this.container.y + 15);
-        ctx.drawImage(this.scene.assets.getResult("campaign_icons"), 500, 65, 49, 49, this.container.x + 69, this.container.y, 20, 20);
-        ctx.globalAlpha = this.bronze_container.alpha;
-        ctx.fillText(this.silver_container.text, this.container.x + 113, this.container.y + 15);
-        ctx.drawImage(this.scene.assets.getResult("campaign_icons"), 454, 66, 49, 49, this.container.x + 139, this.container.y, 20, 20);
-        ctx.globalAlpha = this.bronze_container.alpha;
-        ctx.fillText(this.gold_container.text, this.container.x + 182, this.container.y + 15);
     }
     create_sprite_sheet() {
         return new createjs.SpriteSheet({

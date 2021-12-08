@@ -212,13 +212,27 @@ export default class extends Vehicle {
         if (this.explosion)
             this.explosion.draw();
         else {
-            var t = this.scene.game.canvas.getContext("2d");
+            let t = this.scene.game.canvas.getContext("2d");
             if (t.imageSmoothingEnabled = !0,
             t.webkitImageSmoothingEnabled = !0,
             t.mozImageSmoothingEnabled = !0,
             this.settings.developerMode)
                 for (var e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
                     e[s].draw();
+
+            if (window.lite.storage.get("trail")) {
+                let e = 0;
+                for (const snapshot in window.lite.snapshots) {
+                    try {
+                        if (window.lite.snapshots[snapshot] && window.lite.snapshots[snapshot]._baseVehicle) {
+                            this.drawBikeFrame(JSON.parse(window.lite.snapshots[snapshot]._baseVehicle), window.lite.snapshots.length / (window.lite.snapshots.length * 200) * ++e % 1);
+                        }
+                    } catch(e) {
+                        console.error(e, window.lite.snapshots, snapshot)
+                    }
+                }
+            }
+            
             this.drawBikeFrame()
         }
     }
@@ -226,7 +240,33 @@ export default class extends Vehicle {
         if (this.explosion)
             this.explosion.draw();
         else {
-            this.cloneBikeFrame()
+            //this.player._checkpoints = this.player._checkpoints.slice(-101);
+            let t = lite.storage.get("snapshots");
+            let e = 0;
+            if (t < 1) return;
+            for (const checkpoint in this.player._checkpoints) {
+                if (checkpoint > this.player._checkpoints.length - (parseInt(t) + 1)) {
+                    try {
+                        if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._baseVehicle) {
+                            this.drawBikeFrame(JSON.parse(this.player._checkpoints[checkpoint]._baseVehicle), t / 3e2 * ++e % 1);
+                        }
+                    } catch(e) {
+                        console.error(e, this.player._checkpoints, checkpoint)
+                    }
+                }
+            }
+            e = 0;
+            for (const checkpoint in this.player._cache) {
+                if (checkpoint > this.player._cache.length - (parseInt(t) + 1)) {
+                    try {
+                        if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._baseVehicle) {
+                            this.drawBikeFrame(JSON.parse(this.player._cache[checkpoint]._baseVehicle), t / 3e2 * ++e % 1);
+                        }
+                    } catch(e) {
+                        console.error(e, this.player._cache, checkpoint)
+                    }
+                }
+            }
         }
     }
     updateDrawHeadAngle() {
@@ -256,7 +296,7 @@ export default class extends Vehicle {
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -274,7 +314,7 @@ export default class extends Vehicle {
         , f = e.add(o.factor(.84)).add(a.factor(.42))
         , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -283,7 +323,7 @@ export default class extends Vehicle {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
@@ -298,7 +338,7 @@ export default class extends Vehicle {
         , x = e.add(o.factor(.17)).add(a.factor(.38))
         , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("dark") ? "#FBFBFB" : "#000000"),
+        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),
@@ -318,7 +358,7 @@ export default class extends Vehicle {
         u.lineTo(S.x, S.y),
         u.lineTo(P.x, P.y),
         u.stroke(),
-        u.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000000";
+        u.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000";
         if (self.crashed) {
             self.ragdoll.draw && self.ragdoll.draw();
         } else {
@@ -334,7 +374,7 @@ export default class extends Vehicle {
             D = D.factor(c * c);
             var O = M.add(A.factor(.5)).add(D.factor(200 / A.lenSqr()))
             , z = y.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
-            u.strokeStyle = window.lite.storage.get("dark") ? "#fdfdfda5" : "#000000a5",
+            u.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#cccccca5" : window.lite.storage.get("theme") === "dark" ? "#fdfdfda5" : "#000000a5",
             u.lineWidth = 6 * c,
             u.beginPath(),
             u.moveTo(y.x, y.y),
@@ -347,7 +387,7 @@ export default class extends Vehicle {
             u.lineTo(z.x, z.y),
             u.stroke(),
             u.lineWidth = 6 * c,
-            u.strokeStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000000",
+            u.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fdfdfd" : "#000000",
             u.beginPath(),
             u.moveTo(m.x, m.y),
             u.lineTo(I.x, I.y),
@@ -375,38 +415,9 @@ export default class extends Vehicle {
             u.lineTo(B.x, B.y),
             u.lineTo(P.x, P.y),
             u.stroke();
-            var R = GameInventoryManager.getItem(window.lite.storage.get("cr") ? window.lite.head : this.cosmetics.head);
+            var R = GameInventoryManager.getItem(this.cosmetics.head);
             R.draw(u, L.x, L.y, self.drawHeadAngle, c, this.dir),
             u.globalAlpha = 1
-        }
-    }
-    cloneBikeFrame() {
-        //this.player._checkpoints = this.player._checkpoints.slice(-101);
-        let t = lite.storage.get("snapshots");
-        let e = 0;
-        if (t < 1) return;
-        for (const checkpoint in this.player._checkpoints) {
-            if (checkpoint > this.player._checkpoints.length - (parseInt(t) + 1)) {
-                try {
-                    if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._baseVehicle) {
-                        this.drawBikeFrame(JSON.parse(this.player._checkpoints[checkpoint]._baseVehicle), t / 3e2 * ++e % 1);
-                    }
-                } catch(e) {
-                    console.error(e, this.player._checkpoints, checkpoint)
-                }
-            }
-        }
-        e = 0;
-        for (const checkpoint in this.player._cache) {
-            if (checkpoint > this.player._cache.length - (parseInt(t) + 1)) {
-                try {
-                    if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._baseVehicle) {
-                        this.drawBikeFrame(JSON.parse(this.player._cache[checkpoint]._baseVehicle), t / 3e2 * ++e % 1);
-                    }
-                } catch(e) {
-                    console.error(e, this.player._cache, checkpoint)
-                }
-            }
         }
     }
 }

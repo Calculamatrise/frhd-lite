@@ -1,4 +1,4 @@
-import k from "../../libs/lodash.js";
+import k from "../../libs/lodash-3.10.1.js";
 import b from "../controls/fullscreen.js";
 import w from "../controls/pause.js";
 import T from "../controls/settings.js";
@@ -23,6 +23,7 @@ export default class {
     constructor(t) {
         this.game = t;
         this.assets = t.assets;
+        this.stage = t.stage;
         this.settings = t.settings;
         this.sound = new x(this);
         this.mouse = new s(this);
@@ -51,6 +52,7 @@ export default class {
     }
     game = null;
     assets = null;
+    stage = null;
     settings = null;
     camera = null;
     score = null;
@@ -246,8 +248,9 @@ export default class {
         this.updateScore(),
         this.vehicleTimer.update(),
         this.isStateDirty() && this.updateState(),
-        this.game.canvas.getContext("2d").clearRect(0, 0, this.game.canvas.width, this.game.canvas.height),
+        this.stage.clear(),
         this.draw(),
+        this.stage.update(),
         this.camera.updateZoom()) : this.importCode && this.createTrack()
     }
     isStateDirty() {
@@ -322,15 +325,8 @@ export default class {
         this.track.draw(),
         this.drawPlayers(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
-        this.pauseControls.draw(),
-        this.fullscreenControls.draw(),
-        this.settingsControls.draw(),
         this.loading && this.loadingcircle.draw(),
-        this.message.draw(),
-        this.score.draw(),
-        this.campaignScore && this.campaignScore.draw(),
-        this.raceTimes.draw(),
-        this.vehicleTimer.draw()
+        this.message.draw()
     }
     redraw() {
         this.track.undraw(),
@@ -614,6 +610,7 @@ export default class {
         this.game = null,
         this.assets = null,
         this.settings = null,
+        this.stage = null,
         this.track = null,
         this.state = null,
         this.stopAudio()

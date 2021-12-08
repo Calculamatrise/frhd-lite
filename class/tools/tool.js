@@ -16,25 +16,48 @@ export default class {
     hold() {}
     release() {}
     update = () => {
-        let r = this.toolhandler.gamepad.isButtonDown("shift");
-        this.toolhandler.options.rightClickMove && (r = this.mouse.secondaryTouch.old.down),
-        r ? (this.mouse.touch.old.down || this.toolhandler.options.rightClickMove) && this.moveCamera() : (this.mouse.touch.press && this.press(),
-        this.mouse.touch.old.down && this.hold(),
-        this.mouse.touch.release && this.release()),
-        this.mouse.mousewheel !== !1 && this.toolhandler.gamepad.isButtonDown("shift") === !1 && this.mousewheel(this.mouse.mousewheel)
+        var t = this.mouse
+          , e = t.touch
+          , i = t.secondaryTouch
+          , s = this.toolhandler.gamepad
+          , n = this.toolhandler.options
+          , r = s.isButtonDown("shift");
+        n.rightClickMove && (r = i.old.down),
+        r ? (e.old.down || n.rightClickMove) && this.moveCamera() : (e.press && this.press(),
+        e.old.down && this.hold(),
+        e.release && this.release()),
+        t.mousewheel !== !1 && s.isButtonDown("shift") === !1 && this.mousewheel(t.mousewheel)
     }
     moveCamera() {
-        this.camera.position.inc(this.mouse.secondaryTouch.old.pos.sub(this.mouse.secondaryTouch.pos).factor(1 / this.camera.zoom))
+        var t = this.mouse.secondaryTouch
+          , e = t.pos
+          , i = this.camera
+          , s = t.old.pos.sub(e).factor(1 / i.zoom);
+        i.position.inc(s)
     }
     draw() {}
     reset() {}
     mousewheel(t) {
-        this.camera.setZoom((this.camera.desiredZoom + (t * this.scene.settings.cameraSensitivity)) / this.scene.game.pixelRatio, this.mouse.touch.pos),
-        this.camera.desiredZoom < this.scene.settings.cameraZoomMin * this.scene.game.pixelRatio ? this.camera.setZoom(this.scene.settings.cameraZoomMin, this.mouse.touch.pos) : this.camera.desiredZoom > this.scene.settings.cameraZoomMax * this.scene.game.pixelRatio && this.camera.setZoom(this.scene.settings.cameraZoomMax, this.mouse.touch.pos)
+        var e = this.scene.settings
+          , i = this.scene.game.pixelRatio
+          , s = e.cameraSensitivity
+          , n = e.cameraZoomMin
+          , r = e.cameraZoomMax
+          , o = n * i
+          , a = r * i
+          , h = this.camera
+          , l = this.mouse.touch
+          , c = h.desiredZoom;
+        c += t * s,
+        h.setZoom(c / i, l.pos),
+        h.desiredZoom < o ? h.setZoom(n, l.pos) : h.desiredZoom > a && h.setZoom(r, l.pos)
     }
     checkKeys() {
-        this.gamepad.isButtonDown(this.name.toLowerCase()) && (this.toolhandler.setTool(this.name.toLowerCase()),
-        this.gamepad.setButtonUp(this.name.toLowerCase()))
+        var t = this.gamepad
+          , e = this.name.toLowerCase()
+          , i = this.toolhandler;
+        t.isButtonDown(e) && (i.setTool(e),
+        t.setButtonUp(e))
     }
     getOptions() {
         return {}

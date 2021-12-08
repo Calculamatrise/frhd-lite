@@ -12,6 +12,7 @@ window.Game = class {
         this.assets = e,
         this.settings = i || window.hasOwnProperty("GameSettings") && window.GameSettings,
         this.initCanvas(),
+        this.initStage(),
         this.setSize(),
         this.switchScene(t),
         this.setSize(),
@@ -21,6 +22,7 @@ window.Game = class {
     tickCount = 0;
     currentScene = null;
     assets = null;
+    stage = null;
     canvas = null;
     stats = null;
     width = 0;
@@ -43,6 +45,15 @@ window.Game = class {
         this.canvas = document.createElement("canvas");
         this.gameContainer = document.getElementById(this.settings.defaultContainerID),
         this.gameContainer.appendChild(this.canvas);
+    }
+    initStage() {
+        let t = new createjs.Stage(this.canvas);
+        t.autoClear = !1,
+        createjs.Touch.enable(t),
+        t.enableMouseOver(30),
+        t.mouseMoveOutside = !0,
+        t.preventSelection = !1,
+        this.stage = t
     }
     setSize() {
         let t = window.innerHeight,
@@ -75,7 +86,8 @@ window.Game = class {
     }
     update() {
         // Implemented dark mode and input display
-        this.canvas.style.setProperty("background-color", lite.storage.get("dark") ? "#1b1b1b" : "#fff"),
+        this.canvas.style.setProperty("background-color", window.lite.storage.get("theme") === "midnight" ? "#1d2328" : window.lite.storage.get("theme") === "dark" ? "#1b1b1b" : "#fff"),
+        window.lite.focusOverlay && window.lite.focusOverlay.style.setProperty("background-color", window.lite.storage.get("theme") === "midnight" ? "#333333bb" : window.lite.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb"),
         this.currentScene.update(),
         lite.storage.get("di") && lite.drawInputDisplay(this.canvas),
         this.tickCount++
@@ -94,6 +106,12 @@ window.Game = class {
         this.currentScene = null,
         this.assets = null,
         this.settings = null,
+        this.stage.autoClear = !0,
+        this.stage.removeAllChildren(),
+        this.stage.update(),
+        this.stage.enableDOMEvents(!1),
+        this.stage.removeAllEventListeners(),
+        this.stage = null,
         this.canvas.parentNode.removeChild(this.canvas),
         this.canvas = null,
         this.tickCount = null,

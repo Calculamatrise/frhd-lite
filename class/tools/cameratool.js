@@ -2,20 +2,15 @@ import Tool from "./tool.js";
 
 export default class extends Tool {
     name = "Camera";
-    frozen = false;
     hold() {
-        let t = this.mouse.touch.old.pos.sub(this.mouse.touch.pos).factor(1 / this.camera.zoom);
-        if (this.frozen)
-            this.scene.track.move(t.x | 0, t.y | 0)
-        else
-            this.camera.position.inc(t)
-    }
-    draw() {
-        this.scene.game.canvas,
-        this.scene.game.canvas.getContext("2d")
+        var t = this.mouse.touch
+          , e = t.pos
+          , i = this.camera
+          , s = t.old.pos.sub(e).factor(1 / i.zoom);
+        i.position.inc(s)
     }
     drawText(t) {
-        t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000000",
+        t.fillStyle = window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000",
         t.font = 12 * this.game.pixelRatio + "pt arial",
         t.fillText(this.name, 10 * this.game.pixelRatio, 20 * this.game.pixelRatio),
         t.font = 8 * this.game.pixelRatio + "pt arial"

@@ -10,7 +10,6 @@ export default class extends Tool {
         this.shouldDrawMetadata = !1;
         this.options = {};
     }
-    toolUpdate = this.update;
     name = "StraightLine";
     p1 = null;
     p2 = null;
@@ -55,8 +54,8 @@ export default class extends Tool {
         r.y = e.y,
         this.active = !1
     }
-    update = () => {
-        this.toolUpdate();
+    update() {
+        super.update();
         var t = this.toolhandler
             , e = t.gamepad;
         t.options.snap && (this.active = !0,
@@ -116,7 +115,7 @@ export default class extends Tool {
             var s = this.p1.getAngleInDegrees(this.p2);
             s = s.toFixed(2);
             var n = this.game.pixelRatio;
-            t.fillStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
+            t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
             t.font = 8 * n + "pt arial",
             t.fillText("" + s + "°", i.x + 10, i.y + 10),
             t.strokeText("" + s + "°", i.x + 10, i.y + 10)
@@ -128,7 +127,7 @@ export default class extends Tool {
           2 * e > .5 ? 2 * e : .5)
             , n = this.toolhandler
             , r = n.options.lineType
-            , o = "physics" === r ? window.lite.storage.get("dark") ? "#fafafa" : "#000" : window.lite.storage.get("dark") ? "#666" : "#AAA";
+            , o = "physics" === r ? window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000" : window.lite.storage.get("theme") === "midnight" ? "#888" : window.lite.storage.get("theme") === "dark" ? "#666" : "#aaa";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

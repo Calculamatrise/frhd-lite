@@ -99,7 +99,7 @@ export default class extends Vehicle {
             , l = -o
             , h = r;
         t.save(),
-        t.strokeStyle = lite.storage.get("dark") ? "#666" : "#999",
+        t.strokeStyle = window.lite.storage.get("theme") === "dark" ? "#666" : "#999",
         t.lineWidth = 1,
         t.beginPath(),
         t.moveTo(i.x + .1 * l, i.y + .1 * h),
@@ -130,7 +130,7 @@ export default class extends Vehicle {
         t.closePath(),
         t.stroke()),
         t.beginPath(),
-        t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
+        t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
         t.moveTo(i.x + .1 * l, i.y + .1 * h),
         t.lineTo(i.x - .1 * l, i.y - .1 * h),
         t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * h),

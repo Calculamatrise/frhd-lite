@@ -1,4 +1,5 @@
 import Vector from "../math/cartesian.js";
+import lodash from "../../libs/lodash-3.10.1.js";
 import EventEmitter from "../EventEmitter.js";
 
 export default class extends EventEmitter {
@@ -46,29 +47,28 @@ export default class extends EventEmitter {
         }
     }
     bindToMouseEvents() {
-        this.scene.game.canvas.addEventListener("mousemove", this.mouseMoveListener = this.onMouseMove.bind(this)),
-        this.scene.game.canvas.addEventListener("mousedown", this.mouseDownListener = this.onMouseDown.bind(this)),
-        this.scene.game.canvas.addEventListener("mouseup", this.mouseUpListener = this.onMouseUp.bind(this));
-        this.scene.game.canvas.addEventListener("mousewheel", this.mouseWheelListener = this.onMouseWheel.bind(this)),
-        this.scene.game.canvas.addEventListener("wheel", this.onMouseWheel.bind(this)),
-        this.scene.game.canvas.addEventListener("DOMMouseScroll", this.onMouseWheel.bind(this)),
-        this.mouseWheelListener = this.onMouseWheel
+        var t = this.scene.game.stage
+          , e = this.scene.game.canvas
+          , i = this.onMouseMove.bind(this)
+          , n = this.onMouseDown.bind(this)
+          , r = this.onMouseUp.bind(this);
+        t.addEventListener("stagemousemove", i),
+        t.addEventListener("stagemousedown", n),
+        t.addEventListener("stagemouseup", r),
+        this.mouseMoveListener = i,
+        this.mouseDownListener = n,
+        this.mouseUpListener = r;
+        var o = lodash.throttle(this.onMouseWheel, 0);
+        e.addEventListener("mousewheel", o.bind(this)),
+        e.addEventListener("wheel", o.bind(this)),
+        e.addEventListener("DOMMouseScroll", o.bind(this)),
+        this.mouseWheelListener = o
     }
     onMouseDown(t) {
-        if (t.ctrlKey) {
-            this.scene.toolHandler.lastTool = this.scene.toolHandler.currentTool,
-            this.scene.toolHandler.setTool("select");
-        }
-
         this.analytics.clicks++,
-        2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
+        2 === t.nativeEvent.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
         this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
         this.touch.down = !0)
-        if (this.scene.pauseControls.check(this.touch.pos)) this.scene.pauseControls.click()
-        else if (this.scene.fullscreenControls && this.scene.fullscreenControls.check(this.touch.pos)) this.scene.fullscreenControls.click();
-        else if (this.scene.settingsControls && this.scene.settingsControls.check(this.touch.pos)) this.scene.settingsControls.click();
-        else if (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos) == 1) this.scene.redoundoControls.click(true);
-        else if (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos) == 2) this.scene.redoundoControls.click(false);
     }
     disableContextMenu() {
         this.scene.game.canvas.oncontextmenu = function() {
@@ -82,9 +82,10 @@ export default class extends EventEmitter {
     }
     updatePosition(t, e) {
         e.id = t.pointerID,
-        e.type = t.button,
-        e.pos.x = t.offsetX,
-        e.pos.y = t.offsetY,
+        e.type = t.button;
+        let i = e.pos;
+        i.x = t.stageX,
+        i.y = t.stageY,
         this.updateRealPosition(e)
     }
     updateRealPosition(t) {
@@ -93,7 +94,7 @@ export default class extends EventEmitter {
         i.y = Math.round((t.pos.y - this.scene.screen.center.y) / this.scene.camera.zoom + this.scene.camera.position.y);
         if (this.scene.toolHandler.options.grid) {
             let p = this.scene.settings.toolHandler.gridSize | 0;
-            if (lite.storage.get("isometric")) {
+            if (window.lite.storage.get("isometric")) {
                 function Ab(t, e) {
                     return ((t % e) + e) % e
                 }
@@ -108,7 +109,8 @@ export default class extends EventEmitter {
         }
         this.updateCallback
     }
-    onMouseWheel(t = window.event) {
+    onMouseWheel(t) {
+        t = window.event || t;
         t.preventDefault(),
         t.stopPropagation();
         let e = Math.max(-1, Math.min(1, -t.deltaY || -t.detail));
@@ -119,15 +121,6 @@ export default class extends EventEmitter {
     onMouseMove(t) {
         this.updatePosition(t, this.touch),
         this.updatePosition(t, this.secondaryTouch);
-        if (this.scene.pauseControls.check(this.touch.pos) ||
-        (this.scene.fullscreenControls && this.scene.fullscreenControls.check(this.touch.pos)) ||
-        (this.scene.settingsControls && this.scene.settingsControls.check(this.touch.pos)) ||
-        (this.scene.redoundoControls && this.scene.redoundoControls.check(this.touch.pos)))
-            this.scene.game.canvas.style.cursor = "pointer",
-            this.enabled = !1;
-        else
-            this.scene.game.canvas.style.cursor = "default",
-            this.enabled = !0
     }
     update() {
         this.enabled && (this.updateTouch(this.touch),
@@ -153,11 +146,11 @@ export default class extends EventEmitter {
         this.wheel = !1
     }
     close() {
-        this.scene.game.canvas.removeEventListener("mousemove", this.onMouseMove),
-        this.scene.game.canvas.removeEventListener("mousedown", this.onMouseDown),
-        this.scene.game.canvas.removeEventListener("mouseup", this.onMouseUp),
-        this.scene.game.canvas.removeEventListener("mousewheel", this.mouseWheelListener),
-        this.scene.game.canvas.removeEventListener("DOMMouseScroll", this.mouseWheelListener),
+        let t = this.scene.game.stage
+          , e = this.scene.game.canvas;
+        t.removeAllEventListeners(),
+        e.removeEventListener("mousewheel", this.mouseWheelListener),
+        e.removeEventListener("DOMMouseScroll", this.mouseWheelListener),
         this.touches = null,
         this.touch = null,
         this.scene = null,

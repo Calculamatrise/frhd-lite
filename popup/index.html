@@ -10,22 +10,21 @@
         <lite-tabs>
             <tab class="ripple">Options</tab>
             <tab class="ripple">Advanced Options</tab>
-            <tab class="ripple">Hotkeys</tab>
+            <tab class="ripple">Themes</tab>
             <tab class="ripple">Changes</tab>
         </lite-tabs>
         <lite-content class="options">
-            <lite-option class="ripple" title="Custom rider cosmetic">
-                <input type="checkbox" id="cr">Canvas rider</lite-option>
-            <lite-option class="ripple" title="Toggle dark mode">
-                <input type="checkbox" id="dark">Dark mode</lite-option>
+            <lite-option class="ripple" title="Display the last 15 snapshots of your rider">
+                <input type="checkbox" id="trail">Player trail</lite-option>
             <lite-option class="ripple" title="Toggle an input display">
                 <input type="checkbox" id="di">Input display</lite-option>
             <lite-option class="ripple" title="Displays featured ghosts on the leaderboard">
-                <input type="checkbox" id="feats">Feat. ghosts</lite-option>
+                <input type="checkbox" id="feats">Featured ghosts</lite-option>
             <lite-option class="ripple" title="Change grid style">
-                <input type="checkbox" id="isometric"> Isometric grid</lite-option>
+                <input type="checkbox" id="isometric">Isometric grid</lite-option>
             <lite-option class="ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);">
-                <input type="color" id="cc" value="#000000" style="margin-left: 4px; visibility: hidden;">Custom bike colour</div>
+                <input type="color" id="cc" value="#000000" style="margin-left: 4px; visibility: hidden; text-align: center;">Custom bike colour</lite-option>
+            <!-- <lite-option class="ripple" title="Show advanced options" style="text-align: center;">Show advanced options</lite-option> -->
         </lite-content>
         <lite-content class="advanced" style="display: none">
             <lite-option class="ripple" title="Change the size of the input display">
@@ -36,24 +35,22 @@
                 <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="padding:0"></lite-option>
             <lite-option class="ripple" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)" id="reset">Reset settings</lite-option>
         </lite-content>
-        <lite-content class="hotkeys" style="display: none;">
-            <span>Select Tool</span>
-            <button>
-                Ctrl + Left Mouse Button
-            </button>
+        <lite-content class="themes" style="display: none;">
+            <lite-option>
+                <input type="radio" name="theme" id="light">Light</lite-option>
+            <lite-option>
+                <input type="radio" name="theme" id="midnight">Midnight</lite-option>
+            <lite-option>
+                <input type="radio" name="theme" id="dark" checked>Dark</lite-option>
+            <lite-option>
+                <input type="radio" name="theme" id="darker" title="Why do I even bother?">Darker</lite-option>
         </lite-content>
         <lite-content class="changes" style="display:none">
-            <ul>
-                <li title="Normally, you could only see them from your own.">
-                    Added the ability to see the last time a user has logged in from other's friends lists
-                </li>
-                <li title="See the advanced tab for more details.">
-                    Added the advanced tab with extra settings. Maily resizing and such
-                </li>
-                <li title="Work in progress...">
-                    Replacing createjs library (programmers' update)
-                </li>
-            </ul>
+            <p>
+                - Fixed the scenery line colour for the brush and curve tool.
+                <br><br>
+                - Destroyed everything else
+            </p>
         </lite-content>
     </body>
 </html>

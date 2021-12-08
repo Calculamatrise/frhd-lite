@@ -121,6 +121,11 @@ lite-option {
     -webkit-user-select: none;
 }
 
+lite-option.disabled {
+    opacity: .4;
+    position: none;
+}
+
 lite-option input:not(.override-pointer-events) {
     pointer-events: none;
     touch-action: none;

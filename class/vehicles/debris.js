@@ -52,7 +52,7 @@ export default class extends Mass {
           , p = s + c * Math.sin(o)
           , d = this.scene.game.canvas.getContext("2d");
         for (d.lineWidth = 1 * r,
-        d.strokeStyle = window.lite.storage.get("dark") && "#fff" || "#000",
+        d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" && "#fbfbfb" || "#000",
         d.beginPath(),
         d.moveTo(u, p),
         d.fillStyle = this.color; n++ < 8; )

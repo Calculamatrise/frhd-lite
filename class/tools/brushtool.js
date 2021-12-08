@@ -1,4 +1,4 @@
-import "../../libs/lodash.js";
+import "../../libs/lodash-3.10.1.js";
 
 import i from "../math/cartesian.js";
 import Tool from "./tool.js";
@@ -144,7 +144,7 @@ export default class extends Tool {
             i = this.options.breakLength,
             s = this.options.trailSpeed,
             n = this.game.pixelRatio;
-        t.fillStyle = window.lite.storage.get("dark") ? "#FBFBFB" : "#000",
+        t.fillStyle = window.lite.storage.get("theme") === "dark" ? "#FBFBFB" : "#000",
         t.font = 12 * n + "pt arial",
         t.fillText(e, 10 * n, 20 * n),
         t.font = 8 * n + "pt arial",
@@ -189,7 +189,7 @@ export default class extends Tool {
             s = 2 * e > .5 ? 2 * e : .5,
             n = this.toolhandler,
             r = n.options.lineType,
-            o = "physics" === r ? window.lite.storage.get("dark") ? "#fff" : "#000" : window.lite.storage.get("dark") ? "#777" : "#AAA";
+            o = "physics" === r ? window.lite.storage.get("theme") === "midnight" ? "#ddd" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000" : window.lite.storage.get("theme") === "midnight" ? "#888" : window.lite.storage.get("theme") === "dark" ? "#666" : "#aaa";
         t.beginPath(),
         t.lineWidth = s,
         t.lineCap = "round",

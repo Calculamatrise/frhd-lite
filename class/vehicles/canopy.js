@@ -43,7 +43,7 @@ export default class extends Mass {
             , i = this.pos.toScreen(e)
             , s = this.radius * e.camera.zoom;
         t.beginPath(),
-        t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
+        t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
         t.arc(i.x, i.y, s, 0, 2 * Math.PI, !1),
         t.closePath(),
         t.fill()

@@ -85,15 +85,16 @@ export default class {
             e.recache(t)
     }
     read(t) {
-        let e = t.split("#")
+        var e = t.split("#")
+          , i = e[0].split(",")
           , s = []
           , n = [];
         if (e.length > 2)
-            s = e[1].split(","),
-            n = e[2].split(",");
+            var s = e[1].split(",")
+                , n = e[2].split(",");
         else if (e.length > 1)
-            n = e[1].split(",");
-        this.addLines(e[0].split(","), this.addPhysicsLine),
+            var n = e[1].split(",");
+        this.addLines(i, this.addPhysicsLine),
         this.addLines(s, this.addSceneryLine),
         this.addPowerups(n)
     }
@@ -339,7 +340,42 @@ export default class {
     }
     getCode() {
         this.cleanTrack();
-        return this.physicsLines.map(t => t.p1.x.toString(32) + " " + t.p1.y.toString(32) + t.getCode(this)).join(",") + "#" + this.sceneryLines.map(t => t.p1.x.toString(32) + " " + t.p1.y.toString(32) + t.getCode(this)).join(",") + "#" + this.powerups.map(t => t.getCode()).join(",")
+        var t = this.powerups
+          , e = this.physicsLines
+          , i = this.sceneryLines
+          , s = ""
+          , n = e.length
+          , r = i.length
+          , o = t.length;
+        if (n > 0) {
+            for (var a in e) {
+                var h = e[a];
+                h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
+            }
+            s = s.slice(0, -1);
+            for (var a in e)
+                e[a].recorded = !1
+        }
+        if (s += "#",
+        r > 0) {
+            for (var l in i) {
+                var h = i[l];
+                h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
+            }
+            s = s.slice(0, -1);
+            for (var l in i)
+                i[l].recorded = !1
+        }
+        if (s += "#",
+        o > 0) {
+            for (var c in t) {
+                var u = t[c]
+                    , p = u.getCode();
+                p && (s += p + ",")
+            }
+            s = s.slice(0, -1)
+        }
+        return s
     }
     resetPowerups() {
         for (const t of this.powerups) {

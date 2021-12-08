@@ -1,15 +1,10 @@
-import format from "./formatnumber.js";
+import formatnumber from "./formatnumber.js";
 
 export default class {
     constructor(t) {
-        this.scene = t;
-        this.maxRaces = this.scene.settings.mobile ? 3 : 10;
-        this.container = {
-            scaleX: this.scene.game.pixelRatio / 2.5,
-            scaleY: this.scene.game.pixelRatio / 2.5,
-            x: 40 * this.scene.game.pixelRatio / 2.5,
-            y: 105 * this.scene.game.pixelRatio / 2.5
-        }
+        this.scene = t,
+        this.maxRaces = this.scene.settings.mobile ? 3 : 10,
+        this.createContainer()
     }
     container = null;
     raceList = [];
@@ -19,55 +14,79 @@ export default class {
     raceYOffset = 50;
     mobileRaceXOffset = 180;
     maxRaces = 10;
+    createContainer() {
+        var t = this.scene.game
+          , e = t.settings
+          , i = t.pixelRatio
+          , s = i / 2.5
+          , n = new createjs.Container;
+        n.scaleX = n.scaleY = s,
+        n.y = 80 * s,
+        n.x = 15 * s,
+        e.isCampaign && (n.y += 55 * s),
+        this.container = n,
+        t.stage.addChild(n)
+    }
     clear() {
+        this.container.removeAllChildren(),
         this.raceList = [],
         this.raceCount = 0
     }
+    centerContainer() {
+        var t = this.scene
+          , e = t.screen
+          , i = this.container
+          , s = i.getBounds()
+          , n = this.scene.game.pixelRatio;
+        i.x = e.width / 2 - s.width / 2 * i.scaleY;
+        var r = 40;
+        t.settings.isCampaign && (i.visible = !1),
+        i.y = r * n
+    }
     addRace(t, e) {
         if (this.raceCount < this.maxRaces) {
-            this.container.y += this.scene.campaignScore ? this.scene.campaignScore.container.y / 2.5 : 0;
-            this.raceList.push({
-                alpha: this.raceOpacity,
-                char: t.user.d_name.charAt(0),
-                color: t.user.color,
-                time: format(parseInt(t.race.run_ticks) / this.scene.settings.drawFPS * 1e3),
-                offset: {
-                    x: 0,
-                    y: (parseInt(e)) * 20
-                }
-            });
+            var i = this.scene
+              , n = i.game
+              , r = t.user
+              , o = t.race
+              , a = i.settings
+              , h = a.drawFPS
+              , l = r.color
+              , c = "helsinki"
+              , u = new createjs.Container
+              , p = new createjs.Shape
+              , d = p.graphics;
+            d.setStrokeStyle(4, "round"),
+            d.beginFill(l).drawCircle(0, 0, 20),
+            p.x = 25,
+            p.y = 25;
+            var f = formatnumber(parseInt(o.run_ticks) / h * 1e3)
+              , v = new createjs.Text(f,"30px " + c,"#000000");
+            v.x = 55,
+            v.y = 9;
+            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c,"#000000");
+            g.x = 17,
+            g.y = 33,
+            g.textBaseline = "alphabetic";
+            var m = new createjs.Container;
+            m.addChild(p),
+            m.addChild(g),
+            m.cache(0, 0, 50, 50),
+            m.removeAllChildren(),
+            u.addChild(m, v),
+            u.alpha = this.raceOpacity,
+            a.mobile ? u.x = e * this.mobileRaceXOffset : (u.x = -2,
+            u.y = e * this.raceYOffset),
+            this.raceList.push(u),
+            this.container.addChild(u),
             this.raceCount++
         }
     }
     update() {
         if (this.raceCount > 0) {
-            for (const i in this.raceTimes) {
-                for (const x in this.scene.playerManager._players) {
-                    if (this.scene.playerManager._players[x]._user.d_name == i) {
-                        this.raceTimes[i].time.text = this.raceTimes[i].time.text.split(" ")[0] + " " + this.scene.playerManager._players[x].getTargetsHit() + "/" + this.scene.track.targetCount;
-                        this.raceTimes[i].time.color = lite.storage.get("dark") ? "#f1f1f1" : "#000"
-                    }
-                }
-            }
-            this.scene.camera.focusIndex > 0 && this.scene.camera.focusIndex < this.maxRaces ? this.highlightRace(this.scene.camera.focusIndex - 1) : this.unhighlightRace(),
+            var t = this.scene.camera;
+            t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace(),
             this.scene.settings.mobile && this.centerContainer()
-        }
-    }
-    draw() {
-        const ctx = this.scene.game.canvas.getContext("2d");
-        for (const t in this.raceList) {
-            ctx.globalAlpha = this.raceList[t].alpha;
-            ctx.fillStyle = this.raceList[t].color;
-            ctx.beginPath();
-            ctx.arc(this.container.x + this.raceList[t].offset.x, this.container.y + this.raceList[t].offset.y, 8, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000000";
-            ctx.font = "10px helsinki";
-            ctx.fillText(this.raceList[t].char, this.container.x + this.raceList[t].offset.x, this.container.y + this.raceList[t].offset.y + 4);
-            ctx.font = "12.5px helsinki";
-            ctx.fillText(this.raceList[t].time, this.container.x + this.raceList[t].offset.x + 35, this.container.y + this.raceList[t].offset.y + 4);
-            ctx.globalAlpha = 1;
         }
     }
     highlightRace(t) {

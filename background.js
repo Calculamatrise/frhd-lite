@@ -51,11 +51,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function setEnabled({ enabled }) {
     chrome.storage.local.set({ enabled: state.enabled = enabled });
-    chrome.declarativeNetRequest.updateEnabledRulesets({
-        [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [
-            "ruleset_1"
-        ]
-    });
+    // chrome.declarativeNetRequest.updateEnabledRulesets({
+    //     [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [
+    //         "ruleset_1"
+    //     ]
+    // });
     chrome.action.setIcon({
         path: {
             256: enabled ? "/icons/icon_256.png" : "/icons/disabled/icon_256.png",

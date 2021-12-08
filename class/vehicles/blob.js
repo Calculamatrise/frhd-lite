@@ -132,8 +132,8 @@ export default class extends Vehicle {
                 , a = new n(e[3].pos.x, e[3].pos.y).toScreen(i);
             t.globalAlpha = alpha,
             t.beginPath(),
-            t.strokeStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
-            t.fillStyle = lite.storage.get("dark") ? "#FBFBFB" : "#000",
+            t.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
+            t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
             t.lineWidth = 20 * s,
             t.lineCap = "round",
             t.moveTo(m.x, m.y),
