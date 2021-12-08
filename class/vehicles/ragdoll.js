@@ -105,7 +105,7 @@ export default class extends Vehicle {
             p = u.zoom,
             d = c.game.canvas.getContext("2d"),
             f = this.parent.alpha || 1;
-        d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "rgba(204,204,204," + .5 * f + ")" : lite.storage.get("theme") === "dark" ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
+        d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + .5 * f + ")",
         d.lineWidth = 5 * p,
         d.lineCap = "round",
         d.lineJoin = "round";
@@ -117,7 +117,7 @@ export default class extends Vehicle {
         var m = r.pos.toScreen(c);
         d.lineTo(m.x, m.y),
         d.stroke(),
-        d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "rgba(204,204,204," + .5 * f + ")" : lite.storage.get("theme") === "dark" ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
+        d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + f + ")",
         d.beginPath(),
         d.moveTo(v.x, v.y);
         var y = s.pos.toScreen(c);
@@ -125,7 +125,7 @@ export default class extends Vehicle {
         var w = n.pos.toScreen(c);
         d.lineTo(w.x, w.y),
         d.stroke(),
-        d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "rgba(204,204,204," + .5 * f + ")" : lite.storage.get("theme") === "dark" ? "rgba(255,255,255," + f + ")" : "rgba(0,0,0," + f + ")",
+        d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + f + ")",
         d.lineWidth = 8 * p,
         d.beginPath(),
         d.moveTo(v.x, v.y);
@@ -144,7 +144,7 @@ export default class extends Vehicle {
         var C = T.toScreen(c);
         d.lineTo(C.x, C.y),
         d.stroke(),
-        d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "rgba(204,204,204," + .5 * f + ")" : lite.storage.get("theme") === "dark" ? "rgba(255,255,255," + .5 * f + ")" : "rgba(0,0,0," + .5 * f + ")",
+        d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + .5 * f + ")",
         d.lineWidth = 5 * p,
         d.beginPath(),
         d.moveTo(x.x, x.y);
