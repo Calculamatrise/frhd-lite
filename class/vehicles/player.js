@@ -151,6 +151,7 @@ export default class {
             e._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
             e._tempVehicleTicks = this._tempVehicleTicks) : (e._baseVehicleType = this._baseVehicleType,
             e._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
+            e._stickMan = this._baseVehicle && this._baseVehicle.getStickMan(),
             e._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
             e._crashed = this._crashed,
             window.lite.snapshots.push(e)),
@@ -195,8 +196,8 @@ export default class {
         let t = this._baseVehicle;
         this._tempVehicleTicks > 0 && (t = this._tempVehicle),
         this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
+        this.isGhost() || this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
         t.draw(),
-        this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
         this.isGhost() && this.drawName()
     }
     checkKeys() {
@@ -249,19 +250,19 @@ export default class {
     }
     _snapshotFilter(t, e) {
         switch (t) {
-        case "parent":
-        case "player":
-        case "scene":
-        case "settings":
-        case "masses":
-        case "springs":
-        case "focalPoint":
-        case "gamepad":
-            return void 0;
-        case "explosion":
-            return !1;
-        default:
-            return e
+            case "parent":
+            case "player":
+            case "scene":
+            case "settings":
+            case "masses":
+            case "springs":
+            case "focalPoint":
+            case "gamepad":
+                return void 0;
+            case "explosion":
+                return !1;
+            default:
+                return e
         }
     }
     setCheckpointOnUpdate() {

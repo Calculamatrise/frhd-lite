@@ -1,8 +1,8 @@
 import n from "../math/cartesian.js";
 import r from "./mass.js";
+import o from "./wheel.js";
 import a from "./spring.js";
 import Vehicle from "./vehicle.js";
-import o from "./wheel.js";
 
 let l = {
     BLOB: "blob_sound"
@@ -11,15 +11,11 @@ let l = {
 export default class extends Vehicle {
     constructor(t, e) {
         super(t);
-        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
     }
     vehicleName = "Blob";
-    masses = null;
-    springs = null;
-    slow = !1;
     createMasses(t) {
         var e = [];
         e.push(new o(new n(t.x + 15,t.y + 40),this)),
@@ -37,16 +33,14 @@ export default class extends Vehicle {
         this.focalPoint = this.head
     }
     createSprings() {
-        var t = this.masses
-            , e = []
-            , t = this.masses
-            , e = []
-            , i = this.spring0 = new a(t[0],t[1],this)
-            , s = this.spring1 = new a(t[1],t[2],this)
-            , n = this.spring2 = new a(t[2],t[3],this)
-            , r = this.spring3 = new a(t[3],t[0],this)
-            , o = this.spring4 = new a(t[0],t[2],this)
-            , h = this.spring5 = new a(t[1],t[3],this);
+        let t = this.masses
+          , e = []
+          , i = this.spring0 = new a(t[0],t[1],this)
+          , s = this.spring1 = new a(t[1],t[2],this)
+          , n = this.spring2 = new a(t[2],t[3],this)
+          , r = this.spring3 = new a(t[3],t[0],this)
+          , o = this.spring4 = new a(t[0],t[2],this)
+          , h = this.spring5 = new a(t[1],t[3],this);
         e.push(i),
         e.push(s),
         e.push(n),
@@ -65,16 +59,16 @@ export default class extends Vehicle {
             this.explosion.update();
         else {
             let t = this.masses;
-            for (const t of this.masses)
-                t.update();
             for (const t of this.springs)
+                t.update();
+            for (const t of this.masses)
                 t.update();
             if ((t[0].contact || t[1].contact || t[2].contact || t[3].contact) && (this.slow = !1),
             !this.slow) {
                 this.control();
-                for (const t of this.masses)
-                    t.update();
                 for (const t of this.springs)
+                    t.update();
+                for (const t of this.masses)
                     t.update();
             }
             let r = 0,

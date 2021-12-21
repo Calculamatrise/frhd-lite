@@ -11,7 +11,6 @@ let h = {
 export default class extends Vehicle {
     constructor(t, e) {
         super(t);
-        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
@@ -20,10 +19,6 @@ export default class extends Vehicle {
     vehicleName = "BALLOON";
     head = null;
     basket = null;
-    masses = null;
-    springs = null;
-    slow = !1;
-    crashed = !1;
     createMasses(t) {
         this.masses = [];
         var e = new a(t.x, t.y - 10, this);

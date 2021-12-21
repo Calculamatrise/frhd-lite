@@ -2,7 +2,7 @@ import s from "../math/cartesian.js";
 import n from "./explosion.js";
 
 export default class {
-    init(t) {
+    constructor(t) {
         this.player = t,
         this.scene = t._scene,
         this.gamepad = t._gamepad,
@@ -19,6 +19,9 @@ export default class {
         this.powerupsEnabled = !0,
         this.createCosmetics()
     }
+    masses = null;
+    springs = null;
+    slow = !1;
     explode() {
         this.scene.sound.play("bomb_sound", 1),
         this.explosion = new n(this.masses[0].pos,this.scene),
@@ -26,6 +29,7 @@ export default class {
     }
     createCosmetics() {
         this.cosmetics = this.player._user.cosmetics;
+
     }
     updateSpeed() {
         this.speed = Math.abs(Math.round(this.focalPoint.vel.x + this.focalPoint.vel.y))

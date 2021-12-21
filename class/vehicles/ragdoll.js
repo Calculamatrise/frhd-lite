@@ -1,11 +1,9 @@
 import Vector from "../math/cartesian.js";
 import n from "./mass.js";
 import r from "./spring.js";
-import Vehicle from "./vehicle.js";
 
-export default class extends Vehicle {
+export default class {
     constructor(t, e) {
-        super();
         this.parent = e;
         var i, o, a, h, l, c, u, p, d, f, v = [], g = [], m = new Vector(0,0);
         i = new n(m, e),

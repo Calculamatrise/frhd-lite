@@ -1,84 +1,42 @@
+import Scene from "./Scene.js";
 import k from "../../libs/lodash-3.10.1.js";
 import b from "../controls/fullscreen.js";
 import w from "../controls/pause.js";
 import T from "../controls/settings.js";
 import u from "../tools/cameratool.js";
 import c from "../tools/toolhandler.js";
-import f from "../tracks/track.js";
 import r from "../utils/campaignscore.js";
 import P from "../utils/formatnumber.js";
-import g from "../utils/loadingcircle.js";
-import _ from "../utils/messagemanager.js";
-import s from "../utils/mousehandler.js";
 import o from "../utils/racetimes.js";
-import n from "../utils/score.js";
 import S from "../utils/sha256.js";
-import x from "../utils/soundmanager.js";
-import d from "../utils/vehicletimer.js";
-import p from "../vehicles/player_manager.js";
-import h from "../view/camera.js";
-import l from "../view/screen.js";
+import Track from "../tracks/track.js";
 
-export default class {
+export default class extends Scene {
     constructor(t) {
-        this.game = t;
-        this.assets = t.assets;
-        this.stage = t.stage;
-        this.settings = t.settings;
-        this.sound = new x(this);
-        this.mouse = new s(this);
-        this.initalizeCamera();
-        this.screen = new l(this);
-        this.createTrack();
-        this.score = new n(this);
+        super(t);
         this.raceTimes = new o(this);
-        this.message = new _(this);
         this.settings.isCampaign && (this.campaignScore = new r(this));
-        this.loadingcircle = new g(this);
         this.loading = !1;
         this.ready = !1;
-        this.playerManager = new p(this);
-        this.vehicleTimer = new d(this);
         this.races = [];
-        this.state = this.setStateDefaults();
-        this.oldState = this.setStateDefaults();
-        this.createMainPlayer();
-        this.createControls();
-        this.registerTools();
-        this.setStartingVehicle();
-        this.restart();
-        this.initializeAnalytics();
-        this.injectLiteFeatures();
+        this.setStartingVehicle(),
+        this.state = this.setStateDefaults(),
+        this.oldState = this.setStateDefaults(),
+        this.createMainPlayer(),
+        this.createControls(),
+        this.registerTools(),
+        this.setStartingVehicle(),
+        this.restart(),
+        this.initializeAnalytics(),
+        this.injectLiteFeatures()
     }
-    game = null;
-    assets = null;
-    stage = null;
-    settings = null;
-    camera = null;
-    score = null;
-    screen = null;
-    mouse = null;
-    track = null;
-    player = null;
-    players = null;
-    ticks = 0;
     races = null;
-    state = null;
-    oldState = null;
-    stateDirty = !0;
-    onStateChange = null;
     playing = !1;
     ready = !1;
-    vehicle = "Mtb";
-    showDialog = !1;
-    importCode = !1;
     preloading = !0;
     loading = !0;
-    pauseControls = null;
     fullscreenControls = null;
     settingsControls = null;
-    controls = null;
-    message = null;
     showSkip = !1;
     injectLiteFeatures() {
         if (lite.storage.get("feats")) {
@@ -99,16 +57,39 @@ export default class {
         };
         return t
     }
-    analytics = null;
     initializeAnalytics() {
         this.analytics = {
             deaths: 0
         }
     }
+    createMainPlayer() {
+        var t = this.playerManager
+            , e = t.createPlayer(this, this.settings.user)
+            , i = e.getGamepad();
+        i.setKeyMap(this.settings.playHotkeys),
+        i.recordKeys(this.settings.keysToRecord),
+        i.onButtonDown = this.buttonDown.bind(this),
+        i.listen(),
+        this.playerManager.firstPlayer = e,
+        this.playerManager.addPlayer(e)
+    }
     createControls() {
         this.pauseControls = new w(this),
         this.settings.fullscreenAvailable && (this.fullscreenControls = new b(this)),
         this.settingsControls = new T(this)
+    }
+    createTrack() {
+        this.track && this.track.close();
+        let t = new Track(this)
+          , e = this.getAvailableTrackCode();
+        0 != e && (t.read(e),
+        this.track = t,
+        this.setTrackAllowedVehicles(),
+        this.state.preloading = !1,
+        this.loading = !1,
+        this.restartTrack = !0,
+        this.ready = !0),
+        this.track = t
     }
     play() {
         this.state.playing || (this.state.playing = !0,
@@ -169,58 +150,13 @@ export default class {
         };
         Application.Helpers.GoogleAnalyticsHelper.track_event(s)
     }
-    getAvailableTrackCode() {
-        var t = this.settings
-            , e = !1;
-        return t.importCode && "false" !== t.importCode ? (e = t.importCode,
-        t.importCode = null) : this.importCode && (e = this.importCode,
-        this.importCode = null),
-        e
-    }
-    createMainPlayer() {
-        var t = this.playerManager
-            , e = t.createPlayer(this, this.settings.user)
-            , i = e.getGamepad();
-        i.setKeyMap(this.settings.playHotkeys),
-        i.recordKeys(this.settings.keysToRecord),
-        i.onButtonDown = this.buttonDown.bind(this),
-        i.listen(),
-        this.playerManager.firstPlayer = e,
-        this.playerManager.addPlayer(e)
-    }
-    createTrack() {
-        this.track && this.track.close();
-        var t = new f(this)
-            , e = this.getAvailableTrackCode();
-        0 != e && (t.read(e),
-        this.track = t,
-        this.setTrackAllowedVehicles(),
-        this.state.preloading = !1,
-        this.loading = !1,
-        this.restartTrack = !0,
-        this.ready = !0),
-        this.track = t
-    }
     setTrackAllowedVehicles() {
         var t = this.track
             , e = this.settings.track;
         e && (t.allowedVehicles = e.vehicles)
     }
-    initalizeCamera() {
-        this.camera = new h(this)
-    }
     updateControls() {
-        if (this.controls) {
-            var t = this.state.paused;
-            this.controls.isVisible() === t && (t || (this.state.playing = !1,
-            this.camera.focusOnMainPlayer(),
-            this.toolHandler.setTool("camera")),
-            this.controls.setVisibility(!t),
-            this.controls.setZoomControlsVisibilty(t),
-            this.updateState()),
-            this.controls.update()
-        }
-        this.pauseControls.update(),
+        super.updateControls(),
         this.settings.fullscreenAvailable && this.fullscreenControls.update()
     }
     registerTools() {
@@ -229,21 +165,18 @@ export default class {
         t.registerTool(u),
         t.setTool("Camera")
     }
-    updateToolHandler() {
-        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update()
-    }
     update() {
-        this.ready ? (this.updateToolHandler(),
+        this.ready ? (this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
         this.mouse.update(),
-        this.state.paused || this.state.showDialog || (this.updateGamepads(),
-        this.checkGamepads()),
+        this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
+        this.playerManager.checkKeys()),
         this.screen.update(),
         this.updateControls(),
         this.camera.update(),
         this.sound.update(),
         this.restartTrack && this.restart(),
         !this.state.paused && this.state.playing && (this.message.update(),
-        this.updatePlayers(),
+        this.playerManager.update(),
         this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
         this.updateScore(),
         this.vehicleTimer.update(),
@@ -254,14 +187,9 @@ export default class {
         this.camera.updateZoom()) : this.importCode && this.createTrack()
     }
     isStateDirty() {
-        var t = this.oldState
-            , e = this.state;
+        let e = this.state;
         e.fullscreen != GameSettings.fullscreen && (e.fullscreen = GameSettings.fullscreen);
-        var i = !1;
-        for (var s in e)
-            e[s] !== t[s] && (i = !0,
-            this.oldState[s] = e[s]);
-        return i
+        return super.isStateDirty()
     }
     updateScore() {
         this.score.update(),
@@ -281,36 +209,14 @@ export default class {
         this.camera.fastforward(),
         this.showControlPlanel("main")
     }
-    listen() {
-        var t = this.playerManager.firstPlayer
-            , e = t.getGamepad();
-        e.listen()
-    }
-    unlisten() {
-        var t = this.playerManager.firstPlayer
-            , e = t.getGamepad();
-        e.unlisten()
-    }
-    stopAudio() {
-        createjs.Sound.stop()
-    }
     setStartingVehicle() {
         var t = this.settings
             , e = t.startVehicle;
         t.track && (e = t.track.vehicle),
         this.vehicle = e
     }
-    updateGamepads() {
-        this.playerManager.updateGamepads()
-    }
-    checkGamepads() {
-        this.playerManager.checkKeys()
-    }
     updatePlayers() {
         this.playerManager.update()
-    }
-    drawPlayers() {
-        this.playerManager.draw()
     }
     hideControlPlanel() {
         this.state.showSkip && (this.state.showSkip = !1),
@@ -320,19 +226,6 @@ export default class {
         this.settings.isCampaign && !this.settings.mobile && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
         this.stateshowControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
     }
-    draw() {
-        this.toolHandler.drawGrid(),
-        this.track.draw(),
-        this.drawPlayers(),
-        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
-        this.loading && this.loadingcircle.draw(),
-        this.message.draw()
-    }
-    redraw() {
-        this.track.undraw(),
-        GameInventoryManager.redraw(),
-        this.toolHandler.resize()
-    }
     resize() {
         this.pauseControls.resize(),
         this.settings.fullscreenAvailable && this.fullscreenControls.resize(),
@@ -341,9 +234,6 @@ export default class {
     }
     updateState() {
         null !== this.game.onStateChange && this.game.onStateChange(this.state)
-    }
-    stateChanged() {
-        this.updateState()
     }
     setStateDefaults() {
         var t = {};
@@ -358,24 +248,6 @@ export default class {
         t.showDialog = !1,
         t.dialogOptions = !1,
         t
-    }
-    toggleVehicle() {
-        var t = this.track.allowedVehicles
-            , e = t.length
-            , i = this.vehicle
-            , s = t.indexOf(i);
-        s++,
-        s >= e && (s = 0);
-        var i = t[s];
-        this.selectVehicle(i)
-    }
-    selectVehicle(t) {
-        var e = this.track.allowedVehicles
-            , i = e.indexOf(t);
-        -1 !== i && (this.settings.track.vehicle = t,
-        this.vehicle = t,
-        this.playerManager.firstPlayer.setBaseVehicle(t),
-        this.restartTrack = !0)
     }
     openDialog(t) {
         this.state.playing = !1,

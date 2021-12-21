@@ -43,7 +43,7 @@ window.lite = new class extends Builder {
     snapshots = new class extends Array {
         push(...args) {
             if (this.length >= parseInt(window.lite.storage.get("snapshots"))) {
-                this.splice(0, 1);
+                this.splice(0, this.length - parseInt(window.lite.storage.get("snapshots")));
             }
 
             super.push(...args);

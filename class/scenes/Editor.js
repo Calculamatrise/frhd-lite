@@ -1,3 +1,4 @@
+import Scene from "./Scene.js";
 import b from "../controls/pause.js";
 import T from "../controls/redoundo.js";
 import p from "../tools/brushtool.js";
@@ -9,68 +10,25 @@ import d from "../tools/selecttool.js";
 import u from "../tools/straightlinetool.js";
 import h from "../tools/toolhandler.js";
 import g from "../tools/vehiclepoweruptool.js";
-import m from "../tracks/track.js";
-import y from "../utils/loadingcircle.js";
-import k from "../utils/messagemanager.js";
-import s from "../utils/mousehandler.js";
-import w from "../utils/score.js";
-import C from "../utils/soundmanager.js";
-import a from "../utils/vehicletimer.js";
-import o from "../vehicles/player_manager.js";
-import n from "../view/camera.js";
-import r from "../view/screen.js";
 
-export default class {
+export default class extends Scene {
     constructor(t) {
-        this.game = t;
-        this.assets = t.assets;
-        this.stage = t.stage,
-        this.settings = t.settings;
-        this.sound = new C(this);
-        this.mouse = new s(this);
-        this.mouse.disableContextMenu();
-        this.message = new k(this);
-        this.camera = new n(this);
-        this.screen = new r(this);
-        this.createTrack();
-        this.loadingcircle = new y(this);
-        this.playerManager = new o(this);
-        this.vehicleTimer = new a(this);
-        this.score = new w(this);
-        this.createMainPlayer();
-        this.createControls();
-        this.registerTools();
-        this.state = this.setStateDefaults();
-        this.oldState = this.setStateDefaults();
-        this.restart();
-        this.initializeAnalytics();
-        this.injectLiteFeatures();
+        super(t);
+        this.mouse.disableContextMenu(),
+        this.createMainPlayer(),
+        this.createControls(),
+        this.registerTools(),
+        this.state = this.setStateDefaults(),
+        this.oldState = this.setStateDefaults(),
+        this.restart(),
+        this.initializeAnalytics(),
+        this.injectLiteFeatures()
     }
-    game = null;
-    assets = null;
-    stage = null;
     canvas = null;
-    settings = null;
-    camera = null;
-    screen = null;
-    mouse = null;
-    track = null;
-    player = null;
-    players = null;
-    ticks = 0;
-    state = null;
-    oldState = null;
-    stateDirty = !0;
-    onStateChange = null;
-    vehicle = "Mtb";
-    showDialog = !1;
     dialogOptions = !1;
-    importCode = !1;
     clear = !1;
     redoundoControls = null;
-    pauseControls = null;
     inFocus = !0;
-    controls = null;
     verified = !1;
     injectLiteFeatures() {
         if (!this.game || !GameManager.game) {
@@ -137,7 +95,6 @@ export default class {
             width: 0
         }
     }
-    analytics = null;
     initializeAnalytics() {
         this.analytics = {
             deaths: 0,
@@ -145,44 +102,9 @@ export default class {
         },
         this.trackAction("editor-open", "open")
     }
-    createMainPlayer() {
-        var t = this.playerManager
-            , e = t.createPlayer(this, this.settings.user)
-            , i = e.getGamepad();
-        i.setKeyMap(this.settings.editorHotkeys),
-        i.onButtonDown = this.buttonDown.bind(this),
-        i.listen(),
-        this.playerManager.firstPlayer = e,
-        this.playerManager.addPlayer(e)
-    }
     createControls() {
         this.redoundoControls = new T(this),
         this.pauseControls = new b(this)
-    }
-    createTrack() {
-        this.track && this.track.close();
-        let t = new m(this)
-            , e = this.getAvailableTrackCode();
-        0 != e ? (t.read(e),
-        this.track = t,
-        this.state.preloading = !1,
-        this.state.loading = !1) : t.addDefaultLine(),
-        this.importCode = !1,
-        this.restartTrack = !0,
-        this.clear = !1,
-        this.track = t
-    }
-    updateControls() {
-        if (this.controls) {
-            var t = this.state.paused;
-            this.controls.isVisible() === t && (t || (this.state.playing = !1,
-            this.camera.focusOnMainPlayer(),
-            this.toolHandler.setTool("camera")),
-            this.controls.setVisibility(!t),
-            this.updateState()),
-            this.controls.update()
-        }
-        this.pauseControls.update()
     }
     registerTools() {
         this.toolHandler = new h(this);
@@ -197,17 +119,14 @@ export default class {
         this.toolHandler.registerTool(g),
         this.toolHandler.setTool(this.settings.startTool)
     }
-    updateToolHandler() {
-        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update()
-    }
     play() {
         this.state.playing = !0
     }
     update() {
-        this.updateToolHandler(),
+        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
         this.mouse.update(),
-        this.state.showDialog || (this.updateGamepads(),
-        this.checkGamepads()),
+        this.state.showDialog || (this.playerManager.updateGamepads(),
+        this.playerManager.checkKeys()),
         this.screen.update(),
         this.updateControls(),
         this.camera.update(),
@@ -224,19 +143,6 @@ export default class {
         this.draw(),
         this.stage.update(),
         this.camera.updateZoom()
-    }
-    isStateDirty() {
-        let i = !1;
-        for (let s in this.state)
-            this.state[s] !== this.oldState[s] && (i = !0,
-            this.oldState[s] = this.state[s]);
-        return i
-    }
-    updateGamepads() {
-        this.playerManager.updateGamepads()
-    }
-    checkGamepads() {
-        this.playerManager.checkKeys()
     }
     restart() {
         this.verified = !this.settings.requireTrackVerification,
@@ -293,26 +199,6 @@ export default class {
         } else
             this.settings.fullscreenAvailable && (this.settings.fullscreen = this.state.fullscreen = !this.settings.fullscreen)
     }
-    draw() {
-        this.toolHandler.drawGrid(),
-        this.track.draw(),
-        this.playerManager.draw(),
-        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
-        this.state.loading && this.loadingcircle.draw(),
-        this.message.draw()
-    }
-    getAvailableTrackCode() {
-        let e = !1;
-        return this.settings.importCode && "false" !== this.settings.importCode ? (e = this.settings.importCode,
-        this.settings.importCode = null) : this.importCode && (e = this.importCode,
-        this.importCode = null),
-        e
-    }
-    redraw() {
-        this.track.undraw(),
-        GameInventoryManager.redraw(),
-        this.toolHandler.resize()
-    }
     resize() {
         this.pauseControls.resize(),
         this.redoundoControls.resize(),
@@ -329,9 +215,6 @@ export default class {
             t.vehicle = this.vehicle,
             this.game.onStateChange(this.state)
         }
-    }
-    stateChanged() {
-        this.updateState()
     }
     setStateDefaults() {
         var t = {};
@@ -351,24 +234,6 @@ export default class {
         t.inFocus = !0,
         this.controls && (t.hideMenus = this.controls.isVisible()),
         t
-    }
-    toggleVehicle() {
-        var t = this.track.allowedVehicles
-            , e = t.length
-            , i = this.state.vehicle
-            , s = t.indexOf(i);
-        s++,
-        s >= e && (s = 0);
-        var i = t[s];
-        this.selectVehicle(i)
-    }
-    selectVehicle(t) {
-        var e = this.track.allowedVehicles
-            , i = e.indexOf(t);
-        -1 !== i && (this.settings.track.vehicle = t,
-        this.vehicle = t,
-        this.playerManager.firstPlayer.setBaseVehicle(t),
-        this.restartTrack = !0)
     }
     trackAction(t, e) {
         var i = this.toolHandler.analytics.actions
@@ -482,19 +347,6 @@ export default class {
             this.clear = t[1],
             this.command("dialog", !1)
         }
-    }
-    listen() {
-        var t = this.playerManager.firstPlayer
-            , e = t.getGamepad();
-        e.listen()
-    }
-    unlisten() {
-        var t = this.playerManager.firstPlayer
-            , e = t.getGamepad();
-        e.unlisten()
-    }
-    stopAudio() {
-        createjs.Sound.stop()
     }
     close() {
         this.trackAction("editor-exit", "exit"),

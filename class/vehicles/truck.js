@@ -11,7 +11,6 @@ let d = {
 export default class extends Vehicle {
     constructor(t, e) {
         super(t);
-        super.init(t);
         this.createMasses(e);
         this.createSprings();
         this.stopSounds();
@@ -19,13 +18,8 @@ export default class extends Vehicle {
         -1 === i && this.swap();
     }
     vehicleName = "TRUCK";
-    masses = null;
-    springs = null;
-    cosmetics = null;
-    slow = !1;
     pedala = 0;
     swapped = !1;
-    crashed = !1;
     createMasses(t) {
         this.masses = [],
         this.masses.push(new n(new s(t.x - 15,t.y + 7), this)),

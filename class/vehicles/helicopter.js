@@ -10,8 +10,7 @@ let c = {
 
 export default class extends Vehicle {
     constructor(t, e) {
-        super();
-        super.init(t);
+        super(t);
         this.createMasses(e);
         this.createSprings();
         this.createCockpit();
@@ -20,11 +19,6 @@ export default class extends Vehicle {
         -1 === i && this.swap()
     }
     vehicleName = "Helicopter";
-    vehicleUpdate = this.update;
-    vehicleDraw = this.draw;
-    masses = null;
-    springs = null;
-    slow = !1;
     swapped = !1;
     createCockpit() {
         var t = document.createElement("canvas");
