@@ -112,7 +112,6 @@ document.body.addEventListener("click", function(event) {
 
         case "LITE-STATE":
             chrome.runtime.sendMessage({ action: "toggleEnabled" }, setState);
-
             break;
     }
 });

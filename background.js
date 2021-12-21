@@ -1,11 +1,5 @@
-const state = {
-    enabled: true
-}
-
 chrome.runtime.onInstalled.addListener(function() {
-    chrome.storage.local.get(data => {
-        setEnabled({ enabled: data.enabled ? state.enabled : true });
-    });
+    chrome.storage.local.get(setEnabled);
 });
 
 chrome.runtime.onStartup.addListener(function() {
@@ -15,12 +9,16 @@ chrome.runtime.onStartup.addListener(function() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     switch(request.action) {
         case "getEnabled":
-            sendResponse(state.enabled)
+            chrome.storage.local.get(({ enabled }) => {
+                sendResponse(setEnabled({ enabled }));
+            });
 
             break;
 
         case "toggleEnabled":
-            sendResponse(setEnabled({ enabled: !state.enabled }));
+            chrome.storage.local.get(({ enabled }) => {
+                sendResponse(setEnabled({ enabled: !enabled }));
+            });
 
             break;
 
@@ -28,9 +26,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case "resetSettings":
         case "setStorageItem":
         case "toggleStorageItem":
-            chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-                if (tabs[0].hasOwnProperty("url") && tabs[0].url.match(/https?:\/\/.+fr(.+)?hd\.com/gi)) {
-                    chrome.tabs.sendMessage(tabs[0].id, request, function(response) {
+            chrome.tabs.query({ active: true, currentWindow: true }, function([tab]) {
+                if (tab.hasOwnProperty("url") && tab.url.match(/https?:\/\/.+fr(.+)?hd\.com/gi)) {
+                    chrome.tabs.sendMessage(tab.id, request, function(response) {
                         if (chrome.runtime.lastError) {
                             // chrome.tabs.reload(tabs[0].id);
                             // it can no longer post/receive messages from the page, for whatever reason.
@@ -50,7 +48,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 function setEnabled({ enabled }) {
-    chrome.storage.local.set({ enabled: state.enabled = enabled });
+    chrome.storage.local.set({ enabled });
     // chrome.declarativeNetRequest.updateEnabledRulesets({
     //     [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [
     //         "ruleset_1"
