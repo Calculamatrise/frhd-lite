@@ -1,15 +1,10 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    onmessage = function({ data }) {
-        if (data.sender) {
-            return;
-        }
-        
-        sendResponse(data);
-        return true;
-    }
+const port = chrome.runtime.connect({ name: "lite" });
+port.onMessage.addListener((message) => {
+    sessionStorage.setItem("lite", JSON.stringify(message.storage));
+});
 
-    postMessage(Object.assign(request, { sender: true }));
-    return true;
+chrome.runtime.onMessage.addListener((request) => {
+    return postMessage(request), true;
 });
 
 try {

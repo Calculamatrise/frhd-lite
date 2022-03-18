@@ -1,5 +1,3 @@
-import Builder from "./Builder.js";
-
 import BMX from "./vehicles/bmx.js";
 import MTB from "./vehicles/mtb.js";
 import HELI from "./vehicles/helicopter.js";
@@ -8,6 +6,7 @@ import BALLOON from "./vehicles/balloon.js";
 import BLOB from "./vehicles/blob.js";
 
 import Explosion from "./vehicles/explosion.js";
+import StrongMap from "./StrongMap.js";
 
 let v = {
     BMX,
@@ -18,27 +17,13 @@ let v = {
     BLOB
 }
 
-window.lite = new class extends Builder {
-	constructor() {
-		super("lite", {
-			defaults: {
-				cc: false,
-				di: true,
-				di_size: 10,
-				feats: true,
-				isometric: false,
-				snapshots: 10,
-                theme: "dark",
-                trail: false
-			}
-		});
-		
+window.lite = new class {
+	constructor() {		
 		this.childLoad(),
-        this.on("ready", this.init),
 
         addEventListener("message", this.listener.bind(this));
 	}
-
+    storage = new StrongMap(JSON.parse(sessionStorage.getItem("lite")));
     snapshots = new class extends Array {
         push(...args) {
             if (this.length >= parseInt(window.lite.storage.get("snapshots"))) {
@@ -48,38 +33,26 @@ window.lite = new class extends Builder {
             super.push(...args);
         }
     }
+    get game() {
+        if (GameManager.hasOwnProperty("game") && GameManager.game !== null) {
+            return GameManager.game;
+        }
+        
+        return null;
+    }
 
     get focusOverlay() {
         return this.game.gameContainer.querySelector(".gameFocusOverlay");
     }
 
     listener({ data }) {
-        if (data.sender) {
-            switch(data.action) {
-                case "getStorage":
-                    postMessage(this.storage.clone());
-                    break;
-
-                case "resetSettings":
-                    this.storage.reset();
-                    postMessage(this.storage.clone());
-                    break;
-
-                case "setStorageItem":
-                    this.storage.has(data.item) && this.storage.set(data.item, data.data);
-                    postMessage(this.storage.clone());
-                    break;
-
-                case "toggleStorageItem":
-                    this.storage.has(data.item) && this.storage.set(data.item, !this.storage.get(data.item));
-                    postMessage(this.storage.clone());
-                    break;
-            }
-
-            this.refresh();
+        switch(data.action) {
+            case "updateStorage":
+                this.storage = new StrongMap(data.storage);
+                break;
         }
 
-        return true;
+        this.refresh();
     }
 
 	init() {
@@ -164,6 +137,25 @@ window.lite = new class extends Builder {
         }
 
 		this.refresh();
+    }
+
+    load() {
+        let wait = setInterval(() => {
+            if (this.game) {
+                // Rebinding the game loop.
+                if (typeof this.update === "function") {
+                    createjs.Ticker.removeAllEventListeners();
+                    this.emit("ready");
+                    createjs.Ticker.on("tick", (() => {
+                        this.game.currentScene.update(),
+                        this.update(),
+                        this.game.tickCount++;
+                    }).bind(this.game));
+                }
+
+                clearInterval(wait);
+            }
+        });
     }
 
 	childLoad() {

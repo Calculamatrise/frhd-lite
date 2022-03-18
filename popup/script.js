@@ -1,22 +1,23 @@
-const state = document.querySelector("lite-state");
+import Storage from "./utils/Storage.js";
+import defaults from "../defaults.js";
 
-function setState(enabled) {
-    state.classList[enabled ? "add" : "remove"]("enabled");
-    state.innerText = enabled ? "Enabled" : "Disabled";
-
-    chrome.storage.local.get(function(data) {
-        if (!data.notification) {
-            chrome.storage.local.set({
-                notification: true
+const storage = Storage(defaults);
+storage.onstorage = function(settings) {
+    chrome.storage.session.get(({ connected }) => {
+        if (connected) {
+            chrome.tabs.query({}, function(tabs) {
+                tabs.forEach(function(tab) {
+                    if (tab.hasOwnProperty("url") && tab.url.match(/https?:\/\/(.+)?fr(.+)?hd(\..+)?\.com/gi)) {
+                        chrome.tabs.sendMessage(tab.id, {
+                            action: "updateStorage",
+                            storage: settings
+                        });
+                    }
+                });
             });
-
-            let tabs = document.querySelector("lite-tabs");
-            let changes = tabs && tabs.lastElementChild;
-            if (changes) {
-                changes.classList.add("notification");
-            }
         }
     });
+    restoreSettings(settings);
 }
 
 function restoreSettings(data) {
@@ -27,27 +28,21 @@ function restoreSettings(data) {
                 case "cc":
                     element.parentElement.style.setProperty("background-color", (element.value = data[item] || "#000000") + "33");
                     element.addEventListener("input", function(event) {
-                        chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
-                            this.parentElement.style.setProperty("background-color", (this.value = response[item] || "#000000") + "33");
-                        });
+                        storage.set(item, this.value);
                     });
                     break;
 
                 case "di_size":
                     element.parentElement.querySelector(".name").innerText = `Input display size (${element.value = data[item]})`;
                     element.addEventListener("input", function(event) {
-                        chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
-                            element.parentElement.querySelector(".name").innerText = `Input display size (${this.value = response[item]})`;
-                        });
+                        storage.set(item, this.value);
                     });
                     break;
 
                 case "snapshots":
                     element.parentElement.querySelector(".name").innerText = `Snapshot Count (${element.value = data[item]})`;
                     element.addEventListener("input", function(event) {
-                        chrome.runtime.sendMessage({ action: "setStorageItem", item, data: this.value }, (response) => {
-                            element.parentElement.querySelector(".name").innerText = `Snapshot Count (${this.value = response[item]})`;
-                        });
+                        storage.set(item, this.value);
                     });
                     break;
 
@@ -63,13 +58,14 @@ function restoreSettings(data) {
     }
 }
 
-chrome.runtime.sendMessage({ action: "getEnabled" }, setState);
-chrome.runtime.sendMessage({ action: "getStorage" }, restoreSettings);
+function setState(enabled) {
+    let state = document.querySelector("lite-state");
+    state.classList[enabled ? "add" : "remove"]("enabled");
+    state.innerText = enabled ? "Enabled" : "Disabled";
+}
 
-document.addEventListener("mousedown", function(event) {
-    this.documentElement.style.setProperty("--offsetX", event.offsetX);
-    this.documentElement.style.setProperty("--offsetY", event.offsetY);
-});
+restoreSettings(storage);
+chrome.storage.local.get(({ enabled }) => setState(enabled));
 
 document.body.addEventListener("click", function(event) {
     switch(event.target.tagName) {
@@ -93,15 +89,11 @@ document.body.addEventListener("click", function(event) {
                     case "midnight":
                     case "dark":
                     case "darker":
-                        chrome.runtime.sendMessage({ action: "setStorageItem", item: "theme", data: input.id }, (response) => {
-                            input.checked = response["theme"] === input.id;
-                        });
+                        storage.set("theme", input.id);
                         break;
 
                     default:
-                        chrome.runtime.sendMessage({ action: "toggleStorageItem", item: input.id }, (response) => {
-                            input.checked = response[input.id];
-                        });
+                        storage.set(input.id, !storage.get(input.id));
                         break;
                 }
             }
@@ -111,6 +103,13 @@ document.body.addEventListener("click", function(event) {
         case "LITE-STATE":
             chrome.runtime.sendMessage({ action: "toggleEnabled" }, setState);
             break;
+    }
+});
+
+document.querySelector("lite-option#reset").addEventListener("click", function() {
+    if (confirm(`Are you sure you'd like to reset all your settings?`)) {
+        storage.reset();
+        alert("Your settings have successfully been reset.");
     }
 });
 
@@ -130,12 +129,7 @@ document.querySelector("lite-tabs").addEventListener("click", function(event) {
     document.querySelector("lite-content." + event.target.innerText.replace(/\s+.+/gi, '').toLowerCase()).style.setProperty("display", "block");
 });
 
-document.querySelector("lite-option#reset").addEventListener("click", function() {
-    if (confirm(`Are you sure you'd like to reset all your settings?`)) {
-        chrome.runtime.sendMessage({ action: "resetSettings" }, (response) => {
-            restoreSettings(response);
-
-            alert("Your settings have successfully been reset.");
-        });
-    }
+document.addEventListener("mousedown", function(event) {
+    this.documentElement.style.setProperty("--offsetX", event.offsetX);
+    this.documentElement.style.setProperty("--offsetY", event.offsetY);
 });
