@@ -40,7 +40,7 @@ export default class extends Scene {
     showSkip = !1;
     injectLiteFeatures() {
         if (lite.storage.get("feats")) {
-            fetch("https://raw.githubusercontent.com/calculus-dev/Official_Featured_Ghosts/master/tampermonkey.script.js").then(r => r.text()).then(data => {
+            fetch("https://raw.githubusercontent.com/Calculamatrise/frhd_featured_ghosts/master/display.js").then(r => r.text()).then(data => {
                 document.head.appendChild(Object.assign(document.createElement("script"), {
                     innerHTML: data,
                     onload: function() {

@@ -12,27 +12,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             chrome.storage.local.get(({ enabled }) => {
                 sendResponse(setEnabled({ enabled }));
             });
-
             break;
 
         case "toggleEnabled":
             chrome.storage.local.get(({ enabled }) => {
                 sendResponse(setEnabled({ enabled: !enabled }));
             });
-
             break;
 
         case "getStorage":
         case "resetSettings":
         case "setStorageItem":
         case "toggleStorageItem":
-            chrome.tabs.query({ active: true, currentWindow: true }, function([tab]) {
-                if (tab.hasOwnProperty("url") && tab.url.match(/https?:\/\/.+fr(.+)?hd\.com/gi)) {
+            chrome.tabs.query({ active: true }, function([ tab ]) {
+                if (tab.hasOwnProperty("url") && tab.url.match(/https?:\/\/(.+)?fr(.+)?hd(\..+)?\.com/gi)) {
                     chrome.tabs.sendMessage(tab.id, request, function(response) {
                         if (chrome.runtime.lastError) {
-                            // chrome.tabs.reload(tabs[0].id);
-                            // it can no longer post/receive messages from the page, for whatever reason.
-                            // this only occurs when the extension is refreshed; it shouldn't be an issue
+                            // chrome.tabs.reload(tab.id);
                             return;
                         }
 
@@ -40,20 +36,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     });
                 }
             });
-
             break;
     }
 
     return true;
 });
 
-function setEnabled({ enabled }) {
+function setEnabled({ enabled = true }) {
     chrome.storage.local.set({ enabled });
-    // chrome.declarativeNetRequest.updateEnabledRulesets({
-    //     [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [
-    //         "ruleset_1"
-    //     ]
-    // });
+    chrome.declarativeNetRequest.updateEnabledRulesets({
+        [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [
+            "ruleset_1"
+        ]
+    });
     chrome.action.setIcon({
         path: {
             256: enabled ? "/icons/icon_256.png" : "/icons/disabled/icon_256.png",

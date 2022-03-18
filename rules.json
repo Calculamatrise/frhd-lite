@@ -3,7 +3,7 @@
 		"id": 1,
 		"priority": 1,
 		"action": {
-			"type": "redirect",
+			"type": "block",
 			"redirect": {
 				"extensionPath": "/bootstrap.js"
 			}

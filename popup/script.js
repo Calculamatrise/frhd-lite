@@ -31,7 +31,6 @@ function restoreSettings(data) {
                             this.parentElement.style.setProperty("background-color", (this.value = response[item] || "#000000") + "33");
                         });
                     });
-
                     break;
 
                 case "di_size":
@@ -41,7 +40,6 @@ function restoreSettings(data) {
                             element.parentElement.querySelector(".name").innerText = `Input display size (${this.value = response[item]})`;
                         });
                     });
-
                     break;
 
                 case "snapshots":
@@ -51,7 +49,6 @@ function restoreSettings(data) {
                             element.parentElement.querySelector(".name").innerText = `Snapshot Count (${this.value = response[item]})`;
                         });
                     });
-
                     break;
 
                 default:
@@ -105,6 +102,7 @@ document.body.addEventListener("click", function(event) {
                         chrome.runtime.sendMessage({ action: "toggleStorageItem", item: input.id }, (response) => {
                             input.checked = response[input.id];
                         });
+                        break;
                 }
             }
 
@@ -133,11 +131,11 @@ document.querySelector("lite-tabs").addEventListener("click", function(event) {
 });
 
 document.querySelector("lite-option#reset").addEventListener("click", function() {
-    if (window.confirm(`Are you sure you'd like to reset all your settings?`)) {
+    if (confirm(`Are you sure you'd like to reset all your settings?`)) {
         chrome.runtime.sendMessage({ action: "resetSettings" }, (response) => {
-            window.alert("Your settings have successfully been reset.");
-
             restoreSettings(response);
+
+            alert("Your settings have successfully been reset.");
         });
     }
 });

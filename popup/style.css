@@ -1,12 +1,15 @@
 html {
     color: #fdfdfd;
     background-color: #1d2328;
+    min-height: fit-content;
+    height: 0;
 }
 
 body {
-    width: 200px;
     padding: 2px;
+    width: 200px;
     transition: all .2s;
+    padding-bottom: 10px;
 }
 
 lite-option {

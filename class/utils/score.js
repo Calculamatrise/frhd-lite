@@ -20,12 +20,12 @@ export default class {
           , i = t.settings
           , s = new createjs.Container
           , n = "helsinki"
-          , r = new createjs.Text("00:00.00","40px " + n,"#000000")
-          , o = new createjs.Text("TIME:","20px " + n,"#999999")
+          , r = new createjs.Text("00:00.00","40px " + n, lite.storage.get("theme") === "midnight" ? "#ddd" : lite.storage.get("theme") === "dark" ? "#fff" : "#000000")
+          , o = new createjs.Text("TIME:","20px " + n, (lite.storage.get("theme") === "midnight" || lite.storage.get("theme") === "dark") ? "#888" : "#999999")
           , a = this.get_timer_sprite()
-          , h = new createjs.Text(" -- : --.--","35px " + n,"#999999")
-          , l = new createjs.Text("BEST:","20px " + n,"#999999")
-          , c = new createjs.Text("0/0","40px " + n,"#000000")
+          , h = new createjs.Text(" -- : --.--","35px " + n, (lite.storage.get("theme") === "midnight" || lite.storage.get("theme") === "dark") ? "#888" : "#999999")
+          , l = new createjs.Text("BEST:","20px " + n, (lite.storage.get("theme") === "midnight" || lite.storage.get("theme") === "dark") ? "#888" : "#999999")
+          , c = new createjs.Text("0/0","40px " + n, lite.storage.get("theme") === "midnight" ? "#ddd" : lite.storage.get("theme") === "dark" ? "#fff" : "#000000")
           , u = new createjs.Bitmap(t.assets.getResult("targets_icon"))
           , p = e / 2.5;
         i.mobile && (p = e / 2.5),

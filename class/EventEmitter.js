@@ -6,12 +6,14 @@ export default class {
         this._maxListeners = void 0;
         this.defaultMaxListeners = 10;
     }
+
     setMaxListeners(t) {
         if (typeof t != "number" || 0 > t || isNaN(t))
             throw TypeError("n must be a positive number");
         return this._maxListeners = t,
         this
     }
+
     emit(t) {
         var e, i, n, a, h, l;
         if (this._events || (this._events = {}), t === "error" && (!this._events.error || typeof this._events.error == "object" && this._events.error !== null && !this._events.error.length)) {
@@ -51,6 +53,7 @@ export default class {
         }
         return !0
     }
+
     addListener(t, e) {
         var n;
         if (typeof e != "function")
@@ -67,6 +70,7 @@ export default class {
         }
         return this
     }
+
     on = this.addListener;
     once(t, e) {
         function i() {
@@ -81,6 +85,7 @@ export default class {
         this.on(t, i),
         this
     }
+
     removeListener(t, e) {
         var i, n, o, a;
         if (typeof e != "function")
@@ -107,6 +112,7 @@ export default class {
         }
         return this
     }
+
     removeAllListeners(t) {
         var e, i;
         if (!this._events)
@@ -129,10 +135,12 @@ export default class {
         return delete this._events[t],
         this
     }
+
     listeners(t) {
         var e;
         return e = this._events && this._events[t] ? typeof this._events[t] == "function" ? [this._events[t]] : this._events[t].slice() : []
     }
+
     listenerCount(t, e) {
         var i;
         return i = t._events && t._events[e] ? typeof t._events[e] == "function" ? 1 : t._events[e].length : 0

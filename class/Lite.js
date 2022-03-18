@@ -20,8 +20,7 @@ let v = {
 
 window.lite = new class extends Builder {
 	constructor() {
-		super({
-			name: "lite",
+		super("lite", {
 			defaults: {
 				cc: false,
 				di: true,
@@ -37,7 +36,7 @@ window.lite = new class extends Builder {
 		this.childLoad(),
         this.on("ready", this.init),
 
-        window.addEventListener("message", this.listener.bind(this));
+        addEventListener("message", this.listener.bind(this));
 	}
 
     snapshots = new class extends Array {
@@ -58,32 +57,29 @@ window.lite = new class extends Builder {
         if (data.sender) {
             switch(data.action) {
                 case "getStorage":
-                    postMessage(this.storage);
+                    postMessage(this.storage.clone());
                     break;
 
                 case "resetSettings":
                     this.storage.reset();
-
-                    postMessage(this.storage);
+                    postMessage(this.storage.clone());
                     break;
 
                 case "setStorageItem":
-                    this.storage.set(data.item, data.data);
-
-                    postMessage(this.storage);
+                    this.storage.has(data.item) && this.storage.set(data.item, data.data);
+                    postMessage(this.storage.clone());
                     break;
 
                 case "toggleStorageItem":
-                    if (this.storage.has(data.item)) {
-                        this.storage.set(data.item, !this.storage.get(data.item));
-                    }
-
-                    postMessage(this.storage);
+                    this.storage.has(data.item) && this.storage.set(data.item, !this.storage.get(data.item));
+                    postMessage(this.storage.clone());
                     break;
             }
 
             this.refresh();
         }
+
+        return true;
     }
 
 	init() {
@@ -144,7 +140,7 @@ window.lite = new class extends Builder {
             this.scene.state.paused && (i = !1,
             s = !1,
             t = this.scene.settings.mobile ? "Paused" : "Paused - Press Spacebar to Continue"),
-            i === !1 && (i = self.storage.get("dark") ? "#999" : "#333"),
+            i === !1 && (i = lite.storage.get("theme") === "dark" ? "#999" : "#333"),
             t) {
                 var n = this.scene.game
                   , r = this.scene
@@ -155,13 +151,13 @@ window.lite = new class extends Builder {
                   , c = r.settings;
                 "phone" === c.controls && (l = 80),
                 a.save(),
-                a.fillStyle = self.storage.get("dark") ? "#999" : i,
+                a.fillStyle = lite.storage.get("theme") === "dark" ? "#999" : i,
                 a.lineWidth = 4 * (o / 2),
                 a.font = 12 * o + "pt helsinki",
                 a.textAlign = "center",
-                s && (a.strokeStyle = self.storage.get("dark") ? "#fff" : s,
+                s && (a.strokeStyle = lite.storage.get("theme") === "dark" ? "#fff" : s,
                 a.strokeText(t, h, l * o),
-                a.strokeStyle = self.storage.get("dark") ? "#fff" : "#000"),
+                a.strokeStyle = lite.storage.get("theme") === "dark" ? "#fff" : "#000"),
                 a.fillText(t, h, l * o),
                 a.restore()
             }
@@ -189,22 +185,19 @@ window.lite = new class extends Builder {
 
     refresh() {
         this.game.settings.physicsLineColor = this.storage.get("theme") === "midnight" ? "#ccc" : this.storage.get("theme") === "dark" ? "#fdfdfd" : "#000";
-        this.game.settings.sceneryLineColor = this.storage.get("theme") === "midnight" ? "#888" : this.storage.get("theme") === "dark" ? "#666" : "#aaa";
+        this.game.settings.sceneryLineColor = this.storage.get("theme") === "midnight" ? "#444" : this.storage.get("theme") === "dark" ? "#666" : "#aaa";
         this.game.canvas.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#1d2328" : this.storage.get("theme") === "dark" ? "#1b1b1b" : "#fff");
         this.focusOverlay && this.focusOverlay.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#333333bb" : this.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb");
-        
+
         this.game.currentScene.redraw();
     }
     
     update() {
-        // this.drawMTB();
         this.storage.get("di") && this.drawInputDisplay(this.game.canvas);
+        window.lite.focusOverlay && window.lite.focusOverlay.style.setProperty("background-color", window.lite.storage.get("theme") === "midnight" ? "#333333bb" : window.lite.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb");
     }
 
 	drawInputDisplay(canvas = document.createElement("canvas")) {
-		if (!this.game.currentScene)
-			return;
-
 		const gamepad = this.game.currentScene.playerManager._players[this.game.currentScene.camera.focusIndex]._gamepad.downButtons;
 		const ctx = canvas.getContext("2d");
 
@@ -218,8 +211,8 @@ window.lite = new class extends Builder {
 		ctx.lineJoin = "round";
 		ctx.lineCap = "round";
 		ctx.lineWidth = size / 2;
-		ctx.strokeStyle = theme === "dark" ? "#fff" : "#000";
-		ctx.fillStyle = theme === "dark" ? "#fff" : "#000";
+		ctx.strokeStyle = theme === "midnight" ? "#ddd" : theme === "dark" ? "#fff" : "#000";
+		ctx.fillStyle = theme === "midnight" ? "#ddd" : theme === "dark" ? "#fff" : "#000";
 
 		ctx.strokeRect(offset.x, offset.y, size * 4, size * 4);
 		gamepad.z && ctx.fillRect(offset.x, offset.y, size * 4, size * 4);
@@ -232,33 +225,36 @@ window.lite = new class extends Builder {
 		ctx.strokeRect(offset.x + 10 * size, offset.y + 5 * size, size * 4, size * 4);
 		gamepad.right && ctx.fillRect(offset.x + 10 * size, offset.y + 5 * size, size * 4, size * 4);
 
+        let activeStroke = theme === "midnight" ? "#444" : theme === "dark" ? "#000" : "#fff";
+        let inactiveStroke = theme === "midnight" ? "#ddd" : theme === "dark" ? "#fff" : "#000";
+
 		ctx.lineWidth = size / 3;
-		ctx.strokeStyle = gamepad.z ? (theme === "dark" ? "#000" : "#fff") : (theme === "dark" ? "#fff" : "#000");
+		ctx.strokeStyle = gamepad.z ? activeStroke : inactiveStroke;
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 2.7 * size, offset.y + 3 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 3 * size);
 		ctx.lineTo(offset.x + 2.7 * size, offset.y + 1 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 1 * size);
 		ctx.stroke();
-		ctx.strokeStyle = gamepad.up ? (theme === "dark" ? "#000" : "#fff") : (theme === "dark" ? "#fff" : "#000");
+		ctx.strokeStyle = gamepad.up ? activeStroke : inactiveStroke;
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 6.2 * size, offset.y + 2.7 * size);
 		ctx.lineTo(offset.x + 7 * size, offset.y + 1.2 * size);
 		ctx.lineTo(offset.x + 7.8 * size, offset.y + 2.7 * size);
 		ctx.stroke();
-		ctx.strokeStyle = gamepad.left ? (theme === "dark" ? "#000" : "#fff") : (theme === "dark" ? "#fff" : "#000");
+		ctx.strokeStyle = gamepad.left ? activeStroke : inactiveStroke;
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 2.5 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 7 * size);
 		ctx.lineTo(offset.x + 2.5 * size, offset.y + 6.2 * size);
 		ctx.stroke();
-		ctx.strokeStyle = gamepad.down ? (theme === "dark" ? "#000" : "#fff") : (theme === "dark" ? "#fff" : "#000");
+		ctx.strokeStyle = gamepad.down ? activeStroke : inactiveStroke;
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 6.2 * size, offset.y + 6.2 * size);
 		ctx.lineTo(offset.x + 7 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 7.8 * size, offset.y + 6.2 * size);
 		ctx.stroke();
-		ctx.strokeStyle = gamepad.right ? (theme === "dark" ? "#000" : "#fff") : (theme === "dark" ? "#fff" : "#000");
+		ctx.strokeStyle = gamepad.right ? activeStroke : inactiveStroke;
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 11.5 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 12.8 * size, offset.y + 7 * size);

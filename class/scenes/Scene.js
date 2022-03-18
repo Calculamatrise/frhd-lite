@@ -117,7 +117,7 @@ export default class {
     toggleVehicle() {
         var t = this.track.allowedVehicles
             , e = t.length
-            , i = this.state.vehicle.toUpperCase()
+            , i = (this.state.vehicle || this.vehicle).toUpperCase()
             , s = t.indexOf(i);
         s++,
         s >= e && (s = 0);

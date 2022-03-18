@@ -5,10 +5,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         
         sendResponse(data);
+        return true;
     }
 
     postMessage(Object.assign(request, { sender: true }));
-
     return true;
 });
 
