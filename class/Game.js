@@ -37,7 +37,7 @@ window.Game = class {
             }
 
             this._loadGame.call(this);
-            lite.refresh();
+            lite.load();
         }
         
         GameManager.ready && GameManager.loadGame();

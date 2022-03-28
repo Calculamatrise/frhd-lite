@@ -1,28 +1,13 @@
-import BMX from "./vehicles/bmx.js";
-import MTB from "./vehicles/mtb.js";
-import HELI from "./vehicles/helicopter.js";
-import TRUCK from "./vehicles/truck.js";
-import BALLOON from "./vehicles/balloon.js";
-import BLOB from "./vehicles/blob.js";
-
-import Explosion from "./vehicles/explosion.js";
 import StrongMap from "./StrongMap.js";
 
-let v = {
-    BMX,
-    MTB,
-    HELI,
-    TRUCK,
-    BALLOON,
-    BLOB
-}
-
 window.lite = new class {
-	constructor() {		
-		this.childLoad(),
+	constructor() {
+		this.childLoad();
+        Application.events.subscribe("route.after", this.childLoad.bind(this));
 
         addEventListener("message", this.listener.bind(this));
 	}
+
     storage = new StrongMap(JSON.parse(sessionStorage.getItem("lite")));
     snapshots = new class extends Array {
         push(...args) {
@@ -33,6 +18,7 @@ window.lite = new class {
             super.push(...args);
         }
     }
+
     get game() {
         if (GameManager.hasOwnProperty("game") && GameManager.game !== null) {
             return GameManager.game;
@@ -45,6 +31,77 @@ window.lite = new class {
         return this.game.gameContainer.querySelector(".gameFocusOverlay");
     }
 
+    createElement(type, options) {
+        let element = document.createElement(type);
+        for (const attribute in options) {
+            if (typeof options[attribute] === "object") {
+                if (attribute === "style") {
+                    for (const property in options[attribute]) {
+                        element.style.setProperty(property, options[attribute][property]);
+                    }
+                } else if (attribute === "children") {
+                    element.append(...options[attribute]);
+                }
+            } else if (typeof options[attribute] === "function") {
+                element.addEventListener(attribute, options[attribute]);
+            } else {
+                if (attribute.startsWith("inner")) {
+                    element[attribute] = options[attribute];
+                } else {
+                    element.setAttribute(attribute, options[attribute]);
+                }
+            }
+        }
+    
+        return element;
+    }
+
+    createAccountContainer({ login, password }) {
+        let container = this.createElement("div", {
+            children: [
+                this.createElement("button", {
+                    class: "new-button button-type-1",
+                    innerText: login,
+                    style: {
+                        width: "82%"
+                    },
+                    click() {
+                        document.querySelector("#simplemodal-overlay")?.remove();
+                        document.querySelector("#signup_login_container")?.remove();
+                        Application.Helpers.AjaxHelper.post("/auth/standard_login", { login, password }).done(function(response) {
+                            response.result && Application.events.publish("auth.login", response.data.user, response.data.user_stats);
+                        });
+                    }
+                }),
+                this.createElement("button", {
+                    class: "btn new-button button-type-1 moderator-remove-race",
+                    innerText: "X",
+                    style: {
+                        height: "100%",
+                        'margin-right': 0,
+                        width: "16%"
+                    },
+                    click() {
+                        let accounts = JSON.parse(localStorage.getItem("switcher-accounts")) ?? [];
+                        accounts.splice(accounts.indexOf(accounts.find((account) => account.login === login)), 1);
+    
+                        localStorage.setItem("switcher-accounts", JSON.stringify(accounts));
+    
+                        container.remove();
+                    }
+                })
+            ],
+            style: {
+                display: "flex",
+                'justify-content': "space-between",
+                margin: "4px",
+                width: "100%"
+            }
+        });
+    
+        return container;
+    }
+
     listener({ data }) {
         switch(data.action) {
             case "updateStorage":
@@ -55,8 +112,7 @@ window.lite = new class {
         this.refresh();
     }
 
-	init() {
-        self = this;
+	overrideMethods() {
         this.game.currentScene.__proto__.draw = function() {
             this.toolHandler.drawGrid(),
             this.track.draw(),
@@ -66,32 +122,8 @@ window.lite = new class {
             this.message.draw()
         }
 
-        this.game.currentScene.playerManager.constructor.prototype.draw
-        this.game.currentScene.playerManager.firstPlayer.constructor.prototype.draw
-
-        this.game.currentScene.playerManager.firstPlayer.constructor.prototype.createBaseVehicle = function(t, e, i) {
-            this._tempVehicle && this._tempVehicle.stopSounds(),
-            this._baseVehicle = new v[this._baseVehicleType](this, t, e, i),
-            this._tempVehicle = !1,
-            this._tempVehicleType = !1,
-            this._tempVehicleTicks = 0
-        }
-
-        this.game.currentScene.playerManager.firstPlayer.constructor.prototype.createTempVehicle = function(t, e, i, s) {
-            if (this._temp_vehicle_options) {
-                let n = this._temp_vehicle_options;
-                t = n.type,
-                e = n.ticks,
-                i = n.position,
-                s = n.direction,
-                this._temp_vehicle_options = null
-            }
-            this._tempVehicleType === t ? this._tempVehicleTicks += e : (this.getActiveVehicle().stopSounds(),
-            this._effect = new Explosion(i,this._scene),
-            this._effectTicks = 45,
-            this._tempVehicleType = t,
-            this._tempVehicle = new v[t](this,i,s),
-            this._tempVehicleTicks = e)
+        this.game.currentScene.playerManager.constructor.prototype.createPlayer = function(t, e) {
+            return new Player(this.scene,e);
         }
 
         this.game.currentScene.playerManager.firstPlayer.constructor.prototype.draw = function() {
@@ -100,7 +132,7 @@ window.lite = new class {
             this._tempVehicleTicks > 0 && (t = this._tempVehicle),
             this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
             t.draw(),
-            this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
+            // this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
             this.isGhost() && this.drawName()
         }
 
@@ -113,7 +145,7 @@ window.lite = new class {
             this.scene.state.paused && (i = !1,
             s = !1,
             t = this.scene.settings.mobile ? "Paused" : "Paused - Press Spacebar to Continue"),
-            i === !1 && (i = lite.storage.get("theme") === "dark" ? "#999" : "#333"),
+            i === !1 && (i = lite.storage.get("theme") === "midnight" ? "#888" : lite.storage.get("theme") === "dark" ? "#ccc" : "#333"),
             t) {
                 var n = this.scene.game
                   , r = this.scene
@@ -124,7 +156,7 @@ window.lite = new class {
                   , c = r.settings;
                 "phone" === c.controls && (l = 80),
                 a.save(),
-                a.fillStyle = lite.storage.get("theme") === "dark" ? "#999" : i,
+                a.fillStyle = lite.storage.get("theme") === "midnight" ? "#888" : lite.storage.get("theme") === "dark" ? "#999" : i,
                 a.lineWidth = 4 * (o / 2),
                 a.font = 12 * o + "pt helsinki",
                 a.textAlign = "center",
@@ -140,29 +172,21 @@ window.lite = new class {
     }
 
     load() {
-        let wait = setInterval(() => {
-            if (this.game) {
-                // Rebinding the game loop.
-                if (typeof this.update === "function") {
-                    createjs.Ticker.removeAllEventListeners();
-                    this.emit("ready");
-                    createjs.Ticker.on("tick", (() => {
-                        this.game.currentScene.update(),
-                        this.update(),
-                        this.game.tickCount++;
-                    }).bind(this.game));
-                }
-
-                clearInterval(wait);
-            }
-        });
+        // this.overrideMethods();
+        // createjs.Ticker.removeAllEventListeners();
+        // createjs.Ticker.on("tick", (() => {
+        //     this.game.currentScene.update(),
+        //     this.update(),
+        //     this.game.tickCount++;
+        // }).bind(this.game));
+        this.refresh();
     }
 
 	childLoad() {
 		if (location.pathname.match(/^\/u\//gi)) {
 			fetch(`${location.href}?ajax=true`).then(t => t.json()).then(t => {
 				if (!document.querySelector(".friend-list.friends-all.active")) return;
-				for (const e of [...document.querySelector(".friend-list.friends-all.active").children]) {
+				for (const e of document.querySelector(".friend-list.friends-all.active").children) {
 					if (e.querySelector(".friend-list-item-date")) return;
 					try {
 						e.querySelector(".friend-list-item-info").appendChild(Object.assign(document.createElement("div"), {
@@ -173,11 +197,21 @@ window.lite = new class {
 				}
 			});
 		}
+
+
 	}
 
     refresh() {
+        let keymap = this.storage.get("keymap");
+        this.game.currentScene.playerManager.firstPlayer._gamepad.setKeyMap(this.game.settings[(this.game.currentScene.hasOwnProperty("races") ? "play" : "editor") + "Hotkeys"]);
+        for (let key in keymap) {
+            this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
+        }
+
         this.game.settings.physicsLineColor = this.storage.get("theme") === "midnight" ? "#ccc" : this.storage.get("theme") === "dark" ? "#fdfdfd" : "#000";
         this.game.settings.sceneryLineColor = this.storage.get("theme") === "midnight" ? "#444" : this.storage.get("theme") === "dark" ? "#666" : "#aaa";
+        this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get("theme") === "midnight" ? "#20282e" : this.storage.get("theme") === "dark" ? "#252525" : "#eee";
+        this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get("theme") === "midnight" ? "#161b20" : this.storage.get("theme") === "dark" ? "#3e3e3e" : "#ccc";
         this.game.canvas.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#1d2328" : this.storage.get("theme") === "dark" ? "#1b1b1b" : "#fff");
         this.focusOverlay && this.focusOverlay.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#333333bb" : this.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb");
 

@@ -49,6 +49,7 @@ export default class StrongMap {
      */
     delete(key) {
         if (this.has(key)) {
+            this[key] = undefined;
             return delete this[key];
         }
 

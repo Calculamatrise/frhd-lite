@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8"/>
@@ -8,10 +9,9 @@
     <body>
         <lite-state>Disabled</lite-state>
         <lite-tabs>
-            <tab class="ripple">Options</tab>
-            <tab class="ripple">Advanced Options</tab>
-            <tab class="ripple">Themes</tab>
-            <tab class="ripple">Changes</tab>
+            <lite-tab class="ripple">Options</lite-tab>
+            <lite-tab class="ripple">Keybinds</lite-tab>
+            <lite-tab class="ripple">Themes</lite-tab>
         </lite-tabs>
         <lite-content class="options">
             <lite-option class="ripple" title="Display the last 15 snapshots of your rider">
@@ -24,33 +24,39 @@
                 <input type="checkbox" id="isometric">Isometric grid</lite-option>
             <lite-option class="ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);">
                 <input type="color" id="cc" value="#000000" style="margin-left: 4px; visibility: hidden; text-align: center;">Custom bike colour</lite-option>
-            <!-- <lite-option class="ripple" title="Show advanced options" style="text-align: center;">Show advanced options</lite-option> -->
+            <lite-option class="ripple" id="more-options" style="text-align: center;">Show advanced options</lite-option>
+            <lite-advanced-options style="display: none;">
+                <lite-option class="ripple" title="Change the size of the input display">
+                    <span class="name" style="background-color:rgba(0,0,0,0)">Input display size (10)</span>
+                    <input type="range" class="override-pointer-events" id="di_size" min="1" max="10" value="10" style="padding:0">
+                </lite-option>
+                <lite-option class="ripple" title="Change the number of snaphsots shown on checkpoints">
+                    <span class="name" style="background-color:rgba(0,0,0,0)">Snapshot Count (10)</span>
+                    <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="padding:0">
+                </lite-option>
+                <lite-option class="ripple" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)" id="reset">Reset settings</lite-option>
+            </lite-advanced-options>
         </lite-content>
-        <lite-content class="advanced" style="display: none">
-            <lite-option class="ripple" title="Change the size of the input display">
-                <span class="name" style="background-color:rgba(0,0,0,0)">Input display size (10)</span><br>
-                <input type="range" class="override-pointer-events" id="di_size" min="1" max="10" value="10" style="padding:0"></lite-option>
-            <lite-option class="ripple" title="Change the number of snaphsots shown on checkpoints">
-                <span class="name" style="background-color:rgba(0,0,0,0)">Snapshot Count (10)</span><br>
-                <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="padding:0"></lite-option>
-            <lite-option class="ripple" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)" id="reset">Reset settings</lite-option>
+        <lite-content class="keybinds" style="display: none">
+            <lite-container>
+                <input type="text" id="key" maxlength="1" style="text-align: center;">
+                <select id="key-value">
+                    <option value="down">Down</option>
+                    <option value="left">Left</option>
+                    <option value="pause">Pause</option>
+                    <option value="right">Right</option>
+                    <option value="up" selected>Up</option>
+                    <option value="z">Z</option>
+                </select>
+                <button id="update-keymap" class="ripple" style="margin-left: 8px;">Save</button>
+            </lite-container>
+            <lite-container id="keymap" style="flex-direction: column;"></lite-container>
         </lite-content>
         <lite-content class="themes" style="display: none;">
-            <lite-option>
-                <input type="radio" name="theme" id="light">Light</lite-option>
-            <lite-option>
-                <input type="radio" name="theme" id="midnight">Midnight</lite-option>
-            <lite-option>
-                <input type="radio" name="theme" id="dark" checked>Dark</lite-option>
-            <lite-option>
-                <input type="radio" name="theme" id="darker" title="Why do I even bother?">Darker</lite-option>
-        </lite-content>
-        <lite-content class="changes" style="display:none">
-            <p>
-                - Fixed the scenery line colour for the brush and curve tool.
-                <br><br>
-                - Destroyed everything else
-            </p>
+            <lite-option><input type="radio" name="theme" id="light">Light</lite-option>
+            <lite-option><input type="radio" name="theme" id="midnight">Midnight</lite-option>
+            <lite-option><input type="radio" name="theme" id="dark" checked>Dark</lite-option>
+            <lite-option><input type="radio" name="theme" id="darker" title="Why do I even bother?">Darker</lite-option>
         </lite-content>
     </body>
 </html>

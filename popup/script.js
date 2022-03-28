@@ -27,23 +27,35 @@ function restoreSettings(data) {
             switch(item) {
                 case "cc":
                     element.parentElement.style.setProperty("background-color", (element.value = data[item] || "#000000") + "33");
-                    element.addEventListener("input", function(event) {
-                        storage.set(item, this.value);
-                    });
                     break;
 
                 case "di_size":
                     element.parentElement.querySelector(".name").innerText = `Input display size (${element.value = data[item]})`;
-                    element.addEventListener("input", function(event) {
-                        storage.set(item, this.value);
-                    });
+                    break;
+
+                case "keymap":
+                    for (const key in data[item]) {
+                        let option = element.querySelector("lite-option[data-id='" + key + "']");
+                        if (option !== null) {
+                            option.dataset.id = key;
+                            option.innerText = key + " - " + data[item][key];
+                            continue;
+                        }
+
+                        option = document.createElement("lite-option");
+                        option.dataset.id = key;
+                        option.innerText = key + " - " + data[item][key];
+                        option.addEventListener("click", function() {
+                            storage.keymap.delete(key);
+                            this.remove();
+                        });
+
+                        element.append(option);
+                    }
                     break;
 
                 case "snapshots":
                     element.parentElement.querySelector(".name").innerText = `Snapshot Count (${element.value = data[item]})`;
-                    element.addEventListener("input", function(event) {
-                        storage.set(item, this.value);
-                    });
                     break;
 
                 default:
@@ -72,6 +84,23 @@ document.body.addEventListener("click", function(event) {
         case "LITE-OPTION":
             if (event.target.classList.contains("disabled")) {
                 break;
+            }
+
+            if (event.target.id === "more-options") {
+                let options = event.target.parentElement.querySelector("lite-advanced-options");
+                if (options === null) {
+                    break;
+                }
+
+                let display = options.style.display !== "block";
+                if (display) {
+                    event.target.innerText = "Hide advanced options";
+                    options.style.setProperty("display", "block");
+                    options.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    event.target.innerText = "Show advanced options";
+                    options.style.setProperty("display", "none");
+                }
             }
             
             const input = event.target.firstElementChild;
@@ -132,4 +161,30 @@ document.querySelector("lite-tabs").addEventListener("click", function(event) {
 document.addEventListener("mousedown", function(event) {
     this.documentElement.style.setProperty("--offsetX", event.offsetX);
     this.documentElement.style.setProperty("--offsetY", event.offsetY);
+});
+
+for (const item in defaults) {
+    let element = document.getElementById(item);
+    if (element) {
+        switch(item) {
+            case "cc":
+            case "di_size":
+            case "snapshots":
+                element.addEventListener("input", function() {
+                    storage.set(item, this.value);
+                });
+                break;
+        }
+    }
+}
+
+document.querySelector("#key").addEventListener("keydown", function(event) {
+    this.value = event.key.toUpperCase();
+});
+
+document.getElementById("update-keymap").addEventListener("click", function() {
+    storage.keymap.set(
+        this.parentElement.querySelector("#key").value,
+        this.parentElement.querySelector("#key-value").value
+    );
 });

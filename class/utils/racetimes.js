@@ -61,10 +61,10 @@ export default class {
             p.x = 25,
             p.y = 25;
             var f = formatnumber(parseInt(o.run_ticks) / h * 1e3)
-              , v = new createjs.Text(f,"30px " + c,"#000000");
+              , v = new createjs.Text(f,"30px " + c, lite.storage.get("theme") === "midnight" ? "#ddd" : lite.storage.get("theme") === "dark" ? "#fff" : "#000000");
             v.x = 55,
             v.y = 9;
-            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c,"#000000");
+            var g = new createjs.Text(r.d_name.charAt(0),"25px " + c, lite.storage.get("theme") === "midnight" ? "#ddd" : lite.storage.get("theme") === "dark" ? "#fff" : "#000000");
             g.x = 17,
             g.y = 33,
             g.textBaseline = "alphabetic";

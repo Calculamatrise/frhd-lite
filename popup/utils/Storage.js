@@ -37,7 +37,12 @@ export default function(defaults) {
             return target[property];
         },
         set(target, property, value) {
-            target[property] = value;
+            if (typeof value === "undefined") {
+                delete target[property];
+            } else {
+                target[property] = value;
+            }
+
             storage.save();
             return true;
         }

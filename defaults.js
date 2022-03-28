@@ -4,6 +4,7 @@ export default {
     di_size: 8,
     feats: true,
     isometric: false,
+    keymap: {},
     snapshots: 10,
     theme: "dark",
     trail: false
