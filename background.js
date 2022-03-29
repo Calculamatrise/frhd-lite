@@ -41,9 +41,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function setEnabled({ enabled = true }) {
     chrome.storage.local.set({ enabled });
-    chrome.declarativeNetRequest.updateEnabledRulesets({
-        [enabled ? "enableRulesetIds" : "disableRulesetIds"]: [ "ruleset_1" ]
-    });
     chrome.action.setIcon({
         path: {
             256: "/icons/" + (enabled ? "" : "disabled/") + "icon_256.png",

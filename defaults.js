@@ -6,6 +6,6 @@ export default {
     isometric: false,
     keymap: {},
     snapshots: 10,
-    theme: "dark",
+    theme: "light",
     trail: false
 }

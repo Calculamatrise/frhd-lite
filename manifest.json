@@ -1,7 +1,8 @@
 {
 	"name": "Free Rider Lite",
-	"version": "1.0.22",
+	"version": "1.0.4",
 	"author": "Calculamatrise",
+    "description": "A mod for Free Rider HD.",
 	"manifest_version": 3,
 	"background": {
 		"service_worker": "background.js",
@@ -18,16 +19,8 @@
 			]
 		}
 	],
-    "declarative_net_request": {
-		"rule_resources": [{
-			"id": "ruleset_1",
-			"enabled": true,
-			"path": "rules.json"
-		}]
-	},
 	"permissions": [
-		"storage",
-		"declarativeNetRequest"
+		"storage"
 	],
 	"host_permissions": [
 		"*://frhd.kanoapps.com/*",
@@ -37,7 +30,6 @@
 	],
 	"web_accessible_resources": [{
 		"resources": [
-			"bootstrap.js",
 			"overlay/*",
 			"styles/*",
 			"class/*",
@@ -56,13 +48,6 @@
 		"16": "icons/icon_16.png"
 	},
 	"action": {
-		"default_icon": {
-			"256": "icons/icon_256.png",
-			"128": "icons/icon_128.png",
-			"64": "icons/icon_64.png",
-			"32": "icons/icon_32.png",
-			"16": "icons/icon_16.png"
-		},
 		"default_popup": "popup/index.html"
 	}
 }

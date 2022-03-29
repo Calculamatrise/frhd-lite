@@ -35,6 +35,10 @@ function restoreSettings(data) {
 
                 case "keymap":
                     for (const key in data[item]) {
+                        if (key.length === 0) {
+                            continue;
+                        }
+
                         let option = element.querySelector("lite-option[data-id='" + key + "']");
                         if (option !== null) {
                             option.dataset.id = key;
