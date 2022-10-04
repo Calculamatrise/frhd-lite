@@ -1,4 +1,5 @@
 import StrongMap from "./StrongMap.js";
+<<<<<<< HEAD
 import Vector from "./Vector.js";
 
 window.lite = new class {
@@ -30,11 +31,31 @@ window.lite = new class {
         push(...args) {
             if (this.length >= parseInt(lite.storage.get("snapshots"))) {
                 this.splice(0, this.length - parseInt(lite.storage.get("snapshots")));
+=======
+
+window.lite = new class {
+	constructor() {
+		this.childLoad();
+        Application.events.subscribe("route.after", this.childLoad.bind(this));
+
+        addEventListener("message", this.listener.bind(this));
+	}
+
+    storage = new StrongMap(JSON.parse(sessionStorage.getItem("lite")));
+    snapshots = new class extends Array {
+        push(...args) {
+            if (this.length >= parseInt(window.lite.storage.get("snapshots"))) {
+                this.splice(0, this.length - parseInt(window.lite.storage.get("snapshots")));
+>>>>>>> parent of 6e3ea12 (Delete class directory)
             }
 
             super.push(...args);
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 6e3ea12 (Delete class directory)
     get game() {
         if (GameManager.hasOwnProperty("game") && GameManager.game !== null) {
             return GameManager.game;
@@ -118,6 +139,7 @@ window.lite = new class {
         return container;
     }
 
+<<<<<<< HEAD
 	overrideMethods() {
         let update = this.game.currentScene.playerManager.firstPlayer.constructor.prototype.update;
         this.game.currentScene.playerManager.firstPlayer.constructor.prototype.update = function() {
@@ -512,6 +534,40 @@ window.lite = new class {
                     i.y = Math.round(i.y / p) * p
                 }
             }
+=======
+    listener({ data }) {
+        switch(data.action) {
+            case "updateStorage":
+                this.storage = new StrongMap(data.storage);
+                break;
+        }
+
+        this.refresh();
+    }
+
+	overrideMethods() {
+        this.game.currentScene.__proto__.draw = function() {
+            this.toolHandler.drawGrid(),
+            this.track.draw(),
+            this.drawPlayers(),
+            this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
+            this.loading && this.loadingcircle.draw(),
+            this.message.draw()
+        }
+
+        this.game.currentScene.playerManager.constructor.prototype.createPlayer = function(t, e) {
+            return new Player(this.scene,e);
+        }
+
+        this.game.currentScene.playerManager.firstPlayer.constructor.prototype.draw = function() {
+            this.updateOpacity();
+            let t = this._baseVehicle;
+            this._tempVehicleTicks > 0 && (t = this._tempVehicle),
+            this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
+            t.draw(),
+            // this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
+            this.isGhost() && this.drawName()
+>>>>>>> parent of 6e3ea12 (Delete class directory)
         }
 
         this.game.currentScene.message.constructor.prototype.draw = function() {
@@ -546,6 +602,7 @@ window.lite = new class {
             }
         }
 
+<<<<<<< HEAD
         this.game.currentScene.toolHandler.drawGrid = function() {
             var t = this.scene.game.pixelRatio
               , e = this.scene.game.canvas.getContext("2d");
@@ -667,10 +724,13 @@ window.lite = new class {
             t.stroke()
         });
 
+=======
+>>>>>>> parent of 6e3ea12 (Delete class directory)
 		this.refresh();
     }
 
     load() {
+<<<<<<< HEAD
         this.overrideMethods();
         this.snapshots.splice(0, this.snapshots.length);
         createjs.Ticker.removeAllEventListeners();
@@ -845,6 +905,35 @@ window.lite = new class {
                 document.body.append(overlay, container);
             });
         }
+=======
+        // this.overrideMethods();
+        // createjs.Ticker.removeAllEventListeners();
+        // createjs.Ticker.on("tick", (() => {
+        //     this.game.currentScene.update(),
+        //     this.update(),
+        //     this.game.tickCount++;
+        // }).bind(this.game));
+        this.refresh();
+    }
+
+	childLoad() {
+		if (location.pathname.match(/^\/u\//gi)) {
+			fetch(`${location.href}?ajax=true`).then(t => t.json()).then(t => {
+				if (!document.querySelector(".friend-list.friends-all.active")) return;
+				for (const e of document.querySelector(".friend-list.friends-all.active").children) {
+					if (e.querySelector(".friend-list-item-date")) return;
+					try {
+						e.querySelector(".friend-list-item-info").appendChild(Object.assign(document.createElement("div"), {
+							className: "friend-list-item-date",
+							innerText: "Last Played " + t.friends.friends_data.find(i => i.d_name == e.querySelector(".friend-list-item-name.bold").innerText).activity_time_ago
+						}));
+					} catch(e) {}
+				}
+			});
+		}
+
+
+>>>>>>> parent of 6e3ea12 (Delete class directory)
 	}
 
     refresh() {
@@ -854,6 +943,7 @@ window.lite = new class {
             this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
         }
 
+<<<<<<< HEAD
         this.game.currentScene.score.best_time.color = (lite.storage.get("theme") === "midnight" || lite.storage.get("theme") === "dark") ? "#888" : "#999";
         this.game.currentScene.score.best_time_title.color = (lite.storage.get("theme") === "midnight" || lite.storage.get("theme") === "dark") ? "#888" : "#999";
         this.game.currentScene.score.goals.color = lite.storage.get("theme") === "midnight" ? "#ddd" : lite.storage.get("theme") === "dark" ? "#fff" : "#000";
@@ -875,21 +965,31 @@ window.lite = new class {
             });
         }
 
+=======
+>>>>>>> parent of 6e3ea12 (Delete class directory)
         this.game.settings.physicsLineColor = this.storage.get("theme") === "midnight" ? "#ccc" : this.storage.get("theme") === "dark" ? "#fdfdfd" : "#000";
         this.game.settings.sceneryLineColor = this.storage.get("theme") === "midnight" ? "#444" : this.storage.get("theme") === "dark" ? "#666" : "#aaa";
         this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get("theme") === "midnight" ? "#20282e" : this.storage.get("theme") === "dark" ? "#252525" : "#eee";
         this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get("theme") === "midnight" ? "#161b20" : this.storage.get("theme") === "dark" ? "#3e3e3e" : "#ccc";
         this.game.canvas.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#1d2328" : this.storage.get("theme") === "dark" ? "#1b1b1b" : "#fff");
+<<<<<<< HEAD
         if (this.focusOverlay) {
             this.focusOverlay.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#333b" : this.storage.get("theme") === "dark" ? "#000b" : "#fffb");
         }
+=======
+        this.focusOverlay && this.focusOverlay.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#333333bb" : this.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb");
+>>>>>>> parent of 6e3ea12 (Delete class directory)
 
         this.game.currentScene.redraw();
     }
     
     update() {
         this.storage.get("di") && this.drawInputDisplay(this.game.canvas);
+<<<<<<< HEAD
         this.focusOverlay && this.focusOverlay.style.setProperty("background-color", this.storage.get("theme") === "midnight" ? "#333b" : this.storage.get("theme") === "dark" ? "#000b" : "#fffb");
+=======
+        window.lite.focusOverlay && window.lite.focusOverlay.style.setProperty("background-color", window.lite.storage.get("theme") === "midnight" ? "#333333bb" : window.lite.storage.get("theme") === "dark" ? "#000000bb" : "#ffffffbb");
+>>>>>>> parent of 6e3ea12 (Delete class directory)
     }
 
 	drawInputDisplay(canvas = document.createElement("canvas")) {
