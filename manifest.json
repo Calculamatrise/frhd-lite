@@ -1,53 +1,51 @@
 {
 	"name": "Free Rider Lite",
-	"version": "1.0.4",
+	"version": "0.0.1",
 	"author": "Calculamatrise",
     "description": "A mod for Free Rider HD.",
 	"manifest_version": 3,
+	"action": {
+		"default_popup": "popup/index.html"
+	},
 	"background": {
 		"service_worker": "background.js",
 		"type": "module"
 	},
-	"content_scripts": [
-		{
-			"matches": [
-				"*://frhd.kanoapps.com/*",
-				"*://www.freeriderhd.com/*"
-			],
-			"js": [
-				"bootstrap.js"
-			]
-		}
-	],
-	"permissions": [
-		"storage"
-	],
+	"content_scripts": [{
+		"matches": [
+			"*://frhd.kanoapps.com/*",
+			"*://www.freeriderhd.com/*"
+		],
+		"js": ["bootstrap.js"]
+	}],
+	"declarative_net_request": {
+		"rule_resources": [{
+			"id": "ruleset_1",
+			"enabled": true,
+			"path": "rules_1.json"
+		}]
+	},
+	"icons": {
+		"16": "icons/icon_16.png",
+		"48": "icons/icon_48.png",
+		"128": "icons/icon_128.png"
+	},
+	"permissions": ["declarativeNetRequest", "storage"],
 	"host_permissions": [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*",
 		"*://cdn.kanoapps.com/free_rider_hd/assets/scripts/game/game.min.*.js",
 		"*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js"
 	],
+	"update_url": "https://clients2.google.com/service/update2/crx",
 	"web_accessible_resources": [{
 		"resources": [
-			"overlay/*",
-			"styles/*",
-			"class/*",
-			"libs/*"
+			"game/*",
+			"shared/*"
 		],
 		"matches": [
 			"*://frhd.kanoapps.com/*",
 			"*://www.freeriderhd.com/*"
 		]
-	}],
-	"icons": {
-		"256": "icons/icon_256.png",
-		"128": "icons/icon_128.png",
-		"64": "icons/icon_64.png",
-		"32": "icons/icon_32.png",
-		"16": "icons/icon_16.png"
-	},
-	"action": {
-		"default_popup": "popup/index.html"
-	}
+	}]
 }

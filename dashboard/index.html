@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moderation Tools - FRHD | Calculamatrise</title>
+    <link rel="stylesheet" href="/popup/style.css">
+    <link rel="stylesheet" href="/dashboard/style.css">
+    <script type="module" src="/dashboard/script.js" defer></script>
+</head>
+<body>
+    <main style="padding: 0 0.5rem">
+        <section caption="users">
+            <div class="dropdown">
+                <input type="text" id="u_name" placeholder="Search" style="width: -webkit-fill-available">
+                <main id="u_name-search-results"></main>
+            </div><br>
+            <div style="width: max-content;">
+                <input type="text" id="n_name" placeholder="new username">
+                <button id="change-u_name">Change username</button>
+            </div>
+            <div style="width: max-content;">
+                <input type="email" id="n_mailbox" placeholder="new email">
+                <button id="change-u_mailbox">Change email</button>
+            </div>
+            <span id="result"></span>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,75 @@
+body > main > section {
+    margin: 1rem 0;
+}
+
+body > main > [caption] {
+    margin-top: 3rem;
+    position: relative;
+}
+
+body > main > [caption]::before {
+    content: attr(caption);
+    position: absolute;
+    text-decoration: underline;
+    text-decoration-color: #80808080;
+    text-transform: capitalize;
+    text-underline-position: under;
+    top: -2rem;
+}
+
+section.locked {
+    position: relative;
+    width: min-content;
+}
+
+section.locked::after {
+    background-color: white;
+    bottom: 0;
+    color: red;
+    content: "Access denied!";
+    height: 100%;
+    left: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+}
+
+.error {
+    color: red;
+}
+
+.loading {
+    -webkit-user-select: none;
+    color: transparent;
+    position: relative;
+    user-select: none;
+}
+
+.loading * {
+    visibility: hidden;
+}
+
+.loading::after {
+    animation: rotate 800ms cubic-bezier(.5, .5, .5, .5) infinite;
+    background-color: transparent;
+    border: 2px solid;
+    border-color: black !important;
+    border-bottom-color: transparent !important;
+    border-radius: 50%;
+    bottom: 0;
+    content: "";
+    height: 0;
+    left: 0;
+    margin: auto;
+    padding: 0.25rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 0;
+}
+
+.success {
+    color: green;
+}

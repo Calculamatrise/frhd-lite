@@ -1,0 +1,18 @@
+[{
+	"id": 1,
+	"priority": 1,
+	"action": {
+		"type": "block",
+		"redirect": {
+			"extensionPath": "/game/main.js"
+		}
+	},
+	"condition": {
+		"urlFilter": "free_rider_hd/assets/scripts/game/game.min.*.js",
+		"initiatorDomains": [
+			"freeriderhd.com",
+			"kanoapps.com"
+		],
+		"resourceTypes": ["script"]
+	}
+}]

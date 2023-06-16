@@ -1,62 +1,120 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8"/>
-        <title>Free Rider Lite</title>
-        <link rel="stylesheet" href="style.css">
-        <script type="module" defer src="script.js"></script>
-    </head>
-    <body>
-        <lite-state>Disabled</lite-state>
-        <lite-tabs>
-            <lite-tab class="ripple">Options</lite-tab>
-            <lite-tab class="ripple">Keybinds</lite-tab>
-            <lite-tab class="ripple">Themes</lite-tab>
-        </lite-tabs>
-        <lite-content class="options">
-            <lite-option class="ripple" title="Display the last 15 snapshots of your rider">
-                <input type="checkbox" id="trail">Player trail</lite-option>
-            <lite-option class="ripple" title="Toggle an input display">
-                <input type="checkbox" id="di">Input display</lite-option>
-            <lite-option class="ripple" title="Displays featured ghosts on the leaderboard">
-                <input type="checkbox" id="feats">Featured ghosts</lite-option>
-            <lite-option class="ripple" title="Change grid style">
-                <input type="checkbox" id="isometric">Isometric grid</lite-option>
-            <lite-option class="ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);">
-                <input type="color" id="cc" value="#000000" style="margin-left: 4px; visibility: hidden; text-align: center;">Custom bike colour</lite-option>
-            <lite-option class="ripple" id="more-options" style="text-align: center;">Show advanced options</lite-option>
-            <lite-advanced-options style="display: none;">
-                <lite-option class="ripple" title="Change the size of the input display">
-                    <span class="name" style="background-color:rgba(0,0,0,0)">Input display size (10)</span>
-                    <input type="range" class="override-pointer-events" id="di_size" min="1" max="10" value="10" style="padding:0">
-                </lite-option>
-                <lite-option class="ripple" title="Change the number of snaphsots shown on checkpoints">
-                    <span class="name" style="background-color:rgba(0,0,0,0)">Snapshot Count (10)</span>
-                    <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="padding:0">
-                </lite-option>
-                <lite-option class="ripple" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)" id="reset">Reset settings</lite-option>
-            </lite-advanced-options>
-        </lite-content>
-        <lite-content class="keybinds" style="display: none">
-            <lite-container>
-                <input type="text" id="key" maxlength="1" style="text-align: center;">
-                <select id="key-value">
-                    <option value="down">Down</option>
-                    <option value="left">Left</option>
-                    <option value="pause">Pause</option>
-                    <option value="right">Right</option>
-                    <option value="up" selected>Up</option>
-                    <option value="z">Z</option>
-                </select>
-                <button id="update-keymap" class="ripple" style="margin-left: 8px;">Save</button>
-            </lite-container>
-            <lite-container id="keymap" style="flex-direction: column;"></lite-container>
-        </lite-content>
-        <lite-content class="themes" style="display: none;">
-            <lite-option><input type="radio" name="theme" id="light">Light</lite-option>
-            <lite-option><input type="radio" name="theme" id="midnight">Midnight</lite-option>
-            <lite-option><input type="radio" name="theme" id="dark" checked>Dark</lite-option>
-            <lite-option><input type="radio" name="theme" id="darker" title="Why do I even bother?">Darker</lite-option>
-        </lite-content>
-    </body>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Free Rider Lite</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="script.js" defer></script>
+</head>
+<body>
+    <button class="tab" id="state"></button>
+    <nav>
+        <div style="display: flex;">
+            <label for="dashboard" class="tab ripple" id="dashboard-href" style="display: none;">Dashboard</label>
+            <label for="options" class="tab ripple">Options</label>
+        </div>
+        <div>
+            <label for="keybinds" class="tab ripple notification">Keybinds</label>
+            <label for="themes" class="tab ripple">Themes</label>
+        </div>
+    </nav>
+    <main>
+        <section class="tab">
+            <input type="radio" name="nav" id="options" checked>
+            <label class="ripple" title="Display the last 15 snapshots of your rider">
+                <input type="checkbox" id="playerTrail">
+                <span>Player trail</span>
+            </label>
+            <label class="ripple" title="Toggle an input display">
+                <input type="checkbox" id="inputDisplay">
+                <span>Input display</span>
+            </label>
+            <label class="ripple" title="Displays featured ghosts on the leaderboard">
+                <input type="checkbox" id="featuredGhostsDisplay">
+                <span>Featured ghosts</span>
+            </label>
+            <label class="ripple" title="Change grid style">
+                <input type="checkbox" id="isometricGrid">
+                <span>Isometric grid</span>
+            </label>
+            <!-- <label for="color-scheme-options" class="tab ripple">Colour scheme options</label>
+            <section class="tab">
+                <input type="checkbox" id="color-scheme-options">
+                <label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
+                    <input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor" style="position: absolute;visibility: hidden;">Bike frame colour</label>
+                <label for="bikeTireColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
+                    <input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor" style="position: absolute;visibility: hidden;">Bike tire colour</label>
+            </section> -->
+            <label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
+                <input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor" style="position: absolute;visibility: hidden;">
+                <span>Bike frame colour</span>
+            </label>
+            <label for="advanced-options" class="tab ripple">Show advanced options</label>
+            <section class="tab">
+                <input type="checkbox" id="advanced-options">
+                <label title="Change the size of the input display">
+                    <span class="name">Input display size (10)</span>
+                    <input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="10" value="10" style="width: -webkit-fill-available">
+                </label>
+                <label title="Change the number of snaphsots shown on checkpoints">
+                    <span class="name">Snapshot Count (10)</span>
+                    <input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
+                </label>
+                <button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
+            </section>
+        </section>
+        <section class="tab">
+            <input type="radio" name="nav" id="keybinds">
+            <table style="text-align: left;width: -webkit-fill-available;">
+                <thead style="color: #5bc2ff4a">
+                    <tr>
+                        <th>Act</th>
+                        <th>Primary</th>
+                        <th>Alt</th>
+                    </tr>
+                </thead>
+                <tbody id="keymap"></tbody>
+            </table>
+        </section>
+        <section class="tab">
+            <input type="radio" name="nav" id="themes">
+            <label class="ripple">
+                <input type="radio" name="theme" id="auto">
+                <span>Device theme</span>
+            </label>
+            <label class="ripple">
+                <input type="radio" name="theme" id="light" checked>
+                <span>Light</span>
+            </label>
+            <label class="ripple">
+                <input type="radio" name="theme" id="midnight">
+                <span>Midnight</span>
+            </label>
+            <label class="ripple">
+                <input type="radio" name="theme" id="dark">
+                <span>Dark</span>
+            </label>
+            <label class="ripple">
+                <input type="radio" name="theme" id="darker" title="Why do I even bother?">
+                <span>Darker</span>
+            </label>
+        </section>
+        <section class="tab">
+            <input type="radio" name="nav" id="dashboard">
+            <div class="dropdown">
+                <input type="text" id="query" placeholder="Search" style="width: -webkit-fill-available">
+                <main style="position: relative;"></main>
+            </div>
+            <section id="moderation-actions-against-users" style="display: none;padding-top: 1rem;">
+                <div style="align-items: center;display: flex;">
+                    <button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
+                    <button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
+                </div>
+                <button class="tab ripple" id="change-username" style="text-align: left;width: -webkit-fill-available">Change Username</button>
+                <button class="tab ripple" id="change-email" style="text-align: left;width: -webkit-fill-available">Change Email</button>
+                <button class="tab ripple" id="toggle-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
+            </section>
+        </section>
+    </main>
+</body>
 </html>
