@@ -24,7 +24,9 @@ export default class {
     }
     listen() {
         document.onkeydown = this.handleButtonDown.bind(this),
-        document.onkeyup = this.handleButtonUp.bind(this)
+        document.onkeyup = this.handleButtonUp.bind(this),
+		window.onblur = this.handleBlur.bind(this),
+		window.onfocus = this.handleFocus.bind(this)
     }
     unlisten() {
         this.downButtons = {},
@@ -57,7 +59,7 @@ export default class {
         this.keymap = e
     }
     handleButtonDown(t) {
-        var e = this.getInternalCode(t.keyCode);
+		var e = this.getInternalCode(t.keyCode);
         "string" == typeof e && t.preventDefault(),
         this.setButtonDown(e)
     }
@@ -66,6 +68,18 @@ export default class {
         "string" == typeof e && t.preventDefault(),
         this.setButtonUp(e)
     }
+	blurred = false;
+	previousDownButtons = {};
+	handleBlur() {
+		this.blurred = true;
+		this.previousDownButtons = Object.assign({}, this.tickDownButtons);
+	}
+	handleFocus() {
+		if (this.blurred) {
+			this.tickDownButtons = Object.assign({}, this.previousDownButtons);
+			this.downButtons = Object.fromEntries(Object.keys(this.tickDownButtons).map(key => [key, false]));
+		}
+	}
     getInternalCode(t) {
         var e = this.keymap;
         return e[t] || t
@@ -75,11 +89,13 @@ export default class {
             this.setButtonDown(t[e])
     }
     setButtonUp(t) {
+		this.blurred = false;
         this.downButtons[t] && (this.onButtonUp && this.onButtonUp(t),
         this.downButtons[t] = !1,
         this.numberOfKeysDown--)
     }
     setButtonDown(t, e) {
+		this.blurred = false;
         this.downButtons[t] || (this.onButtonDown && this.onButtonDown(t),
         this.downButtons[t] = e ? e : !0,
         this.numberOfKeysDown++)
@@ -108,14 +124,17 @@ export default class {
     reset(t) {
         (this.replaying || t) && (this.downButtons = {}),
         this.tickDownButtons = {},
+		this.previousDownButtons = {},
         this.previousTickDownButtons = {},
         this.records = {}
     }
     update() {
-        this.scene;
-        this.replaying && this.updatePlayback(),
-        this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
-        this.tickDownButtons = Object.assign({}, this.downButtons),
+        this.replaying && this.updatePlayback()
+		if (!this.blurred) {
+			this.previousTickDownButtons = Object.assign({}, this.tickDownButtons)
+			this.tickDownButtons = Object.assign({}, this.downButtons);
+		}
+
         this.tickNumberOfKeysDown = this.numberOfKeysDown,
         this.recording && this.updateRecording()
     }
@@ -141,7 +160,7 @@ export default class {
         }
     }
     updateRecording() {
-        var t = this.scene.ticks
+		var t = this.scene.ticks
           , e = this.records
           , i = this.keysToRecord
           , s = this.tickDownButtons

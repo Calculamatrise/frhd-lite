@@ -117,6 +117,27 @@ export default class {
         GameInventoryManager.redraw(),
         this.toolHandler.resize()
     }
+	update() {
+		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
+        this.mouse.update(),
+        this.state.paused || this.state.showDialog || this.state.inFocus && (this.playerManager.updateGamepads(),
+        this.playerManager.checkKeys()),
+        this.screen.update(),
+        this.updateControls(),
+        this.camera.update(),
+        this.sound.update(),
+        this.restartTrack && this.restart(),
+        !this.state.paused && this.state.playing && (this.message.update(),
+        this.playerManager.update(),
+		this.score.update(),
+		this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
+		this.vehicleTimer.update(),
+        this.isStateDirty() && this.updateState(),
+        this.draw(),
+		this.pauseControls.draw(),
+		this.controls && this.controls.draw(),
+		this.camera.updateZoom()
+	}
     stateChanged() {
         this.updateState()
     }

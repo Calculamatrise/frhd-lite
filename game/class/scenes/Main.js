@@ -178,29 +178,12 @@ export default class extends Scene {
         t.setTool("Camera")
     }
     update() {
-        this.ready ? (this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
-        this.mouse.update(),
-        this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
-        this.playerManager.checkKeys()),
-        this.screen.update(),
-        this.updateControls(),
-        this.camera.update(),
-        this.sound.update(),
-        this.restartTrack && this.restart(),
-        !this.state.paused && this.state.playing && (this.message.update(),
-        this.playerManager.update(),
-        this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
-        this.updateScore(),
-        this.vehicleTimer.update(),
-        this.isStateDirty() && this.updateState(),
-        this.draw(),
-		this.pauseControls.draw(),
+        this.ready ? (super.update(),
+		this.updateScore(),
 		this.settings.fullscreenAvailable && this.fullscreenControls.draw(),
 		this.settingsControls.draw(),
-        this.controls && this.controls.draw(),
-		this.campaignScore && this.campaignScore.draw(),
-		this.raceTimes.draw(),
-        this.camera.updateZoom()) : this.importCode && this.createTrack()
+       	this.campaignScore && this.campaignScore.draw(),
+		this.raceTimes.draw()) : this.importCode && this.createTrack()
     }
     isStateDirty() {
         let e = this.state;
@@ -208,7 +191,6 @@ export default class extends Scene {
         return super.isStateDirty()
     }
     updateScore() {
-        this.score.update(),
         this.campaignScore && this.campaignScore.update(),
         this.raceTimes.update()
     }
@@ -370,7 +352,7 @@ export default class extends Scene {
             if ("string" == typeof s) {
                 s = JSON.parse(s);
                 for (var n in s) {
-                    s[n] = s[n].reduce((o, r) => (o[r] = ~~o[r] + 1, o), {})
+                    s[n] instanceof Array && (s[n] = s[n].reduce((o, r) => (o[r] = ~~o[r] + 1, o), {}))
                 }
                 i.code = s
             }
@@ -388,7 +370,7 @@ export default class extends Scene {
     }
     mergeRaces(t) {
         var e = this.races;
-		t.forEach(t => {
+		t && t.forEach(t => {
 			var i = e.find(e => {
                 return e.user.u_id === t.user.u_id
             });

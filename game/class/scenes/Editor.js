@@ -132,27 +132,9 @@ export default class extends Scene {
         this.redoundoControls.update()
 	}
     update() {
-        this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
-        this.mouse.update(),
-        this.state.showDialog || (this.playerManager.updateGamepads(),
-        this.playerManager.checkKeys()),
-        this.screen.update(),
-        this.updateControls(),
-        this.camera.update(),
-        this.sound.update(),
-        this.restartTrack && this.restart(),
-        !this.state.paused && this.state.playing && (this.message.update(),
-        this.playerManager.update(),
-        this.score.update(),
-        this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
-        this.vehicleTimer.update(),
+		super.update(),
         (this.importCode || this.clear) && this.createTrack(),
-        this.isStateDirty() && this.updateState(),
-        this.draw(),
-		this.pauseControls.draw(),
-		this.redoundoControls.draw(),
-        this.controls && this.controls.draw(),
-        this.camera.updateZoom()
+		this.redoundoControls.draw()
     }
     restart() {
         this.verified = !this.settings.requireTrackVerification,
