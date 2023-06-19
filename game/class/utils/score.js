@@ -25,7 +25,7 @@ export default class {
 	time = {
 		color: "#000000",
 		font: 40 * window.devicePixelRatio / 2.5,
-		text: "00:00.00",
+		text: "0:00.00",
 		x: 57,
 		y: 18
 	}

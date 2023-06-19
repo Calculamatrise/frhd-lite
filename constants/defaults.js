@@ -1,4 +1,5 @@
 export default {
+	accountManager: false,
     bikeFrameColor: false,
     featuredGhostsDisplay: true,
     inputDisplay: true,

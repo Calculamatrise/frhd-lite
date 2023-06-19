@@ -26,20 +26,6 @@ window.Game = class {
 		this.updateCallback = requestAnimationFrame(this.update.bind(this));
     }
 
-    static init() {
-        GameManager._loadGame = GameManager.loadGame;
-        GameManager.loadGame = function() {
-            if (this.game !== null) {
-                this.closeGame();
-            }
-
-            this._loadGame.call(this);
-            lite.load();
-        }
-        
-        GameManager.ready && GameManager.loadGame();
-    }
-
     initCanvas() {
         this.canvas = document.createElement("canvas");
         this.gameContainer = document.getElementById(this.settings.defaultContainerID);
@@ -108,5 +94,3 @@ window.Game = class {
         this.width = null
     }
 }
-
-Game.init();

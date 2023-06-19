@@ -15,7 +15,6 @@ import defaults from "./constants/defaults.js";
 
 chrome.runtime.onInstalled.addListener(function() {
     // minify the game on install and save it in cache...
-
     chrome.storage.local.get(({ enabled = true, settings = null }) => {
         chrome.storage.local.set({
             enabled,
