@@ -222,7 +222,7 @@ export default class {
     drawGrid() {
         var t = this.scene.game.pixelRatio
             , e = this.scene.game.canvas.getContext("2d");
-        this.options.grid === !0 && this.options.visibleGrid && (lite.storage.get("isometric") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
+        this.options.grid === !0 && this.options.visibleGrid && (lite.storage.get("isometricGrid") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
     }
     drawCachedGrid(t, e) {
         this.gridCache === !1 && this.cacheGrid(e);
