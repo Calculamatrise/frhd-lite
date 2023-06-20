@@ -146,7 +146,7 @@ export default class {
             t = this._baseVehicle)),
             this._effectTicks > 0 && (this._effectTicks--,
             this._effect.update()),
-            this.isGhost() || lite.storage.get("trail") && lite.snapshots.push(this._createSnapshot()),
+            this.isGhost() || lite.storage.get("playerTrail") && lite.snapshots.push(this._createSnapshot()),
             t.update(),
             this._addCheckpoint && (this._createCheckpoint(),
             this._addCheckpoint = !1)

@@ -41,20 +41,7 @@ export default class extends Scene {
         this.registerTools(),
         this.setStartingVehicle(),
         this.restart(),
-        this.initializeAnalytics(),
-        this.injectLiteFeatures()
-    }
-    injectLiteFeatures() {
-        if (lite.storage.get("feats")) {
-            fetch("https://raw.githubusercontent.com/Calculamatrise/frhd_featured_ghosts/master/display.js").then(r => r.text()).then(data => {
-                document.head.appendChild(Object.assign(document.createElement("script"), {
-                    innerHTML: data,
-                    onload: function() {
-                        this.remove()
-                    }
-                }));
-            })
-        }
+        this.initializeAnalytics()
     }
     getCanvasOffset() {
         var t = {

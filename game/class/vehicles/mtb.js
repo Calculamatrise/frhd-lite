@@ -7,16 +7,15 @@ import n from "./mass.js";
 import a from "./wheel.js";
 
 export default class extends bike {
+	vehicleName = "MTB";
     constructor(t, e, i, s) {
         super(t);
-        this.color = "rgba(0,0,0,1)";
-        this.createMasses(e, s);
+		this.createMasses(e, s);
         this.createSprings();
         this.updateCameraFocalPoint();
         this.stopSounds();
         -1 === i && this.swap();
     }
-    vehicleName = "MTB";
     createMasses(t, e) {
         this.masses = [];
         var i = new n(new s(t.x + 2, t.y + -38), this)
@@ -93,7 +92,7 @@ export default class extends bike {
         i.addOut(c, c),
         n.subOut(c, c),
         o.globalAlpha = a,
-        o.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000"),
+        o.strokeStyle = "#".padEnd(7, lite.storage.get("theme") == "midnight" ? "C" : lite.storage.get("theme") == "dark" ? "FB" : "0"),
         o.lineWidth = 3 * r,
         o.lineCap = "round",
         o.lineJoin = "round",
@@ -118,7 +117,7 @@ export default class extends bike {
         o.fill(),
         o.stroke(),
         o.beginPath(),
-        o.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000"),
+        o.strokeStyle = this.color,
         o.lineWidth = 5 * r,
         o.moveTo(i.x, i.y),
         o.lineTo(i.x + .4 * h.x + .05 * l.x, i.y + .4 * h.y + .05 * l.y),
@@ -128,7 +127,6 @@ export default class extends bike {
         o.stroke(),
         o.beginPath(),
         o.lineWidth = 2 * r,
-        o.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000"),
         o.moveTo(i.x + .72 * h.x + .64 * c.x, i.y + .72 * h.y + .64 * c.y),
         o.lineTo(i.x + .43 * h.x + .05 * l.x, i.y + .43 * h.y + .05 * l.y),
         o.stroke(),

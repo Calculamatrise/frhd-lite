@@ -12,6 +12,13 @@
 		"type": "module"
 	},
 	"content_scripts": [{
+		"js": ["bootstrap.js"],
+		"matches": [
+			"*://frhd.kanoapps.com/*",
+			"*://www.freeriderhd.com/*"
+		],
+		"run_at": "document_start"
+	}, {
 		"world": "MAIN",
 		"js": ["game/main.js"],
 		"matches": [
@@ -19,13 +26,6 @@
 			"*://www.freeriderhd.com/*"
 		],
 		"run_at": "document_end"
-	}, {
-		"js": ["bootstrap.js"],
-		"matches": [
-			"*://frhd.kanoapps.com/*",
-			"*://www.freeriderhd.com/*"
-		],
-		"run_at": "document_start"
 	}],
 	"declarative_net_request": {
 		"rule_resources": [{

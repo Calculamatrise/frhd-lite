@@ -4,18 +4,15 @@ import n from "./mass.js";
 import a from "./wheel.js";
 
 export default class extends bike {
+	vehicleName = "BMX";
     constructor(t, e, i, s) {
         super(t);
-        this.createMasses(e, s);
+		this.createMasses(e, s);
         this.createSprings();
         this.updateCameraFocalPoint();
         this.stopSounds();
         -1 === i && this.swap();
     }
-    vehicleName = "BMX";
-    cosmeticHead = null;
-    cosmeticRearWheel = null;
-    cosmeticFrontWheel = null;
     createMasses(t, e) {
         this.masses = [];
         var i = new n(new Vector(t.x,t.y - 36), this)
@@ -91,7 +88,7 @@ export default class extends bike {
           , c = t.camera.zoom
           , u = t.game.canvas.getContext("2d");
         u.globalAlpha = r,
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
+        u.strokeStyle = "#".padEnd(7, lite.storage.get("theme") == "midnight" ? "C" : lite.storage.get("theme") == "dark" ? "FB" : "0"),
         u.lineWidth = 3 * c,
         u.lineCap = "round",
         u.lineJoin = "round",
@@ -109,7 +106,7 @@ export default class extends bike {
         , f = e.add(o.factor(.84)).add(a.factor(.42))
         , v = e.add(o.factor(.84)).add(a.factor(.37));
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
+        u.strokeStyle = this.color,
         u.moveTo(e.x, e.y),
         u.lineTo(p.x, p.y),
         u.lineTo(f.x, f.y),
@@ -118,7 +115,7 @@ export default class extends bike {
         u.lineTo(e.x, e.y),
         u.stroke(),
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
+        u.strokeStyle = this.color,
         u.lineWidth = Math.max(1 * c, .5),
         u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
         u.stroke();
@@ -133,7 +130,7 @@ export default class extends bike {
         , x = e.add(o.factor(.17)).add(a.factor(.38))
         , _ = e.add(o.factor(.3)).add(a.factor(.45));
         u.beginPath(),
-        u.strokeStyle = window.lite.storage.get("cc") || (window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000000"),
+        u.strokeStyle = this.color,
         u.lineWidth = 3 * c,
         u.moveTo(x.x, x.y),
         u.lineTo(_.x, _.y),

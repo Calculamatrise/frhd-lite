@@ -15,8 +15,15 @@ window.lite = new class {
 	constructor() {
 		Application.events.subscribe('route', () => this.loaded = false);
 		Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
+		GameManager.on('stateChange', (state) => {
+			if (state.preloading === false && this.loaded === false) {
+				this.loaded = this.load();
+			}
 
-		addEventListener('load', this.childLoad.bind(this));
+			this.loaded && this.refresh();
+		});
+
+		this.childLoad();
 		addEventListener('message', ({ data }) => {
 			if (!data) return;
 			switch (data.action) {
@@ -27,12 +34,6 @@ window.lite = new class {
 
 			this.refresh();
 		});
-
-		GameManager.on('stateChange', (state) => {
-            if (state.preloading === false && this.loaded === false) {
-                this.loaded = this.load();
-            }
-        });
 	}
 
 	get game() {
@@ -50,7 +51,7 @@ window.lite = new class {
     }
 
 	childLoad() {
-		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts.bind(this);
+		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
 		this.storage.get('accountManager') && this.initAccountManager();
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
 	}
@@ -62,27 +63,28 @@ window.lite = new class {
 			this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
 		}
 
-		// this.game.currentScene.message.color = (lite.storage.get('theme') === 'midnight' || lite.storage.get('theme') === 'dark') ? "#ccc" : "#333";
-		this.game.currentScene.score.best_time.color = (lite.storage.get('theme') === 'midnight' || lite.storage.get('theme') === 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.best_time_title.color = (lite.storage.get('theme') === 'midnight' || lite.storage.get('theme') === 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.goals.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time_title.color = (lite.storage.get('theme') === 'midnight' || lite.storage.get('theme') === 'dark') ? "#888" : "#999";
+		this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
+		// this.game.currentScene.message.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#ccc" : "#333";
+		this.game.currentScene.score.best_time.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
+		this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
+		this.game.currentScene.score.goals.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+		this.game.currentScene.score.time.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+		this.game.currentScene.score.time_title.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
 		if (this.game.currentScene.hasOwnProperty('raceTimes')) {
-			this.game.currentScene.raceTimes.container.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
+			this.game.currentScene.raceTimes.container.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 			// this.game.currentScene.raceTimes.raceList.forEach((race) => {
 			//     race.children.forEach(element => {
-			//         element.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
+			//         element.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 			//     });
 			// });
 		}
 
 		if (this.game.currentScene.hasOwnProperty('campaignScore')) {
-			this.game.currentScene.campaignScore.container.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
+			this.game.currentScene.campaignScore.container.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 			this.game.currentScene.campaignScore.container.children.forEach(medal => {
-				medal.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
+				medal.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 				// medal.children.forEach(element => {
-				//     element.color = lite.storage.get('theme') === 'midnight' ? "#ddd" : lite.storage.get('theme') === 'dark' ? "#fff" : "#000";
+				//     element.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 				// });
 			});
 		}
@@ -306,13 +308,138 @@ window.lite = new class {
 		});
 	}
 
-	initFeaturedGhosts() {
-		fetch("https://raw.githubusercontent.com/Calculamatrise/frhd_featured_ghosts/master/display.js").then(r => r.text()).then(data => {
-			document.head.appendChild(Object.assign(document.createElement("script"), {
-				innerHTML: data,
-				onload: this.remove.bind(this)
-			}));
+	achievements = null;
+	achievementsContainer = null;
+	countdown = null;
+	countdownTimer = null;
+	initAchievementsDisplay() {
+		if (this.achievementsContainer) return;
+		this.achievementsContainer = this.constructor.createElement('div', {
+			children: [
+				this.constructor.createElement('a', {
+					children: [
+						this.constructor.createElement('span', {
+							innerText: 'Daily Achievements',
+							style: {
+								float: 'left'
+							}
+						}),
+						this.countdown = this.constructor.createElement('span', {
+							className: 'time-remaining',
+							innerText: '00:00:00',
+							style: {
+								float: 'right'
+							}
+						})
+					],
+					href: '/achievements',
+					style: {
+						borderBottom: '1px solid gray',
+						color: 'white',
+						fontFamily: 'helsinki',
+						paddingBottom: '5px'
+					}
+				}),
+				this.achievements = this.constructor.createElement('div', {
+					id: 'achievements-container',
+					style: {
+						display: 'flex',
+						flexDirection: 'column',
+						fontFamily: 'riffic',
+						gap: '0.4rem'
+					}
+				})
+			],
+			className: 'simplemodal-container',
+			style: {
+				backgroundColor: 'rgb(27 82 100)',
+				backgroundImage: 'linear-gradient(#1B5264,#143F4D)',
+				borderRadius: '1rem',
+				boxShadow: '0px 4px 8px 0px black',
+				color: 'white',
+				display: 'flex',
+				flexDirection: 'column',
+				gap: '0.6rem',
+				margin: '0 10px',
+				padding: '1.5rem',
+				width: '-webkit-fill-available'
+			}
 		});
+
+		this.refreshAchievements().then(function(response) {
+			this.countdown.innerText = [String(Math.floor(response.time_left / 3600)).padStart(2, '0'), String(Math.floor((response.time_left % 3600) / 60)).padStart(2, '0'), String(Math.floor(response.time_left % 60)).padStart(2, '0')].join(':');
+			this.countdownTimer = setInterval(function() {
+				let lastTime = this.countdown.innerText.split(':').map(e => parseInt(e));
+				if (lastTime[2] === 0) {
+					if (lastTime[1] === 0) {
+						lastTime[0]--;
+						lastTime[1] = 59;
+					}
+
+					lastTime[1]--;
+					lastTime[2] = 59;
+				}
+
+				lastTime[2]--;
+				lastTime.reduce((sum, remainingTime) => sum += remainingTime, 0) === 0 && clearInterval(this.countdownTimer);
+				this.countdown.innerText = lastTime.map(e => String(e).padStart(2, '0')).join(':');
+			}, 1e3)
+
+			waitForElm('#right_content').then((elm) => {
+				elm.prepend(this.achievementsContainer);
+			});
+		});
+
+		let refresh = this.refreshAchievements;
+		Application.Helpers.AjaxHelper._check_event_notification = function(e) {
+            Object.getPrototypeOf(Application.Helpers.AjaxHelper)._check_event_notification.apply(this, arguments);
+            if ("undefined" != typeof e.data && ("undefined" != typeof e.data.achievements_earned)) {
+                Application.events.publish("achievementsEarned", e.data.achievements_earned);
+                refresh(); // add animation? // refresh everything
+            }
+
+            // console.log("other", e);
+            refresh() // only update percentages
+        }
+	}
+
+	featuredGhosts = null
+	initFeaturedGhosts() {
+		const render_leaderboards = Application.Views.TrackView.prototype._render_leaderboards;
+		Application.Views.TrackView.prototype._render_leaderboards = async function(n) {
+			render_leaderboards.apply(this, arguments);
+			lite.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd_featured_ghosts/master/data.json").then(r => r.json());
+			const matches = Object.fromEntries(Object.entries(lite.featuredGhosts).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
+			for (const player in matches) {
+				for (const ghost in matches[player]) {
+					let name = ghost.split('/r/')[1];
+					if (name.length > 15) {
+						name = name.slice(0, 12) + "...";
+					}
+
+					const races = Array.from(document.getElementsByClassName("track-leaderboard-race"));
+					for (const element of races.filter(({ innerText }) => name == innerText.toLowerCase())) {
+						let color = [232, 169, 35];
+						switch(matches[player][ghost]) {
+							case 'fast': color = [120, 200, 200]; break;
+							case 'vehicle': color = [240, 200, 80]; break;
+							case 'trick': color = [160, 240, 40]; break;
+						}
+
+						const container = element.parentElement.parentElement;
+						container.style.setProperty('background-color', `rgba(${color.join(',')},0.4)`);
+						const actions = container.querySelector(".track-leaderboard-action");
+						if (actions) {
+							actions.setAttribute('class', 'core_icons core_icons-icon_featured_badge featured');
+							actions.style.setProperty('width', '24px');
+							for (const action of actions.children) {
+								action.style.setProperty('opacity', 0);
+							}
+						}
+					}
+				}
+			}
+		}
 		this.featuredGhostsLoaded = true;
 	}
 
@@ -328,6 +455,13 @@ window.lite = new class {
 				}
 			}
 		});
+	}
+
+	refreshAchievements() {
+		return fetch("/achievements?ajax").then(r => r.json()).then(function(response) {
+            this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement));
+            return response;
+        });
 	}
 
 	static createAccountContainer({ login, password }) {
@@ -369,6 +503,46 @@ window.lite = new class {
 			}
 		});
 
+		return container;
+	}
+
+	static createProgressElement() {
+		let container = this.createElement('div', {
+			children: [
+				this.createElement('a', {
+					children: [
+						this.createElement('b', {
+							innerText: achievement.title
+						}),
+						this.createElement('h6', {
+							innerText: achievement.desc,
+							style: {
+								color: 'darkgray',
+								fontFamily: 'roboto_bold',
+								margin: 0
+							}
+						})
+					],
+					href: '',
+					style: {
+						width: '-webkit-fill-available'
+					}
+				}),
+				// achievement.coins
+				this.createElement('span', {
+					innerText: achievement.current, // achievement.progress // achievement.current + '/' + achievement.max
+					style: {
+						fontFamily: 'helsinki',
+						fontSize: '2rem'
+					}
+				})
+			],
+			style: {
+				display: 'flex',
+				gap: '0.25rem'
+			}
+		});
+	
 		return container;
 	}
 

@@ -95,7 +95,7 @@ export default class extends EventEmitter {
         i.y = Math.round((t.pos.y - this.scene.screen.center.y) / this.scene.camera.zoom + this.scene.camera.position.y);
         if (this.scene.toolHandler.options.grid) {
             let p = this.scene.settings.toolHandler.gridSize | 0;
-            if (window.lite.storage.get("isometric")) {
+            if (lite.storage.get("isometricGrid")) {
                 function Ab(t, e) {
                     return ((t % e) + e) % e
                 }
