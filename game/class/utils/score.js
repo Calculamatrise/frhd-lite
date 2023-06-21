@@ -11,7 +11,9 @@ export default class {
 		x: 10 * window.devicePixelRatio / 2.5,
 		y: 10 * window.devicePixelRatio / 2.5,
 		scaleX: window.devicePixelRatio / 2.5,
-		scaleY: window.devicePixelRatio / 2.5
+		scaleY: window.devicePixelRatio / 2.5,
+		width: 508,
+		height: 58
 	}
 	spriteSheet = {
 		timer: [2, 2, 58, 58],
@@ -112,7 +114,7 @@ export default class {
     }
     center_container() {
         var t = this.container
-          , e = e.children.reduce((width, child) => width += child.width, 0)
+          , e = t.width // t.children.reduce((width, child) => width += child.width, 0)
           , i = this.scene.screen;
         t.x = i.width / 2 - e / 2 * t.scaleY,
         t.y = 10 * window.devicePixelRatio

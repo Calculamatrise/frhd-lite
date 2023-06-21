@@ -63,39 +63,40 @@ window.lite = new class {
 			this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
 		}
 
-		this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
-		// this.game.currentScene.message.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#ccc" : "#333";
-		this.game.currentScene.score.best_time.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.goals.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time_title.color = (this.storage.get('theme') === 'midnight' || this.storage.get('theme') === 'dark') ? "#888" : "#999";
+		this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") != '#000000' && this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
+		this.game.currentScene.message.color = /^#(0|3){3,6}$/.test(this.game.currentScene.message.color) && /^(dark|midnight)$/i.test(this.storage.get("theme")) ? "#ccc" : "#333";
+		this.game.currentScene.message.outline = this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff";
+		this.game.currentScene.score.best_time.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
+		this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
+		this.game.currentScene.score.goals.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+		this.game.currentScene.score.time.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+		this.game.currentScene.score.time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
 		if (this.game.currentScene.hasOwnProperty('raceTimes')) {
-			this.game.currentScene.raceTimes.container.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+			this.game.currentScene.raceTimes.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
 			// this.game.currentScene.raceTimes.raceList.forEach((race) => {
-			//     race.children.forEach(element => {
-			//         element.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
-			//     });
+			// 	race.children.forEach(element => {
+			// 		element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+			// 	});
 			// });
 		}
 
 		if (this.game.currentScene.hasOwnProperty('campaignScore')) {
-			this.game.currentScene.campaignScore.container.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+			this.game.currentScene.campaignScore.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
 			this.game.currentScene.campaignScore.container.children.forEach(medal => {
-				medal.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+				medal.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
 				// medal.children.forEach(element => {
-				//     element.color = this.storage.get('theme') === 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+				// 	element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
 				// });
 			});
 		}
 
-		this.game.settings.physicsLineColor = this.storage.get('theme') === 'midnight' ? "#ccc" : this.storage.get('theme') === 'dark' ? "#fdfdfd" : "#000";
-		this.game.settings.sceneryLineColor = this.storage.get('theme') === 'midnight' ? "#444" : this.storage.get('theme') === 'dark' ? "#666" : "#aaa";
-		this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') === 'midnight' ? "#20282e" : this.storage.get('theme') === 'dark' ? "#252525" : "#eee";
-		this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') === 'midnight' ? "#161b20" : this.storage.get('theme') === 'dark' ? "#3e3e3e" : "#ccc";
-		this.game.canvas.style.setProperty("background-color", this.storage.get('theme') === 'midnight' ? "#1d2328" : this.storage.get('theme') === 'dark' ? "#1b1b1b" : "#fff");
+		this.game.settings.physicsLineColor = this.storage.get('theme') == 'midnight' ? "#ccc" : this.storage.get('theme') == 'dark' ? "#fdfdfd" : "#000";
+		this.game.settings.sceneryLineColor = this.storage.get('theme') == 'midnight' ? "#444" : this.storage.get('theme') == 'dark' ? "#666" : "#aaa";
+		this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') == 'midnight' ? "#20282e" : this.storage.get('theme') == 'dark' ? "#252525" : "#eee";
+		this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') == 'midnight' ? "#161b20" : this.storage.get('theme') == 'dark' ? "#3e3e3e" : "#ccc";
+		this.game.canvas.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff");
 		if (this.focusOverlay) {
-			this.focusOverlay.style.setProperty("background-color", this.storage.get('theme') === 'midnight' ? "#333b" : this.storage.get('theme') === 'dark' ? "#000b" : "#fffb");
+			this.focusOverlay.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#333b" : this.storage.get('theme') == 'dark' ? "#000b" : "#fffb");
 		}
 
 		this.game.currentScene.redraw();
@@ -107,8 +108,8 @@ window.lite = new class {
 
 	drawInputDisplay(canvas = document.createElement('canvas')) {
 		const ctx = canvas.getContext('2d');
-		const color = (condition => condition ? (theme => '#' + (theme === 'midnight' ? '444' : theme === 'dark' ? '000' : 'fff'))(this.storage.get('theme')) : fill);
-		const fill = (theme => '#' + (theme === 'midnight' ? 'ddd' : theme === 'dark' ? 'fff' : '000'))(this.storage.get('theme'));
+		const color = (condition => condition ? (t => '#'.padEnd(7, t == 'midnight' ? '4' : t == 'dark' ? '0' : 'f'))(this.storage.get('theme')) : fill);
+		const fill = (t => '#'.padEnd(7, t == 'midnight' ? 'd' : t == 'dark' ? 'f' : '0'))(this.storage.get('theme'));
 		const gamepad = this.game.currentScene.playerManager._players[this.game.currentScene.camera.focusIndex]._gamepad.downButtons;
 		const size = parseInt(this.storage.get('inputDisplaySize'));
 		const offset = {
@@ -118,32 +119,32 @@ window.lite = new class {
 
 		ctx.save();
 		ctx.fillStyle = fill;
-		ctx.font = size * 3 + 'px Arial';
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.lineWidth = size / 2;
 		ctx.strokeStyle = fill;
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
+
+		let borderRadius = size / 2;
+		let buttonSize = size * 4;
 
 		ctx.beginPath();
-		ctx.roundRect(offset.x, offset.y, size * 4, size * 4, 4);
+		ctx.roundRect(offset.x, offset.y, buttonSize, buttonSize, borderRadius);
 		ctx.stroke();
 		gamepad.z && ctx.fill();
 		ctx.beginPath();
-		ctx.roundRect(offset.x + 5 * size, offset.y, size * 4, size * 4, 4);
+		ctx.roundRect(offset.x + 5 * size, offset.y, buttonSize, buttonSize, borderRadius);
 		ctx.stroke();
 		gamepad.up && ctx.fill();
 		ctx.beginPath();
-		ctx.roundRect(offset.x, offset.y + 5 * size, size * 4, size * 4, 4);
+		ctx.roundRect(offset.x, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
 		ctx.stroke();
 		gamepad.left && ctx.fill();
 		ctx.beginPath();
-		ctx.roundRect(offset.x + 5 * size, offset.y + 5 * size, size * 4, size * 4, 4);
+		ctx.roundRect(offset.x + 5 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
 		ctx.stroke();
 		gamepad.down && ctx.fill();
 		ctx.beginPath();
-		ctx.roundRect(offset.x + 10 * size, offset.y + 5 * size, size * 4, size * 4, 4);
+		ctx.roundRect(offset.x + 10 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
 		ctx.stroke();
 		gamepad.right && ctx.fill();
 

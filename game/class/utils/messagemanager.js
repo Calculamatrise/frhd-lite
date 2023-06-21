@@ -16,7 +16,7 @@ export default class {
         this.scene.state.paused && (i = !1,
         s = !1,
         t = this.scene.settings.mobile ? "Paused" : "Paused - Press Spacebar to Continue"),
-        i === !1 && (i = lite.storage.get("theme") === "midnight" ? "#888" : lite.storage.get("theme") === "dark" ? "#ccc" : "#333"),
+        i === !1 && (i = lite.storage.get("theme") == "midnight" ? "#888" : lite.storage.get("theme") == "dark" ? "#ccc" : "#333333"),
         t) {
             var n = this.scene.game
               , r = this.scene
@@ -27,11 +27,11 @@ export default class {
               , c = r.settings;
             "phone" === c.controls && (l = 80),
             a.save(),
-            a.fillStyle = i,
+            a.fillStyle = /^#(0|3){3,6}$/.test(this.color) ? (lite.storage.get("theme") == "midnight" ? "#ccc" : lite.storage.get("theme") == "dark" ? "#fbfbfb" : "#000") : i,
             a.lineWidth = 4 * (o / 2),
             a.font = 12 * o + "pt helsinki",
             a.textAlign = "center",
-            s && (a.strokeStyle = s,
+            s && (a.strokeStyle = lite.storage.get("theme") == "midnight" ? "#1d2328" : lite.storage.get("theme") == "dark" ? "#1b1b1b" : s,
             a.strokeText(t, h, l * o),
             a.strokeStyle = "#000"),
             a.fillText(t, h, l * o),
