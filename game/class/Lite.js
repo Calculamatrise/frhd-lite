@@ -20,7 +20,7 @@ window.lite = new class {
 				this.loaded = this.load();
 			}
 
-			this.loaded && this.refresh();
+			// this.loaded && this.refresh();
 		});
 
 		this.childLoad();
@@ -28,11 +28,19 @@ window.lite = new class {
 			if (!data) return;
 			switch (data.action) {
 				case 'updateStorage':
+					let oldStorage = new Map(this.storage);
 					this.storage = new Map(Object.entries(data.storage));
+					let changes = new Map();
+					for (const [key, value] of this.storage.entries()) {
+						if (JSON.stringify(value) == JSON.stringify(oldStorage.get(key))) continue;
+						changes.set(key, value);
+					}
+
+					this.updateFromSettings(changes);
 					break;
 			}
 
-			this.refresh();
+			// this.refresh();
 		});
 	}
 
@@ -46,17 +54,71 @@ window.lite = new class {
 
 	load() {
         this.snapshots.splice(0, this.snapshots.length);
-        this.refresh();
+        // this.refresh();
+		this.updateFromSettings(this.storage);
         return true;
     }
 
 	childLoad() {
 		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
 		this.storage.get('accountManager') && this.initAccountManager();
+		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
 	}
 
+	updateFromSettings(changes) {
+		for (const [key, value] of changes.entries()) {
+			switch (key) {
+				case 'keymap': {
+					let keymap = this.storage.get('keymap');
+					this.game.currentScene.playerManager.firstPlayer._gamepad.setKeyMap(this.game.settings[(this.game.currentScene.hasOwnProperty('races') ? 'play' : 'editor') + 'Hotkeys']);
+					for (let key in keymap) {
+						this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
+					}
+					break;
+				}
+				case 'theme': {
+					this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") != '#000000' && this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
+					this.game.currentScene.message.color = /^#(0|3){3,6}$/.test(this.game.currentScene.message.color) && /^(dark|midnight)$/i.test(this.storage.get("theme")) ? "#ccc" : "#333";
+					this.game.currentScene.message.outline = this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff";
+					this.game.currentScene.score.best_time.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
+					this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
+					this.game.currentScene.score.goals.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+					this.game.currentScene.score.time.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+					this.game.currentScene.score.time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
+					if (this.game.currentScene.hasOwnProperty('raceTimes')) {
+						this.game.currentScene.raceTimes.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
+						// this.game.currentScene.raceTimes.raceList.forEach((race) => {
+						// 	race.children.forEach(element => {
+						// 		element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+						// 	});
+						// });
+					}
+
+					if (this.game.currentScene.hasOwnProperty('campaignScore')) {
+						this.game.currentScene.campaignScore.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+						this.game.currentScene.campaignScore.container.children.forEach(medal => {
+							medal.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+							// medal.children.forEach(element => {
+							// 	element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+							// });
+						});
+					}
+
+					this.game.settings.physicsLineColor = this.storage.get('theme') == 'midnight' ? "#ccc" : this.storage.get('theme') == 'dark' ? "#fdfdfd" : "#000";
+					this.game.settings.sceneryLineColor = this.storage.get('theme') == 'midnight' ? "#444" : this.storage.get('theme') == 'dark' ? "#666" : "#aaa";
+					this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') == 'midnight' ? "#20282e" : this.storage.get('theme') == 'dark' ? "#252525" : "#eee";
+					this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') == 'midnight' ? "#161b20" : this.storage.get('theme') == 'dark' ? "#3e3e3e" : "#ccc";
+					this.game.canvas.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff");
+					this.game.currentScene.redraw();
+					break;
+				}
+			}
+		}
+	}
+
 	refresh() {
+		// only changed settings should update
 		let keymap = this.storage.get('keymap');
 		this.game.currentScene.playerManager.firstPlayer._gamepad.setKeyMap(this.game.settings[(this.game.currentScene.hasOwnProperty('races') ? 'play' : 'editor') + 'Hotkeys']);
 		for (let key in keymap) {
@@ -95,9 +157,10 @@ window.lite = new class {
 		this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') == 'midnight' ? "#20282e" : this.storage.get('theme') == 'dark' ? "#252525" : "#eee";
 		this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') == 'midnight' ? "#161b20" : this.storage.get('theme') == 'dark' ? "#3e3e3e" : "#ccc";
 		this.game.canvas.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff");
-		if (this.focusOverlay) {
-			this.focusOverlay.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#333b" : this.storage.get('theme') == 'dark' ? "#000b" : "#fffb");
-		}
+		// inject stylesheet
+		// if (this.focusOverlay) {
+		// 	this.focusOverlay.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#333b" : this.storage.get('theme') == 'dark' ? "#000b" : "#fffb");
+		// }
 
 		this.game.currentScene.redraw();
 	}
@@ -367,9 +430,9 @@ window.lite = new class {
 			}
 		});
 
-		this.refreshAchievements().then(function(response) {
+		this.refreshAchievements().then(response => {
 			this.countdown.innerText = [String(Math.floor(response.time_left / 3600)).padStart(2, '0'), String(Math.floor((response.time_left % 3600) / 60)).padStart(2, '0'), String(Math.floor(response.time_left % 60)).padStart(2, '0')].join(':');
-			this.countdownTimer = setInterval(function() {
+			this.countdownTimer = setInterval(() => {
 				let lastTime = this.countdown.innerText.split(':').map(e => parseInt(e));
 				if (lastTime[2] === 0) {
 					if (lastTime[1] === 0) {
@@ -386,12 +449,11 @@ window.lite = new class {
 				this.countdown.innerText = lastTime.map(e => String(e).padStart(2, '0')).join(':');
 			}, 1e3)
 
-			waitForElm('#right_content').then((elm) => {
-				elm.prepend(this.achievementsContainer);
-			});
+			const rightContent = document.querySelector('#right_content');
+			rightContent.prepend(this.achievementsContainer);
 		});
 
-		let refresh = this.refreshAchievements;
+		let refresh = this.refreshAchievements.bind(this);
 		Application.Helpers.AjaxHelper._check_event_notification = function(e) {
             Object.getPrototypeOf(Application.Helpers.AjaxHelper)._check_event_notification.apply(this, arguments);
             if ("undefined" != typeof e.data && ("undefined" != typeof e.data.achievements_earned)) {
@@ -459,8 +521,8 @@ window.lite = new class {
 	}
 
 	refreshAchievements() {
-		return fetch("/achievements?ajax").then(r => r.json()).then(function(response) {
-            this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement));
+		return fetch("/achievements?ajax").then(r => r.json()).then(response => {
+            this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
             return response;
         });
 	}
@@ -507,7 +569,7 @@ window.lite = new class {
 		return container;
 	}
 
-	static createProgressElement() {
+	static createProgressElement(achievement) {
 		let container = this.createElement('div', {
 			children: [
 				this.createElement('a', {

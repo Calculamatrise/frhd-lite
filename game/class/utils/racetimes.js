@@ -19,7 +19,7 @@ export default class {
 	}
     constructor(t) {
         this.scene = t,
-		this.scene.game.settings.isCampaign && (this.container.y += 55),
+		this.scene.game.settings.isCampaign && (this.container.y += 60),
         this.maxRaces = this.scene.settings.mobile ? 3 : 10
     }
 	get raceList() {
@@ -70,16 +70,16 @@ export default class {
 			t.globalAlpha = data.alpha;
 			t.fillStyle = data.color;
 			t.beginPath();
-			t.arc((this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 25) * this.container.scaleY/* * i*/, 20 * this.container.scaleY, 0, 2 * Math.PI);
+			t.arc((this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/, 20 * this.container.scaleY, 0, 2 * Math.PI);
 			t.fill();
 			t.fillStyle = this.container.color;
 			t.font = this.container.font * this.container.scaleY + "px helsinki";
-			t.fillText(data.initial, (this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 25) * this.container.scaleY/* * i*/);
+			t.fillText(data.initial, (this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/);
 			t.font = (this.container.font + 5) * this.container.scaleY + "px helsinki";
 			let e = t.measureText(data.runTime);
 			data.width = 20 + e.width;
 			data.height = 20 + e.actualBoundingBoxAscent + e.actualBoundingBoxDescent;
-			t.fillText(data.runTime, (this.container.x + data.x + 20 + 9) * this.container.scaleX + e.width / 2, (this.container.y + data.y + 25) * this.container.scaleY/* * i*/);
+			t.fillText(data.runTime, (this.container.x + data.x + 20 + 9) * this.container.scaleX + e.width / 2, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/);
 		}
 
 		t.restore();

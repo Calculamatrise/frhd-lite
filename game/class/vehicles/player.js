@@ -152,6 +152,41 @@ export default class {
             this._addCheckpoint = !1)
         }
     }
+	*createReplayIterator(nextTick = ~~this.ticks + 1) {
+		let snapshots = new Map();
+		this.ticks = 0;
+		this.reset();
+		while (this.complete === !1) {
+			snapshots.has(this.ticks) || snapshots.set(this.ticks, this._createCheckpoint());
+			if (this.ticks >= nextTick) {
+				const value = parseInt(yield this.ticks);
+				if (isFinite(value)) {
+					// create new ghost player and skip to previous tick to rewind
+					if (snapshots.has(value)) {
+						this.removeCheckpoint();
+						this.ticks = value;
+					}
+
+					this._scene.camera.playerFocus = this;
+					this._scene.camera.focusOnPlayer();
+					nextTick = value;
+					continue;
+				} else {
+					nextTick = this.ticks + 1;
+				}
+			}
+
+			let oldTicks = this._scene.ticks;
+			this._scene.ticks = this.ticks;
+			this._gamepad.update();
+			this._scene.ticks = oldTicks;
+			this.checkKeys();
+			this.update();
+			this.ticks++;
+		}
+
+		return this.ticks;
+	}
     isInFocus() {
         let e = !1;
         return this._scene.camera.playerFocus && this._scene.camera.playerFocus === this && (e = !0),
