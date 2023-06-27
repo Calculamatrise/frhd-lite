@@ -1,17 +1,25 @@
 import defaults from "./constants/defaults.js";
 
-// const ports = new Map();
-// chrome.runtime.onConnect.addListener(function(port) {
-//     console.assert(port.name === "lite", port.name);
-//     if (port.name === "lite") {
-//         ports.set(port.sender.documentId, port);
-//         port.onDisconnect.addListener(function(port) {
-//             ports.delete(port.sender.documentId);
-//         });
-//     }
-// });
-// 
-// chrome.runtime.onMessage.addListener(...);
+const contentScripts = [{
+	id: "bootstrap",
+	js: ["bootstrap.js"],
+	matches: [
+		"*://frhd.kanoapps.com/*",
+		"*://www.freeriderhd.com/*"
+	],
+	runAt: "document_start"
+}, {
+	id: "game",
+	js: ["game/main.js"],
+	matches: [
+		"*://frhd.kanoapps.com/*",
+		"*://www.freeriderhd.com/*"
+	],
+	runAt: "document_end",
+	world: "MAIN"
+}];
+
+chrome.scripting.registerContentScripts(contentScripts);
 
 chrome.runtime.onInstalled.addListener(function() {
     // minify the game on install and save it in cache...
@@ -46,4 +54,9 @@ function setIcon({ enabled }) {
 			128: path(128)
 		}
     });
+
+	enabled ? chrome.scripting.getRegisteredContentScripts().then(scripts => scripts.length > 0 || chrome.scripting.registerContentScripts(contentScripts)) : chrome.scripting.unregisterContentScripts();
+	chrome.declarativeNetRequest.updateEnabledRulesets({
+		[(enabled ? 'en' : 'dis') + "ableRulesetIds"]: ["frhd-assets"]
+	});
 }

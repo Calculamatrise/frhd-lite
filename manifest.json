@@ -11,27 +11,11 @@
 		"service_worker": "service-worker.js",
 		"type": "module"
 	},
-	"content_scripts": [{
-		"js": ["bootstrap.js"],
-		"matches": [
-			"*://frhd.kanoapps.com/*",
-			"*://www.freeriderhd.com/*"
-		],
-		"run_at": "document_start"
-	}, {
-		"world": "MAIN",
-		"js": ["game/main.js"],
-		"matches": [
-			"*://frhd.kanoapps.com/*",
-			"*://www.freeriderhd.com/*"
-		],
-		"run_at": "document_end"
-	}],
 	"declarative_net_request": {
 		"rule_resources": [{
-			"id": "ruleset_1",
+			"id": "frhd-assets",
 			"enabled": true,
-			"path": "rules_1.json"
+			"path": "frhd_rules.json"
 		}]
 	},
 	"icons": {
@@ -39,7 +23,7 @@
 		"48": "icons/icon_48.png",
 		"128": "icons/icon_128.png"
 	},
-	"permissions": ["declarativeNetRequest", "storage"],
+	"permissions": ["declarativeNetRequest", "scripting", "storage"],
 	"host_permissions": [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*",
