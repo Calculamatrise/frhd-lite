@@ -10,8 +10,11 @@ export default class {
         this._playerLookup = {};
     }
     update() {
-        for (var t = this._players, e = t.length, i = 0; e > i; i++)
+        for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
             t[i].update()
+
+		for (var t = this._players.filter(player => player.isGhost()), e = t.length, i = 0; e > i; i++)
+			t[i]._replayIterator.next()
     }
     mutePlayers() {
         for (var t = this._players, e = t.length, i = 0; e > i; i++) {
@@ -20,7 +23,7 @@ export default class {
         }
     }
     updateGamepads() {
-        for (var t = this._players, e = t.length, i = 0; e > i; i++)
+        for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
             t[i]._gamepad.update()
     }
     createPlayer(t, e) {
@@ -31,7 +34,7 @@ export default class {
         this._playerLookup[t.id] = t
     }
     checkKeys() {
-        for (var t = this._players, e = t.length, i = 0; e > i; i++)
+        for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
             t[i].checkKeys()
     }
     draw() {

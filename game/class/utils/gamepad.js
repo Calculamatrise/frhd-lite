@@ -147,7 +147,7 @@ export default class {
     updatePlayback() {
         var t = this.keysToPlay
           , e = this.playback
-          , i = this.scene.ticks; // use race-independent ticks
+          , i = this.playbackTicks ?? this.scene.ticks;
         for (var s in t) {
             var n = t[s]
               , r = n + "_up"

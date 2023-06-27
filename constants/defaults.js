@@ -1,6 +1,6 @@
 export default {
 	accountManager: false,
-    bikeFrameColor: false,
+    bikeFrameColor: null,
 	dailyAchievementsDisplay: true,
     featuredGhostsDisplay: true,
     inputDisplay: true,

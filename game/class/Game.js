@@ -68,7 +68,7 @@ window.Game = class {
 
 		this.lastTime = time;
 		this.currentScene.update(),
-        lite.update(),
+        lite.draw(),
         this.tickCount++
     }
 

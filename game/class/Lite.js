@@ -1,7 +1,8 @@
+let styleSheetProxyHandler;
 window.lite = new class {
+	#customStyleSheet = null;
 	featuredGhostsLoaded = false;
 	loaded = false;
-	storage = new Map(Object.entries(JSON.parse(sessionStorage.getItem('lite'))));
 	snapshots = new class extends Array {
 		push(...args) {
 			if (this.length >= parseInt(lite.storage.get('snapshots'))) {
@@ -11,16 +12,33 @@ window.lite = new class {
 			super.push(...args);
 		}
 	}
+	storage = new Map(Object.entries(JSON.parse(sessionStorage.getItem('lite'))));
+	styleSheet = new Proxy({}, styleSheetProxyHandler = {
+		get(target) {
+			let value = Reflect.get(...arguments);
+			if (typeof value == 'object' && value !== null) {
+				return new Proxy(value, styleSheetProxyHandler)
+			} else if (typeof value == 'function') {
+				value = value.bind(target)
+			}
 
+			return value;
+		},
+		set() {
+			let returnValue = Reflect.set(...arguments);
+			lite.updateCustomStyleSheet(lite.styleSheet);
+			return returnValue;
+		}
+	});
 	constructor() {
 		Application.events.subscribe('route', () => this.loaded = false);
 		Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
-		GameManager.on('stateChange', (state) => {
+		GameManager.on('stateChange', state => {
 			if (state.preloading === false && this.loaded === false) {
 				this.loaded = this.load();
 			}
 
-			// this.loaded && this.refresh();
+			this.loaded && this.refresh();
 		});
 
 		this.childLoad();
@@ -39,22 +57,40 @@ window.lite = new class {
 					this.updateFromSettings(changes);
 					break;
 			}
-
-			// this.refresh();
 		});
+
+		this.#createCustomStyleSheet();
 	}
 
-	get game() {
-		return GameManager.game;
+	get scene() {
+		return GameManager.game && GameManager.game.currentScene;
 	}
 
-	get focusOverlay() {
-		return this.game.gameContainer.querySelector(".gameFocusOverlay");
+	#createCustomStyleSheet() {
+		this.#customStyleSheet = document.body.appendChild(document.createElement('style'));
+		this.#customStyleSheet.setAttribute('id', 'frhd-lite-style');
+	}
+
+	updateCustomStyleSheet(textContent) {
+		if (typeof textContent == 'object' && textContent !== null) {
+			const entries = Object.entries(textContent);
+			const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
+			textContent = '';
+			for (let [key, properties] of filteredEntries) {
+				properties = Object.entries(properties);
+				for (let property of properties) {
+					property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
+				}
+
+				textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}';
+			}
+		}
+
+		this.#customStyleSheet.textContent = textContent;
 	}
 
 	load() {
         this.snapshots.splice(0, this.snapshots.length);
-        // this.refresh();
 		this.updateFromSettings(this.storage);
         return true;
     }
@@ -66,114 +102,82 @@ window.lite = new class {
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
 	}
 
-	updateFromSettings(changes) {
+	updateFromSettings(changes = this.storage) {
+		if (!this.scene) return;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
-				case 'keymap': {
-					let keymap = this.storage.get('keymap');
-					this.game.currentScene.playerManager.firstPlayer._gamepad.setKeyMap(this.game.settings[(this.game.currentScene.hasOwnProperty('races') ? 'play' : 'editor') + 'Hotkeys']);
-					for (let key in keymap) {
-						this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
-					}
-					break;
-				}
 				case 'theme': {
-					this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") != '#000000' && this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
-					this.game.currentScene.message.color = /^#(0|3){3,6}$/.test(this.game.currentScene.message.color) && /^(dark|midnight)$/i.test(this.storage.get("theme")) ? "#ccc" : "#333";
-					this.game.currentScene.message.outline = this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff";
-					this.game.currentScene.score.best_time.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-					this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-					this.game.currentScene.score.goals.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-					this.game.currentScene.score.time.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-					this.game.currentScene.score.time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-					if (this.game.currentScene.hasOwnProperty('raceTimes')) {
-						this.game.currentScene.raceTimes.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
-						// this.game.currentScene.raceTimes.raceList.forEach((race) => {
-						// 	race.children.forEach(element => {
-						// 		element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-						// 	});
-						// });
+					let background = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '1d2328' : this.storage.get('theme') == 'dark' ? '1b' : 'f');
+					GameManager.game.canvas.style.setProperty('background-color', background);
+					this.styleSheet['.gameFocusOverlay'] = {
+						'background-color': GameManager.game.canvas.style.getPropertyValue('background-color').replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
+						color: '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'eb' : '2d')
 					}
 
-					if (this.game.currentScene.hasOwnProperty('campaignScore')) {
-						this.game.currentScene.campaignScore.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-						this.game.currentScene.campaignScore.container.children.forEach(medal => {
-							medal.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+					this.scene.message.color = /^#(0|3){3,6}$/.test(this.scene.message.color) && /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#ccc' : '#333';
+					this.scene.message.outline = background;
+					let gray = '#'.padEnd(7, /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '6' : '9');
+					this.scene.score.best_time.color = gray;
+					this.scene.score.best_time_title.color = gray;
+					let color = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'f' : '0');
+					this.scene.score.goals.color = color;
+					this.scene.score.time.color = color;
+					this.scene.score.time_title.color = gray;
+					if (this.scene.hasOwnProperty('campaignScore')) {
+						this.scene.campaignScore.container.color = color;
+						this.scene.campaignScore.container.children.forEach(medal => {
+							medal.color = color;
 							// medal.children.forEach(element => {
-							// 	element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
+							// 	element.color = color;
 							// });
 						});
 					}
 
-					this.game.settings.physicsLineColor = this.storage.get('theme') == 'midnight' ? "#ccc" : this.storage.get('theme') == 'dark' ? "#fdfdfd" : "#000";
-					this.game.settings.sceneryLineColor = this.storage.get('theme') == 'midnight' ? "#444" : this.storage.get('theme') == 'dark' ? "#666" : "#aaa";
-					this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') == 'midnight' ? "#20282e" : this.storage.get('theme') == 'dark' ? "#252525" : "#eee";
-					this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') == 'midnight' ? "#161b20" : this.storage.get('theme') == 'dark' ? "#3e3e3e" : "#ccc";
-					this.game.canvas.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff");
-					this.game.currentScene.redraw();
+					if (this.scene.hasOwnProperty('raceTimes')) {
+						this.scene.raceTimes.container.color = color;
+						// this.scene.raceTimes.raceList.forEach((race) => {
+						// 	race.children.forEach(element => {
+						// 		element.color = color;
+						// 	});
+						// });
+					}
+
+					GameSettings.physicsLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'c' : this.storage.get('theme') == 'dark' ? 'fd' : '0');
+					GameSettings.sceneryLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '4' : this.storage.get('theme') == 'dark' ? '6' : 'a');
+					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '20282e' : this.storage.get('theme') == 'dark' ? '25' : 'e');
+					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '161b20' : this.storage.get('theme') == 'dark' ? '3e' : 'c');
+					this.scene.redraw();
 					break;
 				}
 			}
 		}
+
+		this.refresh();
 	}
 
 	refresh() {
 		// only changed settings should update
 		let keymap = this.storage.get('keymap');
-		this.game.currentScene.playerManager.firstPlayer._gamepad.setKeyMap(this.game.settings[(this.game.currentScene.hasOwnProperty('races') ? 'play' : 'editor') + 'Hotkeys']);
+		this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameSettings[(GameManager.scene == 'Main' ? 'play' : 'editor') + 'Hotkeys']);
 		for (let key in keymap) {
-			this.game.currentScene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
+			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
 		}
 
-		this.game.currentScene.playerManager.firstPlayer._baseVehicle.color = this.storage.get("bikeFrameColor") != '#000000' && this.storage.get("bikeFrameColor") || "#".padEnd(7, this.storage.get("theme") == "midnight" ? "C" : this.storage.get("theme") == "dark" ? "FB" : "0");
-		this.game.currentScene.message.color = /^#(0|3){3,6}$/.test(this.game.currentScene.message.color) && /^(dark|midnight)$/i.test(this.storage.get("theme")) ? "#ccc" : "#333";
-		this.game.currentScene.message.outline = this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff";
-		this.game.currentScene.score.best_time.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.best_time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-		this.game.currentScene.score.goals.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-		this.game.currentScene.score.time_title.color = (this.storage.get('theme') == 'midnight' || this.storage.get('theme') == 'dark') ? "#888" : "#999";
-		if (this.game.currentScene.hasOwnProperty('raceTimes')) {
-			this.game.currentScene.raceTimes.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') === 'dark' ? "#fff" : "#000";
-			// this.game.currentScene.raceTimes.raceList.forEach((race) => {
-			// 	race.children.forEach(element => {
-			// 		element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-			// 	});
-			// });
+		for (const player of this.scene.playerManager._players) {
+			if (player._user.u_id != this.scene.playerManager.firstPlayer._user.u_id) continue;
+			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'C' : this.storage.get('theme') == 'dark' ? 'FB' : '0');
 		}
-
-		if (this.game.currentScene.hasOwnProperty('campaignScore')) {
-			this.game.currentScene.campaignScore.container.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-			this.game.currentScene.campaignScore.container.children.forEach(medal => {
-				medal.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-				// medal.children.forEach(element => {
-				// 	element.color = this.storage.get('theme') == 'midnight' ? "#ddd" : this.storage.get('theme') == 'dark' ? "#fff" : "#000";
-				// });
-			});
-		}
-
-		this.game.settings.physicsLineColor = this.storage.get('theme') == 'midnight' ? "#ccc" : this.storage.get('theme') == 'dark' ? "#fdfdfd" : "#000";
-		this.game.settings.sceneryLineColor = this.storage.get('theme') == 'midnight' ? "#444" : this.storage.get('theme') == 'dark' ? "#666" : "#aaa";
-		this.game.currentScene.toolHandler.options.gridMinorLineColor = this.storage.get('theme') == 'midnight' ? "#20282e" : this.storage.get('theme') == 'dark' ? "#252525" : "#eee";
-		this.game.currentScene.toolHandler.options.gridMajorLineColor = this.storage.get('theme') == 'midnight' ? "#161b20" : this.storage.get('theme') == 'dark' ? "#3e3e3e" : "#ccc";
-		this.game.canvas.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#1d2328" : this.storage.get('theme') == 'dark' ? "#1b1b1b" : "#fff");
-		// inject stylesheet
-		// if (this.focusOverlay) {
-		// 	this.focusOverlay.style.setProperty("background-color", this.storage.get('theme') == 'midnight' ? "#333b" : this.storage.get('theme') == 'dark' ? "#000b" : "#fffb");
-		// }
-
-		this.game.currentScene.redraw();
 	}
 
-	update() {
-		this.storage.get('inputDisplay') && this.drawInputDisplay(this.game.canvas);
+	draw() {
+		this.storage.get('inputDisplay') && this.drawInputDisplay(GameManager.game.canvas);
 	}
 
 	drawInputDisplay(canvas = document.createElement('canvas')) {
 		const ctx = canvas.getContext('2d');
 		const color = (condition => condition ? (t => '#'.padEnd(7, t == 'midnight' ? '4' : t == 'dark' ? '0' : 'f'))(this.storage.get('theme')) : fill);
 		const fill = (t => '#'.padEnd(7, t == 'midnight' ? 'd' : t == 'dark' ? 'f' : '0'))(this.storage.get('theme'));
-		const gamepad = this.game.currentScene.playerManager._players[this.game.currentScene.camera.focusIndex]._gamepad.downButtons;
+		const gamepad = this.scene.playerManager._players[this.scene.camera.focusIndex]._gamepad.downButtons;
 		const size = parseInt(this.storage.get('inputDisplaySize'));
 		const offset = {
 			x: size,
@@ -456,12 +460,12 @@ window.lite = new class {
 		let refresh = this.refreshAchievements.bind(this);
 		Application.Helpers.AjaxHelper._check_event_notification = function(e) {
             Object.getPrototypeOf(Application.Helpers.AjaxHelper)._check_event_notification.apply(this, arguments);
-            if ("undefined" != typeof e.data && ("undefined" != typeof e.data.achievements_earned)) {
-                Application.events.publish("achievementsEarned", e.data.achievements_earned);
+            if ('undefined' != typeof e.data && ('undefined' != typeof e.data.achievements_earned)) {
+                Application.events.publish('achievementsEarned', e.data.achievements_earned);
                 refresh(); // add animation? // refresh everything
             }
 
-            // console.log("other", e);
+            // console.log('other', e);
             refresh() // only update percentages
         }
 	}

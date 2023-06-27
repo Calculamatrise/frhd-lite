@@ -131,7 +131,7 @@ export default class extends Scene {
         } else
             this.settings.fullscreenAvailable && (this.settings.fullscreen = !this.settings.fullscreen,
             this.state.fullscreen = !this.settings.fullscreen,
-            this.settings.fullscreen ? this.trackEvent("game-ui", "game-fullscreen-toggle", "game-into-fullscreen") : this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen"))
+            this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen"))
     }
     trackEvent(t, e, i) {
         var s = {
