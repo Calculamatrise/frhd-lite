@@ -2,6 +2,30 @@ import s from "./physicsline.js";
 import n from "./sceneryline.js";
 
 export default class {
+	image = !1;
+    scene = null;
+    settings = null;
+    drawSectorSize = null;
+    row = 0;
+    column = 0;
+    camera = null;
+    zoom = 0;
+    x = 0;
+    y = 0;
+    realX = 0;
+    realY = 0;
+    lineCount = 0;
+    powerupsCount = 0;
+    drawn = !1;
+    physicsLines = [];
+    sceneryLines = [];
+    powerups = [];
+    canvasPool = null;
+    canvas = null;
+    powerupCanvas = null;
+    powerupCanvasOffset = 30;
+    powerupCanvasDrawn = !1;
+    dirty = !1;
     constructor(t, e, i) {
         this.track = i;
         this.scene = i.scene;
@@ -40,30 +64,6 @@ export default class {
             gliders: []
         }
     }
-    image = !1;
-    scene = null;
-    settings = null;
-    drawSectorSize = null;
-    row = 0;
-    column = 0;
-    camera = null;
-    zoom = 0;
-    x = 0;
-    y = 0;
-    realX = 0;
-    realY = 0;
-    lineCount = 0;
-    powerupsCount = 0;
-    drawn = !1;
-    physicsLines = [];
-    sceneryLines = [];
-    powerups = [];
-    canvasPool = null;
-    canvas = null;
-    powerupCanvas = null;
-    powerupCanvasOffset = 30;
-    powerupCanvasDrawn = !1;
-    dirty = !1;
     addLine(t) {
         t instanceof s && this.physicsLines.push(t),
         t instanceof n && this.sceneryLines.push(t),

@@ -3,6 +3,11 @@ import Tool from "../tool.js";
 import n from "../../sector/powerups/antigravity.js";
 
 export default class extends Tool {
+	powerup = null;
+    name = "antigravity";
+    p1 = null;
+    p2 = null;
+    active = !1;
     constructor(t) {
         super(t);
         this.powerup = new n(0, 0, t.scene.track);
@@ -10,15 +15,9 @@ export default class extends Tool {
         this.p2 = new i(0, 0);
         this.active = !1;
     }
-    powerup = null;
-    name = "antigravity";
-    p1 = null;
-    p2 = null;
-    active = !1;
     draw(t) {
         var e = this.mouse.touch
-          , i = (e.pos,
-        this.camera.zoom)
+          , i = this.camera.zoom
           , s = this.scene.settings.device
           , n = this.scene.screen;
         if (this.active === !0) {

@@ -4,6 +4,7 @@ export default {
 	dailyAchievementsDisplay: true,
     featuredGhostsDisplay: true,
     inputDisplay: true,
+	inputDisplayOpacity: 1,
     inputDisplaySize: 8,
     isometricGrid: false,
     keymap: {},

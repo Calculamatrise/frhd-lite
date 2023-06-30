@@ -85,8 +85,8 @@ export default class extends EventEmitter {
         e.id = t.pointerId,
         e.type = t.button;
         let i = e.pos;
-        i.x = t.offsetX,
-        i.y = t.offsetY,
+        i.x = t.offsetX * window.devicePixelRatio,
+        i.y = t.offsetY * window.devicePixelRatio,
         this.updateRealPosition(e)
     }
     updateRealPosition(t) {

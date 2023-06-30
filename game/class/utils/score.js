@@ -10,8 +10,8 @@ export default class {
 		children: [],
 		x: 10 * window.devicePixelRatio / 2.5,
 		y: 10 * window.devicePixelRatio / 2.5,
-		scaleX: window.devicePixelRatio / 2.5,
-		scaleY: window.devicePixelRatio / 2.5,
+		scaleX: 0.4,
+		scaleY: 0.4,
 		width: 508,
 		height: 58
 	}
@@ -90,11 +90,11 @@ export default class {
 		for (const data of this.container.children) {
 			if (data.hasOwnProperty("image")) {
 				let imageData = this.spriteSheet[data.image];
-				t.drawImage(this.sprites[data.image.replace("_paused", "")], ...imageData, this.container.x + data.x * this.container.scaleX, this.container.y + data.y * this.container.scaleY, imageData[2] * this.container.scaleX, imageData[3] * this.container.scaleY);
+				t.drawImage(this.sprites[data.image.replace("_paused", "")], ...imageData, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio, imageData[2] * this.container.scaleX * window.devicePixelRatio, imageData[3] * this.container.scaleY * window.devicePixelRatio);
 			} else if (data.hasOwnProperty("text")) {
-				t.font = data.font + "px helsinki";
+				t.font = data.font * window.devicePixelRatio + "px helsinki";
 				t.fillStyle = data.color;
-				t.fillText(data.text, this.container.x + data.x * this.container.scaleX, this.container.y + data.y * this.container.scaleY);
+				t.fillText(data.text, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio);
 			}
 		}
 

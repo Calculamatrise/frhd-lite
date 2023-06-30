@@ -100,6 +100,7 @@ window.lite = new class {
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
+		// add mouse-over listener for "my race" then display best_date from user_track_stats ?ajax 
 	}
 
 	updateFromSettings(changes = this.storage) {
@@ -114,6 +115,7 @@ window.lite = new class {
 						color: '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'eb' : '2d')
 					}
 
+					// this.scene.track.powerups.forEach(p => p.outline = /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#FBFBFB' : '#000');
 					this.scene.message.color = /^#(0|3){3,6}$/.test(this.scene.message.color) && /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#ccc' : '#333';
 					this.scene.message.outline = background;
 					let gray = '#'.padEnd(7, /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '6' : '9');
@@ -146,6 +148,9 @@ window.lite = new class {
 					GameSettings.sceneryLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '4' : this.storage.get('theme') == 'dark' ? '6' : 'a');
 					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '20282e' : this.storage.get('theme') == 'dark' ? '25' : 'e');
 					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '161b20' : this.storage.get('theme') == 'dark' ? '3e' : 'c');
+				}
+
+				case 'isometricGrid': {
 					this.scene.redraw();
 					break;
 				}

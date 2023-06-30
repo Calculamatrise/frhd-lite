@@ -63,7 +63,7 @@ export default class {
         this.scene.loading = !1
     }
     setZoom(t, e) {
-        this.desiredZoom = Math.round(t * this.scene.game.pixelRatio * 10) / 10,
+        this.desiredZoom = Math.round(t * window.devicePixelRatio * 10) / 10,
         this.zooming = !0,
         this.desiredZoom === this.zoom && (this.zooming = !1, this.scene.state.loading = !1),
         this.zoomPoint = !1,
@@ -75,15 +75,15 @@ export default class {
         this.setZoom(this.settings.cameraStartZoom)
     }
     getZoomAsPercentage() {
-        return this.desiredZoom / this.scene.game.pixelRatio / this.scene.settings.cameraStartZoom * 100 | 0
+        return this.desiredZoom / window.devicePixelRatio / this.scene.settings.cameraStartZoom * 100 | 0
     }
     increaseZoom() {
-        this.setZoom(this.desiredZoom + 2 * this.scene.settings.cameraSensitivity / this.scene.game.pixelRatio),
-        this.desiredZoom > this.scene.settings.cameraZoomMax * this.scene.game.pixelRatio && this.setZoom(this.scene.settings.cameraZoomMax)
+        this.setZoom((this.desiredZoom + 2 * this.scene.settings.cameraSensitivity) / window.devicePixelRatio),
+        this.desiredZoom > this.scene.settings.cameraZoomMax * window.devicePixelRatio && this.setZoom(this.scene.settings.cameraZoomMax)
     }
     decreaseZoom() {
-        this.setZoom(this.desiredZoom - 2 * this.scene.settings.cameraSensitivity / this.scene.game.pixelRatio),
-        this.desiredZoom < this.scene.settings.cameraZoomMin * this.scene.game.pixelRatio && this.setZoom(this.scene.settings.cameraZoomMin)
+        this.setZoom((this.desiredZoom - 2 * this.scene.settings.cameraSensitivity) / window.devicePixelRatio),
+        this.desiredZoom < this.scene.settings.cameraZoomMin * window.devicePixelRatio && this.setZoom(this.scene.settings.cameraZoomMin)
     }
     unfocus() {
         this.playerFocus = null,

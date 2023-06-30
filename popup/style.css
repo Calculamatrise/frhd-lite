@@ -90,9 +90,14 @@ body {
 
 body > nav {
     border-bottom: 1px solid rgba(27, 82, 100, 0.4);
-    font-family: roboto_medium, Arial, Helvetica, sans-serif;
+    display: grid;
+	font-family: roboto_medium, Arial, Helvetica, sans-serif;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+body > nav:has(> :nth-child(4)) {
+	grid-template-columns: repeat(2, 1fr);
 }
 
 button.tab, label.tab {
@@ -231,6 +236,10 @@ label input[type="color"]::after {
     /* visibility: visible; */
 }
 
+input::placeholder {
+	color: hsl(0deg 0% 50% / 50%);
+}
+
 input:is([type="email"], [type="password"], [type="text"]) {
     background-color: #232f38;
     color: #ffffff;
@@ -329,15 +338,25 @@ section.tab:has(> #keybinds) table tbody tr td:nth-child(1) {
 }
 
 .dropdown > main > * {
+	border-radius: 0.4rem;
+	margin: 0.25rem;
     padding: 0.5rem !important;
     text-align: left;
 }
 
+.dropdown > main > *:hover {
+	backdrop-filter: brightness(0.5);
+	cursor: pointer;
+}
+
 .dropdown > main > * > * {
+	-webkit-user-select: none;
+	user-select: none;
     vertical-align: middle;
 }
 
 .dropdown > main > * > img {
+	border-radius: 50%;
     height: 2rem;
     margin-right: 0.4rem;
     object-fit: cover;

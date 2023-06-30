@@ -18,106 +18,106 @@ import Truck from "../sector/vehiclepowerups/truck.js";
 import CanvasPool from "../utils/canvaspool.js";
 
 let M = {
-    LINE: 1,
-    POWERUPS: 2  
+	LINE: 1,
+	POWERUPS: 2  
 }
 let A = [];
 
 export default class {
 	defaultLine = {
-        p1: new Vector(-40,50),
-        p2: new Vector(40,50)
-    }
-    game = null;
-    scene = null;
-    camera = null;
-    canvas = null;
-    canvasPool = null;
-    settings = null;
-    physicsLines = [];
-    sceneryLines = [];
-    powerups = [];
+		p1: new Vector(-40,50),
+		p2: new Vector(40,50)
+	}
+	game = null;
+	scene = null;
+	camera = null;
+	canvas = null;
+	canvasPool = null;
+	settings = null;
+	physicsLines = [];
+	sceneryLines = [];
+	powerups = [];
 	powerupsLookupTable = {};
-    targets = [];
-    targetCount = 0;
-    sectors = {};
-    totalSectors = [];
-    allowedVehicles = null;
-    dirty = !1;
-    constructor(t) {
-        this.scene = t;
-        this.game = t.game;
-        this.settings = t.game.settings;
-        if (!this.settings.track) {
-            this.settings.track = {
-                vehicle: this.settings.startVehicle
-            }
-        }
-        this.camera = t.camera;
-        this.sectors.drawSectors = [];
-        this.sectors.physicsSectors = [];
-        this.allowedVehicles = ["MTB", "BMX"];
-        this.canvasPool = new CanvasPool(t);
-        this.createPowerupCache();
-    }
-    createPowerupCache() {
-        A.push(new Boost(0, 0, 0, this)),
-        A.push(new Slowmo(0, 0, this)),
-        A.push(new Bomb(0, 0, this)),
-        A.push(new Gravity(0, 0, 0, this)),
-        A.push(new Checkpoint(0, 0, this)),
-        A.push(new Target(0, 0, this)),
-        A.push(new Antigravity(0, 0, this)),
-        A.push(new Teleport(0, 0, this)),
-        A.push(new Helicopter(0, 0, 0, this)),
-        A.push(new Truck(0, 0, 0, this)),
-        A.push(new Balloon(0, 0, 0, this)),
-        A.push(new Blob(0, 0, 0, this))
-    }
-    recachePowerups(t) {
-        for (const e of A)
-            e.recache(t)
-    }
-    read(t) {
-        var e = t.split("#")
-          , i = e[0].split(",")
-          , s = []
-          , n = [];
-        if (e.length > 2)
-            var s = e[1].split(",")
-                , n = e[2].split(",");
-        else if (e.length > 1)
-            var n = e[1].split(",");
-        this.addLines(i, this.addPhysicsLine),
-        this.addLines(s, this.addSceneryLine),
-        this.addPowerups(n)
-    }
-    move(x = 0, y = 0) {
-        for (const t in this.physicsLines)
-            this.physicsLines[t].p1.x -= x,
-            this.physicsLines[t].p1.y -= y,
-            this.physicsLines[t].p2.x -= x,
-            this.physicsLines[t].p2.y -= y,
-            this.addPhysicsLineToTrack(this.physicsLines[t]),
-            this.physicsLines.splice(i, 1);
-        for (const t in this.sceneryLines)
-            this.sceneryLines[t].p1.x -= x,
-            this.sceneryLines[t].p1.y -= y,
-            this.sceneryLines[t].p2.x -= x,
-            this.sceneryLines[t].p2.y -= y,
-            this.addSceneryLineToTrack(t),
-            this.sceneryLines.splice(i, 1);
-        for (const t in this.powerups) {
-            this.powerups[t].x -= x,
-            this.powerups[t].y -= y;
-            if (this.powerups[t].otherPortal)
-                this.powerups[t].otherPortal.x -= x,
-                this.powerups[t].otherPortal.y -= y;
-            this.addPowerup(this.powerups[t]),
-            this.powerups.splice(t, 1);
-        }
-        this.scene.redraw()
-    }
+	targets = [];
+	targetCount = 0;
+	sectors = {};
+	totalSectors = [];
+	allowedVehicles = null;
+	dirty = !1;
+	constructor(t) {
+		this.scene = t;
+		this.game = t.game;
+		this.settings = t.game.settings;
+		if (!this.settings.track) {
+			this.settings.track = {
+				vehicle: this.settings.startVehicle
+			}
+		}
+		this.camera = t.camera;
+		this.sectors.drawSectors = [];
+		this.sectors.physicsSectors = [];
+		this.allowedVehicles = ["MTB", "BMX"];
+		this.canvasPool = new CanvasPool(t);
+		this.createPowerupCache();
+	}
+	createPowerupCache() {
+		A.push(new Boost(0, 0, 0, this)),
+		A.push(new Slowmo(0, 0, this)),
+		A.push(new Bomb(0, 0, this)),
+		A.push(new Gravity(0, 0, 0, this)),
+		A.push(new Checkpoint(0, 0, this)),
+		A.push(new Target(0, 0, this)),
+		A.push(new Antigravity(0, 0, this)),
+		A.push(new Teleport(0, 0, this)),
+		A.push(new Helicopter(0, 0, 0, this)),
+		A.push(new Truck(0, 0, 0, this)),
+		A.push(new Balloon(0, 0, 0, this)),
+		A.push(new Blob(0, 0, 0, this))
+	}
+	recachePowerups(t) {
+		for (const e of A)
+			e.recache(t)
+	}
+	read(t) {
+		var e = t.split("#")
+			, i = e[0].split(",")
+			, s = []
+			, n = [];
+		if (e.length > 2)
+			var s = e[1].split(",")
+				, n = e[2].split(",");
+		else if (e.length > 1)
+			var n = e[1].split(",");
+		this.addLines(i, this.addPhysicsLine),
+		this.addLines(s, this.addSceneryLine),
+		this.addPowerups(n)
+	}
+	move(x = 0, y = 0) {
+		for (const t in this.physicsLines)
+			this.physicsLines[t].p1.x -= x,
+			this.physicsLines[t].p1.y -= y,
+			this.physicsLines[t].p2.x -= x,
+			this.physicsLines[t].p2.y -= y,
+			this.addPhysicsLineToTrack(this.physicsLines[t]),
+			this.physicsLines.splice(i, 1);
+		for (const t in this.sceneryLines)
+			this.sceneryLines[t].p1.x -= x,
+			this.sceneryLines[t].p1.y -= y,
+			this.sceneryLines[t].p2.x -= x,
+			this.sceneryLines[t].p2.y -= y,
+			this.addSceneryLineToTrack(t),
+			this.sceneryLines.splice(i, 1);
+		for (const t in this.powerups) {
+			this.powerups[t].x -= x,
+			this.powerups[t].y -= y;
+			if (this.powerups[t].otherPortal)
+				this.powerups[t].otherPortal.x -= x,
+				this.powerups[t].otherPortal.y -= y;
+			this.addPowerup(this.powerups[t]),
+			this.powerups.splice(t, 1);
+		}
+		this.scene.redraw()
+	}
     addPowerups(t) {
         for (var e = t.length, i = [], s = 0; e > s; s++)
             if (i = t[s].split(" "), i.length >= 2) {

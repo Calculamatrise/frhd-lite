@@ -53,7 +53,7 @@ export default class extends Powerup {
         s.lineTo(0 * i, 114 * i),
         s.closePath(),
         s.fillStyle = "#ffffff00",
-        s.strokeStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         s.lineWidth = Math.max(3 * i, .5),
         s.beginPath(),
         s.moveTo(58 * i, 111 * i),

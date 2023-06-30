@@ -19,9 +19,8 @@ const contentScripts = [{
 	world: "MAIN"
 }];
 
-chrome.scripting.registerContentScripts(contentScripts);
-
 chrome.runtime.onInstalled.addListener(function() {
+	chrome.scripting.registerContentScripts(contentScripts);
     // minify the game on install and save it in cache...
     chrome.storage.local.get(({ enabled = true, settings = null }) => {
         chrome.storage.local.set({

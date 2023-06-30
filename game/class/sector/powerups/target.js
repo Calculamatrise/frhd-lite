@@ -72,7 +72,7 @@ export default class extends Powerup {
           , u = Math.PI / i;
         s *= o,
         n *= o,
-        a.strokeSyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        a.strokeSyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         a.beginPath(),
         a.moveTo(t, e - s);
         for (var p = 0; i > p; p++)
@@ -87,7 +87,7 @@ export default class extends Powerup {
         a.lineTo(t, e - s),
         a.closePath(),
         a.lineWidth = Math.max(2 * o, 1),
-        a.strokeStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        a.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         a.stroke(),
         a.fillStyle = r ? "#FAE335" : "#FFFFFF",
         a.fill()

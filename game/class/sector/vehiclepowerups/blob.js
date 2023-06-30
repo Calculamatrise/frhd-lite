@@ -72,7 +72,7 @@ export default class extends VehiclePowerup {
         s.restore(),
         s.restore(),
         s.save(),
-        s.strokeStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         s.lineWidth = 2,
         s.beginPath(),
         s.moveTo(5, 1),

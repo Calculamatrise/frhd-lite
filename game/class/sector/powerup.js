@@ -6,7 +6,7 @@ export default class {
     name = null;
     sector = null;
     settings = null;
-	outline = "#000";
+	outline = "#000"; // /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : "#000";
     remove = !1;
     constructor(t) {
         this.game = t.scene.game,

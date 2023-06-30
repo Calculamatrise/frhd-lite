@@ -80,16 +80,12 @@ export default function restoreSettings(data) {
                 break;
 
             case 'theme': {
-                if (element = document.getElementById(data[item])) {
-                    element.checked = true;
-                }
+                (element = document.getElementById(data[item])) && (element.checked = true);
                 break;
             }
 
             default: {
-                if (element && element.type === 'checkbox') {
-                    element.checked = data[item];
-                }
+                element && element.type === 'checkbox' && (element.checked = data[item]);
             }
         }
     }

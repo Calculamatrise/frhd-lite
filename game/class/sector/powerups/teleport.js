@@ -72,7 +72,7 @@ export default class extends Powerup {
         s.save(),
         s.translate(790, 52),
         s.save(),
-        s.fillStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         s.beginPath(),
         s.moveTo(17, 3),
         s.bezierCurveTo(16.9424049, 2.83458834, 16.4420628, 2.62968665, 15.9196825, 2.4515011),

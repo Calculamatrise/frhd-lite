@@ -1,4 +1,4 @@
-import "../../utils/storage.js";
+import "../../utils/Storage.js";
 import AjaxHelper from "../../utils/AjaxHelper.js";
 
 const result = document.querySelector('#result');

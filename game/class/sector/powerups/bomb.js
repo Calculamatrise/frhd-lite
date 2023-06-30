@@ -27,8 +27,8 @@ export default class extends Powerup {
     }
     drawCircle(t, e, i, s) {
         i *= .2,
-        s.fillStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
-        s.strokeStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
+        s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         s.lineWidth = 8 * i,
         s.beginPath(),
         s.moveTo(53 * i, 105 * i),
@@ -69,7 +69,7 @@ export default class extends Powerup {
         s.beginPath(),
         s.arc(66 * i, 66 * i, 8 * i, 0 * i, 2 * Math.PI, !0),
         s.lineWidth = 2 * i,
-        s.fillStyle = lite.storage.get('theme') == 'dark' ? "#FBFBFB" : this.outline,
+        s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
         s.fill(),
         s.stroke()
     }

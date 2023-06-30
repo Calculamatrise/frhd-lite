@@ -3,6 +3,11 @@ import Tool from "../tool.js";
 import n from "../../sector/powerups/gravity.js";
 
 export default class extends Tool {
+	powerup = null;
+    name = "gravity";
+    p1 = null;
+    p2 = null;
+    active = !1;
     constructor(t) {
         super(t);
         this.powerup = new n(0, 0, 0, t.scene.track);
@@ -10,11 +15,6 @@ export default class extends Tool {
         this.p2 = new i(0, 0);
         this.active = !1;
     }
-    powerup = null;
-    name = "gravity";
-    p1 = null;
-    p2 = null;
-    active = !1;
     press() {
         var t = this.mouse.touch
           , e = t.real;

@@ -221,7 +221,7 @@ export default class {
     }
     drawGrid() {
         var t = this.scene.game.pixelRatio
-            , e = this.scene.game.canvas.getContext("2d");
+          , e = this.scene.game.canvas.getContext("2d");
         this.options.grid === !0 && this.options.visibleGrid && (lite.storage.get("isometricGrid") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
     }
     drawCachedGrid(t, e) {
@@ -268,16 +268,16 @@ export default class {
     }
     cacheGrid() {
         var t = this.scene.camera.zoom
-            , e = 200 * t
-            , i = 200 * t
-            , n = this.options.gridSize
-            , r = n * t
-            , o = document.createElement("canvas");
+          , e = 200 * t
+          , i = 200 * t
+          , n = this.options.gridSize
+          , r = n * t
+          , o = document.createElement("canvas");
         o.width = e,
         o.height = i;
         var a = o.getContext("2d");
         a.strokeStyle = this.options.gridMinorLineColor,
-        a.strokeWidth = 1,
+        a.strokeWidth = 1 * window.devicePixelRatio,
         a.beginPath();
         var h = null
             , l = null
@@ -295,7 +295,7 @@ export default class {
             a.stroke();
         a.beginPath(),
         a.rect(0, 0, e, i),
-        a.lineWidth = 2,
+        a.lineWidth = 2 * window.devicePixelRatio,
         a.strokeStyle = this.options.gridMajorLineColor,
         a.stroke(),
         a.closePath(),
@@ -312,10 +312,7 @@ export default class {
         o.width = e,
         o.height = i;
         var a = o.getContext("2d");
-        a.strokeStyle = this.options.gridMinorLineColor,
-        a.fillStyle = this.options.gridMinorLineColor,
-        a.strokeWidth = 1,
-        a.beginPath();
+        a.fillStyle = this.options.gridMinorLineColor;
         var h = null
           , b = null
           , l = null
@@ -329,14 +326,13 @@ export default class {
                 if(b - Math.floor(b) === 0) {
                     c = b * r,
                     u = l * r,
-                    a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                    a.arc(c * 2, u, 1 * t, 0, 2 * Math.PI);
                 } else {
                     c = b * r,
                     u = (l + .5) * r,
-                    a.arc(c * 2, u, 2, 0, 2 * Math.PI);
+                    a.arc(c * 2, u, 1 * t, 0, 2 * Math.PI);
                 }
-                a.fill(),
-                a.stroke();
+                a.fill();
             }
         }
         this.gridCache = o,

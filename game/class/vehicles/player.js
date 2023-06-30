@@ -162,7 +162,7 @@ export default class {
 				const value = yield this._gamepad.playbackTicks;
 				if (isFinite(value)) {
 					// create new ghost player and skip to previous tick to rewind
-					// return this.createReplayIterator(value);
+					// return /*this._replayIterator = */this.createReplayIterator(value);
 					if (snapshots.has(value)) {
 						this._checkpoints.push(snapshots.get(value));
 						this.gotoCheckpoint();
