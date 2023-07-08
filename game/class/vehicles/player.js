@@ -12,7 +12,7 @@ let g = 0;
 let v = {
 	BMX: o,
 	MTB: l,
-	HELICOPTER: a,
+	HELI: a,
 	TRUCK: h,
 	BALLOON: c,
 	BLOB: u
@@ -101,7 +101,7 @@ export default class {
 	}
 	setBaseVehicle(t) {
 		this._baseVehicleType = t,
-			this.reset()
+		this.reset()
 	}
 	createBaseVehicle(t, e, i) {
 		this._tempVehicle && this._tempVehicle.stopSounds(),
@@ -170,7 +170,7 @@ export default class {
 						this._gamepad.playbackTicks = value;
 					}
 
-					this._scene.camera.playerFocus = this;
+					this._scene.camera.focusIndex = this._scene.playerManager._players.indexOf(this);
 					this._scene.camera.focusOnPlayer();
 					nextTick = value;
 					continue;
@@ -267,11 +267,11 @@ export default class {
 	_createSnapshot() {
 		let t = {};
 		this._tempVehicleTicks > 0 ? (t._tempVehicleType = this._tempVehicleType,
-			t._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
-			t._tempVehicleTicks = this._tempVehicleTicks) : (t._baseVehicleType = this._baseVehicleType,
-				t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
-			t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
-			t._crashed = this._crashed;
+		t._tempVehicle = JSON.stringify(this._tempVehicle, this._snapshotFilter),
+		t._tempVehicleTicks = this._tempVehicleTicks) : (t._baseVehicleType = this._baseVehicleType,
+		t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
+		t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
+		t._crashed = this._crashed;
 		return t;
 	}
 	_snapshotFilter(t, e) {

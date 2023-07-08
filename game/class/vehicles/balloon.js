@@ -9,6 +9,9 @@ let h = {
 }
 
 export default class extends Vehicle {
+	vehicleName = "BALLOON";
+    head = null;
+    basket = null;
     constructor(t, e) {
         super(t);
         this.createMasses(e);
@@ -16,9 +19,6 @@ export default class extends Vehicle {
         this.stopSounds();
         this.focalPoint = this.head;
     }
-    vehicleName = "BALLOON";
-    head = null;
-    basket = null;
     createMasses(t) {
         this.masses = [];
         var e = new a(t.x, t.y - 10, this);

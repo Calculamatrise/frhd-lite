@@ -16,7 +16,7 @@ chrome.storage.local.get(({ badges, enabled, settings }) => {
 
 		element.addEventListener('click', function (event) {
 			chrome.storage.local.set({ badges: false }).then(() => {
-				event.target.classList.remove("notification");
+				event.target.classList.remove('notification');
 			});
 		});
 	}
@@ -67,7 +67,7 @@ resetSettings.addEventListener('click', function () {
 for (const item in defaults) {
 	let element = document.getElementById(item);
 	switch (item) {
-		case 'bikeFrameColor':
+		case 'bikeFrameColor': {
 			element.parentElement.addEventListener('focusout', function () {
 				this.removeAttribute('tabindex');
 			});
@@ -82,6 +82,8 @@ for (const item in defaults) {
 				this.parentElement.setAttribute('tabindex', '0');
 				this.parentElement.focus();
 			});
+			break;
+		}
 
 		case 'inputDisplaySize':
 		case 'snapshots': {
@@ -90,6 +92,30 @@ for (const item in defaults) {
 				if (this.id === 'bikeFrameColor' && (element = document.querySelector(`#${item}-visible`)) !== null) {
 					element.checked = this.value !== '#000000';
 				}
+			});
+			break;
+		}
+
+		case 'keymap': {
+			let action = document.querySelector('#keybind-action');
+			action && action.addEventListener('change', function (event) {
+				if (element.value) {
+					chrome.storage.proxy.local.settings.keymap[element.value] = event.target.value;
+					action && (action.value = 'default');
+					element.value = null;
+					return;
+				}
+			});
+
+			element.addEventListener('keyup', function (event) {
+				if (action.value !== 'default') {
+					chrome.storage.proxy.local.settings.keymap[event.key] = action.value;
+					action && (action.value = 'default');
+					this.value = null;
+					return;
+				}
+
+				this.value.length > 0 && (this.value = event.key.toUpperCase());
 			});
 			break;
 		}

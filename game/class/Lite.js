@@ -107,6 +107,11 @@ window.lite = new class {
 		if (!this.scene) return;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
+				case 'keymap': {
+					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
+					break;
+				}
+
 				case 'theme': {
 					let background = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '1d2328' : this.storage.get('theme') == 'dark' ? '1b' : 'f');
 					GameManager.game.canvas.style.setProperty('background-color', background);
@@ -161,9 +166,7 @@ window.lite = new class {
 	}
 
 	refresh() {
-		// only changed settings should update
 		let keymap = this.storage.get('keymap');
-		this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameSettings[(GameManager.scene == 'Main' ? 'play' : 'editor') + 'Hotkeys']);
 		for (let key in keymap) {
 			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
 		}

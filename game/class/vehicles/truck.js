@@ -9,7 +9,10 @@ let d = {
 }
 
 export default class extends Vehicle {
-    constructor(t, e) {
+	vehicleName = "TRUCK";
+    pedala = 0;
+    swapped = !1;
+    constructor(t, e, i) {
         super(t);
         this.createMasses(e);
         this.createSprings();
@@ -17,9 +20,6 @@ export default class extends Vehicle {
         this.updateCameraFocalPoint();
         -1 === i && this.swap();
     }
-    vehicleName = "TRUCK";
-    pedala = 0;
-    swapped = !1;
     createMasses(t) {
         this.masses = [],
         this.masses.push(new n(new s(t.x - 15,t.y + 7), this)),

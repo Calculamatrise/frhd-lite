@@ -66,16 +66,26 @@
 		</section>
 		<section class="tab">
 			<input type="radio" name="nav" id="keybinds">
-			<table style="text-align: left;width: -webkit-fill-available;">
-				<thead style="color: #5bc2ff4a">
-					<tr>
-						<th>Act</th>
-						<th>Primary</th>
-						<th>Alt</th>
-					</tr>
-				</thead>
-				<tbody id="keymap"></tbody>
-			</table>
+			<div class="keybind-wrapper">
+				<select id="keybind-action">
+					<option value="default" disabled selected>Select an action</option>
+					<option value="down">Down</option>
+					<option value="left">Left</option>
+					<option value="pause">Pause</option>
+					<option value="right">Right</option>
+					<option value="up">Up</option>
+					<option value="z">Z</option>
+				</select>
+				<input type="text" id="keymap" maxlength="1" placeholder="Keybind" style="min-width: 0;text-transform: uppercase;">
+			</div>
+			<button id="save-keybind" style="
+				border: 1px solid;
+				display: none;
+				margin: 4px 0;
+				padding: 0.25rem;
+				width: -webkit-fill-available;
+			">Save</button><br>
+			<div id="keybind-entries"></div>
 		</section>
 		<section class="tab">
 			<input type="radio" name="nav" id="themes">

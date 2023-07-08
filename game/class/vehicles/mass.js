@@ -1,6 +1,16 @@
 import s from "../math/cartesian.js";
 
 export default class {
+	pos = null;
+    old = null;
+    vel = null;
+    parent = null;
+    radius = 0;
+    friction = 0;
+    collide = !1;
+    contact = !1;
+    scene = null;
+    drawPos = null;
     constructor(t, e) {
         this.pos = new s,
         this.old = new s,
@@ -15,16 +25,6 @@ export default class {
         this.pos.equ(t),
         this.old.equ(t)
     }
-    pos = null;
-    old = null;
-    vel = null;
-    parent = null;
-    radius = 0;
-    friction = 0;
-    collide = !1;
-    contact = !1;
-    scene = null;
-    drawPos = null;
     drive(t, e) {
         var i = this.friction
             , s = -(t * this.vel.x + e * this.vel.y) * i;

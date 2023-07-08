@@ -2,6 +2,9 @@ import s from "../math/cartesian.js";
 import n from "./explosion.js";
 
 export default class {
+	masses = null;
+    springs = null;
+    slow = !1;
     constructor(t) {
         this.player = t,
         this.scene = t._scene,
@@ -19,9 +22,6 @@ export default class {
         this.powerupsEnabled = !0,
         this.createCosmetics()
     }
-    masses = null;
-    springs = null;
-    slow = !1;
     explode() {
         this.scene.sound.play("bomb_sound", 1),
         this.explosion = new n(this.masses[0].pos,this.scene),
@@ -29,7 +29,6 @@ export default class {
     }
     createCosmetics() {
         this.cosmetics = this.player._user.cosmetics;
-
     }
     updateSpeed() {
         this.speed = Math.abs(Math.round(this.focalPoint.vel.x + this.focalPoint.vel.y))
@@ -55,10 +54,10 @@ export default class {
     }
     moveVehicle(t, e) {
         for (var i = this.masses, s = i.length, n = s - 1; n >= 0; n--)
-            i[n].pos.x = i[n].pos.x + t,
-            i[n].pos.y = i[n].pos.y + e,
-            i[n].old.x = i[n].old.x + t,
-            i[n].old.y = i[n].old.y + e
+            i[n].pos.x += t,
+            i[n].pos.y += e,
+            i[n].old.x += t,
+            i[n].old.y += e
     }
     stopSounds() {}
 }

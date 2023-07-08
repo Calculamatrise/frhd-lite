@@ -105,7 +105,7 @@ button.tab, label.tab {
     background-color: transparent;
     border: none;
     border-radius: 5px;
-    color: rgba(44, 117, 141, 0.5);
+    color: hsl(200deg 40% 40% / 50%);
     overflow: hidden;
     padding: 0.5rem 1rem;
     position: relative;
@@ -164,7 +164,7 @@ button, label {
     background-color: #ffffff00;
     border: none;
     border-radius: 8px;
-    color: #1b5264;
+    color: hsl(200deg 40% 25%);
     display: block;
     overflow: hidden;
     padding: 0.5rem 1rem;
@@ -241,7 +241,7 @@ input::placeholder {
 }
 
 input:is([type="email"], [type="password"], [type="text"]) {
-    background-color: #232f38;
+    background-color: hsl(206, 23%, 18%);
     color: #ffffff;
     border: none;
     border-radius: 0.2rem;
@@ -258,6 +258,54 @@ input[type="email"]:focus:invalid {
 
 input[type="email"]:focus:valid {
     outline: green;
+}
+
+select {
+	background-color: hsl(206, 23%, 18%);
+	border: none;
+	border-radius: 4px;
+	border-right: 0.25rem solid transparent;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, .2) !important;
+	color: #fbfbfb;
+	outline: none;
+	padding: 0.25rem;
+}
+
+select > * {
+	background-color: inherit;
+}
+
+select > option:empty {
+	text-transform: capitalize;
+}
+
+#keybind-entries {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+#keybind-entries:empty::before {
+	color: hsl(205deg 10% 40%);
+	content: "No keybinds set"
+}
+
+.keybind-wrapper {
+	display: flex;
+	font-size: smaller;
+	gap: 0.25rem;
+}
+
+.keybind-wrapper > select {
+	font-size: inherit;
+}
+
+.keybind-wrapper > input {
+	font-size: smaller;
+	font-size: 2cqh;
+	font-size: inherit;
+	min-width: 0;
+	text-align: center;
 }
 
 table tr > * {

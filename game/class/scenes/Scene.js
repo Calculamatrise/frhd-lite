@@ -107,7 +107,7 @@ export default class {
         this.track.draw(),
 		this.score.draw(),
         this.playerManager.draw(),
-		this.playerManager.firstPlayer._tempVehicleTicks > 0 && this.vehicleTimer.draw(),
+		this.vehicleTimer.player && this.vehicleTimer.player._tempVehicleTicks > 0 && this.vehicleTimer.draw(),
         this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(),
 		this.state.loading && this.loadingcircle.draw(),
         this.message.draw()
@@ -120,7 +120,7 @@ export default class {
 	update() {
 		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
         this.mouse.update(),
-        this.state.paused || this.state.showDialog || this.state.inFocus && (this.playerManager.updateGamepads(),
+        this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
         this.playerManager.checkKeys()),
         this.screen.update(),
         this.updateControls(),
