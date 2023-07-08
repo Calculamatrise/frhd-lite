@@ -161,7 +161,6 @@ export default class {
 		  , s = this.tickDownButtons
 		  , n = this.previousTickDownButtons;
 		for (var o of this.keysToRecord) {
-			var t = this.scene.ticks
 			if ("undefined" != typeof s[o]) {
 				var a = s[o]
 				  , h = "undefined" != typeof n[o] && n[o];
@@ -172,16 +171,15 @@ export default class {
 					a && (u = c);
 					if (!a && e[c] && -1 !== e[c].indexOf(t)) {
 						if (/^(backspace|enter)$/.test(o)) {
-							t++;
+							e[u] || (e[u] = []),
+							e[u].push(t + 1)
 						} else {
 							e[c].splice(e[c].indexOf(t), 1),
 							e[c].length || delete e[c];
-							continue;
 						}
-					}
-
-					e[u] || (e[u] = []),
-					e[u].push(t)
+					} else
+						e[u] || (e[u] = []),
+						e[u].push(t)
 				}
 			}
 		}
