@@ -106,7 +106,7 @@ export default class {
         this.paused = !0) : (this.timer_sprite.image = "timer",
         this.paused = !1));
         this.cached === !1 && this.scene.ticks > 50 && (this.cached = !0);
-        this.time.text = format(1e3 * this.scene.ticks / this.scene.settings.drawFPS);
+        this.time.text = format(1e3 * (this.scene.camera.focusIndex !== 0 && this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)?._gamepad.playbackTicks || this.scene.ticks) / this.scene.settings.drawFPS);
         this.goals.text = this.scene.playerManager.firstPlayer.getTargetsHit() + "/" + this.scene.track.targetCount;
         this.best_time.text = "-- : --.--";
         this.scene.settings.isCampaign && this.scene.settings.campaignData.user.best_time ? this.best_time.text = this.scene.settings.campaignData.user.best_time : this.scene.settings.userTrackStats && this.scene.settings.userTrackStats.best_time && (this.best_time.text = this.scene.settings.userTrackStats.best_time),

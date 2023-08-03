@@ -157,7 +157,7 @@ export default class {
 		const snapshots = new Map();
 		this._gamepad.playbackTicks = 0;
 		while (this.complete === !1) {
-			snapshots.has(this._gamepad.playbackTicks) || snapshots.set(this._gamepad.playbackTicks, this._createSnapshot());
+			snapshots.set(this._gamepad.playbackTicks, this._createSnapshot());
 			if (this._gamepad.playbackTicks >= nextTick) {
 				const value = yield this._gamepad.playbackTicks;
 				if (isFinite(value)) {
@@ -183,6 +183,9 @@ export default class {
 			this.checkKeys();
 			this.update();
 			this._gamepad.playbackTicks++;
+			// experiment start
+			this.isInFocus() && window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = this._gamepad.playbackTicks);
+			// experiment end
 		}
 
 		return snapshots;
@@ -388,6 +391,7 @@ export default class {
 		this.setDefaults(),
 		this.createBaseVehicle(new s(0, 35), 1, new s(0, 0)),
 		this._gamepad.reset(),
-		this._scene.state.playerAlive = this.isAlive()
+		this._scene.state.playerAlive = this.isAlive(),
+		window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = 0)
 	}
 }

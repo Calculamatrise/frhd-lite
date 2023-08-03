@@ -36,6 +36,7 @@
     --background-color: #1d2328;
     --border-color: #1b526466;
     --text-color: #fdfdfd;
+	color-scheme: dark;
 }
 
 html {

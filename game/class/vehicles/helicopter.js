@@ -9,8 +9,8 @@ let c = {
 }
 
 export default class extends Vehicle {
-	vehicleName = "Helicopter";
 	swapped = !1;
+	vehicleName = "Helicopter";
 	constructor(t, e, i) {
 		super(t);
 		this.createMasses(e);

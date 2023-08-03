@@ -32,9 +32,13 @@ export default class {
             } else
                 this.fastforward()
         }
+
+		window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.style.setProperty('display', this.focusIndex !== 0 ? 'block' : 'none'),
+		this.focusIndex !== 0 && (s = this.scene.races.find(({ user }) => user.u_id == s._user.u_id)) && (window.lite.replayGui.progress.max = s.race.run_ticks ?? 100));
     }
     focusOnMainPlayer() {
         this.focusIndex === 0 && this.playerFocus || (this.focusIndex = 0, this.focusOnPlayer())
+		window.hasOwnProperty('lite') && window.lite.replayGui && window.lite.replayGui.style.setProperty('display', 'none');
     }
     update() {
         if (this.playerFocus) {

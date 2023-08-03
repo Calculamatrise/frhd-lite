@@ -35,13 +35,7 @@ chrome.storage.session.get(async ({ isModerator = null }) => {
 		return;
 	}
 
-	isModerator = await fetch("https://www.freeriderhd.com/account/settings").then(res => {
-		if (!res.user) {
-			throw new Error(res.msg ?? "Something went wrong! Please try again.");
-		}
-
-		return res.user.moderator;
-	}).catch(err => false);
+	isModerator = await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(({ user }) => user && user.moderator).catch(console.warn);
 	chrome.storage.session.set({ isModerator });
 });
 

@@ -96,11 +96,12 @@ window.lite = new class {
     }
 
 	childLoad() {
-		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
+		location.pathname.match(/^\/t\//i) && (this.initBestDate(),
+		/*this.storage.get('ghostPlayer') && */this.initGhostPlayer());
+		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
-		// add mouse-over listener for "my race" then display best_date from user_track_stats ?ajax 
 	}
 
 	updateFromSettings(changes = this.storage) {
@@ -185,7 +186,7 @@ window.lite = new class {
 		const ctx = canvas.getContext('2d');
 		const color = (condition => condition ? (t => '#'.padEnd(7, t == 'midnight' ? '4' : t == 'dark' ? '0' : 'f'))(this.storage.get('theme')) : fill);
 		const fill = (t => '#'.padEnd(7, t == 'midnight' ? 'd' : t == 'dark' ? 'f' : '0'))(this.storage.get('theme'));
-		const gamepad = this.scene.playerManager._players[this.scene.camera.focusIndex]._gamepad.downButtons;
+		const gamepad = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad.downButtons;
 		const size = parseInt(this.storage.get('inputDisplaySize'));
 		const offset = {
 			x: size,
@@ -478,6 +479,14 @@ window.lite = new class {
         }
 	}
 
+	initBestDate() {
+		Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
+			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
+				race.setAttribute('title', best_date ?? 'Failed to load');
+			});
+		});
+	}
+
 	featuredGhosts = null
 	initFeaturedGhosts() {
 		const render_leaderboards = Application.Views.TrackView.prototype._render_leaderboards;
@@ -519,24 +528,96 @@ window.lite = new class {
 	}
 
 	initFriendsLastPlayed() {
-		Application.Helpers.AjaxHelper.get(location.pathname).done((response) => {
-			if (document.querySelector(".friend-list.friends-all.active")) {
-				for (const element of document.querySelector(".friend-list.friends-all.active").children) {
-					if (element.querySelector(".friend-list-item-date") !== null) break;
-					element.querySelector(".friend-list-item-info").appendChild(this.constructor.createElement("div", {
-						className: "friend-list-item-date",
-						innerText: "Last Played " + response.friends.friends_data.find((user) => user.d_name == element.querySelector(".friend-list-item-name.bold").innerText).activity_time_ago
-					}));
-				}
+		Application.Helpers.AjaxHelper.get(location.pathname).done(({ friends, is_profile_owner }) => {
+			is_profile_owner || document.querySelectorAll('.friend-list-item-name').forEach(item => {
+				item.after(this.constructor.createElement('div', {
+					className: "friend-list-item-date",
+					innerText: "Last Played " + friends.friends_data.find(({ d_name }) => d_name == item.innerText).activity_time_ago
+				}));
+			});
+		});
+	}
+
+	initGhostPlayer() {
+		this.replayGui = this.constructor.createElement('div', {
+			style: {
+				inset: 0,
+				pointerEvents: 'none',
+				position: 'absolute'
 			}
+		});
+		this.replayGui.progress = this.replayGui.appendChild(this.constructor.createElement('progress', {
+			className: 'ghost-player-progress',
+			id: 'replay-seeker',
+			max: 100,
+			min: 0,
+			value: 0,
+			style: {
+				border: 'none',
+				bottom: 0,
+				height: '4px',
+				pointerEvents: 'all',
+				position: 'absolute',
+				transition: 'height 100ms',
+				width: '100%'
+			},
+			type: 'range',
+			onchange(event) {
+				GameManager.game.currentScene.state.playing = false;
+				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
+				if (player.isGhost()) {
+					// let race = GameManager.game.currentScene.races.find(({ user }) => user.u_id == player._user.u_id);
+					// let runTicks = race && race.race.run_ticks;
+					// if (runTicks > 0) {
+					// 	player._replayIterator.next(runTicks / this.value);
+					// }
+
+					console.log(this.value)
+					player._gamepad.playbackTicks = this.value;
+					player._replayIterator.next(this.value);
+				}
+			},
+			onpointerdown(event) {
+				this.setPointerCapture(event.pointerId);
+				this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max);
+				this.dispatchEvent(new InputEvent('change'));
+				this.wasPlaying = GameManager.game.currentScene.state.playing;
+			},
+			onpointermove(event) {
+				event.buttons & 1 == 1 && (this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max),
+				this.dispatchEvent(new InputEvent('change')));
+			},
+			onpointerup(event) {
+				this.releasePointerCapture(event.pointerId);
+				GameManager.game.currentScene.state.playing = this.wasPlaying;
+			}
+		}));
+		let style = this.constructor.createElement('style', {
+			textContent: `
+				.ghost-player-progress::-webkit-progress-value {
+					background-color: hsl(195deg 57% 25%);
+				}
+
+				.ghost-player-progress:hover {
+					cursor: pointer;
+					filter: brightness(1.25);
+					height: 6px !important;
+				}
+			`
+		});
+		// create progress element
+		this.constructor.waitForElm('#game-container > .gameGui').then(gameGui => {
+			let shadowRoot = gameGui.attachShadow({ mode: 'open' });
+			shadowRoot.appendChild(this.replayGui);
+			shadowRoot.appendChild(style);
 		});
 	}
 
 	refreshAchievements() {
 		return fetch("/achievements?ajax").then(r => r.json()).then(response => {
-            this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
-            return response;
-        });
+			this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
+			return response;
+		});
 	}
 
 	static createAccountContainer({ login, password }) {
@@ -621,7 +702,7 @@ window.lite = new class {
 		return container;
 	}
 
-	static createElement(type, options) {
+	static createElement(type, options = {}) {
 		const callback = arguments[arguments.length - 1];
 		const element = document.createElement(type);
 		if ('innerText' in options) {
@@ -649,5 +730,25 @@ window.lite = new class {
 
 		Object.assign(element, options);
 		return typeof callback == 'function' && callback(element), element;
+	}
+
+	static waitForElm(selector) {
+		return new Promise(resolve => {
+			if (document.querySelector(selector)) {
+				return resolve(document.querySelector(selector));
+			}
+	
+			const observer = new MutationObserver(mutations => {
+				if (document.querySelector(selector)) {
+					resolve(document.querySelector(selector));
+					observer.disconnect();
+				}
+			});
+	
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true
+			});
+		});
 	}
 }

@@ -118,7 +118,8 @@ export default class {
 		return t
 	}
 	reset(t) {
-		(this.replaying || t) && (this.downButtons = {}),
+		(this.replaying || t) && (this.downButtons = {},
+		this.playbackTicks = 0),
 		this.tickDownButtons = {},
 		this.previousDownButtons = {},
 		this.previousTickDownButtons = {},
