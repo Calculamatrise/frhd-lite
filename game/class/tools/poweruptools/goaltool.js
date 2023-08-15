@@ -45,13 +45,13 @@ export default class extends Tool {
 	}
 	hold() {
 		var t = this.mouse.touch
-		  , e = t.real;
+		, e = t.real;
 		this.p2.x = e.x,
 		this.p2.y = e.y
 	}
 	release() {
 		var t = this.scene.track
-		  , e = new n(this.p1.x, this.p1.y, t);
+		, e = new n(this.p1.x, this.p1.y, t);
 		t.addTarget(e),
 		t.addPowerup(e),
 		this.active = !1,

@@ -5,7 +5,6 @@ export default class {
 		this.x = t;
 		this.y = e;
 	}
-
 	toReal(t) {
 		var e = t.camera
 			, s = t.screen
@@ -34,22 +33,22 @@ export default class {
 	}
 	factorSelf(t) {
 		this.x = this.x * t,
-			this.y = this.y * t
+		this.y = this.y * t
 	}
 	factorOut(t, e) {
 		e.x = this.x * t,
-			e.y = this.y * t
+		e.y = this.y * t
 	}
 	add(t) {
 		return new this.constructor(this.x + t.x, this.y + t.y)
 	}
 	inc(t) {
 		this.x += t.x,
-			this.y += t.y
+		this.y += t.y
 	}
 	addOut(t, e) {
 		e.x = this.x + t.x,
-			e.y = this.y + t.y
+		e.y = this.y + t.y
 	}
 	sub(t) {
 		return new this.constructor(this.x - t.x, this.y - t.y)

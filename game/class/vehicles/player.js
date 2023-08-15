@@ -1,21 +1,21 @@
-import s from "../math/cartesian.js";
-import n from "../utils/gamepad.js";
-import c from "./balloon.js";
-import u from "./blob.js";
-import o from "./bmx.js";
-import r from "./explosion.js";
-import a from "./helicopter.js";
-import l from "./mtb.js";
-import h from "./truck.js";
+import Cartesian from "../math/cartesian.js";
+import Gamepad from "../utils/gamepad.js";
+import BALLOON from "./balloon.js";
+import BLOB from "./blob.js";
+import BMX from "./bmx.js";
+import Explosion from "./explosion.js";
+import HELI from "./helicopter.js";
+import MTB from "./mtb.js";
+import TRUCK from "./truck.js";
 
 let g = 0;
 let v = {
-	BMX: o,
-	MTB: l,
-	HELI: a,
-	TRUCK: h,
-	BALLOON: c,
-	BLOB: u
+	BMX,
+	MTB,
+	HELI,
+	TRUCK,
+	BALLOON,
+	BLOB
 }
 
 function m(t, e) {
@@ -38,11 +38,11 @@ export default class {
 		let i = t.settings.startVehicle;
 		t.settings.track && (i = t.settings.track.vehicle);
 		this._baseVehicleType = i;
-		this._gamepad = new n(t);
+		this._gamepad = new Gamepad(t);
 		this._ghost = !1;
 		this._color = e.color ? e.color : "#000000";
 		this.setDefaults();
-		this.createBaseVehicle(new s(0, 35), 1, new s(0, 0));
+		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0));
 	}
 	getCheckpointCount() {
 		return this._checkpoints.length
@@ -129,45 +129,58 @@ export default class {
 			this._temp_vehicle_options = null
 		}
 		this._tempVehicleType === t ? this._tempVehicleTicks += e : (this.getActiveVehicle().stopSounds(),
-		this._effect = new r(i, this._scene),
+		this._effect = new Explosion(i, this._scene),
 		this._effectTicks = 45,
 		this._tempVehicleType = t,
 		this._tempVehicle = new v[t](this, i, s),
 		this._tempVehicleTicks = e)
 	}
-	update() {
+	fixedUpdate() {
 		if (this.complete === !1) {
 			let t = this._baseVehicle, e = {};
 			this._temp_vehicle_options && this.createTempVehicle(),
 			this._tempVehicleTicks > 0 && (t = this._tempVehicle,
 			this._crashed === !1 && this._tempVehicleTicks--,
 			this._tempVehicleTicks <= 0 && this._crashed === !1 && (this._effectTicks = 45,
-			this._effect = new r(this._tempVehicle.focalPoint.pos, this._scene),
+			this._effect = new Explosion(this._tempVehicle.focalPoint.pos, this._scene),
 			this.createBaseVehicle(this._tempVehicle.focalPoint.pos, this._tempVehicle.dir, this._tempVehicle.masses[0].vel),
 			t = this._baseVehicle)),
 			this._effectTicks > 0 && (this._effectTicks--,
-			this._effect.update()),
-			this.isGhost() || lite.storage.get("playerTrail") && lite.snapshots.push(this._createSnapshot()),
-			t.update(),
+			this._effect.fixedUpdate()),
+			lite.storage.get("playerTrail") && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
+			t.fixedUpdate(),
 			this._addCheckpoint && (this._createCheckpoint(),
 			this._addCheckpoint = !1)
+		}
+	}
+	update(progress) {
+		if (this.complete === !1) {
+			let t = this._baseVehicle;
+			this._tempVehicleTicks > 0 && (t = this._tempVehicle),
+			this._effectTicks > 0 && this._effect.update(progress),
+			t.update(progress)
 		}
 	}
 	*createReplayIterator(nextTick = 1) {
 		const snapshots = new Map();
 		this._gamepad.playbackTicks = 0;
 		while (this.complete === !1) {
-			snapshots.set(this._gamepad.playbackTicks, this._createSnapshot());
+			snapshots.has(this._gamepad.playbackTicks) || this.isAlive() && snapshots.set(this._gamepad.playbackTicks, {
+				downButtons: Object.assign({}, this._gamepad.downButtons),
+				snapshot: this._createSnapshot()
+			});
 			if (this._gamepad.playbackTicks >= nextTick) {
 				const value = yield this._gamepad.playbackTicks;
 				if (isFinite(value)) {
-					// create new ghost player and skip to previous tick to rewind
-					// return /*this._replayIterator = */this.createReplayIterator(value);
 					if (snapshots.has(value)) {
-						this._checkpoints.push(snapshots.get(value));
+						let { downButtons, snapshot } = snapshots.get(value);
+						this._checkpoints.push(snapshot);
 						this.gotoCheckpoint();
 						this._checkpoints.pop();
 						this._gamepad.playbackTicks = value;
+						this._gamepad.downButtons = Object.assign({}, downButtons);
+					} else if (value < nextTick) {
+						this.reset();
 					}
 
 					this._scene.camera.focusIndex = this._scene.playerManager._players.indexOf(this);
@@ -179,15 +192,18 @@ export default class {
 				}
 			}
 
-			this._gamepad.update();
-			this.checkKeys();
-			this.update();
+			this._gamepad.update(),
+			this.checkKeys(),
+			this.fixedUpdate();
 			this._gamepad.playbackTicks++;
 			// experiment start
 			this.isInFocus() && window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = this._gamepad.playbackTicks);
 			// experiment end
 		}
 
+		// this.loop = true;
+		this.loop && (this.reset(),
+		this._replayIterator = this.createReplayIterator())
 		return snapshots;
 	}
 	isInFocus() {
@@ -201,9 +217,8 @@ export default class {
 		}
 		this._opacity = t
 	}
-	drawName() {
-		let ctx = this._scene.game.canvas.getContext("2d")
-		  , l = this.getActiveVehicle()
+	drawName(ctx) {
+		let l = this.getActiveVehicle()
 		  , c = l.focalPoint.pos.toScreen(this._scene);
 		ctx.globalAlpha = this._opacity,
 		ctx.beginPath(),
@@ -219,14 +234,13 @@ export default class {
 		ctx.fillText(this._user.d_name, c.x, c.y - 60 * this._scene.camera.zoom),
 		ctx.globalAlpha = 1
 	}
-	draw() {
+	draw(ctx) {
 		this.updateOpacity();
 		let t = this._baseVehicle;
 		this._tempVehicleTicks > 0 && (t = this._tempVehicle),
 		this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
-		this.isGhost() || this._scene.ticks > 0 && this._scene.state.playing == !1 && t.clone(),
-		t.draw(),
-		this.isGhost() && this.drawName()
+		t.draw(ctx),
+		this.isGhost() && this.drawName(ctx)
 	}
 	checkKeys() {
 		var t = this._gamepad
@@ -260,9 +274,7 @@ export default class {
 		return Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2))
 	}
 	getActiveVehicle() {
-		let t = this._baseVehicle;
-		return this._tempVehicleTicks > 0 && (t = this._tempVehicle),
-		t
+		return this._tempVehicleTicks > 0 ? this._tempVehicle : this._baseVehicle
 	}
 	_createCheckpoint() {
 		this._checkpoints.push(this._createSnapshot())
@@ -385,13 +397,13 @@ export default class {
 		this._powerupsConsumed = null;
 	}
 	reset() {
-		this.isGhost() && (this._replayIterator = this.createReplayIterator()),
 		this._tempVehicle && this._tempVehicle.stopSounds(),
 		this._baseVehicle.stopSounds(),
 		this.setDefaults(),
-		this.createBaseVehicle(new s(0, 35), 1, new s(0, 0)),
+		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0)),
 		this._gamepad.reset(),
 		this._scene.state.playerAlive = this.isAlive(),
-		window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = 0)
+		window.hasOwnProperty('lite') && (window.lite.snapshots.splice(0),
+		window.lite.replayGui && (window.lite.replayGui.progress.value = 0))
 	}
 }

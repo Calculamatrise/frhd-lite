@@ -60,8 +60,7 @@ export default class {
             this.raceCount++
         }
     }
-	draw() {
-		let t = this.scene.game.canvas.getContext("2d");
+	draw(t) {
 		t.save();
 		t.textAlign = "center";
 		t.textBaseline = "middle";

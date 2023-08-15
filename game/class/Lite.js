@@ -492,7 +492,7 @@ window.lite = new class {
 		const render_leaderboards = Application.Views.TrackView.prototype._render_leaderboards;
 		Application.Views.TrackView.prototype._render_leaderboards = async function(n) {
 			render_leaderboards.apply(this, arguments);
-			lite.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd_featured_ghosts/master/data.json").then(r => r.json());
+			lite.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
 			const matches = Object.fromEntries(Object.entries(lite.featuredGhosts).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
 			for (const player in matches) {
 				for (const ghost in matches[player]) {
@@ -572,8 +572,7 @@ window.lite = new class {
 					// 	player._replayIterator.next(runTicks / this.value);
 					// }
 
-					console.log(this.value)
-					player._gamepad.playbackTicks = this.value;
+					// console.log(this.value)
 					player._replayIterator.next(this.value);
 				}
 			},

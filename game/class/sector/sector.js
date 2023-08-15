@@ -22,6 +22,7 @@ export default class {
     powerups = [];
     canvasPool = null;
     canvas = null;
+	ctx = null;
     powerupCanvas = null;
     powerupCanvasOffset = 30;
     powerupCanvasDrawn = !1;
@@ -117,39 +118,39 @@ export default class {
     draw() {
         this.canvas = this.canvasPool.getCanvas(),
         this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
-        this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0;
-        const ctx = this.canvas.getContext("2d");
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height),
-        ctx.beginPath(),
-        ctx.lineWidth = 2 * this.scene.camera.zoom > .5 ? 2 * this.scene.camera.zoom : .5,
-        ctx.lineCap = "round",
-        ctx.strokeStyle = this.settings.sceneryLineColor,
-        this.drawLines(this.sceneryLines, this.scene.camera.zoom, ctx),
-        ctx.stroke(),
-        ctx.beginPath(),
-        ctx.strokeStyle = this.settings.physicsLineColor,
-        this.drawLines(this.physicsLines, this.scene.camera.zoom, ctx),
-        ctx.stroke(),
-        this.settings.developerMode && (ctx.beginPath(),
-        ctx.strokeStyle = "blue",
-        ctx.rect(0, 0, this.drawSectorSize * this.scene.camera.zoom | 0, this.drawSectorSize * this.scene.camera.zoom | 0),
-        ctx.stroke()),
+        this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
+		this.ctx = this.canvas.getContext("2d"),
+		this.ctx.lineCap = "round",
+		this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height),
+        this.ctx.beginPath(),
+		this.ctx.strokeStyle = this.settings.sceneryLineColor,
+        this.drawLines(this.sceneryLines, this.scene.camera.zoom, this.ctx),
+        this.ctx.stroke(),
+        this.ctx.beginPath(),
+        this.ctx.strokeStyle = this.settings.physicsLineColor,
+        this.drawLines(this.physicsLines, this.scene.camera.zoom, this.ctx),
+        this.ctx.stroke(),
+        this.settings.developerMode && (this.ctx.beginPath(),
+        this.ctx.strokeStyle = "blue",
+        this.ctx.rect(0, 0, this.drawSectorSize * this.scene.camera.zoom | 0, this.drawSectorSize * this.scene.camera.zoom | 0),
+        this.ctx.stroke()),
         this.drawn = !0
     }
     drawLine(t, e) {
         if (!this.canvas) {
             this.canvas = this.canvasPool.getCanvas(),
             this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
-            this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0
+            this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
+			this.ctx = this.canvas.getContext("2d"),
+			this.ctx.lineCap = "round",
+			this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
         }
-        const ctx = this.canvas.getContext("2d");
-        ctx.beginPath(),
-        ctx.lineWidth = 2 * this.scene.camera.zoom > .5 ? 2 * this.scene.camera.zoom : .5,
-        ctx.lineCap = "round",
-        ctx.strokeStyle = e,
-        ctx.moveTo((t.p1.x - this.x) * this.scene.camera.zoom, (t.p1.y - this.y) * this.scene.camera.zoom),
-        ctx.lineTo((t.p2.x - this.x) * this.scene.camera.zoom, (t.p2.y - this.y) * this.scene.camera.zoom),
-        ctx.stroke()
+        this.ctx.beginPath(),
+        this.ctx.strokeStyle = e,
+        this.ctx.moveTo((t.p1.x - this.x) * this.scene.camera.zoom, (t.p1.y - this.y) * this.scene.camera.zoom),
+        this.ctx.lineTo((t.p2.x - this.x) * this.scene.camera.zoom, (t.p2.y - this.y) * this.scene.camera.zoom),
+        this.ctx.stroke()
     }
     cachePowerupSector() {
         this.powerupCanvasDrawn = !0;
@@ -223,6 +224,7 @@ export default class {
         this.drawn = !1,
         this.powerupCanvasDrawn = !1,
         this.canvas && (this.canvas = null,
+		this.ctx = null,
         this.canvasPool.releaseCanvas(this.canvas)),
         this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),
         this.powerupCanvas = null)
@@ -245,6 +247,7 @@ export default class {
         this.drawn = null,
         this.physicsLines = null,
         this.sceneryLines = null,
-        this.canvas = null
+        this.canvas = null,
+		this.ctx = null
     }
 }

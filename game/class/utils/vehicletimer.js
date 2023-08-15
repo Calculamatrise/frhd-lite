@@ -39,8 +39,7 @@ export default class {
         e.x = t.width / 2 - 100 * e.scaleX,
         e.y = t.height - 100 * e.scaleY
     }
-	draw() {
-		let t = this.scene.game.canvas.getContext("2d");
+	draw(t) {
 		t.save();
 		t.fillStyle = "rgba(242,144,66,0.5)";
 		t.strokeStyle = "rgba(242,144,66,1)";

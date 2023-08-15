@@ -70,8 +70,7 @@ export default class {
 		e.x = t.width / 2 - i / 2 * window.devicePixelRatio,
         e.y = 40 * window.devicePixelRatio
     }
-	draw() {
-		let t = this.scene.game.canvas.getContext("2d");
+	draw(t) {
 		t.save();
 		t.fillStyle = this.container.color;
 		t.font = this.container.font + "px helsinki";

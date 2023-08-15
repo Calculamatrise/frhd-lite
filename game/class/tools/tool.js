@@ -1,4 +1,9 @@
 export default class {
+	name = "";
+    toolhandler = null;
+    camera = null;
+    mouse = null;
+    scene = null;
     constructor(t) {
         this.toolhandler = t;
         this.scene = t.scene;
@@ -7,11 +12,6 @@ export default class {
         this.mouse = t.scene.mouse;
         this.gamepad = t.gamepad;
     }
-    name = "";
-    toolhandler = null;
-    camera = null;
-    mouse = null;
-    scene = null;
     press() {}
     hold() {}
     release() {}

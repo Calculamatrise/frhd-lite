@@ -23,7 +23,8 @@ export default class {
 		this.contact = !1,
 		this.scene = e.scene,
 		this.pos.equ(t),
-		this.old.equ(t)
+		this.old.equ(t),
+		this.drawPos = this.pos
 	}
 	drive(t, e) {
 		let i = this.friction
@@ -34,7 +35,7 @@ export default class {
 		this.pos.y += e,
 		this.contact = !0
 	}
-	update() {
+	fixedUpdate() {
 		let t = this.vel;
 		t.inc(this.parent.gravity);
 		let e = this.parent.gravity;
@@ -45,11 +46,14 @@ export default class {
 		this.collide && this.scene.track.collide(this),
 		t.x = this.pos.x - this.old.x,
 		t.y = this.pos.y - this.old.y,
-		this.old.equ(this.pos)
+		this.old.equ(this.pos),
+		this.drawPos = this.pos
 	}
-	draw() {
+	update(progress) {
+		this.drawPos = this.pos.add(this.vel.factor(progress));
+	}
+	draw(e) {
 		let t = this.pos.toScreen(this.scene)
-		  , e = this.scene.game.canvas.getContext("2d")
 		  , i = this.scene.camera.zoom;
 		e.beginPath(),
 		e.fillStyle = "rgba(0,0,0,1)",

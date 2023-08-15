@@ -1,6 +1,5 @@
 import "../utils/Storage.js";
 import defaults from "../constants/defaults.js";
-import restoreSettings from "./utils/restoreSettings.js";
 
 chrome.storage.local.onChanged.addListener(function ({ enabled, settings }) {
 	settings && restoreSettings(settings.newValue);
@@ -26,12 +25,12 @@ chrome.storage.local.get(({ badges, enabled, settings }) => {
 });
  
 chrome.storage.session.onChanged.addListener(function ({ isModerator }) {
-	isModerator && (isModerator.newValue && import("./utils/modTools.js").then(({ dashboard }) => dashboard.classList[isModerator ? 'add' : 'remove']('notification')));
+	isModerator && (isModerator.newValue && import("./utils/moderation.js").then(({ dashboard }) => dashboard.classList[isModerator ? 'add' : 'remove']('notification')));
 });
 
 chrome.storage.session.get(async ({ isModerator = null }) => {
 	if (isModerator !== null) {
-		isModerator && import("./utils/modTools.js");
+		isModerator && import("./utils/moderation.js");
 		return;
 	}
 
@@ -93,24 +92,20 @@ for (const item in defaults) {
 		case 'keymap': {
 			let action = document.querySelector('#keybind-action');
 			action && action.addEventListener('change', function (event) {
-				if (element.value) {
-					chrome.storage.proxy.local.settings.keymap[element.value] = event.target.value;
-					action && (action.value = 'default');
-					element.value = null;
-					return;
-				}
+				element.value && saveKeybind(element.value, event.target.value);
 			});
 
 			element.addEventListener('keyup', function (event) {
-				if (action.value !== 'default') {
-					chrome.storage.proxy.local.settings.keymap[event.key] = action.value;
-					action && (action.value = 'default');
-					this.value = null;
-					return;
-				}
-
 				this.value.length > 0 && (this.value = event.key.toUpperCase());
+				action.value !== 'default' && saveKeybind(event.key, action.value);
 			});
+
+			function saveKeybind(key = element.value, value = action.value) {
+				if (typeof key != 'string' || typeof value != 'string') return;
+				chrome.storage.proxy.local.settings.keymap[key.toUpperCase()] = value;
+				action && (action.value = 'default');
+				element.value = null;
+			}
 			break;
 		}
 
@@ -131,13 +126,80 @@ for (const item in defaults) {
 	}
 }
 
+document.documentElement.addEventListener('pointerdown', function (event) {
+	this.style.setProperty('--offsetX', event.offsetX);
+	this.style.setProperty('--offsetY', event.offsetY);
+});
+
 function setState(enabled) {
 	let state = document.querySelector('#state');
 	state && state.classList[enabled ? 'add' : 'remove']('enabled');
 	return enabled;
 }
 
-document.documentElement.addEventListener('pointerdown', function (event) {
-	this.style.setProperty('--offsetX', event.offsetX);
-	this.style.setProperty('--offsetY', event.offsetY);
-});
+function restoreSettings(data) {
+	for (const item in data) {
+		let element = document.getElementById(item);
+		switch (item) {
+			case 'bikeFrameColor':
+				element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
+				element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
+				break;
+
+			case 'inputDisplaySize':
+				element.value = data[item];
+				element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');
+				element.parentElement.querySelector('.name').innerText = `Input display size (${element.value})`;
+				break;
+
+			case 'keymap': {
+				let action = document.querySelector('#keybind-action');
+				let entries = document.querySelector('#keybind-entries');
+				let keymap = Object.entries(data[item]);
+				entries.replaceChildren(...keymap.map(([key, value]) => {
+					let wrapper = document.createElement('div');
+					wrapper.classList.add('keybind-wrapper');
+					let select = wrapper.appendChild(action.cloneNode(true));
+					select.removeAttribute('id');
+					select.disabled = true;
+					select.value = value;
+					// subject to change
+					select.addEventListener('change', event => {
+						if (event.target.value === 'remove') {
+							delete chrome.storage.proxy.local.settings.keymap[key];
+						}
+					});
+					select.replaceChildren(...Array.from(select.children).filter(opt => {
+						return opt.value === select.value /*//*/ || opt.value === 'default';
+					}));
+
+					let remove = select.appendChild(document.createElement('option'));
+					remove.innerText = 'Remove';
+					remove.value = 'remove';
+					//
+					select.addEventListener('pointerenter', () => select.disabled = false);
+					select.addEventListener('pointerleave', () => select.disabled = true);
+					let input = wrapper.appendChild(document.createElement('input'));
+					input.setAttribute('type', 'text');
+					input.readOnly = true;
+					input.value = key.toUpperCase();
+					return wrapper;
+				}));
+				break;
+			}
+
+			case 'snapshots':
+				element.value = data[item];
+				element.parentElement.classList[data.playerTrail ? 'remove' : 'add']('disabled');
+				element.parentElement.querySelector(".name").innerText = `Snapshot count (${element.value})`;
+				break;
+
+			case 'theme':
+				(element = document.getElementById(data[item])) && (element.checked = true);
+				break;
+
+			default:
+				element && element.type === 'checkbox' && (element.checked = data[item]);
+		}
+	}
+}

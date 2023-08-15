@@ -399,13 +399,13 @@ export default class {
         let r = performance.now();
         console.log("Track :: Time to draw entire track : " + (r - t) + "ms")
     }
-    undraw() {
-        for (const t of this.totalSectors) {
-            t.drawn && t.clear(!0)
-        }
-        this.recachePowerups(Math.max(this.camera.zoom, 1)),
-        this.canvasPool.update()
-    }
+	undraw() {
+		for (const t of this.totalSectors) {
+			t.drawn && t.clear(!0)
+		}
+		this.recachePowerups(Math.max(this.camera.zoom, 1)),
+		this.canvasPool.update()
+	}
     collide(t) {
         let i = Math.floor(t.pos.x / this.settings.physicsSectorSize - .5),
             s = Math.floor(t.pos.y / this.settings.physicsSectorSize - .5);
@@ -424,30 +424,26 @@ export default class {
             o = !1;
         return typeof this.sectors.drawSectors[s] != "undefined" && typeof this.sectors.drawSectors[s][n] != "undefined" && (o = this.sectors.drawSectors[s][n]), o
     }
-    draw() {
-        const ctx = this.scene.game.canvas.getContext("2d");
-        let f = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
-            v = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
-            g = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2,
-            m = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2;
-        ctx.imageSmoothingEnabled = !1,
-        ctx.mozImageSmoothingEnabled = !1,
-        ctx.oImageSmoothingEnabled = !1,
-        ctx.webkitImageSmoothingEnabled = !1;
-        for (const t of this.totalSectors) {
-            if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
-                t.drawn === !1 && t.draw(),
-                t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
-                let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.x) | 0,
-                    P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.y) | 0;
-                ctx.drawImage(t.canvas, S, P, this.settings.drawSectorSize * this.scene.camera.zoom, this.settings.drawSectorSize * this.scene.camera.zoom);
-                if (t.hasPowerups && t.powerupCanvasDrawn) {
-                    ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * this.scene.camera.zoom / 2, P - t.powerupCanvasOffset * this.scene.camera.zoom / 2, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom)
-                }
-            } else
-                t.drawn && t.clear()
-        }
-    }
+	draw(ctx) {
+		let f = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
+			v = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
+			g = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2,
+			m = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2;
+		ctx.imageSmoothingEnabled = !1;
+		for (const t of this.totalSectors) {
+			if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
+				t.drawn === !1 && t.draw(),
+				t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
+				let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.x) | 0,
+					P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.y) | 0;
+				ctx.drawImage(t.canvas, S, P, this.settings.drawSectorSize * this.scene.camera.zoom, this.settings.drawSectorSize * this.scene.camera.zoom);
+				if (t.hasPowerups && t.powerupCanvasDrawn) {
+					ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * this.scene.camera.zoom / 2, P - t.powerupCanvasOffset * this.scene.camera.zoom / 2, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom)
+				}
+			} else
+				t.drawn && t.clear()
+		}
+	}
     closeSectors() {
         for (const t of this.totalSectors) {
             t.close()

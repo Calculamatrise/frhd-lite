@@ -131,11 +131,14 @@ export default class extends Scene {
         super.updateControls(),
         this.redoundoControls.update()
 	}
-    update() {
-		super.update(),
-        (this.importCode || this.clear) && this.createTrack(),
-		this.redoundoControls.draw()
+    fixedUpdate() {
+		super.fixedUpdate(),
+        (this.importCode || this.clear) && this.createTrack()
     }
+	draw(ctx) {
+		super.draw(...arguments),
+		this.redoundoControls.draw(ctx)
+	}
     restart() {
         this.verified = !this.settings.requireTrackVerification,
         this.track.dirty = !1,
@@ -194,7 +197,7 @@ export default class extends Scene {
     resize() {
         this.pauseControls.resize(),
         this.redoundoControls.resize(),
-        this.controls && this.controls.resize()
+        super.resize()
     }
     updateState() {
         if (null !== this.game.onStateChange) {
@@ -280,9 +283,6 @@ export default class extends Scene {
         case "snap":
             this.toolHandler.toggleSnap();
             break;
-        case "add track":
-            this.importCode = t[0].code;
-            break;
         case "redraw":
             this.redraw();
             break;
@@ -313,21 +313,6 @@ export default class extends Scene {
             this.toolHandler.options.lineType = r,
             this.stateChanged();
             break;
-        case "resize":
-            this.resize();
-            break;
-        case "dialog":
-            var o = t[0];
-            o === !1 ? this.listen() : this.unlisten(),
-            this.openDialog(o);
-            break;
-        case "focused":
-            var a = t[0];
-            a === !0 ? (this.state.inFocus = !0,
-            this.state.showDialog === !1 && this.listen()) : (this.state.inFocus = !1,
-            this.unlisten(),
-            this.state.playing = !1);
-            break;
         case "clear track":
             this.trackAction("editor-action", "clear"),
             this.clear = !0;
@@ -339,6 +324,8 @@ export default class extends Scene {
             this.clear = t[1],
             this.command("dialog", !1)
         }
+
+		super.command(...arguments);
     }
     close() {
         this.trackAction("editor-exit", "exit"),

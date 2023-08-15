@@ -34,13 +34,13 @@ export default class extends Vehicle {
 	}
 	createSprings() {
 		let t = this.masses
-		, e = []
-		, i = this.spring0 = new a(t[0],t[1],this)
-		, s = this.spring1 = new a(t[1],t[2],this)
-		, n = this.spring2 = new a(t[2],t[3],this)
-		, r = this.spring3 = new a(t[3],t[0],this)
-		, o = this.spring4 = new a(t[0],t[2],this)
-		, h = this.spring5 = new a(t[1],t[3],this);
+		  , e = []
+		  , i = this.spring0 = new a(t[0],t[1],this)
+		  , s = this.spring1 = new a(t[1],t[2],this)
+		  , n = this.spring2 = new a(t[2],t[3],this)
+		  , r = this.spring3 = new a(t[3],t[0],this)
+		  , o = this.spring4 = new a(t[0],t[2],this)
+		  , h = this.spring5 = new a(t[1],t[3],this);
 		e.push(i),
 		e.push(s),
 		e.push(n),
@@ -52,27 +52,27 @@ export default class extends Vehicle {
 			e[l].dampConstant = .2;
 		this.springs = e
 	}
-	update() {
+	fixedUpdate() {
 		if (this.crashed === !1 && (this.updateSound(),
 		this.control()),
 		this.explosion)
-			this.explosion.update();
+			this.explosion.fixedUpdate();
 		else {
 			let t = this.masses
 			  , e = t.length
 			  , i = this.springs
 			  , n = i.length;
 			for (var s = n - 1; s >= 0; s--)
-				i[s].update();
+				i[s].fixedUpdate();
 			for (var m = e - 1; m >= 0; m--)
-				t[m].update();
+				t[m].fixedUpdate();
 			if ((t[0].contact || t[1].contact || t[2].contact || t[3].contact) && (this.slow = !1),
 			!this.slow) {
 				for (this.control(),
 				s = n - 1; s >= 0; s--)
-					i[s].update();
+					i[s].fixedUpdate();
 				for (m = e - 1; m >= 0; m--)
-					t[m].update()
+					t[m].fixedUpdate()
 			}
 			let r = 0,
 				o = 0;
@@ -84,6 +84,10 @@ export default class extends Vehicle {
 			a.pos.y = .25 * o,
 			a.vel = t[0].vel
 		}
+	}
+	update(progress) {
+		for (var t = this.masses, e = t.length, m = e - 1; m >= 0; m--)
+			t[m].update(progress);
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
@@ -116,60 +120,57 @@ export default class extends Vehicle {
 			for (e = u - 1; e >= 0; e--)
 				l[e].contract(0, 1.5)
 	}
-	draw(self = this, alpha = this.player._opacity) {
+	draw(ctx) {
 		if (this.explosion)
 			this.explosion.draw(1);
 		else {
-			var t = this.scene.game.canvas.getContext("2d")
-				, e = self.masses || [self.m0, self.m1, self.m2, self.m3]
-				, i = this.scene
-				, s = i.camera.zoom
-				, m = new n(e[0].pos.x, e[0].pos.y).toScreen(i)
-				, r = new n(e[1].pos.x, e[1].pos.y).toScreen(i)
-				, o = new n(e[2].pos.x, e[2].pos.y).toScreen(i)
-				, a = new n(e[3].pos.x, e[3].pos.y).toScreen(i);
-			t.globalAlpha = alpha,
-			t.beginPath(),
-			t.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
-			t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
-			t.lineWidth = 20 * s,
-			t.lineCap = "round",
-			t.moveTo(m.x, m.y),
-			t.lineTo(r.x, r.y),
-			t.lineTo(o.x, o.y),
-			t.lineTo(a.x, a.y),
-			t.lineTo(m.x, m.y),
-			t.fill(),
-			t.stroke(),
-			t.globalAlpha = 1
+			if (this.scene.ticks > 0 && !this.player.isGhost()) {
+				if (!this.scene.state.playing) {
+					let t = window.lite.storage.get("snapshots");
+					if (t > 0) {
+						for (let i in this.player._checkpoints) {
+							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
+							this.drawBlob.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle)), ctx, t / 3e2 * parseInt(i) % 1);
+						}
+
+						for (let i in this.player._cache) {
+							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
+							this.drawBlob.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle)), ctx, t / 3e2 * ++e % 1);
+						}
+					}
+				}
+
+				if (window.lite.storage.get("playerTrail")) {
+					for (let i in window.lite.snapshots) {
+						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
+						this.drawBlob.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle)), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+					}
+				}
+			}
+
+			this.drawBlob(ctx);
 		}
 	}
-	clone() {
-		let t = 0;
-		let e = lite.storage.get("snapshots");
-		if (e < 1) return;
-		for (const checkpoint in this.player._checkpoints) {
-			if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {
-				try {
-					if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._tempVehicle) {
-						this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
-					}
-				} catch(e) {
-					console.error(e, this.player._checkpoints, checkpoint)
-				}
-			}
-		}
-		t = 0;
-		for (const checkpoint in this.player._cache) {
-			if (checkpoint > this.player._cache.length - (parseInt(e) + 1)) {
-				try {
-					if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._tempVehicle) {
-						this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
-					}
-				} catch(e) {
-					console.error(e, this.player._cache, checkpoint)
-				}
-			}
-		}
+
+	drawBlob(t, alpha = this.player._opacity) {
+		var i = this.scene
+		, s = i.camera.zoom
+		, m = new n(this.m0.pos.x, this.m0.pos.y).toScreen(i)
+		, r = new n(this.m1.pos.x, this.m1.pos.y).toScreen(i)
+		, o = new n(this.m2.pos.x, this.m2.pos.y).toScreen(i)
+		, a = new n(this.m3.pos.x, this.m3.pos.y).toScreen(i);
+		t.globalAlpha = alpha,
+		t.beginPath(),
+		t.fillStyle = t.strokeStyle,
+		t.lineWidth = 20 * s,
+		t.lineCap = "round",
+		t.moveTo(m.x, m.y),
+		t.lineTo(r.x, r.y),
+		t.lineTo(o.x, o.y),
+		t.lineTo(a.x, a.y),
+		t.lineTo(m.x, m.y),
+		t.fill(),
+		t.stroke(),
+		t.globalAlpha = 1
 	}
 }

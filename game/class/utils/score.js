@@ -81,24 +81,23 @@ export default class {
 		this.sprites.timer = this.scene.assets.getResult("time_icon"),
 		this.sprites.target = this.scene.assets.getResult("targets_icon")
     }
-	draw() {
-		let t = this.scene.game.canvas.getContext("2d");
-		t.save();
-		t.textAlign = "left";
-		t.textBaseline = "top";
-		t.imageSmoothingEnabled = true;
+	draw(ctx) {
+		ctx.save();
+		ctx.textAlign = "left";
+		ctx.textBaseline = "top";
+		ctx.imageSmoothingEnabled = true;
 		for (const data of this.container.children) {
 			if (data.hasOwnProperty("image")) {
 				let imageData = this.spriteSheet[data.image];
-				t.drawImage(this.sprites[data.image.replace("_paused", "")], ...imageData, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio, imageData[2] * this.container.scaleX * window.devicePixelRatio, imageData[3] * this.container.scaleY * window.devicePixelRatio);
+				ctx.drawImage(this.sprites[data.image.replace("_paused", "")], ...imageData, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio, imageData[2] * this.container.scaleX * window.devicePixelRatio, imageData[3] * this.container.scaleY * window.devicePixelRatio);
 			} else if (data.hasOwnProperty("text")) {
-				t.font = data.font * window.devicePixelRatio + "px helsinki";
-				t.fillStyle = data.color;
-				t.fillText(data.text, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio);
+				ctx.font = data.font * window.devicePixelRatio + "px helsinki";
+				ctx.fillStyle = data.color;
+				ctx.fillText(data.text, this.container.x + data.x * this.container.scaleX * window.devicePixelRatio, this.container.y + data.y * this.container.scaleY * window.devicePixelRatio);
 			}
 		}
 
-		t.restore();
+		ctx.restore();
 	}
     update() {
 		let t = this.scene.state.paused;
@@ -106,7 +105,7 @@ export default class {
         this.paused = !0) : (this.timer_sprite.image = "timer",
         this.paused = !1));
         this.cached === !1 && this.scene.ticks > 50 && (this.cached = !0);
-        this.time.text = format(1e3 * (this.scene.camera.focusIndex !== 0 && this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)?._gamepad.playbackTicks || this.scene.ticks) / this.scene.settings.drawFPS);
+        this.time.text = format(1e3 * ((this.scene.camera.focusIndex > 0 ? this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad.playbackTicks : null) ?? this.scene.ticks) / this.scene.settings.drawFPS);
         this.goals.text = this.scene.playerManager.firstPlayer.getTargetsHit() + "/" + this.scene.track.targetCount;
         this.best_time.text = "-- : --.--";
         this.scene.settings.isCampaign && this.scene.settings.campaignData.user.best_time ? this.best_time.text = this.scene.settings.campaignData.user.best_time : this.scene.settings.userTrackStats && this.scene.settings.userTrackStats.best_time && (this.best_time.text = this.scene.settings.userTrackStats.best_time),

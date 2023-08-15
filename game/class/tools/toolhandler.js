@@ -214,14 +214,11 @@ export default class {
         this.options.cameraLocked = !this.options.cameraLocked,
         this.scene.stateChanged()
     }
-    draw() {
-        this.scene.game.pixelRatio,
-        this.scene.game.canvas.getContext("2d");
-        this.mouse.enabled && this.tools[this.currentTool].draw()
+    draw(ctx) {
+        this.mouse.enabled && this.tools[this.currentTool].draw(ctx)
     }
-    drawGrid() {
-        var t = this.scene.game.pixelRatio
-          , e = this.scene.game.canvas.getContext("2d");
+    drawGrid(e) {
+        var t = this.scene.game.pixelRatio;
         this.options.grid === !0 && this.options.visibleGrid && (lite.storage.get("isometricGrid") ? this.drawCachedIsometricGrid(e, t) : this.drawCachedGrid(e, t))
     }
     drawCachedGrid(t, e) {

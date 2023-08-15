@@ -13,10 +13,8 @@ export default class {
         this.screen = t.screen;
         this.context = t.game.canvas.getContext("2d");
     }
-
-    draw() {
-        let t = this.context
-          , e = this.screen
+    draw(t = this.context) {
+        let e = this.screen
           , i = this.settings
           , s = this.scene.game.pixelRatio
           , n = i.radius

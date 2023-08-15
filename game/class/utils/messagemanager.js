@@ -7,7 +7,7 @@ export default class {
         this.timeout = !1;
         this.color = "#000";
     }
-    draw() {
+    draw(a) {
         var t = this.message
           , e = this.timeout
           , i = this.color
@@ -21,7 +21,6 @@ export default class {
             var n = this.scene.game
               , r = this.scene
               , o = n.pixelRatio
-              , a = n.canvas.getContext("2d")
               , h = r.screen.center.x
               , l = 100
               , c = r.settings;

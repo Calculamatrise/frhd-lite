@@ -191,7 +191,7 @@ export default class {
 		var i = t + "_down"
 		  , s = !1;
 		if (e[i]) {
-			var n = this.scene.ticks
+			var n = (this.replaying && this.playbackTicks) ?? this.scene.ticks
 			  , r = n
 			  , o = e[i]
 			  , a = -1;

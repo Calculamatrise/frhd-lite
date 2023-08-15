@@ -41,9 +41,8 @@ export default class {
         e.images = [t];
 		this.controlsSprite = t
     }
-	draw() {
+	draw(t) {
 		if (!this.properties.visible) return;
-		let t = this.game.canvas.getContext("2d");
 		t.save();
 		t.globalAlpha = this.properties.alpha;
 		for (const i in this.controlData) {

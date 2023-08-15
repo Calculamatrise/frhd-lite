@@ -7,7 +7,10 @@ import Main from "./scenes/Main.js";
 
 window.Game = class {
 	gameContainer = null;
+	lastTime = -1;
+	progress = 0;
     tickCount = 0;
+	ups = 30; // 60;
     currentScene = null;
     assets = null;
     canvas = null;
@@ -28,6 +31,7 @@ window.Game = class {
 
     initCanvas() {
         this.canvas = document.createElement("canvas");
+		this.ctx = this.canvas.getContext("2d");
         this.gameContainer = document.getElementById(this.settings.defaultContainerID);
         if (this.gameContainer !== null) {
             this.gameContainer.appendChild(this.canvas);
@@ -56,20 +60,41 @@ window.Game = class {
         this.pixelRatio = n,
         this.canvas.style.width = e + "px",
         this.canvas.style.height = t + "px",
+		this.ctx.strokeStyle = "#".padEnd(7, lite.storage.get("theme") == "midnight" ? "C" : lite.storage.get("theme") == "dark" ? "FB" : "0"),
+		this.ctx.lineCap = "round",
+        this.ctx.lineJoin = "round",
         this.currentScene && this.currentScene.command("resize")
     }
 
 	update(time) {
 		this.updateCallback = requestAnimationFrame(this.update.bind(this));
 		let delta = time - this.lastTime;
-		if (delta < 1000 / this.settings.drawFPS) {
-			return;
+		let max = 1e3 / this.ups;
+		if (this.ups > 30) {
+			if (delta > 1e3) {
+				delta = max;
+			}
+
+			this.progress += delta / max;
+			this.lastTime = time;
+
+			while (this.progress >= 1) {
+				this.currentScene.fixedUpdate();
+				this.tickCount++;
+				this.progress--;
+			}
+
+			this.currentScene.update(this.progress, delta);
+		} else {
+			if (delta >= max) {
+				this.currentScene.fixedUpdate();
+				this.lastTime = time;
+				this.tickCount++;
+			}
 		}
 
-		this.lastTime = time;
-		this.currentScene.update(),
-        lite.draw(),
-        this.tickCount++
+		this.currentScene.draw(this.ctx),
+        lite.draw()
     }
 
     switchScene(t) {
@@ -89,6 +114,7 @@ window.Game = class {
         this.settings = null,
         this.canvas.remove(),
         this.canvas = null,
+		this.ctx = null,
         this.tickCount = null,
         this.height = null,
         this.width = null

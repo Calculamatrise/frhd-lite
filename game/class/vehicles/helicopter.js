@@ -24,9 +24,9 @@ export default class extends Vehicle {
 		var t = document.createElement("canvas");
 		this.canvasCockpit = t
 	}
-	drawCockpit(self = this) {
+	drawCockpit() {
 		var t = this.canvasCockpit
-		, e = self.masses
+		, e = this.masses
 		, i = this.scene
 		, s = i.camera.zoom
 		, n = e[0].radius * s * .9
@@ -123,26 +123,30 @@ export default class extends Vehicle {
 		this.springs = e
 	}
 	updateCameraFocalPoint() {}
-	update() {
+	fixedUpdate() {
 		if (this.crashed === !1 && (this.updateSound(),
 		this.control()),
 		this.explosion)
-			this.explosion.update();
+			this.explosion.fixedUpdate();
 		else {
 			for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
-				t[i].update();
+				t[i].fixedUpdate();
 			for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-				s[r].update();
+				s[r].fixedUpdate();
 			if ((this.masses[1].contact || this.masses[2].contact) && (this.slow = !1),
 			this.slow === !1) {
 				this.crashed === !1 && this.control();
 				for (var i = e - 1; i >= 0; i--)
-					t[i].update();
+					t[i].fixedUpdate();
 				for (var r = n - 1; r >= 0; r--)
-					s[r].update()
+					s[r].fixedUpdate()
 			}
 			this.updateCockpitAngle()
 		}
+	}
+	update(progress) {
+		for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
+			s[r].update(progress)
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
@@ -210,135 +214,133 @@ export default class extends Vehicle {
 		  , l = n - o;
 		this.cockpitAngle = -(Math.atan2(a, l) - Math.PI / 2)
 	}
-	draw(self = this, alpha) {
+	draw(ctx) {
 		if (this.explosion)
 			this.explosion.draw(1);
 		else {
-			var t = this.scene.game.canvas.getContext("2d");
-			t.imageSmoothingEnabled = !0,
-			t.webkitImageSmoothingEnabled = !0,
-			t.mozImageSmoothingEnabled = !0,
-			t.globalAlpha = alpha || this.player._opacity;
-			var e = self.masses || [self.head, self.mass2, self.mass3, self.mass4, self.mass5]
-			  , i = self.dir
-			  , n = self.rotor
-			  , r = self.rotor2
-			  , o = this.scene
-			  , a = o.camera.zoom;
-			var h = new s(e[1].pos.x, e[1].pos.y).add(e[2].pos).factor(.5);
-			h = new s(e[0].pos.x, e[0].pos.y).sub(h).factor(a);
-			var l = new s(-h.y * i,h.x * i)
-			  , c = new s(e[0].pos.x, e[0].pos.y).toScreen(o);
-			n += .5 * e[0].motor + .05,
-			n > 6.2831 && (n -= 6.2831),
-			r += .5,
-			r > 6.2831 && (r -= 6.2831),
-			self.rotor = n,
-			self.rotor2 = r,
-			t.strokeStyle = lite.storage.get("theme") == "midnight" ? "#ccc" : lite.storage.get("theme") == "dark" ? "#fff" : "#000",
-			t.lineWidth = 5 * a,
-			t.beginPath(),
-			t.moveTo(c.x + .5 * h.x, c.y + .5 * h.y),
-			t.lineTo(c.x + .8 * h.x, c.y + .8 * h.y),
-			t.stroke(),
-			t.lineWidth = 3 * a,
-			t.beginPath();
-			var u = .9 * Math.cos(n);
-			t.moveTo(c.x + .9 * h.x + l.x * u, c.y + .8 * h.y + l.y * u),
-			t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
-			t.stroke();
-			var p = new s(e[1].pos.x, e[1].pos.y).toScreen(o)
-				, d = new s(e[2].pos.x, e[2].pos.y).toScreen(o);
-			t.lineWidth = 4 * a,
-			t.stokeStyle = "#666666",
-			t.beginPath(),
-			t.moveTo(p.x - .2 * l.x - .1 * h.x, p.y - .2 * l.y - .1 * h.y),
-			t.lineTo(p.x - .25 * h.x, p.y - .25 * h.y),
-			t.lineTo(d.x - .25 * h.x, d.y - .25 * h.y),
-			t.lineTo(d.x + .2 * l.x - .1 * h.x, d.y + .2 * l.y - .1 * h.y),
-			t.stroke(),
-			t.lineWidth = 3 * a,
-			t.beginPath(),
-			t.moveTo(p.x - .2 * h.x, p.y - .2 * h.y),
-			t.lineTo(c.x, c.y),
-			t.lineTo(d.x - .2 * h.x, d.y - .2 * h.y),
-			t.stroke(),
-			t.lineWidth = 6 * a,
-			t.stokeStyle = "#000000",
-			t.beginPath();
-			var f = new s(e[3].pos.x, e[3].pos.y).toScreen(o);
-			t.moveTo(c.x, c.y),
-			t.lineTo(f.x, f.y),
-			t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),
-			t.stroke(),
-			t.lineWidth = 2 * a,
-			t.stokeStyle = "#000000",
-			t.beginPath();
-			var v = 7 * a
-				, g = new s(v * Math.sin(-r),v * Math.cos(-r));
-			t.moveTo(f.x + g.x, f.y + g.y),
-			t.lineTo(f.x - g.x, f.y - g.y),
-			t.moveTo(f.x - g.y, f.y + g.x),
-			t.lineTo(f.x + g.y, f.y - g.x),
-			t.stroke(),
-			t.beginPath(),
-			t.lineWidth = 2 * a,
-			t.arc(f.x, f.y, e[3].radius * a, 0, 2 * Math.PI, !1),
-			t.stroke();
-			this.drawCockpit(self);
-			var m = this.canvasCockpit
-				, y = m.width
-				, w = m.height
-				, x = c.x + 5 * a * self.dir
-				, _ = c.y + 2 * a
-				, b = 0
-				, T = 0
-				, C = y
-				, k = w
-				, S = b * a - C / 2
-				, P = T * a - k / 2
-				, M = self.cockpitAngle
-				, A = -1 === i
-				, D = this.cosmetics
-				, I = GameInventoryManager.getItem(D.head)
-				, E = self.cockpitAngle;
-			I.draw(t, x + 5 * a * i, _ - 5 * a, E, .7 * a, i),
-			t.translate(x, _),
-			t.rotate(M),
-			A && t.scale(1, -1),
-			t.drawImage(m, S, P, C, k),
-			A && t.scale(1, -1),
-			t.rotate(-M),
-			t.translate(-x, -_),
-			t.globalAlpha = 1
+			ctx.imageSmoothingEnabled = !0,
+			ctx.webkitImageSmoothingEnabled = !0,
+			ctx.mozImageSmoothingEnabled = !0;
+			if (this.scene.ticks > 0 && !this.player.isGhost()) {
+				if (!this.scene.state.playing) {
+					let t = window.lite.storage.get("snapshots");
+					if (t > 0) {
+						for (let i in this.player._checkpoints) {
+							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * parseInt(i) % 1);
+						}
+
+						for (let i in this.player._cache) {
+							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * ++e % 1);
+						}
+					}
+				}
+
+				if (window.lite.storage.get("playerTrail")) {
+					for (let i in window.lite.snapshots) {
+						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
+						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+					}
+				}
+			}
+
+			this.drawHelicopter(ctx);
 		}
 	}
-	clone() {
-		let t = 0;
-		let e = lite.storage.get("snapshots");
-		if (e < 1) return;
-		for (const checkpoint in this.player._checkpoints) {
-			if (checkpoint > this.player._checkpoints.length - (parseInt(e) + 1)) {
-				try {
-					if (this.player._checkpoints[checkpoint] && this.player._checkpoints[checkpoint]._tempVehicle) {
-						this.draw(JSON.parse(this.player._checkpoints[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
-					}
-				} catch(e) {
-					console.error(e, this.player._checkpoints, checkpoint)
-				}
-			}
-		}
-		t = 0;
-		for (const checkpoint in this.player._cache) {
-			if (checkpoint > this.player._cache.length - (parseInt(e) + 1)) {
-				try {
-					if (this.player._cache[checkpoint] && this.player._cache[checkpoint]._tempVehicle) {
-						this.draw(JSON.parse(this.player._cache[checkpoint]._tempVehicle), e / 3e2 * ++t % 1);
-					}
-				} catch(e) {
-					console.error(e, this.player._cache, checkpoint)
-				}
-			}
-		}
+	drawHelicopter(t, alpha = this.player._opacity) {
+		t.globalAlpha = alpha;
+		var i = this.dir
+		  , n = this.rotor
+		  , r = this.rotor2
+		  , o = this.scene
+		  , a = o.camera.zoom
+		  , q = new s(this.head.pos.x, this.head.pos.y)
+		  , m = new s(this.mass2.pos.x, this.mass2.pos.y).add(this.mass3.pos).factor(.5)
+		  , h = q.sub(m).factor(a)
+		  , l = new s(-h.y * i,h.x * i)
+		  , c = q.toScreen(o);
+		n += .5 * this.head.motor + .05,
+		n > 6.2831 && (n -= 6.2831),
+		r += .5,
+		r > 6.2831 && (r -= 6.2831),
+		this.rotor = n,
+		this.rotor2 = r,
+		t.strokeStyle = lite.storage.get("theme") == "midnight" ? "#ccc" : lite.storage.get("theme") == "dark" ? "#fff" : "#000",
+		t.lineWidth = 5 * a,
+		t.beginPath(),
+		t.moveTo(c.x + .5 * h.x, c.y + .5 * h.y),
+		t.lineTo(c.x + .8 * h.x, c.y + .8 * h.y),
+		t.stroke(),
+		t.lineWidth = 3 * a,
+		t.beginPath();
+		var u = .9 * Math.cos(n);
+		t.moveTo(c.x + .9 * h.x + l.x * u, c.y + .8 * h.y + l.y * u),
+		t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
+		t.stroke();
+		var p = new s(this.mass2.pos.x, this.mass2.pos.y).toScreen(o)
+			, d = new s(this.mass3.pos.x, this.mass3.pos.y).toScreen(o);
+		t.lineWidth = 4 * a,
+		t.stokeStyle = "#666666",
+		t.beginPath(),
+		t.moveTo(p.x - .2 * l.x - .1 * h.x, p.y - .2 * l.y - .1 * h.y),
+		t.lineTo(p.x - .25 * h.x, p.y - .25 * h.y),
+		t.lineTo(d.x - .25 * h.x, d.y - .25 * h.y),
+		t.lineTo(d.x + .2 * l.x - .1 * h.x, d.y + .2 * l.y - .1 * h.y),
+		t.stroke(),
+		t.lineWidth = 3 * a,
+		t.beginPath(),
+		t.moveTo(p.x - .2 * h.x, p.y - .2 * h.y),
+		t.lineTo(c.x, c.y),
+		t.lineTo(d.x - .2 * h.x, d.y - .2 * h.y),
+		t.stroke(),
+		t.lineWidth = 6 * a,
+		t.stokeStyle = "#000000",
+		t.beginPath();
+		var f = new s(this.mass4.pos.x, this.mass4.pos.y).toScreen(o);
+		t.moveTo(c.x, c.y),
+		t.lineTo(f.x, f.y),
+		t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),
+		t.stroke(),
+		t.lineWidth = 2 * a,
+		t.stokeStyle = "#000000",
+		t.beginPath();
+		var v = 7 * a
+			, g = new s(v * Math.sin(-r),v * Math.cos(-r));
+		t.moveTo(f.x + g.x, f.y + g.y),
+		t.lineTo(f.x - g.x, f.y - g.y),
+		t.moveTo(f.x - g.y, f.y + g.x),
+		t.lineTo(f.x + g.y, f.y - g.x),
+		t.stroke(),
+		t.beginPath(),
+		t.lineWidth = 2 * a,
+		t.arc(f.x, f.y, this.mass4.radius * a, 0, 2 * Math.PI, !1),
+		t.stroke();
+		this.drawCockpit();
+		var m = this.canvasCockpit
+			, y = m.width
+			, w = m.height
+			, x = c.x + 5 * a * this.dir
+			, _ = c.y + 2 * a
+			, b = 0
+			, T = 0
+			, C = y
+			, k = w
+			, S = b * a - C / 2
+			, P = T * a - k / 2
+			, M = this.cockpitAngle
+			, A = -1 === i
+			, D = this.cosmetics
+			, I = GameInventoryManager.getItem(D.head)
+			, E = this.cockpitAngle;
+		I.draw(t, x + 5 * a * i, _ - 5 * a, E, .7 * a, i),
+		t.translate(x, _),
+		t.rotate(M),
+		A && t.scale(1, -1),
+		t.drawImage(m, S, P, C, k),
+		A && t.scale(1, -1),
+		t.rotate(-M),
+		t.translate(-x, -_),
+		t.globalAlpha = 1
 	}
 }

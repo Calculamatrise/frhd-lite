@@ -9,12 +9,16 @@ export default class {
 		this._players = [];
 		this._playerLookup = {};
 	}
-	update() {
+	fixedUpdate() {
 		for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
-			t[i].update()
+			t[i].fixedUpdate()
 
-		for (var t = this._players.filter(player => player.isGhost()), e = t.length, i = 0; e > i; i++)
+		for (var t = this._players.filter(player => player.isGhost() && !player.complete), e = t.length, i = 0; e > i; i++)
 			t[i]._replayIterator.next()
+	}
+	update(progress) {
+		for (var t = this._players, e = t.length, i = 0; e > i; i++)
+			t[i].update(progress)
 	}
 	mutePlayers() {
 		for (var t = this._players, e = t.length, i = 0; e > i; i++) {
@@ -37,9 +41,9 @@ export default class {
 		for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i].checkKeys()
 	}
-	draw() {
-		for (var t = this._players, e = t.length, i = 0; e > i; i++)
-			t[i].draw()
+	draw(ctx) {
+		for (let t of this._players)
+			t.draw(ctx)
 	}
 	getPlayerByIndex(t) {
 		return this._players[t]
@@ -53,6 +57,9 @@ export default class {
 	reset() {
 		for (var t = this._players, e = t.length, i = 0; e > i; i++)
 			t[i].reset()
+
+		for (var t = this._players.filter(player => player.isGhost()), e = t.length, i = 0; e > i; i++)
+			t[i]._replayIterator = t[i].createReplayIterator();
 	}
 	clear() {
 		this._players = [],
