@@ -151,6 +151,11 @@ export default class {
 			t.fixedUpdate(),
 			this._addCheckpoint && (this._createCheckpoint(),
 			this._addCheckpoint = !1)
+			if (!this.isGhost() && this._scene.camera.focusIndex > 0 && (t = this._gamepad.isButtonDown("right") - this._gamepad.isButtonDown("left"))) {
+				let player = this._scene.playerManager.getPlayerByIndex(this._scene.camera.focusIndex);
+				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? this._scene.ticks) + 5 * t); // add option for amount of ticks to skip
+				this._scene.state.playing = false
+			}
 		}
 	}
 	update(progress) {
@@ -246,9 +251,7 @@ export default class {
 		var t = this._gamepad
 		  , e = this._ghost
 		  , i = this._scene;
-		if (!t.isButtonDown("enter") && !t.isButtonDown("backspace") && t.areKeysDown()) {
-			this._cache.length > 0 && (this._cache = []);
-		}
+		!t.isButtonDown("enter") && !t.isButtonDown("backspace") && t.areKeysDown() && this._cache.length > 0 && (this._cache = []);
 		if (t.isButtonDown("shift") && t.isButtonDown("enter")) {
 			var s = t.getButtonDownOccurances("enter");
 			this.returnToCheckpoint(s),
@@ -257,7 +260,7 @@ export default class {
 		if (e === !1 && (t.areKeysDown() && !this._crashed && i.play(),
 		t.isButtonDown("restart") && (i.restartTrack = !0,
 		t.setButtonUp("restart")),
-		(t.isButtonDown("up") || t.isButtonDown("down") || t.isButtonDown("left") || t.isButtonDown("right")) && i.camera.focusOnMainPlayer()),
+		(t.isButtonDown("up") || t.isButtonDown("down") || !i.camera.focusIndex && (t.isButtonDown("left") || t.isButtonDown("right"))) && i.camera.focusOnMainPlayer()),
 		t.isButtonDown("enter") && (this.gotoCheckpoint(),
 		t.setButtonUp("enter")),
 		t.isButtonDown("backspace")) {

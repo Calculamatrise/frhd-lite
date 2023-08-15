@@ -75,12 +75,12 @@ for (const item in defaults) {
 				this.parentElement.setAttribute('tabindex', '0');
 				this.parentElement.focus();
 			});
-			break;
 		}
 
+		case 'inputDisplayOpacity':
 		case 'inputDisplaySize':
 		case 'snapshots': {
-			element.addEventListener("input", function () {
+			element.addEventListener('input', function () {
 				chrome.storage.proxy.local.settings.set(item, this.value);
 				if (this.id === 'bikeFrameColor' && (element = document.querySelector(`#${item}-visible`)) !== null) {
 					element.checked = this.value !== '#000000';
@@ -146,7 +146,9 @@ function restoreSettings(data) {
 				element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
 				break;
 
+			case 'inputDisplayOpacity':
 			case 'inputDisplaySize':
+				console.log(data, data[item], element, element.value)
 				element.value = data[item];
 				element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');
 				element.parentElement.querySelector('.name').innerText = `Input display size (${element.value})`;

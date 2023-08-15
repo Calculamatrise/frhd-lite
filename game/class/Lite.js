@@ -195,6 +195,7 @@ window.lite = new class {
 
 		ctx.save();
 		ctx.fillStyle = fill;
+		ctx.globalAlpha = this.storage.get('inputDisplayOpacity');
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.lineWidth = size / 2;
