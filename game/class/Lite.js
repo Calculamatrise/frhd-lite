@@ -1,4 +1,3 @@
-let styleSheetProxyHandler;
 window.lite = new class {
 	#customStyleSheet = null;
 	featuredGhostsLoaded = false;
@@ -13,20 +12,38 @@ window.lite = new class {
 		}
 	}
 	storage = new Map(Object.entries(JSON.parse(sessionStorage.getItem('lite'))));
-	styleSheet = new Proxy({}, styleSheetProxyHandler = {
-		get(target) {
-			let value = Reflect.get(...arguments);
-			if (typeof value == 'object' && value !== null) {
-				return new Proxy(value, styleSheetProxyHandler)
-			} else if (typeof value == 'function') {
-				value = value.bind(target)
+	styleSheet = new Proxy(new Map(), {
+		get: (...args) => {
+			let [target, property, receiver] = args;
+			let returnValue = Reflect.get(...args);
+			if (typeof returnValue == 'function') {
+				return (...args) => {
+					switch (property) {
+						case 'delete':
+							returnValue = returnValue.apply(target, args);
+							this.updateCustomStyleSheet(this.styleSheet.entries());
+							break;
+						case 'set':
+							let [key, value] = args;
+							returnValue.call(target, key, new Proxy(value, {
+								set: (...args) => {
+									let returnValue = Reflect.set(...args);
+									this.updateCustomStyleSheet(this.styleSheet.entries());
+									return returnValue;
+								}
+							}));
+
+							returnValue = receiver;
+							this.updateCustomStyleSheet(this.styleSheet.entries());
+							break;
+						default:
+							returnValue = returnValue.apply(target, args);
+					}
+
+					return returnValue;
+				}
 			}
 
-			return value;
-		},
-		set() {
-			let returnValue = Reflect.set(...arguments);
-			lite.updateCustomStyleSheet(lite.styleSheet);
 			return returnValue;
 		}
 	});
@@ -41,6 +58,7 @@ window.lite = new class {
 			this.loaded && this.refresh();
 		});
 
+		this.#createCustomStyleSheet();
 		this.childLoad();
 		addEventListener('message', ({ data }) => {
 			if (!data) return;
@@ -58,8 +76,6 @@ window.lite = new class {
 					break;
 			}
 		});
-
-		this.#createCustomStyleSheet();
 	}
 
 	get scene() {
@@ -67,23 +83,21 @@ window.lite = new class {
 	}
 
 	#createCustomStyleSheet() {
-		this.#customStyleSheet = document.body.appendChild(document.createElement('style'));
+		this.#customStyleSheet = document.head.appendChild(document.createElement('style'));
 		this.#customStyleSheet.setAttribute('id', 'frhd-lite-style');
 	}
 
-	updateCustomStyleSheet(textContent) {
-		if (typeof textContent == 'object' && textContent !== null) {
-			const entries = Object.entries(textContent);
-			const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
-			textContent = '';
-			for (let [key, properties] of filteredEntries) {
-				properties = Object.entries(properties);
-				for (let property of properties) {
-					property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
-				}
-
-				textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}';
+	updateCustomStyleSheet(data) {
+		const entries = Array.from(data);
+		const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
+		let textContent = '';
+		for (let [key, properties] of filteredEntries) {
+			properties = Object.entries(properties);
+			for (let property of properties) {
+				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
 			}
+
+			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}';
 		}
 
 		this.#customStyleSheet.textContent = textContent;
@@ -116,10 +130,10 @@ window.lite = new class {
 				case 'theme': {
 					let background = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '1d2328' : this.storage.get('theme') == 'dark' ? '1b' : 'f');
 					GameManager.game.canvas.style.setProperty('background-color', background);
-					this.styleSheet['.gameFocusOverlay'] = {
-						'background-color': GameManager.game.canvas.style.getPropertyValue('background-color').replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
+					this.styleSheet.set('.gameFocusOverlay', {
+						backgroundColor: GameManager.game.canvas.style.getPropertyValue('background-color').replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
 						color: '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'eb' : '2d')
-					}
+					});
 
 					// this.scene.track.powerups.forEach(p => p.outline = /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#FBFBFB' : '#000');
 					this.scene.message.color = /^#(0|3){3,6}$/.test(this.scene.message.color) && /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#ccc' : '#333';
@@ -540,14 +554,15 @@ window.lite = new class {
 	}
 
 	initGhostPlayer() {
-		this.replayGui = this.constructor.createElement('div', {
+		this.replayGui ||= this.constructor.createElement('div', {
 			style: {
+				display: 'none',
 				inset: 0,
 				pointerEvents: 'none',
 				position: 'absolute'
 			}
 		});
-		this.replayGui.progress = this.replayGui.appendChild(this.constructor.createElement('progress', {
+		this.replayGui.progress ||= this.replayGui.appendChild(this.constructor.createElement('progress', {
 			className: 'ghost-player-progress',
 			id: 'replay-seeker',
 			max: 100,
@@ -592,24 +607,16 @@ window.lite = new class {
 				GameManager.game.currentScene.state.playing = this.wasPlaying;
 			}
 		}));
-		let style = this.constructor.createElement('style', {
-			textContent: `
-				.ghost-player-progress::-webkit-progress-value {
-					background-color: hsl(195deg 57% 25%);
-				}
-
-				.ghost-player-progress:hover {
-					cursor: pointer;
-					filter: brightness(1.25);
-					height: 6px !important;
-				}
-			`
+		this.styleSheet.set('.ghost-player-progress::-webkit-progress-value', {
+			backgroundColor: 'hsl(195deg 57% 25%)'
+		}).set('.ghost-player-progress:hover', {
+			cursor: 'pointer',
+			filter: 'brightness(1.25)',
+			height: '6px !important'
 		});
 		// create progress element
-		this.constructor.waitForElm('#game-container > .gameGui').then(gameGui => {
-			let shadowRoot = gameGui.attachShadow({ mode: 'open' });
-			shadowRoot.appendChild(this.replayGui);
-			shadowRoot.appendChild(style);
+		this.constructor.waitForElm('#game-container').then(container => {
+			container.appendChild(this.replayGui);
 		});
 	}
 

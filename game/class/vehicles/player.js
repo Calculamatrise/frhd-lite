@@ -151,11 +151,6 @@ export default class {
 			t.fixedUpdate(),
 			this._addCheckpoint && (this._createCheckpoint(),
 			this._addCheckpoint = !1)
-			if (!this.isGhost() && this._scene.camera.focusIndex > 0 && (t = this._gamepad.isButtonDown("right") - this._gamepad.isButtonDown("left"))) {
-				let player = this._scene.playerManager.getPlayerByIndex(this._scene.camera.focusIndex);
-				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? this._scene.ticks) + 5 * t); // add option for amount of ticks to skip
-				this._scene.state.playing = false
-			}
 		}
 	}
 	update(progress) {
@@ -166,7 +161,7 @@ export default class {
 			t.update(progress)
 		}
 	}
-	*createReplayIterator(nextTick = 1) {
+	*createReplayIterator(nextTick = 0) {
 		const snapshots = new Map();
 		this._gamepad.playbackTicks = 0;
 		while (this.complete === !1) {

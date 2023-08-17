@@ -10,10 +10,10 @@ export default class {
 		this._playerLookup = {};
 	}
 	fixedUpdate() {
-		for (var t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
+		for (var t = this._players.filter(player => !player.complete && !player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i].fixedUpdate()
 
-		for (var t = this._players.filter(player => player.isGhost() && !player.complete), e = t.length, i = 0; e > i; i++)
+		for (var t = this._players.filter(player => !player.complete && player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i]._replayIterator.next()
 	}
 	update(progress) {

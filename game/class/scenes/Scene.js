@@ -119,16 +119,19 @@ export default class {
 		this.toolHandler.resize()
 	}
 	fixedUpdate() {
+		let t, e;
 		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
 		this.mouse.update(),
 		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
 		this.playerManager.checkKeys()),
+		(this.camera.focusIndex > 0 && (t = this.playerManager.firstPlayer._gamepad.downButtons['right'] - this.playerManager.firstPlayer._gamepad.downButtons['left'])) && ((e = this.playerManager.getPlayerByIndex(this.camera.focusIndex)) && e.isGhost() && e._replayIterator.next((e._gamepad.playbackTicks ?? this.ticks) + 5 * t), // add option for amount of ticks to skip
+		this.state.playing = false),
 		this.screen.update(),
 		this.updateControls(),
 		this.camera.update(),
 		this.sound.update(),
 		this.restartTrack && this.restart(),
-		!this.state.paused && this.state.playing && (this.message.update(),
+		!this.state.paused && this.state.playing && !this.camera.focusIndex && (this.message.update(),
 		this.playerManager.fixedUpdate(),
 		this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
 		this.score.update(),
