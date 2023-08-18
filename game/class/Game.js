@@ -94,7 +94,7 @@ window.Game = class {
 		}
 
 		this.currentScene.draw(this.ctx),
-        lite.draw()
+        lite.draw(this.ctx)
     }
 
     switchScene(t) {

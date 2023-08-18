@@ -148,10 +148,10 @@ function restoreSettings(data) {
 
 			case 'inputDisplayOpacity':
 			case 'inputDisplaySize':
-				console.log(data, data[item], element, element.value)
 				element.value = data[item];
 				element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');
-				element.parentElement.querySelector('.name').innerText = `Input display size (${element.value})`;
+				let name = element.parentElement.querySelector('.name');
+				name.innerText = name.innerText.replace(/(?<=\()([\d.]+)(?=\))/, element.value);
 				break;
 
 			case 'keymap': {

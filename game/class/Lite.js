@@ -113,9 +113,12 @@ window.lite = new class {
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
 		location.pathname.match(/^\/t\//i) && (this.initBestDate(),
-		/*this.storage.get('ghostPlayer') && */this.initGhostPlayer());
+		this.initGhostPlayer(),
+		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks());
 		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
-		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
+		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
+		null /* location.pathname.match(new RegExp('^/u/' + Application.settings.user.u_name + '(\/.*)?$', 'i')) && this.initDownloadTracks() */);
+		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
 	}
 
 	updateFromSettings(changes = this.storage) {
@@ -192,81 +195,65 @@ window.lite = new class {
 		}
 	}
 
-	draw() {
-		this.storage.get('inputDisplay') && this.drawInputDisplay(GameManager.game.canvas);
+	draw(ctx) {
+		this.storage.get('inputDisplay') && this.drawInputDisplay(ctx || GameManager.game.canvas.getContext('2d'));
 	}
 
-	drawInputDisplay(canvas = document.createElement('canvas')) {
-		const ctx = canvas.getContext('2d');
-		const color = (condition => condition ? (t => '#'.padEnd(7, t == 'midnight' ? '4' : t == 'dark' ? '0' : 'f'))(this.storage.get('theme')) : fill);
-		const fill = (t => '#'.padEnd(7, t == 'midnight' ? 'd' : t == 'dark' ? 'f' : '0'))(this.storage.get('theme'));
-		const gamepad = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad.downButtons;
-		const size = parseInt(this.storage.get('inputDisplaySize'));
-		const offset = {
+	drawInputDisplay(ctx) {
+		let { downButtons } = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad;
+		let size = parseInt(this.storage.get('inputDisplaySize')) + 3;
+		let offset = {
 			x: size,
-			y: canvas.height - size * 10
+			y: ctx.canvas.height - size * 10
 		}
 
 		ctx.save();
-		ctx.fillStyle = fill;
+		ctx.fillStyle = GameSettings.physicsLineColor;
 		ctx.globalAlpha = this.storage.get('inputDisplayOpacity');
-		ctx.lineCap = 'round';
-		ctx.lineJoin = 'round';
+		// ctx.globalCompositeOperation = 'xor'; // rect stroke/fill overlap
 		ctx.lineWidth = size / 2;
-		ctx.strokeStyle = fill;
+		ctx.strokeStyle = GameSettings.physicsLineColor;
 
 		let borderRadius = size / 2;
 		let buttonSize = size * 4;
 
 		ctx.beginPath();
 		ctx.roundRect(offset.x, offset.y, buttonSize, buttonSize, borderRadius);
+		downButtons.z && ctx.fill();
 		ctx.stroke();
-		gamepad.z && ctx.fill();
 		ctx.beginPath();
 		ctx.roundRect(offset.x + 5 * size, offset.y, buttonSize, buttonSize, borderRadius);
+		downButtons.up && ctx.fill();
 		ctx.stroke();
-		gamepad.up && ctx.fill();
 		ctx.beginPath();
 		ctx.roundRect(offset.x, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
+		downButtons.left && ctx.fill();
 		ctx.stroke();
-		gamepad.left && ctx.fill();
 		ctx.beginPath();
 		ctx.roundRect(offset.x + 5 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
+		downButtons.down && ctx.fill();
 		ctx.stroke();
-		gamepad.down && ctx.fill();
 		ctx.beginPath();
 		ctx.roundRect(offset.x + 10 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
+		downButtons.right && ctx.fill();
 		ctx.stroke();
-		gamepad.right && ctx.fill();
 
+		ctx.globalCompositeOperation = 'xor'; // destination-out
 		ctx.lineWidth = size / 3;
-		ctx.strokeStyle = color(gamepad.z);
 		ctx.beginPath();
 		ctx.moveTo(offset.x + 2.7 * size, offset.y + 3 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 3 * size);
 		ctx.lineTo(offset.x + 2.7 * size, offset.y + 1 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 1 * size);
-		ctx.stroke();
-		ctx.strokeStyle = color(gamepad.up);
-		ctx.beginPath();
 		ctx.moveTo(offset.x + 6.2 * size, offset.y + 2.7 * size);
 		ctx.lineTo(offset.x + 7 * size, offset.y + 1.2 * size);
 		ctx.lineTo(offset.x + 7.8 * size, offset.y + 2.7 * size);
-		ctx.stroke();
-		ctx.strokeStyle = color(gamepad.left);
-		ctx.beginPath();
 		ctx.moveTo(offset.x + 2.5 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 1.2 * size, offset.y + 7 * size);
 		ctx.lineTo(offset.x + 2.5 * size, offset.y + 6.2 * size);
-		ctx.stroke();
-		ctx.strokeStyle = color(gamepad.down);
-		ctx.beginPath();
 		ctx.moveTo(offset.x + 6.2 * size, offset.y + 6.2 * size);
 		ctx.lineTo(offset.x + 7 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 7.8 * size, offset.y + 6.2 * size);
-		ctx.stroke();
-		ctx.strokeStyle = color(gamepad.right);
-		ctx.beginPath();
 		ctx.moveTo(offset.x + 11.5 * size, offset.y + 7.8 * size);
 		ctx.lineTo(offset.x + 12.8 * size, offset.y + 7 * size);
 		ctx.lineTo(offset.x + 11.5 * size, offset.y + 6.2 * size);
@@ -499,6 +486,45 @@ window.lite = new class {
 			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
 				race.setAttribute('title', best_date ?? 'Failed to load');
 			});
+		});
+	}
+
+	async initDownloadTracks() { // download all tracks as zip profile button - maybe add to settings?
+		let subscribeToAuthor = document.querySelector('.subscribe-to-author');
+		let downloadTrack = subscribeToAuthor.cloneNode(true);
+		let subscriberCount = downloadTrack.querySelector('#subscribe_to_author_count');
+		subscriberCount && subscriberCount.remove();
+		let download = downloadTrack.querySelector('#subscribe_to_author');
+		download.removeAttribute('id');
+		download.innerText = 'Download';
+		download.addEventListener('click', () => {
+			this.constructor.downloadTrack(GameSettings.track.id);
+		});
+		subscribeToAuthor.after(downloadTrack);
+
+		let flag = document.querySelector('.track-flag');
+		let save = flag.parentElement.appendChild(document.createElement('a'));
+		save.href = '#';
+		save.innerText = 'Download track';
+		save.addEventListener('click', () => {
+			this.constructor.downloadTrack(GameSettings.track.id);
+		});
+	}
+
+	initRequestTrackData() {
+		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
+		let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
+		requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
+		requestTrackData.style.setProperty('float', 'right');
+		requestTrackData.style.setProperty('font-size', '13px');
+		requestTrackData.style.setProperty('height', 'auto');
+		requestTrackData.style.setProperty('line-height', '23px');
+		requestTrackData.style.setProperty('margin-top', '6px');
+		requestTrackData.style.setProperty('margin-right', '14px');
+		requestTrackData.style.setProperty('padding', '0 1rem');
+		requestTrackData.innerText = 'Request All Data';
+		requestTrackData.addEventListener('click', () => {
+			this.constructor.downloadAllTracks();
 		});
 	}
 
@@ -737,6 +763,46 @@ window.lite = new class {
 
 		Object.assign(element, options);
 		return typeof callback == 'function' && callback(element), element;
+	}
+
+	static downloadTrack(id) {
+		fetch('/track_api/load_track?id=' + id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json()).then(({ data, result }) => {
+			if (!result) return;
+			let { track } = data;
+			let blob = new Blob([track.code], { type: 'text/plain' });
+			let a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = track.title + '-' + track.id;
+			a.click();
+			URL.revokeObjectURL(a.href);
+		});
+	}
+
+	static zipHelperScript = null;
+	static downloadAllTracks() {
+		fetch('/u/' + Application.settings.user.u_name + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
+			if (!this.zipHelperScript) {
+				this.zipHelperScript = document.body.appendChild(document.createElement('script'));
+				this.zipHelperScript.textContent = await fetch('https://raw.githubusercontent.com/Stuk/jszip/main/dist/jszip.min.js').then(r => r.text());
+			}
+
+			let zip = new JSZip();
+			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
+			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
+			for (let track of tracks) {
+				zip.file(track.title + '-' + track.id + '.txt', track.code);
+			}
+
+			zip.generateAsync({ type: 'uint8array' })
+			.then(content => {
+				let blob = new Blob([content], { type: 'application/zip' });
+				let a = document.createElement('a');
+				a.href = URL.createObjectURL(blob);
+				a.download = 'created-tracks';
+				a.click();
+				URL.revokeObjectURL(a.href);
+			});
+		});
 	}
 
 	static waitForElm(selector) {
