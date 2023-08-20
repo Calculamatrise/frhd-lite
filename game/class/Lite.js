@@ -113,11 +113,11 @@ window.lite = new class {
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
 		location.pathname.match(/^\/t\//i) && (this.initBestDate(),
-		this.initGhostPlayer(),
-		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks());
-		this.storage.get('featuredGhostsDisplay') && this.featuredGhostsLoaded || this.initFeaturedGhosts();
-		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
-		null /* location.pathname.match(new RegExp('^/u/' + Application.settings.user.u_name + '(\/.*)?$', 'i')) && this.initDownloadTracks() */);
+		this.initDownloadGhosts(),
+		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
+		this.initGhostPlayer());
+		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts();
+		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
 	}
 
@@ -392,8 +392,18 @@ window.lite = new class {
 	countdown = null;
 	countdownTimer = null;
 	initAchievementsDisplay() {
-		if (this.achievementsContainer) return;
-		this.achievementsContainer = this.constructor.createElement('div', {
+		this.notificationEvent || this.initNotificationEvent();
+		Application.events.subscribe('notification.received', ({ data }) => {
+			if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
+				Application.events.publish('achievementsEarned', data.achievements_earned);
+				// this.refreshAchievements(); // add animation? // refresh everything
+			}
+
+			// console.log('other', e);
+			this.refreshAchievements() // only update percentages // this.updateAchievements?
+		});
+
+		this.achievementsContainer ||= this.constructor.createElement('div', {
 			children: [
 				this.constructor.createElement('a', {
 					children: [
@@ -432,7 +442,7 @@ window.lite = new class {
 			className: 'simplemodal-container',
 			style: {
 				backgroundColor: 'rgb(27 82 100)',
-				backgroundImage: 'linear-gradient(#1B5264,#143F4D)',
+				backgroundImage: 'linear-gradient(transparent, rgb(20, 63, 77))',
 				borderRadius: '1rem',
 				boxShadow: '0px 4px 8px 0px black',
 				color: 'white',
@@ -467,29 +477,56 @@ window.lite = new class {
 			const rightContent = document.querySelector('#right_content');
 			rightContent.prepend(this.achievementsContainer);
 		});
-
-		let refresh = this.refreshAchievements.bind(this);
-		Application.Helpers.AjaxHelper._check_event_notification = function(e) {
-            Object.getPrototypeOf(Application.Helpers.AjaxHelper)._check_event_notification.apply(this, arguments);
-            if ('undefined' != typeof e.data && ('undefined' != typeof e.data.achievements_earned)) {
-                Application.events.publish('achievementsEarned', e.data.achievements_earned);
-                refresh(); // add animation? // refresh everything
-            }
-
-            // console.log('other', e);
-            refresh() // only update percentages
-        }
 	}
 
 	initBestDate() {
-		Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
-			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
-				race.setAttribute('title', best_date ?? 'Failed to load');
+		this.leaderboardEvent || this.initLeaderboardEvent();
+		Application.router.current_view.on('leaderboard.rendered', () => {
+			Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
+				document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
+					race.setAttribute('title', best_date ?? 'Failed to load');
+				});
 			});
 		});
 	}
 
-	async initDownloadTracks() { // download all tracks as zip profile button - maybe add to settings?
+	async initDownloadGhosts() {
+		this.leaderboardEvent || this.initLeaderboardEvent();
+		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' });
+		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
+		Application.router.current_view.on('leaderboard.rendered', () => {
+			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')) {
+				let download = document.createElement('span');
+				download.style.setProperty('background-image', "linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))");
+				download.style.setProperty('clip-path', "polygon(30% 5%, 30% 45%, 10% 45%, 50% 95%, 90% 45%, 70% 45%, 70% 5%)");
+				download.classList.add('core_icons', 'core_icons-btn_add_race');
+				download.title = "Download Race";
+				download.addEventListener('click', function() {
+					Application.Helpers.AjaxHelper.get("/track_api/load_races", {
+						t_id: GameSettings.track.id,
+						u_ids: download.parentElement.parentElement.dataset.u_id
+					}).done(function(response) {
+						if (response.result) {
+							Object.assign(document.createElement('a'), {
+								href: URL.createObjectURL(
+									new Blob([JSON.stringify(response.data[0].race)], {
+										type: 'application/json'
+									})
+								),
+								download: "frhd_ghost_" + GameSettings.track.id
+							}).click();
+						}
+					});
+				});
+
+				actionRow.style.setProperty('width', '20%');
+				actionRow.prepend(download);
+				actionRow.textContent.length > 0 && actionRow.replaceChildren(...actionRow.children);
+			}
+		});
+	}
+
+	async initDownloadTracks() {
 		let subscribeToAuthor = document.querySelector('.subscribe-to-author');
 		let downloadTrack = subscribeToAuthor.cloneNode(true);
 		let subscriberCount = downloadTrack.querySelector('#subscribe_to_author_count');
@@ -501,71 +538,35 @@ window.lite = new class {
 			this.constructor.downloadTrack(GameSettings.track.id);
 		});
 		subscribeToAuthor.after(downloadTrack);
-
-		let flag = document.querySelector('.track-flag');
-		let save = flag.parentElement.appendChild(document.createElement('a'));
-		save.href = '#';
-		save.innerText = 'Download track';
-		save.addEventListener('click', () => {
-			this.constructor.downloadTrack(GameSettings.track.id);
-		});
 	}
 
-	initRequestTrackData() {
-		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
-		let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
-		requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
-		requestTrackData.style.setProperty('float', 'right');
-		requestTrackData.style.setProperty('font-size', '13px');
-		requestTrackData.style.setProperty('height', 'auto');
-		requestTrackData.style.setProperty('line-height', '23px');
-		requestTrackData.style.setProperty('margin-top', '6px');
-		requestTrackData.style.setProperty('margin-right', '14px');
-		requestTrackData.style.setProperty('padding', '0 1rem');
-		requestTrackData.innerText = 'Request All Data';
-		requestTrackData.addEventListener('click', () => {
-			this.constructor.downloadAllTracks();
-		});
-	}
-
-	featuredGhosts = null
+	featuredGhosts = null;
 	initFeaturedGhosts() {
-		const render_leaderboards = Application.Views.TrackView.prototype._render_leaderboards;
-		Application.Views.TrackView.prototype._render_leaderboards = async function(n) {
-			render_leaderboards.apply(this, arguments);
-			lite.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
+		this.leaderboardEvent || this.initLeaderboardEvent();
+		Application.router.current_view.on('leaderboard.rendered', async ({ track_leaderboard }) => {
+			this.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
 			const matches = Object.fromEntries(Object.entries(lite.featuredGhosts).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
 			for (const player in matches) {
 				for (const ghost in matches[player]) {
 					let name = ghost.split('/r/')[1];
-					if (name.length > 15) {
-						name = name.slice(0, 12) + "...";
-					}
-
-					const races = Array.from(document.getElementsByClassName("track-leaderboard-race"));
-					for (const element of races.filter(({ innerText }) => name == innerText.toLowerCase())) {
-						let color = [232, 169, 35];
+					for (const row of document.querySelectorAll('.track-page .track-leaderboard .track-leaderboard-race-row[data-d_name="' + name + '" i]')) {
+						let hue = 10;
 						switch(matches[player][ghost]) {
-							case 'fast': color = [120, 200, 200]; break;
-							case 'vehicle': color = [240, 200, 80]; break;
-							case 'trick': color = [160, 240, 40]; break;
+							case 'fast': hue = 180; break;
+							case 'vehicle': hue = 40; break;
+							case 'trick': hue = 120;
 						}
 
-						const container = element.parentElement.parentElement;
-						container.style.setProperty('background-color', `rgba(${color.join(',')},0.4)`);
-						const actions = container.querySelector(".track-leaderboard-action");
-						if (actions) {
-							actions.setAttribute('class', 'core_icons core_icons-icon_featured_badge featured');
-							actions.style.setProperty('width', '24px');
-							for (const action of actions.children) {
-								action.style.setProperty('opacity', 0);
-							}
-						}
+						let num = row.querySelector('.num');
+						num.classList.add('core_icons', 'core_icons-icon_featured_badge');
+						num.classList.remove('num');
+						num.innerText = null;
+						num.setAttribute('title', 'Featured');
+						row.style.setProperty('background-color', `hsl(${hue}deg 60% 50% / 40%)`);
 					}
 				}
 			}
-		}
-		this.featuredGhostsLoaded = true;
+		});
 	}
 
 	initFriendsLastPlayed() {
@@ -646,9 +647,49 @@ window.lite = new class {
 		});
 	}
 
+	leaderboardEvent = null;
+	initLeaderboardEvent() {
+		const render_leaderboards = this.leaderboardEvent = Application.Views.TrackView.prototype._render_leaderboards;
+		Application.Views.TrackView.prototype._render_leaderboards = function(e) {
+			render_leaderboards.apply(this, arguments);
+			e.result && (this.trigger('leaderboard.rendered', ...arguments),
+			Application.events.publish('leaderboard.rendered', ...arguments));
+		}
+	}
+
+	notificationEvent = null;
+	initNotificationEvent() {
+		const prototype = Object.getPrototypeOf(Application.Helpers.AjaxHelper);
+		const check_event_notification = this.notificationEvent = prototype._check_event_notification;
+		prototype._check_event_notification = function(e) {
+			check_event_notification.apply(this, arguments);
+			e.result && Application.events.publish('notification.received', ...arguments);
+		}
+
+		Object.setPrototypeOf(Application.Helpers.AjaxHelper, prototype);
+	}
+
+	initRequestTrackData() {
+		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
+		let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
+		requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
+		requestTrackData.style.setProperty('float', 'right');
+		requestTrackData.style.setProperty('font-size', '13px');
+		requestTrackData.style.setProperty('height', 'auto');
+		requestTrackData.style.setProperty('line-height', '23px');
+		requestTrackData.style.setProperty('margin-top', '6px');
+		requestTrackData.style.setProperty('margin-right', '14px');
+		requestTrackData.style.setProperty('padding', '0 1rem');
+		requestTrackData.innerText = 'Request All Data';
+		requestTrackData.addEventListener('click', () => {
+			this.constructor.downloadAllTracks();
+		});
+	}
+
 	refreshAchievements() {
-		return fetch("/achievements?ajax").then(r => r.json()).then(response => {
-			this.achievements.replaceChildren(...response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
+		return fetch("/achievements?ajax").then(r => r.json()).then(async response => {
+			let children = await Promise.all(response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
+			this.achievements.replaceChildren(...children);
 			return response;
 		});
 	}
@@ -695,40 +736,96 @@ window.lite = new class {
 		return container;
 	}
 
-	static createProgressElement(achievement) {
+	static async createProgressElement(achievement) {
 		let container = this.createElement('div', {
 			children: [
-				this.createElement('a', {
+				this.createElement('div', {
 					children: [
-						this.createElement('b', {
-							innerText: achievement.title
-						}),
-						this.createElement('h6', {
-							innerText: achievement.desc,
+						this.createElement('span', {
+							className: 'achievements-coin store_icons store_icons-coin_icon_lg achievement-coin-value',
+							innerText: achievement.coins,
 							style: {
-								color: 'darkgray',
-								fontFamily: 'roboto_bold',
-								margin: 0
+								lineHeight: '45px',
+								textAlign: 'center',
+								textShadow: '0 -1px 1px #9E8500'
 							}
+						}),
+						this.createElement('div', {
+							children: [
+								this.createElement('a', {
+									className: 'title',
+									children: [
+										this.createElement('b', {
+											innerText: achievement.title
+										})
+									],
+									href: await (description => {
+										switch (description) {
+											case 'Buy 1 item from the shop':
+												return 'store/gear';
+											case 'Complete 1 friend race':
+											case 'Win 5 friend(s) race':
+												return Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name).then(async ({ friends }) => {
+													if (friends.friend_cnt > 0) {
+														let track;
+														for (let friend of friends.friends_data) {
+															if (track = await Application.Helpers.AjaxHelper.get('u/' + friend.u_name).then(({ recently_ghosted_tracks: { tracks }}) => {
+																return tracks[Math.floor(Math.random() * tracks.length)];
+															})) {
+																return track;
+															}
+														}
+													}
+
+													return 'random/track';
+												});
+											case 'Improve 5 best times':
+											case 'Send 5 friend race challenges':
+												return Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name).then(({ recently_ghosted_tracks: { tracks }}) => {
+													let track = tracks[Math.floor(Math.random() * tracks.length)];
+													return track ? track.slug : 'random/track';
+												});
+											default:
+												return 'random/track';
+										}
+									})(achievement.desc),
+									style: {
+										width: '-webkit-fill-available'
+									}
+								}),
+								this.createElement('h6', {
+									className: 'achievement-info-desc condensed',
+									innerText: achievement.desc,
+									style: {
+										color: 'darkgray',
+										fontFamily: 'roboto_bold',
+										margin: 0
+									}
+								})
+							],
+							className: 'achievement-info'
 						})
 					],
-					href: '',
 					style: {
-						width: '-webkit-fill-available'
+						alignItems: 'center',
+						display: 'flex',
+						gap: '0.5rem'
 					}
 				}),
 				// achievement.coins
 				this.createElement('span', {
-					innerText: achievement.current, // achievement.progress // achievement.current + '/' + achievement.max
+					innerText: achievement.progress, // achievement.current, // achievement.progress // achievement.current + '/' + achievement.max
 					style: {
-						fontFamily: 'helsinki',
-						fontSize: '2rem'
+						// fontFamily: 'helsinki',
+						fontSize: '1.25rem'
 					}
 				})
 			],
+			className: 'achievement-info',
 			style: {
+				alignItems: 'center',
 				display: 'flex',
-				gap: '0.25rem'
+				justifyContent: 'space-between'
 			}
 		});
 	
