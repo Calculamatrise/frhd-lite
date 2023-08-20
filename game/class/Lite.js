@@ -115,7 +115,8 @@ window.lite = new class {
 		location.pathname.match(/^\/t\//i) && (this.initBestDate(),
 		this.initDownloadGhosts(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
-		this.initGhostPlayer());
+		this.initGhostPlayer(),
+		this.storage.get('uploadGhosts') && this.initUploadGhosts());
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts();
 		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
@@ -505,16 +506,22 @@ window.lite = new class {
 					Application.Helpers.AjaxHelper.get("/track_api/load_races", {
 						t_id: GameSettings.track.id,
 						u_ids: download.parentElement.parentElement.dataset.u_id
-					}).done(function(response) {
-						if (response.result) {
-							Object.assign(document.createElement('a'), {
-								href: URL.createObjectURL(
-									new Blob([JSON.stringify(response.data[0].race)], {
-										type: 'application/json'
-									})
-								),
-								download: "frhd_ghost_" + GameSettings.track.id
-							}).click();
+					}).done(function(res) {
+						if (res.result) {
+							let [data] = res.data;
+							data = Object.assign(data.race, {
+								t_id: GameSettings.track.id,
+								u_id: data.user.u_id
+							});
+							let download = document.createElement('a');
+							download.setAttribute('download', 'frhd_ghost_' + GameSettings.track.id);
+							download.setAttribute('href', URL.createObjectURL(
+								new Blob([JSON.stringify(data, null, 4)], {
+									type: 'application/json'
+								})
+							));
+							download.click();
+							URL.revokeObjectURL(download.getAttribute('href'));
 						}
 					});
 				});
@@ -684,6 +691,141 @@ window.lite = new class {
 		requestTrackData.addEventListener('click', () => {
 			this.constructor.downloadAllTracks();
 		});
+	}
+
+	ghostUploadDialog = null;
+	initUploadGhosts() {
+		this.ghostUploadDialog ||= document.body.appendChild(this.constructor.createElement('dialog', {
+			children: [
+				this.constructor.createElement('div', {
+					children: [
+						this.constructor.createElement('span', {
+							className: 'editorDialog-close',
+							innerText: '×',
+							onclick: () => {
+								this.ghostUploadDialog.close();
+							}
+						}),
+						this.constructor.createElement('h1', {
+							className: 'editorDialog-content-title',
+							innerText: 'UPLOAD GHOST'
+						})
+					],
+					className: 'editorDialog-titleBar'
+				}),
+				this.constructor.createElement('div', {
+					children: [
+						this.constructor.createElement('span', {
+							children: [
+								this.constructor.createElement('span', {
+									innerText: 'Paste ghost data, drag and drop text files here, or '
+								}),
+								this.constructor.createElement('span', {
+									className: 'link',
+									innerText: 'select a file',
+									onclick: () => {
+										this.ghostUploadPicker.click();
+									}
+								}),
+								this.constructor.createElement('span', {
+									innerText: ' to import'
+								}),
+								this.ghostUploadPicker ||= this.constructor.createElement('input', {
+									accept: 'application/json',
+									type: 'file',
+									style: {
+										display: 'none'
+									},
+									oninput: async event => {
+										let [file] = event.target.files;
+										let race = JSON.parse(await file.text());
+										if (race.t_id !== GameSettings.track.id) {
+											return;
+										} else if (race.u_id !== Application.settings.user.u_id) {
+											return;
+										}
+
+										delete race['t_id'];
+										delete race['u_id'];
+										Application.Helpers.AjaxHelper.post("/track_api/track_run_complete", {
+											t_id: GameSettings.track.id,
+											u_id: Application.User.attributes.u_id,
+											code: race.code,
+											vehicle: race.vehicle,
+											run_ticks: race.run_ticks,
+											fps: 25,
+											time: (ticks => {
+												let t = ticks / 30 * 1e3;
+												t = parseInt(t, 10);
+												let e = Math.floor(t / 6e4)
+												, i = (t - 6e4 * e) / 1e3;
+												return i = i.toFixed(2),
+													10 > e && (e = e),
+													10 > i && (i = "0" + i),
+													e + ":" + i
+											})(race.run_ticks),
+											sig: await (async message => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message)))).map(b => b.toString(16).padStart(2, '0')).join(''))(`${GameSettings.track.id}|${Application.User.attributes.u_id}|${race.code}|${+race.run_ticks}|${race.vehicle}|25|erxrHHcksIHHksktt8933XhwlstTekz`)
+										}).done(function(response) {
+											if (response.result) {
+												Application.router.current_view.refresh_leaderboard();
+												Application.router.current_view.highlightLeaderboad();
+												setTimeout(refreshlb, 1000);
+											}
+										});
+									}
+								})
+							],
+							className: 'importDialog-placeholder'
+						}),
+						this.constructor.createElement('textarea', {
+							autocomplete: false,
+							className: 'importDialog-code',
+							spellcheck: false
+						})
+					],
+					className: 'importDialog-codeContainer'
+				}),
+				this.constructor.createElement('div', {
+					children: [
+						this.constructor.createElement('button', {
+							className: 'primary-button primary-button-blue float-right margin-0-5',
+							innerText: 'Upload'
+						}),
+						this.constructor.createElement('button', {
+							className: 'primary-button primary-button-black float-right margin-0-5',
+							innerText: 'Cancel',
+							onclick: () => {
+								this.ghostUploadDialog.close()
+							}
+						})
+					],
+					className: 'editorDialog-bottomBar clearfix'
+				})
+			],
+			className: 'editorDialog-content editorDialog-content_importDialog',
+			style: {
+				margin: 'revert',
+				padding: 0,
+				position: 'revert',
+				top: 'revert'
+			}
+		}));
+
+		this.constructor.waitForElm('#friends-leaderboard-challenge').then(challenge => {
+			if (!this.ghostUploadButton) {
+				this.ghostUploadButton = challenge.cloneNode(true);
+				this.ghostUploadButton.classList.add('button-type-1');
+				this.ghostUploadButton.classList.remove('button-type-2');
+				this.ghostUploadButton.style.setProperty('margin-top', 0);
+				this.ghostUploadButton.removeAttribute('id');
+				this.ghostUploadButton.innerText = 'Upload Ghost';
+				this.ghostUploadButton.addEventListener('click', () => {
+					this.ghostUploadDialog.showModal();
+				})
+			}
+
+			challenge.after(this.ghostUploadButton);
+		})
 	}
 
 	refreshAchievements() {
