@@ -238,7 +238,7 @@ export default class {
 		this.updateOpacity();
 		let t = this._baseVehicle;
 		this._tempVehicleTicks > 0 && (t = this._tempVehicle),
-		this._effectTicks > 0 && this._effect.draw(this._effectTicks / 100),
+		this._effectTicks > 0 && this._effect.draw(ctx, this._effectTicks / 100),
 		t.draw(ctx),
 		this.isGhost() && this.drawName(ctx)
 	}

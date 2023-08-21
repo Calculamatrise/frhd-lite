@@ -13,13 +13,12 @@ export default class {
 		this.positionX = t.x;
 		this.positionY = t.y;
 	}
-	draw(t) {
+	draw(l, t) {
 		var e = this.time
 			, i = this.positionX
 			, s = this.positionY
 			, n = this.scene.camera.zoom
-			, h = this.scene.screen
-			, l = this.scene.game.canvas.getContext("2d");
+			, h = this.scene.screen;
 		if (l.globalAlpha = t,
 		e > 0) {
 			e -= 10;
@@ -44,7 +43,7 @@ export default class {
 		}
 		var m = this.masses;
 		for (var y in m)
-			m[y].draw();
+			m[y].draw(l);
 		l.globalAlpha = 1,
 		this.time = e
 	}

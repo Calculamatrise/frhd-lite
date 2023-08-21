@@ -37,9 +37,9 @@ export default class extends Mass {
 	}
 	fixedUpdate() {
 		this.angle += this.speed,
-		super.update()
+		super.fixedUpdate()
 	}
-	draw() {
+	draw(d) {
 		var t = this.scene.screen
 		, e = this.scene.camera
 		, i = t.realToScreen(this.pos.x, "x")
@@ -49,8 +49,7 @@ export default class extends Mass {
 		, o = this.angle
 		, c = l[0] * r * this.radius
 		, u = i + c * Math.cos(o)
-		, p = s + c * Math.sin(o)
-		, d = this.scene.game.canvas.getContext("2d");
+		, p = s + c * Math.sin(o);
 		for (d.lineWidth = 1 * r,
 		d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" && "#fbfbfb" || "#000",
 		d.beginPath(),

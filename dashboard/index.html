@@ -1,28 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard - FRHD | Calculamatrise</title>
-    <link rel="stylesheet" href="/popup/style.css">
-    <link rel="stylesheet" href="/dashboard/style.css">
-    <script type="module" src="/dashboard/script.js" defer></script>
+	<title>Admin Dashboard - FRHD | Calculamatrise</title>
+	<link rel="stylesheet" href="/popup/style.css">
+	<link rel="stylesheet" href="/dashboard/style.css">
+	<script type="module" src="/dashboard/script.js" defer></script>
 </head>
 <body>
-    <main style="padding: 0 0.5rem">
-        <section caption="users">
-            <div class="dropdown">
-                <input type="text" id="u_name" placeholder="Search" style="width: -webkit-fill-available">
-                <main id="u_name-search-results"></main>
-            </div><br>
-            <div style="width: max-content;">
-                <input type="text" id="n_name" placeholder="new username">
-                <button id="change-u_name">Change username</button>
-            </div>
-            <div style="width: max-content;">
-                <input type="email" id="n_mailbox" placeholder="new email">
-                <button id="change-u_mailbox">Change email</button>
-            </div>
-            <span id="result"></span>
-        </section>
-    </main>
+	<main>
+		<section caption="featured ghosts">
+			<div class="ofg-actions">
+				<button id="check-features">Check features</button>
+				<progress min="0" value="0" style="display: none;"></progress>
+			</div>
+			<span id="result"></span>
+			<dialog method="dialog" id="featured-ghosts">
+				<form method="dialog">
+					<h3>Select stolen ghosts</h3>
+					<div class="max-width" id="stolen-ghosts"></div>
+					<textarea class="fill-available" id="data" placeholder="No changes made" rows="6" style="font-size: small;margin-top: 1em;" readonly></textarea>
+					<div class="flex max-width">
+						<button value="default">Close</button>
+					</div>
+				</form>
+			</dialog>
+		</section>
+		<section caption="tracks">
+			<div class="dropdown">
+				<input type="text" class="fill-available" id="t_title" placeholder="Search">
+				<main id="t_title-search-results"></main>
+			</div>
+			<div class="track-actions">
+				<button id="add-to-totd" style="grid-column: span 2;">Add to track of the day</button>
+				<button id="feature-track">Feature</button>
+				<button id="hide-track">Hide</button>
+			</div>
+			<span id="result"></span>
+			<dialog id="add-totd">
+				<h3>Add track of the day</h3>
+				<form method="dialog">
+					<div class="flex max-width" style="flex-direction: column;">
+						<input type="number" name="lives" id="lives" placeholder="Lives">
+						<input type="number" name="refill-cost" id="refill-cost" placeholder="Refill Cost">
+						<input type="number" name="gems" id="gems" placeholder="Gems">
+						<input type="date" name="date" id="date">
+					</div><br>
+					<div class="flex max-width">
+						<button value="cancel">Cancel</button>
+						<button value="default">Submit</button>
+					</div>
+				</form>
+			</dialog>
+		</section>
+		<section caption="users">
+			<div class="dropdown">
+				<input type="text" class="fill-available" id="u_name" placeholder="Search">
+				<main id="u_name-search-results"></main>
+			</div>
+			<div class="flex max-width">
+				<input type="text" id="n_name" placeholder="new username">
+				<button id="change-u_name">Change username</button>
+			</div>
+			<div class="flex max-width">
+				<input type="email" id="n_mailbox" placeholder="new email">
+				<button id="change-u_mailbox">Change email</button>
+			</div>
+			<span id="result"></span>
+		</section>
+	</main>
 </body>
 </html>

@@ -126,12 +126,10 @@ window.lite = new class {
 		if (!this.scene) return;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
-				case 'keymap': {
+				case 'keymap':
 					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 					break;
-				}
-
-				case 'theme': {
+				case 'theme':
 					let background = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '1d2328' : this.storage.get('theme') == 'dark' ? '1b' : 'f');
 					GameManager.game.canvas.style.setProperty('background-color', background);
 					this.styleSheet.set('.gameFocusOverlay', {
@@ -172,12 +170,9 @@ window.lite = new class {
 					GameSettings.sceneryLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '4' : this.storage.get('theme') == 'dark' ? '6' : 'a');
 					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '20282e' : this.storage.get('theme') == 'dark' ? '25' : 'e');
 					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '161b20' : this.storage.get('theme') == 'dark' ? '3e' : 'c');
-				}
-
-				case 'isometricGrid': {
+				case 'isometricGrid':
 					this.scene.redraw();
 					break;
-				}
 			}
 		}
 

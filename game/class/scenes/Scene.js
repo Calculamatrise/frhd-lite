@@ -118,12 +118,11 @@ export default class {
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()
 	}
+	updateToolHandler() {
+		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update()
+	}
 	fixedUpdate() {
 		let t, e;
-		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update(),
-		this.mouse.update(),
-		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
-		this.playerManager.checkKeys()),
 		(this.camera.focusIndex > 0 && (t = this.playerManager.firstPlayer._gamepad.downButtons['right'] - this.playerManager.firstPlayer._gamepad.downButtons['left'])) && ((e = this.playerManager.getPlayerByIndex(this.camera.focusIndex)) && e.isGhost() && e._replayIterator.next((e._gamepad.playbackTicks ?? this.ticks) + 5 * t), /* add option for amount of ticks to skip */
 		this.state.playing = false),
 		this.screen.update(),

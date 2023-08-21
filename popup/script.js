@@ -145,7 +145,6 @@ function restoreSettings(data) {
 				element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
 				element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
 				break;
-
 			case 'inputDisplayOpacity':
 			case 'inputDisplaySize':
 				element.value = data[item];
@@ -153,7 +152,6 @@ function restoreSettings(data) {
 				let name = element.parentElement.querySelector('.name');
 				name.innerText = name.innerText.replace(/(?<=\()([\d.]+)(?=\))/, element.value);
 				break;
-
 			case 'keymap': {
 				let action = document.querySelector('#keybind-action');
 				let entries = document.querySelector('#keybind-entries');
@@ -195,11 +193,9 @@ function restoreSettings(data) {
 				element.parentElement.classList[data.playerTrail ? 'remove' : 'add']('disabled');
 				element.parentElement.querySelector(".name").innerText = `Snapshot count (${element.value})`;
 				break;
-
 			case 'theme':
 				(element = document.getElementById(data[item])) && (element.checked = true);
 				break;
-
 			default:
 				element && element.type === 'checkbox' && (element.checked = data[item]);
 		}

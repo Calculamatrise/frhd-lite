@@ -165,7 +165,11 @@ export default class extends Scene {
 		t.setTool("Camera")
 	}
 	fixedUpdate() {
-		this.ready ? (super.fixedUpdate(),
+		this.ready ? (this.updateToolHandler(),
+		this.mouse.update(),
+		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
+		this.playerManager.checkKeys()),
+		super.fixedUpdate(),
 		this.updateScore()) : this.importCode && this.createTrack()
 	}
 	draw(ctx) {

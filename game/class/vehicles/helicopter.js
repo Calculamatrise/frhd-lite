@@ -216,7 +216,7 @@ export default class extends Vehicle {
 	}
 	draw(ctx) {
 		if (this.explosion)
-			this.explosion.draw(1);
+			this.explosion.draw(ctx, 1);
 		else {
 			ctx.imageSmoothingEnabled = !0,
 			ctx.webkitImageSmoothingEnabled = !0,

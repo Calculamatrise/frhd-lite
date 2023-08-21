@@ -140,7 +140,7 @@ export default class extends Vehicle {
 	}
 	draw(t) {
 		if (this.explosion)
-			this.explosion.draw(1);
+			this.explosion.draw(t, 1);
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
