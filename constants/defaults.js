@@ -5,7 +5,7 @@ export default {
     featuredGhostsDisplay: true,
     inputDisplay: true,
 	inputDisplayOpacity: 1,
-    inputDisplaySize: 8,
+    inputDisplaySize: 5,
     isometricGrid: false,
     keymap: {},
     playerTrail: false,

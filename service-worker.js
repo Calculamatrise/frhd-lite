@@ -20,42 +20,39 @@ const contentScripts = [{
 }];
 
 chrome.runtime.onInstalled.addListener(function() {
-	chrome.scripting.registerContentScripts(contentScripts);
-    // minify the game on install and save it in cache...
-    chrome.storage.local.get(({ enabled = true, settings = null }) => {
-        chrome.storage.local.set({
-            enabled,
-            badges: true,
-            settings: Object.assign(defaults, settings)
-        });
-        setIcon({ enabled });
-    });
+	chrome.storage.local.get(({ enabled = true, settings = null }) => {
+		chrome.storage.local.set({
+			enabled,
+			badges: true,
+			settings: Object.assign(defaults, settings)
+		});
+	});
 });
 
 chrome.runtime.onStartup.addListener(function() {
-    chrome.storage.local.get(setIcon);
+	chrome.storage.local.get(setState);
 });
 
 chrome.storage.local.onChanged.addListener(function({ enabled }) {
-    enabled && setIcon({ enabled: enabled.newValue });
+	enabled && setState({ enabled: enabled.newValue });
 });
 
 self.addEventListener('activate', function() {
-    chrome.storage.local.get(setIcon);
+	chrome.storage.local.get(setState);
 });
 
-function setIcon({ enabled }) {
+async function setState({ enabled }) {
 	const path = size => `/icons/${enabled ? '' : 'disabled/'}icon_${size}.png`
-    chrome.action.setIcon({
-        path: {
+	chrome.action.setIcon({
+		path: {
 			16: path(16),
 			48: path(48),
 			128: path(128)
 		}
-    });
+	});
 
 	enabled ? chrome.scripting.getRegisteredContentScripts().then(scripts => scripts.length > 0 || chrome.scripting.registerContentScripts(contentScripts)) : chrome.scripting.unregisterContentScripts();
 	chrome.declarativeNetRequest.updateEnabledRulesets({
-		[(enabled ? 'en' : 'dis') + "ableRulesetIds"]: ["frhd-assets"]
+		[(enabled ? 'en' : 'dis') + "ableRulesetIds"]: await chrome.declarativeNetRequest.getEnabledRulesets()
 	});
 }
