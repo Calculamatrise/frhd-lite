@@ -4,6 +4,24 @@
 	}
 }
 
+@keyframes slide {
+	to {
+		left: 0;
+	}
+}
+
+:root {
+	--accent-color: #161b1f;
+	--background-color: #1d2328;
+	--border-color: hsl(200deg 40% 25% / 50%);
+	--text-color: #fdfdfd;
+	color-scheme: dark;
+}
+
+::placeholder {
+	color: hsl(200deg 10% 50% / 50%);
+}
+
 ::-webkit-scrollbar {
 	height: 8px;
 	width: 8px;
@@ -31,14 +49,6 @@
 	background-color: #3d4953;
 }
 
-:root {
-	--accent-color: #161b1f;
-	--background-color: #1d2328;
-	--border-color: #1b526466;
-	--text-color: #fdfdfd;
-	color-scheme: dark;
-}
-
 html {
 	background-color: var(--background-color);
 	color: var(--text-color);
@@ -52,8 +62,8 @@ body {
 	width: 200px;
 }
 
-#state {
-	color: rgba(255, 255, 255, 0.5);
+#state, .danger, .safe {
+	color: hsl(0deg 0% 100% / 50%);
 	transition: all 200ms;
 }
 
@@ -85,46 +95,66 @@ body {
 	content: "Click to disable";
 }
 
-#state:hover:active {
+#state.update-available::before {
+	content: "Update";
+}
+
+#state.update-available:hover::before {
+	content: "Click to update";
+}
+
+#state:hover:active, .danger:hover:active, .safe:hover:active {
 	backdrop-filter: brightness(0.5);
 }
 
-body > nav {
-	border-bottom: 1px solid rgba(27, 82, 100, 0.4);
+body > .view > nav {
+	border-bottom: 1px solid var(--border-color);
 	display: grid;
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
 	padding-bottom: 0.5rem;
 	margin-bottom: 0.5rem;
 }
 
-body > nav:has(> :nth-child(4)) {
+body > .view > nav:has(> :nth-child(4)) {
 	grid-template-columns: repeat(2, 1fr);
 }
 
-button.tab, label.tab {
+button, details > summary, label {
 	-webkit-user-select: none;
 	background-color: transparent;
 	border: none;
-	border-radius: 5px;
-	color: hsl(200deg 40% 40% / 50%);
+	border-radius: 8px;
+	color: hsl(200deg 100% 90% / 50%);
+	/* color: hsl(0deg 0% 100% / 75%); */
+	display: block;
 	overflow: hidden;
 	padding: 0.5rem 1rem;
 	position: relative;
+	user-select: none;
+}
+
+button.tab, details.tab > summary, details > summary.tab, label.tab {
+	border-radius: 5px;
+	/* color: hsl(0deg 0% 100% / 50%); */
+	color: hsl(200deg 40% 75% / 50%);
 	text-align: center;
 	text-transform: capitalize;
-	user-select: none;
 	width: -webkit-fill-available;
 }
 
-div[style="display: flex;"] > .tab.notification {
-	padding-right: 2rem !important;
+details.tab > summary {
+	list-style: none;
+}
+
+.notification {
+	padding-right: 2rem;
 }
 
 .notification::after {
 	background-color: crimson;
 	border-radius: 0.25rem;
 	bottom: 0;
-	color: #fbfbfb;
+	color: var(--text-color);
 	content: "!";
 	font-family: system-ui;
 	font-size: 0.75rem;
@@ -139,18 +169,42 @@ div[style="display: flex;"] > .tab.notification {
 	top: 0;
 }
 
-section.tab {
+body:has(> div.alt.view) {
+	max-width: 100%;
+	max-width: -webkit-fill-available;
+}
+
+body:has(> div.alt.view > input:checked) {
+	translate: -50%;
+}
+
+body:has(> div.alt.view > input:checked) > :not(div.alt.view) {
+	display: none !important;
+}
+
+/* div.alt.view {
+	animation: slide 0.5s forwards;
+	background-color: var(--background-color);
+	bottom: 0;
+	box-sizing: border-box;
+	left: 100%;
+	position: absolute;
+	top: 0;
+	width: 100%;
+} */
+
+div.details {
 	display: none;
 	padding: 0.25rem;
 	font-size: small;
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
 }
 
-section.tab > input:is([type="checkbox"], [type="radio"]) {
+div.details > input:is([type="checkbox"], [type="radio"]) {
 	display: none;
 }
 
-section.tab:has(> input:is([type="checkbox"], [type="radio"]):checked) {
+div.details:has(> input:is([type="checkbox"], [type="radio"]):checked) {
 	display: block !important;
 }
 
@@ -159,19 +213,6 @@ section.tab:has(> input:is([type="checkbox"], [type="radio"]):checked) {
 	opacity: .5;
 	pointer-events: none;
 	user-select: none;
-}
-
-button, label {
-	background-color: #ffffff00;
-	border: none;
-	border-radius: 8px;
-	color: hsl(200deg 40% 25%);
-	display: block;
-	overflow: hidden;
-	padding: 0.5rem 1rem;
-	position: relative;
-	user-select: none;
-	-webkit-user-select: none;
 }
 
 label > * {
@@ -184,7 +225,7 @@ label input:is([type="checkbox"], [type="color"], [type="radio"]):first-child {
 	vertical-align: middle;
 }
 
-label:hover, button:hover, .keybind:hover {
+label:hover, button:hover, details.tab > summary:hover, details > summary.tab:hover, .keybind:hover {
 	backdrop-filter: brightness(0.8);
 	/* background:rgba(0, 0, 0, .2); */
 	cursor: pointer;
@@ -207,38 +248,25 @@ label input:is([type="checkbox"], [type="radio"]):checked {
 	transition: all .2s;
 }
 
-label input[type="color"]::-webkit-textfield-decoration-container {
-	-webkit-appearance: none;
-	appearance: none;
-}
-
 label input[type="color"] {
-	-webkit-appearance: none;
-	appearance: none;
-	border: initial;
-	box-sizing: border-box;
+	border: none;
 	border-radius: 2px;
+	bottom: 0;
 	height: 13px;
+	left: 0;
 	overflow: hidden;
-	padding: initial;
-	position: relative;
+	padding: 0;
+	position: absolute;
 	visibility: hidden;
 	width: 13px;
 }
 
-label input[type="color"]::after {
-	background-color: inherit;
-	bottom: 0;
-	content: "";
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: 0;
-	/* visibility: visible; */
+label input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
 }
 
-input::placeholder {
-	color: hsl(0deg 0% 50% / 50%);
+label input[type="color"]::-webkit-color-swatch {
+	border: none;
 }
 
 input:is([type="date"], [type="email"], [type="number"], [type="password"], [type="text"]),
@@ -349,16 +377,16 @@ table tbody tr td {
 	content: "Not set";
 }
 
-section.tab:has(> #keybinds) table tbody tr td:nth-child(1) {
+div.details:has(> #keybinds) table tbody tr td:nth-child(1) {
 	color: #808080dd;
 }
 
-:is([data-shift-key] .keybind, section.tab:has(> #keybinds) table tbody tr td:nth-child(1)):hover {
+:is([data-shift-key] .keybind, div.details:has(> #keybinds) table tbody tr td:nth-child(1)):hover {
 	background-color: rgb(218, 34, 34, .2);
 	color: transparent;
 }
 
-:is([data-shift-key] .keybind, section.tab:has(> #keybinds) table tbody tr td:nth-child(1)):hover::before {
+:is([data-shift-key] .keybind, div.details:has(> #keybinds) table tbody tr td:nth-child(1)):hover::before {
 	color: #ffffff80;
 	content: "Clear";
 	position: absolute;
@@ -375,25 +403,25 @@ section.tab:has(> #keybinds) table tbody tr td:nth-child(1) {
 }
 
 .dropdown:empty {
-display: none;
+	display: none;
 }
 
 .dropdown > main {
-background-color: var(--accent-color);
-box-shadow: 0 0 20px -10px var(--border-color);
-display: block;
-flex-direction: column;
-max-height: 0;
-overflow-y: auto;
-position: absolute;
-z-index: 1;
+	background-color: var(--accent-color);
+	box-shadow: 0 0 20px -10px var(--border-color);
+	display: block;
+	flex-direction: column;
+	max-height: 0;
+	overflow-y: auto;
+	position: absolute;
+	z-index: 1;
 }
 
 .dropdown:is(:hover, :focus-within) > main {
-height: auto;
-max-height: 100vh;
-border-radius: 5px;
-transition: max-height .25s ease-in;
+	height: auto;
+	max-height: 100vh;
+	border-radius: 5px;
+	transition: max-height .25s ease-in;
 }
 
 .dropdown:is(:hover, :focus-within) > * {
@@ -451,15 +479,12 @@ button.loading {
 	border-color: white !important;
 	border-bottom-color: transparent !important;
 	border-radius: 50%;
-	bottom: 0;
 	content: "";
 	height: 0;
-	left: 0;
+	inset: 0;
 	margin: auto;
 	padding: 0.25rem;
 	position: absolute;
-	right: 0;
-	top: 0;
 	width: 0;
 }
 

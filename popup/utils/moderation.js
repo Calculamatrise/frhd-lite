@@ -1,6 +1,6 @@
 import AjaxHelper from "../../utils/AjaxHelper.js";
 
-const nav = document.querySelector('body > nav');
+const nav = document.body.querySelector('nav');
 export const dashboard = document.createElement("label");
 dashboard.classList.add('tab', 'ripple');
 dashboard.innerText = 'Dashboard';

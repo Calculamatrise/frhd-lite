@@ -1,6 +1,19 @@
 import "../utils/Storage.js";
 import defaults from "../constants/defaults.js";
 
+const state = document.querySelector('#state');
+state.addEventListener('click', function () {
+	if (this.classList.contains('update-available')) {
+		return chrome.runtime.reload();
+	}
+
+	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'));
+});
+
+chrome.runtime.onUpdateAvailable.addListener(function({ version }) {
+	state.classList.add('update-available');
+});
+
 chrome.storage.local.onChanged.addListener(function ({ enabled, settings }) {
 	settings && restoreSettings(settings.newValue);
 	enabled && setState(enabled.newValue);
@@ -34,18 +47,8 @@ chrome.storage.session.get(async ({ isModerator = null }) => {
 		return;
 	}
 
-	isModerator = await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(({ user }) => user && user.moderator).catch(console.warn);
+	isModerator = await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(({ user }) => user && (user.admin || user.moderator || /^(blacktux|(pre)?calculus)$/.test(user.u_name))).catch(console.warn);
 	chrome.storage.session.set({ isModerator });
-});
-
-const toggleState = document.querySelector('#state');
-toggleState.addEventListener('click', function () {
-	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'));
-});
-
-const showAdvanced = document.querySelector('#advanced-options');
-showAdvanced.addEventListener('change', function () {
-	this.checked && this.parentElement.scrollIntoView({ behavior: "smooth" });
 });
 
 const resetSettings = document.querySelector('#reset-settings');
@@ -64,12 +67,11 @@ for (const item in defaults) {
 			element.parentElement.addEventListener('focusout', function () {
 				this.removeAttribute('tabindex');
 			});
-			element.addEventListener('click', function () {
-				this.style.setProperty('display', 'block');
+			element.addEventListener('click', function (event) {
 				if (this.parentElement.hasAttribute('tabindex')) {
-					this.style.setProperty('display', 'none');
-					setTimeout(() => this.style.setProperty('display', 'block'), 1);
-					return this.parentElement.removeAttribute('tabindex');
+					event.preventDefault();
+					this.parentElement.removeAttribute('tabindex');
+					return;
 				}
 
 				this.parentElement.setAttribute('tabindex', '0');
@@ -132,8 +134,7 @@ document.documentElement.addEventListener('pointerdown', function (event) {
 });
 
 function setState(enabled) {
-	let state = document.querySelector('#state');
-	state && state.classList[enabled ? 'add' : 'remove']('enabled');
+	state.classList[enabled ? 'add' : 'remove']('enabled');
 	return enabled;
 }
 
@@ -150,7 +151,7 @@ function restoreSettings(data) {
 				element.value = data[item];
 				element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');
 				let name = element.parentElement.querySelector('.name');
-				name.innerText = name.innerText.replace(/(?<=\()([\d.]+)(?=\))/, element.value);
+				name.textContent = name.textContent.replace(/(?<=\()([\d.]+)(?=\))/, element.value);
 				break;
 			case 'keymap': {
 				let action = document.querySelector('#keybind-action');

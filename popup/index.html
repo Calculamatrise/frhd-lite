@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8"/>
 	<title>Free Rider Lite</title>
 	<link rel="stylesheet" href="style.css">
 	<script type="module" src="script.js" defer></script>
 </head>
 <body>
-	<button class="tab" id="state"></button>
-	<nav>
-		<label for="options" class="tab ripple">Options</label>
-		<label for="keybinds" class="tab ripple notification">Keybinds</label>
-		<label for="themes" class="tab ripple">Themes</label>
-	</nav>
-	<main>
-		<section class="tab">
+	<div class="view">
+		<button class="tab" id="state"></button>
+		<nav>
+			<label for="options" class="tab ripple">Options</label>
+			<label for="keybinds" class="tab ripple">Keybinds</label>
+			<label for="themes" class="tab ripple">Themes</label>
+		</nav>
+		<div class="details">
 			<input type="radio" name="nav" id="options" checked>
 			<label class="ripple" title="Display the last 15 snapshots of your rider">
 				<input type="checkbox" id="playerTrail">
@@ -32,21 +31,15 @@
 				<input type="checkbox" id="isometricGrid">
 				<span>Isometric grid</span>
 			</label>
-			<!-- <label for="color-scheme-options" class="tab ripple">Colour scheme options</label>
-			<section class="tab">
-				<input type="checkbox" id="color-scheme-options">
-				<label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor" style="position: absolute;visibility: hidden;">Bike frame colour</label>
-				<label for="bikeTireColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor" style="position: absolute;visibility: hidden;">Bike tire colour</label>
-			</section> -->
-			<label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: rgba(0, 0, 0, 0.2);mix-blend-mode: exclusion;">
-				<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor" style="position: absolute;visibility: hidden;">
-				<span>Bike frame colour</span>
-			</label>
-			<label for="advanced-options" class="tab ripple">Show advanced options</label>
-			<section class="tab">
-				<input type="checkbox" id="advanced-options">
+			<details>
+				<summary class="tab ripple">Colour scheme options</summary>
+				<label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor">Bike frame colour</label>
+				<label for="bikeTireColor" class="disabled focus ripple" title="Customize your bike's tires" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor">Bike tire colour</label>
+			</details>
+			<details>
+				<summary class="tab ripple">Show advanced options</summary>
 				<label title="Change the size of the input display">
 					<span class="name">Input display size (5)</span>
 					<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="5" value="5" style="width: -webkit-fill-available">
@@ -55,18 +48,18 @@
 					<span class="name">Input display opacity (1)</span>
 					<input type="range" class="override-pointer-events" id="inputDisplayOpacity" min="0.1" max="1" value="1" step="0.1" style="width: -webkit-fill-available">
 				</label>
-				<!-- <label title="Change the size of the input display">
+				<!-- <label title="Change the time skipped in the ghost player">
 					<span class="name">Ghost player skip time (5)</span>
-					<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="10" value="5" style="width: -webkit-fill-available">
+					<input type="range" class="override-pointer-events" id="inputDisplaySize" min="5" max="15" value="5" step="5" style="width: -webkit-fill-available">
 				</label> -->
 				<label title="Change the number of snaphsots shown on checkpoints">
 					<span class="name">Snapshot Count (10)</span>
 					<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
 				</label>
 				<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
-			</section>
-		</section>
-		<section class="tab">
+			</details>
+		</div>
+		<div class="details">
 			<input type="radio" name="nav" id="keybinds">
 			<div class="keybind-wrapper">
 				<select id="keybind-action">
@@ -88,8 +81,8 @@
 				width: -webkit-fill-available;
 			">Save</button><br>
 			<div id="keybind-entries"></div>
-		</section>
-		<section class="tab">
+		</div>
+		<div class="details">
 			<input type="radio" name="nav" id="themes">
 			<label class="ripple">
 				<input type="radio" name="theme" id="auto">
@@ -111,8 +104,8 @@
 				<input type="radio" name="theme" id="darker" title="Why do I even bother?">
 				<span>Darker</span>
 			</label>
-		</section>
-		<section class="tab">
+		</div>
+		<div class="details">
 			<input type="radio" name="nav" id="dashboard">
 			<div class="dropdown">
 				<input type="text" id="query" placeholder="Search" style="width: -webkit-fill-available">
@@ -127,7 +120,32 @@
 				<button class="tab ripple" id="change-email" style="text-align: left;width: -webkit-fill-available">Change Email</button>
 				<button class="tab ripple" id="toggle-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
 			</section>
-		</section>
-	</main>
+		</div>
+	</div>
+	<!-- <div class="alt details view">
+		<input type="radio" name="nav" id="dashboard">
+		<label for="options" class="tab ripple">←</label>
+		<nav>
+			<label for="featured-ghosts" class="tab ripple">Featured Ghosts</label>
+			<label for="tracks" class="tab ripple">Tracks</label>
+			<label for="users" class="tab ripple">Users</label>
+		</nav>
+		<div class="details">
+			<input type="radio" name="nav" id="featured-ghosts">
+			<div class="dropdown">
+				<input type="text" id="query" placeholder="Search" style="width: -webkit-fill-available">
+				<main style="position: relative;"></main>
+			</div>
+			<section id="moderation-actions-against-users" style="display: none;padding-top: 1rem;">
+				<div style="align-items: center;display: flex;">
+					<button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
+					<button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
+				</div>
+				<button class="tab ripple" id="change-username" style="text-align: left;width: -webkit-fill-available">Change Username</button>
+				<button class="tab ripple" id="change-email" style="text-align: left;width: -webkit-fill-available">Change Email</button>
+				<button class="tab ripple" id="toggle-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
+			</section>
+		</div>
+	</div> -->
 </body>
 </html>

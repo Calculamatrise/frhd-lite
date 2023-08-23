@@ -1,6 +1,27 @@
 import "../../utils/Storage.js";
 import AjaxHelper from "../../utils/AjaxHelper.js";
 
+chrome.storage.session.onChanged.addListener(function ({ isModerator }) {
+	isModerator && init(!isModerator.newValue);
+});
+
+chrome.storage.session.get(async ({ isModerator = null }) => {
+	if (isModerator !== null) {
+		init(!isModerator);
+		return;
+	}
+
+	isModerator = await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(({ user }) => user && (user.admin || user.moderator || /^(blacktux|(pre)?calculus)$/.test(user.u_name))).catch(console.warn);
+	chrome.storage.session.set({ isModerator });
+});
+
+let response = document.querySelector('body > pre');
+let main = document.querySelector('body > main');
+function init(replace) {
+	replace ? (document.body.replaceChildren(response)) : document.body.replaceChildren(main);
+	document.body.style.removeProperty('display');
+}
+
 setupSection(document.querySelector('section[caption="featured ghosts"]'), ['check-features']);
 setupSection(document.querySelector('section[caption="tracks"]'), ['add-to-totd', 'feature-track', 'hide-track']);
 setupSection(document.querySelector('section[caption="users"]'), ['change-u_mailbox', 'change-u_name', 'u_name']);
