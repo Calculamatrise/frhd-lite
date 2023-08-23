@@ -69,7 +69,7 @@ export default class extends Powerup {
 		s.restore()
 	}
 	collide(t) {
-		var e = t.parent
+		let e = t.parent
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , o = t.pos.y - this.y

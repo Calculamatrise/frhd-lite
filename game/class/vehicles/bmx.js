@@ -16,8 +16,8 @@ export default class extends bike {
 	createMasses(t, e) {
 		this.masses = [];
 		var i = new n(new Vector(t.x,t.y - 36), this)
-			, r = new a(new Vector(t.x + 21,t.y + 3), this)
-			, o = new a(new Vector(t.x + -21,t.y + 3), this);
+		  , r = new a(new Vector(t.x + 21,t.y + 3), this)
+		  , o = new a(new Vector(t.x + -21,t.y + 3), this);
 		i.drive = this.createRagdoll.bind(this),
 		o.radius = 11.7,
 		r.radius = 11.7,

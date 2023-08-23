@@ -137,7 +137,7 @@ export default class {
 	}
 	fixedUpdate() {
 		if (this.complete === !1) {
-			let t = this._baseVehicle, e = {};
+			let t = this._baseVehicle;
 			this._temp_vehicle_options && this.createTempVehicle(),
 			this._tempVehicleTicks > 0 && (t = this._tempVehicle,
 			this._crashed === !1 && this._tempVehicleTicks--,
@@ -149,7 +149,7 @@ export default class {
 			this._effect.fixedUpdate()),
 			lite.storage.get("playerTrail") && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
 			t.fixedUpdate(),
-			this._addCheckpoint && (this._createCheckpoint(),
+			this._addCheckpoint && (this.isAlive() && this._createCheckpoint(),
 			this._addCheckpoint = !1)
 		}
 	}
