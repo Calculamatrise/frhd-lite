@@ -62,6 +62,35 @@ body {
 	width: 200px;
 }
 
+body > .view {
+	display: inline-block;
+	min-width: 200px;
+}
+
+body:has(> div.alt.view) {
+	display: flex;
+	gap: 1.25rem;
+}
+
+body:has(> div.alt.view > input:checked) {
+	translate: -100vw;
+}
+
+/* body:has(> div.alt.view > input:checked) > :not(div.alt.view) {
+	display: none !important;
+} */
+
+/* div.alt.view {
+	animation: slide 0.5s forwards;
+	background-color: var(--background-color);
+	bottom: 0;
+	box-sizing: border-box;
+	left: 100%;
+	position: fixed;
+	top: 0;
+	width: 100%;
+} */
+
 #state, .danger, .safe {
 	color: hsl(0deg 0% 100% / 50%);
 	transition: all 200ms;
@@ -119,21 +148,23 @@ body > .view > nav:has(> :nth-child(4)) {
 	grid-template-columns: repeat(2, 1fr);
 }
 
-button, details > summary, label {
+a.button, button, details > summary, label {
 	-webkit-user-select: none;
 	background-color: transparent;
 	border: none;
 	border-radius: 8px;
+	box-sizing: border-box;
 	color: hsl(200deg 100% 90% / 50%);
 	/* color: hsl(0deg 0% 100% / 75%); */
 	display: block;
 	overflow: hidden;
 	padding: 0.5rem 1rem;
 	position: relative;
+	text-decoration: none;
 	user-select: none;
 }
 
-button.tab, details.tab > summary, details > summary.tab, label.tab {
+a.tab, button.tab, details.tab > summary, details > summary.tab, label.tab {
 	border-radius: 5px;
 	/* color: hsl(0deg 0% 100% / 50%); */
 	color: hsl(200deg 40% 75% / 50%);
@@ -144,6 +175,12 @@ button.tab, details.tab > summary, details > summary.tab, label.tab {
 
 details.tab > summary {
 	list-style: none;
+}
+
+a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hover, details > summary.tab:hover, .keybind:hover {
+	backdrop-filter: brightness(0.8);
+	/* background:rgba(0, 0, 0, .2); */
+	cursor: pointer;
 }
 
 .notification {
@@ -168,30 +205,6 @@ details.tab > summary {
 	right: 0.4rem;
 	top: 0;
 }
-
-body:has(> div.alt.view) {
-	max-width: 100%;
-	max-width: -webkit-fill-available;
-}
-
-body:has(> div.alt.view > input:checked) {
-	translate: -50%;
-}
-
-body:has(> div.alt.view > input:checked) > :not(div.alt.view) {
-	display: none !important;
-}
-
-/* div.alt.view {
-	animation: slide 0.5s forwards;
-	background-color: var(--background-color);
-	bottom: 0;
-	box-sizing: border-box;
-	left: 100%;
-	position: absolute;
-	top: 0;
-	width: 100%;
-} */
 
 div.details {
 	display: none;

@@ -34,9 +34,13 @@
 			<details>
 				<summary class="tab ripple">Colour scheme options</summary>
 				<label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor">Bike frame colour</label>
+					<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor">
+					<span>Bike frame colour</span>
+				</label>
 				<label for="bikeTireColor" class="disabled focus ripple" title="Customize your bike's tires" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor">Bike tire colour</label>
+					<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor">
+					<span>Bike tire colour</span>
+				</label>
 			</details>
 			<details>
 				<summary class="tab ripple">Show advanced options</summary>
@@ -86,7 +90,7 @@
 			<input type="radio" name="nav" id="themes">
 			<label class="ripple">
 				<input type="radio" name="theme" id="auto">
-				<span>Device theme</span>
+				<span>System theme</span>
 			</label>
 			<label class="ripple">
 				<input type="radio" name="theme" id="light" checked>
@@ -105,47 +109,68 @@
 				<span>Darker</span>
 			</label>
 		</div>
-		<div class="details">
-			<input type="radio" name="nav" id="dashboard">
-			<div class="dropdown">
-				<input type="text" id="query" placeholder="Search" style="width: -webkit-fill-available">
-				<main style="position: relative;"></main>
-			</div>
-			<section id="moderation-actions-against-users" style="display: none;padding-top: 1rem;">
-				<div style="align-items: center;display: flex;">
-					<button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
-					<button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
-				</div>
-				<button class="tab ripple" id="change-username" style="text-align: left;width: -webkit-fill-available">Change Username</button>
-				<button class="tab ripple" id="change-email" style="text-align: left;width: -webkit-fill-available">Change Email</button>
-				<button class="tab ripple" id="toggle-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
-			</section>
-		</div>
 	</div>
-	<!-- <div class="alt details view">
+	<div class="alt details view">
 		<input type="radio" name="nav" id="dashboard">
-		<label for="options" class="tab ripple">←</label>
+		<div style="display: flex;">
+			<label for="options" class="tab ripple" style="width: 25%;">&larr;</label>
+			<h3 style="margin: auto;text-align: center;width: -webkit-fill-available;">Admin Panel</h3>
+			<a href="/dashboard/index.html" target="_blank" class="button tab" style="width: 25%;">&#129125;</a>
+		</div>
 		<nav>
-			<label for="featured-ghosts" class="tab ripple">Featured Ghosts</label>
-			<label for="tracks" class="tab ripple">Tracks</label>
-			<label for="users" class="tab ripple">Users</label>
+			<label for="featured-ghosts-dashboard" class="tab ripple">Featured Ghosts</label>
+			<label for="tracks-dashboard" class="tab ripple">Tracks</label>
+			<label for="users-dashboard" class="tab ripple">Users</label>
 		</nav>
 		<div class="details">
-			<input type="radio" name="nav" id="featured-ghosts">
+			<input type="radio" name="alt-nav" id="featured-ghosts-dashboard">
+			<button class="tab" id="check-features">Check Features</button>
+			<progress value="0" style="display: none;width: 100%;"></progress>
+			<details id="result" style="display: none;">
+				<summary class="tab">Result</summary>
+				<div id="stolen-ghosts" style="font-size: smaller;text-overflow: ellipsis;white-space: nowrap;"></div>
+				<textarea rows="6" style="font-size: smaller;margin-top: 0.5em;resize: none;width: -webkit-fill-available;" readonly></textarea>
+			</details>
+		</div>
+		<div class="details">
+			<input type="radio" name="alt-nav" id="tracks-dashboard">
+			<pre style="font-size: initial;word-wrap: break-word;white-space: pre-wrap;">418 I'm a teapot</pre>
+		</div>
+		<div class="details">
+			<input type="radio" name="alt-nav" id="users-dashboard" checked>
 			<div class="dropdown">
-				<input type="text" id="query" placeholder="Search" style="width: -webkit-fill-available">
+				<div style="display: flex;">
+					<input type="text" id="uname-query" placeholder="Search" size="2" style="width: -webkit-fill-available">
+					<button id="uname-add" style="min-width: fit-content;">Add</button>
+				</div>
 				<main style="position: relative;"></main>
 			</div>
-			<section id="moderation-actions-against-users" style="display: none;padding-top: 1rem;">
+			<div id="users" style="margin: 0.5rem 0;"></div>
+			<div id="moderation-actions-against-users" style="display: none;padding-top: 1rem;">
 				<div style="align-items: center;display: flex;">
 					<button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
 					<button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
 				</div>
-				<button class="tab ripple" id="change-username" style="text-align: left;width: -webkit-fill-available">Change Username</button>
-				<button class="tab ripple" id="change-email" style="text-align: left;width: -webkit-fill-available">Change Email</button>
+				<button class="tab ripple" id="change-uname" style="text-align: left;width: -webkit-fill-available">Change Username</button>
+				<button class="tab ripple" id="change-uemail" style="text-align: left;width: -webkit-fill-available">Change Email</button>
 				<button class="tab ripple" id="toggle-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
-			</section>
+			</div>
+			<template id="user-actions">
+				<details open>
+					<summary class="tab" id="dname" style="text-align: left;"><button style="bottom: 0;position: absolute;right: 0;top: 0;">&Cross;</button></summary>
+					<div class="actions" style="margin: 0.25rem 0;">
+						<div style="align-items: center;display: flex;">
+							<button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
+							<button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
+						</div>
+						<button class="tab ripple" id="change-uemail" style="text-align: left;width: -webkit-fill-available">Change Email</button>
+						<button class="tab ripple" id="change-uname" style="text-align: left;width: -webkit-fill-available">Change Username</button>
+						<button class="tab ripple" id="set-official-author" style="text-align: left;width: -webkit-fill-available">Toggle Official Author</button>
+					</div>
+					<span id="result"></span>
+				</details>
+			</template>
 		</div>
-	</div> -->
+	</div>
 </body>
 </html>

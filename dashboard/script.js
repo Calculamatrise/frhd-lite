@@ -23,7 +23,7 @@ function init(replace) {
 }
 
 setupSection(document.querySelector('section[caption="featured ghosts"]'), ['check-features']);
-setupSection(document.querySelector('section[caption="tracks"]'), ['add-to-totd', 'feature-track', 'hide-track']);
+setupSection(document.querySelector('section[caption="tracks"]'), ['add-to-totd', 'feature-track', 'hide-track', 't_title']);
 setupSection(document.querySelector('section[caption="users"]'), ['change-u_mailbox', 'change-u_name', 'u_name']);
 
 function setupSection(section, identifiers) {
@@ -46,7 +46,7 @@ function setupSection(section, identifiers) {
 					if (event.target.returnValue !== 'default') return;
 					this.classList.add('loading');
 					await AjaxHelper.post("/moderator/add_track_of_the_day", {
-						t_id: t_id.valueAsNumber,
+						t_id: t_id.value,
 						lives: lives.valueAsNumber,
 						rfll_cst: refillCost.valueAsNumber,
 						gems: gems.valueAsNumber,
@@ -248,7 +248,7 @@ function setupSection(section, identifiers) {
 				let t_id = section.querySelector('#t_title');
 				element.addEventListener('click', async function() {
 					this.classList.add('loading');
-					await AjaxHelper.get("/track_api/feature_track/" + t_id.valueAsNumber + "/1").then(res => {
+					await AjaxHelper.get("/track_api/feature_track/" + t_id.value + "/1").then(res => {
 						if (res.result !== true || res.result === false) {
 							throw new Error(res.msg ?? "Something went wrong! Please try again.");
 						}
@@ -272,7 +272,7 @@ function setupSection(section, identifiers) {
 				let t_id = section.querySelector('#t_title');
 				element.addEventListener('click', async function() {
 					this.classList.add('loading');
-					await AjaxHelper.get("/moderator/hide_track/" + t_id.valueAsNumber).then(res => {
+					await AjaxHelper.get("/moderator/hide_track/" + t_id.value).then(res => {
 						if (res.result !== true || res.result === false) {
 							throw new Error(res.msg ?? "Something went wrong! Please try again.");
 						}
@@ -288,6 +288,17 @@ function setupSection(section, identifiers) {
 						});
 					});
 					this.classList.remove('loading');
+				});
+				break;
+			}
+
+			case 't_title': {
+				let dropdown = section.querySelector('#t_title-search-results');
+				element.addEventListener('input', async function() {
+					dropdown.replaceChildren(...await AjaxHelper.trackSearch(this.value, track => {
+						this.value = parseInt(track.slug);
+						dropdown.replaceChildren();
+					}));
 				});
 				break;
 			}
