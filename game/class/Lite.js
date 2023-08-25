@@ -283,7 +283,7 @@ window.lite = new class {
 						}
 					}),
 					this.constructor.createElement("div", {
-						children: (JSON.parse(localStorage.getItem("switcher-accounts")) ?? []).map((account) => this.constructor.createAccountContainer(account)),
+						children: (JSON.parse(localStorage.getItem("switcher-accounts")) ?? []).map(account => this.constructor.createAccountContainer(account)),
 						id: "accounts-container",
 						style: {
 							display: 'flex',
@@ -297,7 +297,7 @@ window.lite = new class {
 						onclick() {
 							if (document.querySelector("div#login-container")) {
 								this.innerText = "Add account";
-								this.classList.remove("moderator-remove-race");
+								this.style.removeProperty("background-image");
 								document.querySelector("div#login-container").remove();
 								return;
 							}
@@ -326,7 +326,10 @@ window.lite = new class {
 										className: "new-button button-type-1",
 										innerText: "Save account",
 										onclick() {
-											Application.Helpers.AjaxHelper.post("/auth/standard_login", { login: document.querySelector("#save-account-login")?.value, password: document.querySelector("#save-account-password")?.value }).done((response) => {
+											Application.Helpers.AjaxHelper.post("/auth/standard_login", {
+												login: document.querySelector("#save-account-login")?.value,
+												password: document.querySelector("#save-account-password")?.value
+											}).done((response) => {
 												if (response.result) {
 													let accounts = JSON.parse(localStorage.getItem("switcher-accounts")) || [];
 													if (accounts.find(({ login }) => login === response.data.user.d_name)) {
@@ -346,7 +349,7 @@ window.lite = new class {
 										}
 									})
 								],
-								id: "login-container",
+								id: 'login-container',
 								style: {
 									display: 'flex',
 									flexDirection: 'column',
@@ -354,7 +357,7 @@ window.lite = new class {
 									marginTop: '1rem'
 								}
 							}));
-							this.classList.add("moderator-remove-race");
+							this.style.setProperty('background-image', 'linear-gradient(#ee5f5b,#c43c35)');
 							this.innerText = "Cancel";
 						}
 					})
@@ -478,10 +481,13 @@ window.lite = new class {
 	initBestDate() {
 		this.leaderboardEvent || this.initLeaderboardEvent();
 		Application.router.current_view.on('leaderboard.rendered', () => {
-			Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
-				document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
-					race.setAttribute('title', best_date ?? 'Failed to load');
-				});
+			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
+				race.setAttribute('title', 'Loading...');
+				race.addEventListener('mouseover', event => {
+					Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
+						event.target.setAttribute('title', best_date ?? 'Failed to load');
+					});
+				}, { once: true });
 			});
 		});
 	}
@@ -902,11 +908,11 @@ window.lite = new class {
 												return 'store/gear';
 											case 'Complete 1 friend race':
 											case 'Win 5 friend(s) race':
-												return Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name).then(async ({ friends }) => {
+												return fetch('/u/' + Application.settings.user.u_name).then(r => r.json()).then(async ({ friends }) => {
 													if (friends.friend_cnt > 0) {
 														let track;
 														for (let friend of friends.friends_data) {
-															if (track = await Application.Helpers.AjaxHelper.get('u/' + friend.u_name).then(({ recently_ghosted_tracks: { tracks }}) => {
+															if (track = await fetch('/u/' + friend.u_name).then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
 																return tracks[Math.floor(Math.random() * tracks.length)];
 															})) {
 																return track;
@@ -918,7 +924,7 @@ window.lite = new class {
 												});
 											case 'Improve 5 best times':
 											case 'Send 5 friend race challenges':
-												return Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name).then(({ recently_ghosted_tracks: { tracks }}) => {
+												return fetch('/u/' + Application.settings.user.u_name).then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
 													let track = tracks[Math.floor(Math.random() * tracks.length)];
 													return track ? track.slug : 'random/track';
 												});

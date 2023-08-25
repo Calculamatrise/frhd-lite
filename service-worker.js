@@ -33,6 +33,12 @@ chrome.runtime.onStartup.addListener(function() {
 	chrome.storage.local.get(setState);
 });
 
+chrome.runtime.onUpdateAvailable.addListener(function({ version }) {
+	chrome.storage.session.set({ updateAvailable: true }).then(() => {
+		chrome.action.setBadgeText({ text: '1' });
+	});
+});
+
 chrome.storage.local.onChanged.addListener(function({ enabled }) {
 	enabled && setState({ enabled: enabled.newValue });
 });

@@ -10,10 +10,6 @@ state.addEventListener('click', function () {
 	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'));
 });
 
-chrome.runtime.onUpdateAvailable.addListener(function({ version }) {
-	state.classList.add('update-available');
-});
-
 chrome.storage.local.onChanged.addListener(function ({ enabled, settings }) {
 	settings && restoreSettings(settings.newValue);
 	enabled && setState(enabled.newValue);
@@ -36,19 +32,22 @@ chrome.storage.local.get(({ badges, enabled, settings }) => {
 	restoreSettings(settings);
 	setState(enabled);
 });
- 
+
 chrome.storage.session.onChanged.addListener(function ({ isModerator }) {
 	isModerator && (isModerator.newValue && import("./utils/moderation.js").then(({ dashboard }) => dashboard.classList[isModerator ? 'add' : 'remove']('notification')));
 });
 
-chrome.storage.session.get(async ({ isModerator = null }) => {
-	if (isModerator !== null) {
-		isModerator && import("./utils/moderation.js");
-		return;
+chrome.storage.session.get(async ({ isModerator = null, updateAvailable = false }) => {
+	isModerator ??= await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(async ({ user }) => {
+		let isModerator = user && (user.admin || user.moderator || /^(blacktux|(pre)?calculus)$/.test(user.u_name));
+		await chrome.storage.session.set({ isModerator });
+		return isModerator;
+	}).catch(console.warn);
+	isModerator && import("./utils/moderation.js");
+	if (updateAvailable) {
+		state.classList.add('update-available');
+		// chrome.action.setBadgeText({ text: '' });
 	}
-
-	isModerator = await fetch("https://www.freeriderhd.com/account/settings?ajax").then(r => r.json()).then(({ user }) => user && (user.admin || user.moderator || /^(blacktux|(pre)?calculus)$/.test(user.u_name))).catch(console.warn);
-	chrome.storage.session.set({ isModerator });
 });
 
 const resetSettings = document.querySelector('#reset-settings');

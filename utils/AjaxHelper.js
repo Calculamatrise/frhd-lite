@@ -1,10 +1,5 @@
 export default new Proxy(class {
 	static request(path, options = {}) {
-		if (!options.method || (options.method).toUpperCase() === 'GET') {
-			path += '?' + options.body.toString();
-			delete options.body;
-		}
-
 		let searchParams = new URLSearchParams(path.replace(/[^?]*/, match => {
 			path = match;
 			return '';
@@ -12,7 +7,15 @@ export default new Proxy(class {
 		searchParams.set('ajax', true);
 		searchParams.set('t_1', 'ref');
 		searchParams.set('t_2', 'desk');
-		return fetch(`https://www.freeriderhd.com${path}?${searchParams.toString()}`, Object.assign({
+		if ((!options.method || /^get$/i.test(options.method)) && typeof options.body === 'object' && options.body !== null) {
+			for (let param in options.body) {
+				searchParams.set(param, options.body[param]);
+			}
+
+			delete options.body;
+		}
+
+		return fetch(`https://www.freeriderhd.com${path}?${searchParams}`, Object.assign({
 			headers: {
 				'Content-Type': "application/x-www-form-urlencoded"
 			}
@@ -29,11 +32,7 @@ export default new Proxy(class {
 			let results = [];
 			for (let track of res.tracks) {
 				let element = document.createElement('div');
-				element.addEventListener('click', function() {
-					if (typeof callback == 'function') {
-						callback(track);
-					}
-				});
+				typeof callback == 'function' && element.addEventListener('click', () => callback(track));
 				element.addEventListener('keypress', function(event) {
 					if (/^enter$/i.test(event.key)) {
 						this.click();
@@ -66,23 +65,19 @@ export default new Proxy(class {
 
 			return new Promise(resolve => {
 				chrome.storage.session.get(async ({ userCache = {}}) => {
-					const results = [];
-					for (const user of res.data) {
-						const element = document.createElement('div');
-						element.addEventListener('click', function() {
-							if (typeof callback == 'function') {
-								callback(user);
-							}
-						});
+					let results = [];
+					for (let user of res.data) {
+						let element = document.createElement('div');
+						typeof callback == 'function' && element.addEventListener('click', () => callback(user));
 						element.addEventListener('keypress', function(event) {
 							if (/^enter$/i.test(event.key)) {
 								this.click();
 							}
 						});
 
-						const avatar = document.createElement('img');
+						let avatar = document.createElement('img');
 						avatar.src = user.image;
-						const span = document.createElement('span');
+						let span = document.createElement('span');
 						span.innerText = user.d_name;
 						element.append(avatar, span);
 						results.push(element);
@@ -108,7 +103,7 @@ export default new Proxy(class {
 
 		return (function(path, body) {
 			return target.request(path, {
-				body: new URLSearchParams(body),
+				body,
 				method: String(property).toUpperCase()
 			});
 		}).bind(target);

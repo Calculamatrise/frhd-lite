@@ -1,14 +1,14 @@
 export default {
 	accountManager: false,
-    bikeFrameColor: null,
+	bikeFrameColor: null,
 	dailyAchievementsDisplay: true,
-    featuredGhostsDisplay: true,
-    inputDisplay: true,
+	featuredGhostsDisplay: true,
+	inputDisplay: true,
 	inputDisplayOpacity: 1,
-    inputDisplaySize: 5,
-    isometricGrid: false,
-    keymap: {},
-    playerTrail: false,
-    snapshots: 10,
-    theme: 'light'
+	inputDisplaySize: 5,
+	isometricGrid: false,
+	keymap: {},
+	playerTrail: false,
+	snapshots: 10,
+	theme: 'light'
 }
