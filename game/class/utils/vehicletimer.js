@@ -1,6 +1,6 @@
 export default class {
 	scene = null;
-    cached = !1;
+	cached = !1;
 	container = {
 		borderRadius: 25,
 		font: 35 * window.devicePixelRatio / 2,
@@ -12,33 +12,33 @@ export default class {
 		x: 100,
 		y: 30
 	}
-    constructor(t) {
-        this.scene = t,
-        this.settings = t.settings,
-        this.player = !1,
-        this.createPulseTween()
-    }
-    setPlayer(t) {
-        this.player = t
-    }
-    removePlayer() {
-        this.player = !1
-    }
-    playerAddedTime(t) {
-        this.player === t && this.createPulseTween()
-    }
-    createPulseTween() {
-        let i = this.scene.game.pixelRatio / 2
+	constructor(t) {
+		this.scene = t,
+		this.settings = t.settings,
+		this.player = !1,
+		this.createPulseTween()
+	}
+	setPlayer(t) {
+		this.player = t
+	}
+	removePlayer() {
+		this.player = !1
+	}
+	playerAddedTime(t) {
+		this.player === t && this.createPulseTween()
+	}
+	createPulseTween() {
+		let i = this.scene.game.pixelRatio / 2
 		this.tweenRemaining = 200
 		this.tweenStart = i
 		this.tweenScale = 1.2 * i
-    }
-    center_container() {
-        var t = this.scene.screen
-          , e = this.container;
-        e.x = t.width / 2 - 100 * e.scaleX,
-        e.y = t.height - 100 * e.scaleY
-    }
+	}
+	center_container() {
+		var t = this.scene.screen
+		, e = this.container;
+		e.x = t.width / 2 - 100 * e.scaleX,
+		e.y = t.height - 100 * e.scaleY
+	}
 	draw(t) {
 		t.save();
 		t.fillStyle = "rgba(242,144,66,0.5)";
@@ -55,7 +55,7 @@ export default class {
 		t.fillText(this.container.text, this.container.x + this.container.width / 2 * this.container.scaleX, this.container.y + this.container.height / 2 * this.container.scaleY);
 		t.restore();
 	}
-    update() {
+	fixedUpdate() {
 		if (this.tweenRemaining > 0) {
 			this.tweenRemaining = Math.max(this.tweenRemaining - 1000 / this.scene.game.settings.drawFPS)
 			let t = this.container
@@ -65,24 +65,24 @@ export default class {
 			}
 		}
 
-        this.player && this.player._tempVehicleTicks > 0 ? (this.center_container(),
-        this.updateTime()) : this.container.visible = !1
-    }
-    updateTime() {
-        var e = this.player._tempVehicleTicks
-          , i = this.scene.settings.drawFPS
-          , s = e / i;
-        s = s.toFixed(2);
-        var n = "";
-        10 > s && (n = "0"),
-        n += s,
+		this.player && this.player._tempVehicleTicks > 0 ? (this.center_container(),
+		this.updateTime()) : this.container.visible = !1
+	}
+	updateTime() {
+		var e = this.player._tempVehicleTicks
+		, i = this.scene.settings.drawFPS
+		, s = e / i;
+		s = s.toFixed(2);
+		var n = "";
+		10 > s && (n = "0"),
+		n += s,
 		this.container.text = n,
 		this.container.visible = true
-    }
-    close() {
-        this.container = null,
-        this.player = null,
-        this.scene = null,
-        this.settings = null
-    }
+	}
+	close() {
+		this.container = null,
+		this.player = null,
+		this.scene = null,
+		this.settings = null
+	}
 }

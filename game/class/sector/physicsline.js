@@ -47,9 +47,9 @@ export default class {
 	}
 	removeAllReferences() {
 		this.remove = !0;
-		for (var t = this.sectors, e = t.length, i = 0; e > i; i++)
-			t[i].drawn = !1,
-			t[i].dirty = !0;
+		for (let t of this.sectors)
+			t.drawn = !1,
+			t.dirty = !0;
 		this.sectors = []
 	}
 	erase(t, e) {
@@ -57,13 +57,11 @@ export default class {
 		if (!this.remove) {
 			var s = this.p1
 			  , r = this.p2
-			  , o = t
-			  , a = e
 			  , h = r.sub(s)
-			  , l = s.sub(o)
+			  , l = s.sub(t)
 			  , c = h.dot(h)
 			  , u = 2 * l.dot(h)
-			  , p = l.dot(l) - a * a
+			  , p = l.dot(l) - e ** 2
 			  , d = u * u - 4 * c * p;
 			if (d > 0) {
 				d = Math.sqrt(d);

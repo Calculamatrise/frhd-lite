@@ -48,8 +48,11 @@ window.lite = new class {
 		}
 	});
 	constructor() {
-		Application.events.subscribe('route', () => this.loaded = false);
-		Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
+		if (window.Application) {
+			Application.events.subscribe('route', () => this.loaded = false),
+			Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
+		}
+
 		GameManager.on('stateChange', state => {
 			if (state.preloading === false && this.loaded === false) {
 				this.loaded = this.load();
@@ -170,6 +173,10 @@ window.lite = new class {
 					GameSettings.sceneryLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '4' : this.storage.get('theme') == 'dark' ? '6' : 'a');
 					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '20282e' : this.storage.get('theme') == 'dark' ? '25' : 'e');
 					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '161b20' : this.storage.get('theme') == 'dark' ? '3e' : 'c');
+					for (const player of this.scene.playerManager._players) {
+						player._baseVehicle.color = GameSettings.physicsLineColor,
+						player._tempVehicle && (player._tempVehicle.color = GameSettings.physicsLineColor)
+					}
 				case 'isometricGrid':
 					this.scene.redraw();
 					break;
@@ -185,9 +192,8 @@ window.lite = new class {
 			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
 		}
 
-		for (const player of this.scene.playerManager._players) {
-			if (player._user.u_id != this.scene.playerManager.firstPlayer._user.u_id) continue;
-			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'C' : this.storage.get('theme') == 'dark' ? 'FB' : '0');
+		for (const player of this.scene.playerManager._players.filter(player => player._user.u_id == this.scene.playerManager.firstPlayer._user.u_id)) {
+			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || GameSettings.physicsLineColor
 		}
 	}
 
@@ -388,75 +394,72 @@ window.lite = new class {
 
 	achievements = null;
 	achievementsContainer = null;
-	countdown = null;
-	countdownTimer = null;
 	initAchievementsDisplay() {
 		this.notificationEvent || this.initNotificationEvent();
-		Application.events.subscribe('notification.received', ({ data }) => {
-			if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
-				Application.events.publish('achievementsEarned', data.achievements_earned);
-				// this.refreshAchievements(); // add animation? // refresh everything
-			}
+		if (!this.achievementsContainer) {
+			Application.events.subscribe('notification.received', ({ data }) => {
+				if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
+					'undefined' != typeof data.achievements_earned && Application.events.publish('achievementsEarned', data.achievements_earned);
+					this.refreshAchievements() // only update percentages // this.updateAchievements?
+				}
+			});
 
-			// console.log('other', e);
-			this.refreshAchievements() // only update percentages // this.updateAchievements?
-		});
-
-		this.achievementsContainer ||= this.constructor.createElement('div', {
-			children: [
-				this.constructor.createElement('a', {
-					children: [
-						this.constructor.createElement('span', {
-							innerText: 'Daily Achievements',
-							style: {
-								float: 'left'
-							}
-						}),
-						this.countdown = this.constructor.createElement('span', {
-							className: 'time-remaining',
-							innerText: '00:00:00',
-							style: {
-								float: 'right'
-							}
-						})
-					],
-					href: '/achievements',
-					style: {
-						borderBottom: '1px solid gray',
-						color: 'white',
-						fontFamily: 'helsinki',
-						paddingBottom: '5px'
-					}
-				}),
-				this.achievements = this.constructor.createElement('div', {
-					id: 'achievements-container',
-					style: {
-						display: 'flex',
-						flexDirection: 'column',
-						fontFamily: 'riffic',
-						gap: '0.4rem'
-					}
-				})
-			],
-			className: 'simplemodal-container',
-			style: {
-				backgroundColor: 'rgb(27 82 100)',
-				backgroundImage: 'linear-gradient(transparent, rgb(20, 63, 77))',
-				borderRadius: '1rem',
-				boxShadow: '0px 4px 8px 0px black',
-				color: 'white',
-				display: 'flex',
-				flexDirection: 'column',
-				gap: '0.6rem',
-				margin: '0 10px',
-				padding: '1.5rem',
-				width: '-webkit-fill-available'
-			}
-		});
+			this.achievementsContainer ||= this.constructor.createElement('div', {
+				children: [
+					this.constructor.createElement('a', {
+						children: [
+							this.constructor.createElement('span', {
+								innerText: 'Daily Achievements',
+								style: {
+									float: 'left'
+								}
+							}),
+							this.countdown = this.constructor.createElement('span', {
+								className: 'time-remaining',
+								innerText: '00:00:00',
+								style: {
+									float: 'right'
+								}
+							})
+						],
+						href: '/achievements',
+						style: {
+							borderBottom: '1px solid gray',
+							color: 'white',
+							fontFamily: 'helsinki',
+							paddingBottom: '5px'
+						}
+					}),
+					this.achievements = this.constructor.createElement('div', {
+						id: 'achievements-container',
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							fontFamily: 'riffic',
+							gap: '0.4rem'
+						}
+					})
+				],
+				className: 'simplemodal-container',
+				style: {
+					backgroundColor: 'rgb(27 82 100)',
+					backgroundImage: 'linear-gradient(transparent, rgb(20, 63, 77))',
+					borderRadius: '1rem',
+					boxShadow: '0px 4px 8px 0px black',
+					color: 'white',
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '0.6rem',
+					margin: '0 10px',
+					padding: '1.5rem',
+					width: '-webkit-fill-available'
+				}
+			});
+		}
 
 		this.refreshAchievements().then(response => {
 			this.countdown.innerText = [String(Math.floor(response.time_left / 3600)).padStart(2, '0'), String(Math.floor((response.time_left % 3600) / 60)).padStart(2, '0'), String(Math.floor(response.time_left % 60)).padStart(2, '0')].join(':');
-			this.countdownTimer = setInterval(() => {
+			this.countdownTimer ||= setInterval(() => {
 				let lastTime = this.countdown.innerText.split(':').map(e => parseInt(e));
 				if (lastTime[2] === 0) {
 					if (lastTime[1] === 0) {
@@ -497,12 +500,13 @@ window.lite = new class {
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' });
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
 		Application.router.current_view.on('leaderboard.rendered', () => {
-			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')) {
+			for (let actionRow of Array.from(document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')).filter(actionRow => !actionRow.querySelector('#download-race'))) {
 				let download = document.createElement('span');
+				download.setAttribute('id', 'download-race');
+				download.setAttribute('title', 'Download Race');
+				download.classList.add('core_icons', 'core_icons-btn_add_race');
 				download.style.setProperty('background-image', "linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))");
 				download.style.setProperty('clip-path', "polygon(30% 5%, 30% 45%, 10% 45%, 50% 95%, 90% 45%, 70% 45%, 70% 5%)");
-				download.classList.add('core_icons', 'core_icons-btn_add_race');
-				download.title = "Download Race";
 				download.addEventListener('click', function() {
 					Application.Helpers.AjaxHelper.get("/track_api/load_races", {
 						t_id: GameSettings.track.id,
@@ -830,10 +834,10 @@ window.lite = new class {
 	}
 
 	refreshAchievements() {
-		return fetch("/achievements?ajax").then(r => r.json()).then(async response => {
-			let children = await Promise.all(response.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
+		return fetch("/achievements?ajax").then(r => r.json()).then(async res => {
+			let children = await Promise.all(res.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
 			this.achievements.replaceChildren(...children);
-			return response;
+			return res;
 		});
 	}
 
@@ -908,7 +912,7 @@ window.lite = new class {
 												return 'store/gear';
 											case 'Complete 1 friend race':
 											case 'Win 5 friend(s) race':
-												return fetch('/u/' + Application.settings.user.u_name).then(r => r.json()).then(async ({ friends }) => {
+												return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(async ({ friends }) => {
 													if (friends.friend_cnt > 0) {
 														let track;
 														for (let friend of friends.friends_data) {
@@ -924,7 +928,7 @@ window.lite = new class {
 												});
 											case 'Improve 5 best times':
 											case 'Send 5 friend race challenges':
-												return fetch('/u/' + Application.settings.user.u_name).then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
+												return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
 													let track = tracks[Math.floor(Math.random() * tracks.length)];
 													return track ? track.slug : 'random/track';
 												});
@@ -1019,13 +1023,13 @@ window.lite = new class {
 	}
 
 	static zipHelperScript = null;
-	static downloadAllTracks() {
-		fetch('/u/' + Application.settings.user.u_name + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
-			if (!this.zipHelperScript) {
-				this.zipHelperScript = document.body.appendChild(document.createElement('script'));
-				this.zipHelperScript.textContent = await fetch('https://raw.githubusercontent.com/Stuk/jszip/main/dist/jszip.min.js').then(r => r.text());
-			}
+	static async downloadAllTracks() {
+		if (!this.zipHelperScript) {
+			this.zipHelperScript = document.body.appendChild(document.createElement('script'));
+			this.zipHelperScript.textContent = await fetch('https://raw.githubusercontent.com/Stuk/jszip/main/dist/jszip.min.js').then(r => r.text());
+		}
 
+		fetch('/u/' + Application.settings.user.u_name + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
 			let zip = new JSZip();
 			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
 			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));

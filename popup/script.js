@@ -16,7 +16,7 @@ chrome.storage.local.onChanged.addListener(function ({ enabled, settings }) {
 });
 
 chrome.storage.local.get(({ badges, enabled, settings }) => {
-	for (const element of document.querySelectorAll(".notification")) {
+	for (const element of document.querySelectorAll('.notification')) {
 		if (badges === false) {
 			element.classList.remove('notification');
 			continue;

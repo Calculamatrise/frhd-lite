@@ -51,7 +51,7 @@ export default class extends Mass {
 		, u = i + c * Math.cos(o)
 		, p = s + c * Math.sin(o);
 		for (d.lineWidth = 1 * r,
-		d.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" && "#fbfbfb" || "#000",
+		d.strokeStyle = this.color,
 		d.beginPath(),
 		d.moveTo(u, p),
 		d.fillStyle = this.color; n++ < 8; )

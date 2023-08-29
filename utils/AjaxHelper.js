@@ -7,9 +7,9 @@ export default new Proxy(class {
 		searchParams.set('ajax', true);
 		searchParams.set('t_1', 'ref');
 		searchParams.set('t_2', 'desk');
-		if ((!options.method || /^get$/i.test(options.method)) && typeof options.body === 'object' && options.body !== null) {
-			for (let param in options.body) {
-				searchParams.set(param, options.body[param]);
+		if ((!options.method || /^get$/i.test(options.method)) && options.body instanceof URLSearchParams) {
+			for (let [key, value] of options.body.entries()) {
+				searchParams.set(key, value);
 			}
 
 			delete options.body;
@@ -103,7 +103,7 @@ export default new Proxy(class {
 
 		return (function(path, body) {
 			return target.request(path, {
-				body,
+				body: new URLSearchParams(body),
 				method: String(property).toUpperCase()
 			});
 		}).bind(target);

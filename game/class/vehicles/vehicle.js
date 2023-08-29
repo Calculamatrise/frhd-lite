@@ -1,7 +1,8 @@
-import s from "../math/cartesian.js";
-import n from "./explosion.js";
+import Cartesian from "../math/cartesian.js";
+import Explosion from "./explosion.js";
 
 export default class {
+	color = '#'.padEnd(7, lite.storage.get('theme') == 'midnight' ? 'C' : lite.storage.get('theme') == 'dark' ? 'FB' : '0');
 	masses = null;
 	springs = null;
 	slow = !1;
@@ -11,7 +12,7 @@ export default class {
 		this.scene = t._scene,
 		this.gamepad = t._gamepad,
 		this.settings = t._settings,
-		this.gravity = new s(0,.3),
+		this.gravity = new Cartesian(0,.3),
 		this.complete = !1,
 		this.alive = !0,
 		this.crashed = !1,
@@ -25,7 +26,7 @@ export default class {
 	}
 	explode() {
 		this.scene.sound.play("bomb_sound", 1),
-		this.explosion = new n(this.masses[0].pos,this.scene),
+		this.explosion = new Explosion(this.masses[0].pos,this.scene),
 		this.dead()
 	}
 	createCosmetics() {

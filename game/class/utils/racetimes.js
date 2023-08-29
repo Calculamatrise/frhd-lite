@@ -13,9 +13,10 @@ export default class {
 		font: 25,
 		x: 15,
 		y: 80,
-		scaleX: window.devicePixelRatio / 2.5,
-		scaleY: window.devicePixelRatio / 2.5,
-		visible: true
+		visible: true,
+		get scale() {
+			return window.devicePixelRatio / 2.5
+		}
 	}
     constructor(t) {
         this.scene = t,
@@ -35,7 +36,7 @@ export default class {
           , i = this.container
           , s = i.children.reduce((width, child) => width += 160 /* child.width */, 0)
           , n = this.scene.game.pixelRatio;
-        i.x = e.width / 2 - s / 2 * i.scaleY;
+        i.x = e.width / 2 - s / 2 * i.scale;
         t.settings.isCampaign && (i.visible = !1),
         i.y = 40 * n
     }
@@ -69,16 +70,16 @@ export default class {
 			t.globalAlpha = data.alpha;
 			t.fillStyle = data.color;
 			t.beginPath();
-			t.arc((this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/, 20 * this.container.scaleY, 0, 2 * Math.PI);
+			t.arc((this.container.x + data.x) * this.container.scale, (this.container.y + data.y + 20) * this.container.scale/* * i*/, 20 * this.container.scale, 0, 2 * Math.PI);
 			t.fill();
 			t.fillStyle = this.container.color;
-			t.font = this.container.font * this.container.scaleY + "px helsinki";
-			t.fillText(data.initial, (this.container.x + data.x) * this.container.scaleX, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/);
-			t.font = (this.container.font + 5) * this.container.scaleY + "px helsinki";
+			t.font = this.container.font * this.container.scale + "px helsinki";
+			t.fillText(data.initial, (this.container.x + data.x) * this.container.scale, (this.container.y + data.y + 20) * this.container.scale/* * i*/);
+			t.font = (this.container.font + 5) * this.container.scale + "px helsinki";
 			let e = t.measureText(data.runTime);
 			data.width = 20 + e.width;
 			data.height = 20 + e.actualBoundingBoxAscent + e.actualBoundingBoxDescent;
-			t.fillText(data.runTime, (this.container.x + data.x + 20 + 9) * this.container.scaleX + e.width / 2, (this.container.y + data.y + 20) * this.container.scaleY/* * i*/);
+			t.fillText(data.runTime, (this.container.x + data.x + 20 + 9) * this.container.scale + e.width / 2, (this.container.y + data.y + 20) * this.container.scale/* * i*/);
 		}
 
 		t.restore();

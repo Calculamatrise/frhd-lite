@@ -134,7 +134,7 @@ export default class {
 		this.playerManager.fixedUpdate(),
 		!this.camera.focusIndex && (this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++)),
 		this.score.update(),
-		this.vehicleTimer.update(),
+		this.vehicleTimer.fixedUpdate(),
 		this.isStateDirty() && this.updateState(),
 		this.camera.updateZoom()
 	}

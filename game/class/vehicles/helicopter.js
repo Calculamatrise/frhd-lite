@@ -21,46 +21,11 @@ export default class extends Vehicle {
 		-1 === i && this.swap()
 	}
 	createCockpit() {
-		var t = document.createElement("canvas");
-		this.canvasCockpit = t
-	}
-	drawCockpit() {
-		var t = this.canvasCockpit
-		, e = this.masses
-		, i = this.scene
-		, s = i.camera.zoom
-		, n = e[0].radius * s * .9
-		, r = 50 * s
-		, o = 50 * s;
-		t.width = r,
-		t.height = o;
-		var a = 0
-		, h = 0
-		, l = Math.max(2 * s, 1)
-		, c = t.getContext("2d");
-		c.save(),
-		c.translate(r / 2, o / 2),
-		c.scale(1.3, 1),
-		c.beginPath(),
-		c.arc(0, 0, n, 0, 1.5 * Math.PI, !1),
-		c.lineTo(a, h),
-		c.lineTo(a + n, h),
-		c.closePath(),
-		c.restore(),
-		c.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
-		c.fill(),
-		c.lineWidth = l,
-		c.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
-		c.stroke(),
-		c.save(),
-		c.translate(r / 2, o / 2),
-		c.scale(1.3, 1),
-		c.beginPath(),
-		c.arc(a, h, n, 0, 1.5 * Math.PI, !0),
-		c.restore(),
-		c.lineWidth = l,
-		c.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fff" : "#000",
-		c.stroke()
+		let t = document.createElement('canvas');
+		this.canvasCockpit = t,
+		this.ctx = t.getContext('2d'),
+		this.ctx.fillStyle = this.color,
+		this.ctx.strokeStyle = this.color
 	}
 	createMasses(t) {
 		var e = [];
@@ -121,6 +86,47 @@ export default class extends Vehicle {
 		for (var i in e)
 			e[i].springConstant = .5;
 		this.springs = e
+	}
+	drawCockpit() {
+		var t = this.canvasCockpit
+		  , i = this.scene
+		  , s = i.camera.zoom
+		  , r = 50 * s
+		  , o = 50 * s
+		  , l = Math.max(2 * s, 1)
+		  , c = this.ctx;
+		if (r !== t.width || o !== t.height ||
+		c.fillStyle !== this.color ||
+		c.strokeStyle !== this.color ||
+		c.lineWidth !== l) {
+			t.width = r,
+			t.height = o;
+			var e = this.masses
+			  , n = e[0].radius * s * .9;
+			c.save(),
+			c.translate(r / 2, o / 2),
+			c.scale(1.3, 1),
+			c.beginPath(),
+			c.arc(0, 0, n, 0, 1.5 * Math.PI, !1),
+			c.lineTo(0, 0),
+			c.lineTo(n, 0),
+			c.closePath(),
+			c.restore(),
+			c.fillStyle = this.color,
+			c.fill(),
+			c.lineWidth = l,
+			c.strokeStyle = this.color,
+			c.stroke(),
+			c.save(),
+			c.translate(r / 2, o / 2),
+			c.scale(1.3, 1),
+			c.beginPath(),
+			c.arc(0, 0, n, 0, 1.5 * Math.PI, !0),
+			c.restore(),
+			c.stroke()
+		}
+
+		return t
 	}
 	updateCameraFocalPoint() {}
 	fixedUpdate() {
@@ -213,6 +219,10 @@ export default class extends Vehicle {
 		  , a = s - r
 		  , l = n - o;
 		this.cockpitAngle = -(Math.atan2(a, l) - Math.PI / 2)
+		this.rotor += .5 * this.head.motor + .05,
+		this.rotor > 6.2831 && (this.rotor -= 6.2831),
+		this.rotor2 += .5,
+		this.rotor2 > 6.2831 && (this.rotor2 -= 6.2831)
 	}
 	draw(ctx) {
 		if (this.explosion)
@@ -260,13 +270,7 @@ export default class extends Vehicle {
 		  , h = q.sub(m).factor(a)
 		  , l = new s(-h.y * i,h.x * i)
 		  , c = q.toScreen(o);
-		n += .5 * this.head.motor + .05,
-		n > 6.2831 && (n -= 6.2831),
-		r += .5,
-		r > 6.2831 && (r -= 6.2831),
-		this.rotor = n,
-		this.rotor2 = r,
-		t.strokeStyle = lite.storage.get("theme") == "midnight" ? "#ccc" : lite.storage.get("theme") == "dark" ? "#fff" : "#000",
+		t.strokeStyle = this.color,
 		t.lineWidth = 5 * a,
 		t.beginPath(),
 		t.moveTo(c.x + .5 * h.x, c.y + .5 * h.y),
@@ -279,23 +283,23 @@ export default class extends Vehicle {
 		t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
 		t.stroke();
 		var p = new s(this.mass2.pos.x, this.mass2.pos.y).toScreen(o)
-			, d = new s(this.mass3.pos.x, this.mass3.pos.y).toScreen(o);
+		  , d = new s(this.mass3.pos.x, this.mass3.pos.y).toScreen(o);
+		t.lineWidth = 3 * a,
+		t.strokeStyle = '#'.padEnd(7, window.lite.storage.get('theme') === "midnight" ? '8' : window.lite.storage.get('theme') === 'dark' ? '9' : '6'),
+		t.beginPath(),
+		t.moveTo(p.x - .2 * h.x, p.y - .2 * h.y),
+		t.lineTo(c.x, c.y),
+		t.lineTo(d.x - .2 * h.x, d.y - .2 * h.y),
+		t.stroke(),
 		t.lineWidth = 4 * a,
-		t.stokeStyle = "#666666",
 		t.beginPath(),
 		t.moveTo(p.x - .2 * l.x - .1 * h.x, p.y - .2 * l.y - .1 * h.y),
 		t.lineTo(p.x - .25 * h.x, p.y - .25 * h.y),
 		t.lineTo(d.x - .25 * h.x, d.y - .25 * h.y),
 		t.lineTo(d.x + .2 * l.x - .1 * h.x, d.y + .2 * l.y - .1 * h.y),
 		t.stroke(),
-		t.lineWidth = 3 * a,
-		t.beginPath(),
-		t.moveTo(p.x - .2 * h.x, p.y - .2 * h.y),
-		t.lineTo(c.x, c.y),
-		t.lineTo(d.x - .2 * h.x, d.y - .2 * h.y),
-		t.stroke(),
 		t.lineWidth = 6 * a,
-		t.stokeStyle = "#000000",
+		t.strokeStyle = this.color,
 		t.beginPath();
 		var f = new s(this.mass4.pos.x, this.mass4.pos.y).toScreen(o);
 		t.moveTo(c.x, c.y),
@@ -303,10 +307,10 @@ export default class extends Vehicle {
 		t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),
 		t.stroke(),
 		t.lineWidth = 2 * a,
-		t.stokeStyle = "#000000",
+		t.strokeStyle = this.color,
 		t.beginPath();
 		var v = 7 * a
-			, g = new s(v * Math.sin(-r),v * Math.cos(-r));
+		  , g = new s(v * Math.sin(-r),v * Math.cos(-r));
 		t.moveTo(f.x + g.x, f.y + g.y),
 		t.lineTo(f.x - g.x, f.y - g.y),
 		t.moveTo(f.x - g.y, f.y + g.x),
@@ -316,23 +320,22 @@ export default class extends Vehicle {
 		t.lineWidth = 2 * a,
 		t.arc(f.x, f.y, this.mass4.radius * a, 0, 2 * Math.PI, !1),
 		t.stroke();
-		this.drawCockpit();
-		var m = this.canvasCockpit
-			, y = m.width
-			, w = m.height
-			, x = c.x + 5 * a * this.dir
-			, _ = c.y + 2 * a
-			, b = 0
-			, T = 0
-			, C = y
-			, k = w
-			, S = b * a - C / 2
-			, P = T * a - k / 2
-			, M = this.cockpitAngle
-			, A = -1 === i
-			, D = this.cosmetics
-			, I = GameInventoryManager.getItem(D.head)
-			, E = this.cockpitAngle;
+		var m = this.drawCockpit()
+		  , y = m.width
+		  , w = m.height
+		  , x = c.x + 5 * a * this.dir
+		  , _ = c.y + 2 * a
+		  , b = 0
+		  , T = 0
+		  , C = y
+		  , k = w
+		  , S = b * a - C / 2
+		  , P = T * a - k / 2
+		  , M = this.cockpitAngle
+		  , A = -1 === i
+		  , D = this.cosmetics
+		  , I = GameInventoryManager.getItem(D.head)
+		  , E = this.cockpitAngle;
 		I.draw(t, x + 5 * a * i, _ - 5 * a, E, .7 * a, i),
 		t.translate(x, _),
 		t.rotate(M),

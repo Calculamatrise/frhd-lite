@@ -12,7 +12,6 @@ let d = {
 }
 
 export default class extends Vehicle {
-	color = "#".padEnd(7, lite.storage.get("theme") == "midnight" ? "C" : lite.storage.get("theme") == "dark" ? "FB" : "0");
 	cosmeticHead = null;
 	cosmeticRearWheel = null;
 	cosmeticFrontWheel = null;

@@ -1,15 +1,15 @@
 export default class {
 	defaultControlOptions = {
-        visible: !0
-    }
-    name = null;
-    controlsSpriteSheetData = {};
-    controlData = null;
-    game = null;
-    scene = null;
-    settings = null;
-    controlsSprite = null;
-    gamepad = null;
+		visible: !0
+	}
+	name = null;
+	controlsSpriteSheetData = {};
+	controlData = null;
+	game = null;
+	scene = null;
+	settings = null;
+	controlsSprite = null;
+	gamepad = null;
 	properties = {
 		alpha: 1,
 		right: 0,
@@ -20,27 +20,27 @@ export default class {
 		x: 0,
 		y: 0
 	}
-    init(t) {
-        this.scene = t,
-        this.game = t.game,
-        this.assets = t.assets,
-        this.settings = t.settings,
-        this.mouse = t.mouse,
-        this.playerManager = t.playerManager,
+	init(t) {
+		this.scene = t,
+		this.game = t.game,
+		this.assets = t.assets,
+		this.settings = t.settings,
+		this.mouse = t.mouse,
+		this.playerManager = t.playerManager,
 		this.createSprite(),
-        this.resize()
-    }
+		this.resize()
+	}
 	isMouseOverComponent(component) {
 		const { x, y } = this.mouse.touch.pos;
 		return Math.sqrt((x - component.x) ** 2 + (y - component.y) ** 2) < component.width / 2 * component.scaleX;
 	}
 	click() {}
-    createSprite() {
-        let t = this.scene.assets.getResult(this.name)
-          , e = this.controlsSpriteSheetData;
-        e.images = [t];
+	createSprite() {
+		let t = this.scene.assets.getResult(this.name)
+		, e = this.controlsSpriteSheetData;
+		e.images = [t];
 		this.controlsSprite = t
-    }
+	}
 	draw(t) {
 		if (!this.properties.visible) return;
 		t.save();
@@ -56,61 +56,61 @@ export default class {
 
 		t.restore();
 	}
-    isVisible() {
-        return this.properties.visible
-    }
-    hide() {
-        this.setVisibility(!1)
-    }
-    show() {
+	isVisible() {
+		return this.properties.visible
+	}
+	hide() {
+		this.setVisibility(!1)
+	}
+	show() {
 		this.setVisibility(!0)
-    }
-    setVisibility(t) {
+	}
+	setVisibility(t) {
 		this.properties.visible = t
-    }
-    mouseOver(t) {
+	}
+	mouseOver(t) {
 		t && (t.alpha = this.mouse.touch.down ? 1 : .8),
-        this.mouse.enabled = !1
-		// this.game.canvas.style.setProperty('cursor', 'pointer')
-    }
-    mouseOut(t) {
+		this.mouse.enabled = !1,
+		this.game.canvas.style.setProperty('cursor', 'pointer')
+	}
+	mouseOut(t) {
 		t && (t.alpha = .5),
-        this.mouse.enabled = !0
-		// this.game.canvas.style.removeProperty('cursor', 'default')
-    }
-    controlDown(t) {
-        let e = this.playerManager.firstPlayer.getGamepad();
-        if (t.target.buttonDetails.key) {
-            e.setButtonDown(t.target.buttonDetails.key)
-        }
-        if (t.target.buttonDetails.keys)
-            for (var r = t.target.buttonDetails.keys, o = r.length, a = 0; o > a; a++) {
-                e.setButtonDown(r[a])
-            }
-            t.target.buttonDetails.downCallback && t.target.buttonDetails.downCallback(t),
-        this.settings.mobile && (this.mouse.enabled = !1),
-        t.target.alpha = 1
-    }
-    controlUp(t) {
-        var e = t.target
-          , i = e.buttonDetails
-          , s = this.playerManager.firstPlayer.getGamepad();
-        if (i.key) {
-            var n = i.key;
-            s.setButtonUp(n)
-        }
-        if (i.keys)
-            for (var r = i.keys, o = r.length, a = 0; o > a; a++) {
-                var n = r[a];
-                s.setButtonUp(n)
-            }
-        i.upCallback && i.upCallback(t),
-        this.settings.mobile ? (this.mouse.enabled = !0,
-        e.alpha = .5) : e.alpha = .8
-    }
+		this.mouse.enabled = !0,
+		this.game.canvas.style.removeProperty('cursor', 'default')
+	}
+	controlDown(t) {
+		let e = this.playerManager.firstPlayer.getGamepad();
+		if (t.target.buttonDetails.key) {
+			e.setButtonDown(t.target.buttonDetails.key)
+		}
+		if (t.target.buttonDetails.keys)
+			for (var r = t.target.buttonDetails.keys, o = r.length, a = 0; o > a; a++) {
+				e.setButtonDown(r[a])
+			}
+			t.target.buttonDetails.downCallback && t.target.buttonDetails.downCallback(t),
+		this.settings.mobile && (this.mouse.enabled = !1),
+		t.target.alpha = 1
+	}
+	controlUp(t) {
+		var e = t.target
+		, i = e.buttonDetails
+		, s = this.playerManager.firstPlayer.getGamepad();
+		if (i.key) {
+			var n = i.key;
+			s.setButtonUp(n)
+		}
+		if (i.keys)
+			for (var r = i.keys, o = r.length, a = 0; o > a; a++) {
+				var n = r[a];
+				s.setButtonUp(n)
+			}
+		i.upCallback && i.upCallback(t),
+		this.settings.mobile ? (this.mouse.enabled = !0,
+		e.alpha = .5) : e.alpha = .8
+	}
 	click() {}
-    close() {}
-    update() {
+	close() {}
+	update() {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
 			if (this.isMouseOverComponent(component)) {
@@ -122,10 +122,10 @@ export default class {
 			}
 		}
 	}
-    resize() {
-        let t = this.scene.game
-          , e = t.width
-          , i = t.height;
+	resize() {
+		let t = this.scene.game
+		  , e = t.width
+		  , i = t.height;
 		this.properties.scaleX = this.properties.scaleY = window.devicePixelRatio / 2,
 		this.properties.bottom && (this.properties.y = i - this.properties.bottom * this.properties.scaleY),
 		this.properties.left && (this.properties.x = this.properties.left * this.properties.scaleX),
@@ -139,5 +139,5 @@ export default class {
 			component.right && (component.x = e - component.right * component.scaleX),
 			component.top && (component.y = component.top * component.scaleY)
 		}
-    }
+	}
 }
