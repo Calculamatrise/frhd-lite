@@ -138,9 +138,6 @@ export default class {
 		this.isStateDirty() && this.updateState(),
 		this.camera.updateZoom()
 	}
-	update(progress, delta) {
-		!this.state.paused && this.state.playing && this.playerManager.update(progress)
-	}
 	resize() {
 		this.controls && this.controls.resize();
 	}

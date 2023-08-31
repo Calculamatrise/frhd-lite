@@ -32,8 +32,8 @@ export default class {
 		return new this.constructor(this.x * t, this.y * t)
 	}
 	factorSelf(t) {
-		this.x = this.x * t,
-		this.y = this.y * t
+		this.x *= t,
+		this.y *= t
 	}
 	factorOut(t, e) {
 		e.x = this.x * t,

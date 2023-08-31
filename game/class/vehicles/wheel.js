@@ -33,22 +33,7 @@ export default class extends Mass {
 		this.contact = !0
 	}
 	fixedUpdate() {
-		var t = this.parent.gravity
-		  , e = this.pos
-		  , i = this.old
-		  , s = this.vel;
-		s.x += t.x,
-		s.y += t.y,
-		(0 != t.x || 0 != t.y) && (s.x = .99 * s.x,
-		s.y = .99 * s.y),
-		e.x += s.x,
-		e.y += s.y,
-		this.contact = !1,
-		this.collide && this.scene.track.collide(this),
-		s.x = e.x - i.x,
-		s.y = e.y - i.y,
-		this.old.equ(this.pos),
-		this.rotationSpeed = .999 * this.rotationSpeed,
-		this.drawPos = this.pos
+		super.fixedUpdate(),
+		this.rotationSpeed = .999 * this.rotationSpeed
 	}
 }

@@ -25,7 +25,6 @@ export default class extends Mass {
 		this.contact = !1,
 		this.collide && this.scene.track.collide(this),
 		this.vel = i.sub(s),
-		s.equ(i),
-		this.drawPos = this.pos
+		s.equ(i)
 	}
 }

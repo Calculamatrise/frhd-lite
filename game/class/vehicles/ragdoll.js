@@ -104,35 +104,35 @@ export default class {
 			f = this.parent.alpha || 1;
 		d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + .5 * f + ")",
 		d.lineWidth = 5 * p;
-		var v = t.drawPos.toScreen(c); // t.pos.toScreen(c)
+		var v = t.pos.toScreen(c)
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		var g = i.drawPos.toScreen(c); // i.pos.toScreen(c)
+		var g = i.pos.toScreen(c)
 		d.lineTo(g.x, g.y);
-		var m = r.drawPos.toScreen(c); // r.pos.toScreen(c)
+		var m = r.pos.toScreen(c)
 		d.lineTo(m.x, m.y),
 		d.stroke(),
 		d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + f + ")",
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		var y = s.drawPos.toScreen(c); // s.pos.toScreen(c)
+		var y = s.pos.toScreen(c)
 		d.lineTo(y.x, y.y);
-		var w = n.drawPos.toScreen(c); // n.pos.toScreen(c)
+		var w = n.pos.toScreen(c)
 		d.lineTo(w.x, w.y),
 		d.stroke(),
 		d.strokeStyle = "rgba(" + (window.lite.storage.get("theme") === "midnight" ? "204,204,204," : lite.storage.get("theme") === "dark" ? "255,255,255," : "rgba(0,0,0,") + f + ")",
 		d.lineWidth = 8 * p,
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		var x = e.drawPos.toScreen(c); // e.pos.toScreen(c)
+		var x = e.pos.toScreen(c)
 		d.lineTo(x.x, x.y),
 		d.stroke(),
 		d.lineWidth = 5 * p,
 		d.beginPath(),
 		d.moveTo(x.x, x.y);
-		var _ = o.drawPos.toScreen(c); // o.pos.toScreen(c)
+		var _ = o.pos.toScreen(c)
 		d.lineTo(_.x, _.y);
-		var b = h.drawPos.toScreen(c); // h.pos.toScreen(c)
+		var b = h.pos.toScreen(c)
 		d.lineTo(b.x, b.y);
 		var T = o.pos.sub(e.pos).normalize();
 		T = T.factor(4).add(h.pos);
@@ -143,11 +143,11 @@ export default class {
 		d.lineWidth = 5 * p,
 		d.beginPath(),
 		d.moveTo(x.x, x.y);
-		var k = a.drawPos.toScreen(c); // a.pos.toScreen(c)
+		var k = a.pos.toScreen(c)
 		d.lineTo(k.x, k.y);
 		var S = a.pos.sub(e.pos).normalize();
 		S = S.factor(4).add(l.pos);
-		var P = l.drawPos.toScreen(c); // l.pos.toScreen(c)
+		var P = l.pos.toScreen(c)
 		d.lineTo(P.x, P.y);
 		var M = S.toScreen(c);
 		d.lineTo(M.x, M.y),

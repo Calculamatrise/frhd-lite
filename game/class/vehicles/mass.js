@@ -10,12 +10,10 @@ export default class {
 	collide = !1;
 	contact = !1;
 	scene = null;
-	drawPos = null;
 	constructor(t, e) {
 		this.pos = new s,
 		this.old = new s,
 		this.vel = new s(0,0),
-		this.drawPos = new s(0,0),
 		this.radius = 10,
 		this.friction = 0,
 		this.parent = e,
@@ -23,8 +21,7 @@ export default class {
 		this.contact = !1,
 		this.scene = e.scene,
 		this.pos.equ(t),
-		this.old.equ(t),
-		this.drawPos = this.pos
+		this.old.equ(t)
 	}
 	drive(t, e) {
 		let i = this.friction
@@ -36,21 +33,14 @@ export default class {
 		this.contact = !0
 	}
 	fixedUpdate() {
-		let t = this.vel;
-		t.inc(this.parent.gravity);
 		let e = this.parent.gravity;
-		(0 != e.x || 0 != e.y) && (t.x = .99 * t.x,
-		t.y = .99 * t.y),
+		this.vel.inc(e);
+		(0 != e.x || 0 != e.y) && this.vel.factorSelf(.99),
 		this.pos.inc(this.vel),
 		this.contact = !1,
 		this.collide && this.scene.track.collide(this),
-		t.x = this.pos.x - this.old.x,
-		t.y = this.pos.y - this.old.y,
-		this.old.equ(this.pos),
-		this.drawPos = this.pos
-	}
-	update(progress) {
-		this.drawPos = this.pos.add(this.vel.factor(progress));
+		this.vel.equ(this.pos.sub(this.old)),
+		this.old.equ(this.pos)
 	}
 	draw(e) {
 		let t = this.pos.toScreen(this.scene)

@@ -74,9 +74,9 @@ export default class extends bike {
 	}
 	drawBikeFrame(u, r = this.player._opacity) {
 		var t = this.scene
-		, rearWheel = new Vector(this.rearWheel.drawPos.x, this.rearWheel.drawPos.y) // new Vector(this.rearWheel.pos.x, this.rearWheel.pos.y)
-		, frontWheel = new Vector(this.frontWheel.drawPos.x, this.frontWheel.drawPos.y) // new Vector(this.frontWheel.pos.x, this.frontWheel.pos.y)
-		, head = new Vector(this.head.drawPos.x, this.head.drawPos.y) // new Vector(this.head.pos.x, this.head.pos.y)
+		, rearWheel = new Vector(this.rearWheel.pos.x, this.rearWheel.pos.y)
+		, frontWheel = new Vector(this.frontWheel.pos.x, this.frontWheel.pos.y)
+		, head = new Vector(this.head.pos.x, this.head.pos.y)
 		, e = rearWheel.toScreen(t)
 		, i = frontWheel.toScreen(t)
 		, n = head.toScreen(t)

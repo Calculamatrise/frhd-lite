@@ -136,30 +136,20 @@ export default class {
 		this._tempVehicleTicks = e)
 	}
 	fixedUpdate() {
-		if (this.complete === !1) {
-			let t = this._baseVehicle;
-			this._temp_vehicle_options && this.createTempVehicle(),
-			this._tempVehicleTicks > 0 && (t = this._tempVehicle,
-			this._crashed === !1 && this._tempVehicleTicks--,
-			this._tempVehicleTicks <= 0 && this._crashed === !1 && (this._effectTicks = 45,
-			this._effect = new Explosion(this._tempVehicle.focalPoint.pos, this._scene),
-			this.createBaseVehicle(this._tempVehicle.focalPoint.pos, this._tempVehicle.dir, this._tempVehicle.masses[0].vel),
-			t = this._baseVehicle)),
-			this._effectTicks > 0 && (this._effectTicks--,
-			this._effect.fixedUpdate()),
-			lite.storage.get("playerTrail") && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
-			t.fixedUpdate(),
-			this._addCheckpoint && (this.isAlive() && this._createCheckpoint(),
-			this._addCheckpoint = !1)
-		}
-	}
-	update(progress) {
-		if (this.complete === !1) {
-			let t = this._baseVehicle;
-			this._tempVehicleTicks > 0 && (t = this._tempVehicle),
-			this._effectTicks > 0 && this._effect.update(progress),
-			t.update(progress)
-		}
+		let t = this._baseVehicle;
+		this._temp_vehicle_options && this.createTempVehicle(),
+		this._tempVehicleTicks > 0 && (t = this._tempVehicle,
+		this._crashed === !1 && this._tempVehicleTicks--,
+		this._tempVehicleTicks <= 0 && this._crashed === !1 && (this._effectTicks = 45,
+		this._effect = new Explosion(this._tempVehicle.focalPoint.pos, this._scene),
+		this.createBaseVehicle(this._tempVehicle.focalPoint.pos, this._tempVehicle.dir, this._tempVehicle.masses[0].vel),
+		t = this._baseVehicle)),
+		this._effectTicks > 0 && (this._effectTicks--,
+		this._effect.fixedUpdate()),
+		lite.storage.get("playerTrail") && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
+		t.fixedUpdate(),
+		this._addCheckpoint && (this.isAlive() && this._createCheckpoint(),
+		this._addCheckpoint = !1)
 	}
 	*createReplayIterator(nextTick = 0) {
 		const snapshots = new Map();
@@ -188,14 +178,14 @@ export default class {
 					nextTick = value;
 					continue;
 				} else {
-					nextTick = this._gamepad.playbackTicks + 1;
+					nextTick = this._gamepad.playbackTicks + 1 / (this._game.ups / 30) // this._gamepad.playbackTicks + 1;
 				}
 			}
 
 			this._gamepad.update(),
 			this.checkKeys(),
 			this.fixedUpdate();
-			this._gamepad.playbackTicks++;
+			this._gamepad.playbackTicks += 1 / (this._game.ups / 30) // this._gamepad.playbackTicks++;
 			// experiment start
 			this.isInFocus() && window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = this._gamepad.playbackTicks);
 			// experiment end

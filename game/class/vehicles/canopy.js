@@ -36,8 +36,7 @@ export default class extends Mass {
 		(0 !== s.x || 0 !== s.y) && (t.x = e.x - i.x,
 		t.y = e.y - i.y),
 		i.x = e.x,
-		i.y = e.y,
-		this.drawPos = this.pos
+		i.y = e.y
 	}
 	draw(t) {
 		var e = this.parent.scene

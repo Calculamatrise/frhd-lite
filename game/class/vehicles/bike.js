@@ -88,35 +88,6 @@ export default class extends Vehicle {
 		l
 	}
 	fixedUpdate() {
-		if (this.scene.game.ups < 60) return this.nativeUpdate();
-		if (this.crashed === !1 && (this.updateSound(),
-		this.control()),
-		this.explosion)
-			this.explosion.fixedUpdate();
-		else {
-			if (this.slow && (this.slowParity = 1 - this.slowParity),
-			this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1,
-			this.slowParity = 0),
-			this.slowParity === 0) {
-				for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
-					t[i].fixedUpdate();
-				for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-					s[r].fixedUpdate()
-			}
-			this.ragdoll ? this.ragdoll.fixedUpdate() : this.updateDrawHeadAngle()
-		}
-		this.updateCameraFocalPoint()
-	}
-	update(progress) {
-		if (this.explosion)
-			this.explosion.update(progress);
-		else {
-			for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-				s[r].update(progress);
-			this.ragdoll && this.ragdoll.update(progress) // : this.updateDrawHeadAngle()
-		}
-	}
-	nativeUpdate() {
 		if (this.crashed === !1 && (this.updateSound(),
 		this.control()),
 		this.explosion)
@@ -200,13 +171,13 @@ export default class extends Vehicle {
 	}
 	updateDrawHeadAngle() {
 		var t = this.frontWheel.pos
-			, e = this.rearWheel.pos
-			, i = t.x
-			, s = t.y
-			, n = e.x
-			, r = e.y
-			, o = i - n
-			, a = s - r;
+		  , e = this.rearWheel.pos
+		  , i = t.x
+		  , s = t.y
+		  , n = e.x
+		  , r = e.y
+		  , o = i - n
+		  , a = s - r;
 		this.drawHeadAngle = -(Math.atan2(o, a) - Math.PI / 2)
 	}
 }

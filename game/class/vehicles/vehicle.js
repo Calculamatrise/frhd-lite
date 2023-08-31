@@ -6,7 +6,6 @@ export default class {
 	masses = null;
 	springs = null;
 	slow = !1;
-	slowParity = 0;
 	constructor(t) {
 		this.player = t,
 		this.scene = t._scene,

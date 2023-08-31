@@ -17,10 +17,6 @@ export default class {
 		for (var t = this._players.filter(player => !player.complete && player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i]._replayIterator.next()
 	}
-	update(progress) {
-		for (var t = this._players, e = t.length, i = 0; e > i; i++)
-			t[i].update(progress)
-	}
 	mutePlayers() {
 		for (var t = this._players, e = t.length, i = 0; e > i; i++) {
 			var s = t[i].getActiveVehicle();
