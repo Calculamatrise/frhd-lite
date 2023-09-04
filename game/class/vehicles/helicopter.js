@@ -237,12 +237,14 @@ export default class extends Vehicle {
 					if (t > 0) {
 						for (let i in this.player._checkpoints) {
 							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
-							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * parseInt(i) % 1);
+							let e = document.createElement('canvas');
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * parseInt(i) % 1);
 						}
 
 						for (let i in this.player._cache) {
 							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
-							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * ++e % 1);
+							let e = document.createElement('canvas');
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * ++e % 1);
 						}
 					}
 				}
@@ -250,7 +252,8 @@ export default class extends Vehicle {
 				if (window.lite.storage.get("playerTrail")) {
 					for (let i in window.lite.snapshots) {
 						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
-						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle), {canvasCockpit: document.createElement('canvas'), drawCockpit: this.drawCockpit}), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+						let e = document.createElement('canvas');
+						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
 					}
 				}
 			}
