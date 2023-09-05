@@ -3,11 +3,11 @@ import "../inventorymanager.js";
 export default GameInventoryManager.HeadClass = class {
 	versions = {}
 	createVersion() {
-		var t = this.colors
+		let t = this.colors
 		  , e = this.getVersions()
 		  , i = "";
-		for (var s in t)
-			t.hasOwnProperty(s) && (i += t[s]);
+		for (let s in t)
+			i += t[s];
 		this.versionName = i,
 		e[i] || (e[i] = {
 			dirty: !0,
@@ -15,16 +15,12 @@ export default GameInventoryManager.HeadClass = class {
 		})
 	}
 	draw(t, e, i, s, n, r) {
-		var o = this.getCache(n)
-		  , a = this.getBaseWidth()
-		  , h = this.getBaseHeight()
+		let o = this.getCache(n)
 		  , l = this.getScale()
-		  , c = this.getDrawOffsetX()
-		  , u = this.getDrawOffsetY()
-		  , p = a * n * l
-		  , d = h * n * l
-		  , f = c * n - p / 2
-		  , v = u * n - d / 2
+		  , p = this.getBaseWidth() * n * l
+		  , d = this.getBaseHeight() * n * l
+		  , f = this.getDrawOffsetX() * n - p / 2
+		  , v = this.getDrawOffsetY() * n - d / 2
 		  , g = -1 === r;
 		t.translate(e, i),
 		t.rotate(s),
@@ -35,7 +31,7 @@ export default GameInventoryManager.HeadClass = class {
 		t.translate(-e, -i)
 	}
 	getCache(t) {
-		var e = this.getVersions();
+		let e = this.getVersions();
 		return e[this.versionName].dirty && this.cache(t),
 		e[this.versionName].canvas
 	}
@@ -43,7 +39,7 @@ export default GameInventoryManager.HeadClass = class {
 		return this.versions
 	}
 	setDirty() {
-		var t = this.getVersions();
+		let t = this.getVersions();
 		t[this.versionName].dirty = !0
 	}
 }

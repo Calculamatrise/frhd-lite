@@ -7,9 +7,9 @@ class InventoryManager {
 		  , i = t.script
 		  , o = t.options
 		  , a = t.type;
-		this.inventory[e] || ("1" === a && (e = "forward_cap",
+		this.inventory[e] || ('1' === a && (e = 'forward_cap',
 		o = {
-			back: "white"
+			back: 'white'
 		}),
 		this.loaded.has(i) || (this.loaded.add(i),
 		GameManager.loadFile(i)));

@@ -6,38 +6,31 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		this.createVersion();
 	}
 	cache(t) {
-		let e = this.versions[this.versionName];
+		let e = this.versions[this.versionName]
+		  , h = e.canvas
+		  , d = this.getScale() * Math.max(t, 1);
 		e.dirty = !1;
-		let p = this.getScale()
-		t = Math.max(t, 1)
-		let i = this.getBaseWidth() * t * p
-		  , s = this.getBaseHeight() * t * p
-		  , h = e.canvas;
-		h.width = i,
-		h.height = s;
-		var l = h.getContext('2d')
-		  , d = p * t
+		h.width = this.getBaseWidth() * d,
+		h.height = this.getBaseHeight() * d;
+		let l = h.getContext('2d')
 		  , f = this.colors
 		  , r = Math.PI / 12;
 		l.scale(d, d),
-		l.translate(0, 0),
-		l.strokeStyle = f.outline || lite.storage.get('theme') === 'dark' ? "#FBFBFB" : "rgba(0,0,0,1)",
+		l.strokeStyle = f.outline || lite.storage.get('theme') === 'dark' ? 'hsl(0, 0%, 98%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 0%)',
 		l.lineCap = 'round',
 		l.lineJoin = 'miter',
 		l.lineWidth = 7,
 		l.miterLimit = 4,
-		l.fillStyle = f.skin || "#ffffff",
+		l.fillStyle = f.skin || lite.storage.get('theme') === 'dark' ? 'hsl(0, 0%, 11%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(207, 16%, 14%)' : 'hsl(0, 0%, 100%)',
 		l.save(),
 		l.beginPath(),
 		l.arc(42.4, 52.5, 30.3 + l.lineWidth / 2, 0, 2 * Math.PI, !0),
 		l.fill(),
 		l.stroke(),
-		l.beginPath(),
-		l.arc(42.4, 52.5, 30.3, 0, 2 * Math.PI, !0),
 		l.clip(),
-		l.fillStyle = f.back,
 		l.beginPath(),
 		l.arc(42.4, 52.5, 30.3, -r, Math.PI - r, !0),
+		l.fillStyle = f.back,
 		l.fill(),
 		f.front && (l.beginPath(),
 		l.arc(42.4, 52.5, 30.3, -r, r - Math.PI / 1.75, !0),
@@ -45,14 +38,6 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		l.fillStyle = f.front,
 		l.fill()),
 		l.restore(),
-
-		l.beginPath(),
-		l.arc(42.4, 52.5, 30.3 + l.lineWidth / 2, -Math.PI - r, Math.PI - r, !0),
-		l.stroke(),
-		// l.lineWidth = 12,
-		// l.lineTo(111, 36),
-		// l.stroke(),
-
 		l.save(),
 		l.lineWidth = 12,
 		l.beginPath(),
@@ -80,4 +65,4 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 	}
 }
 
-GameInventoryManager && GameInventoryManager.register("forward_cap", ForwardCap);
+GameInventoryManager && GameInventoryManager.register('forward_cap', ForwardCap);
