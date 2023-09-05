@@ -1,56 +1,53 @@
 export default class {
 	muted = !1;
 	sounds = null;
-    constructor(t) {
-        this.scene = t;
-        this.sounds = {};
-    }
-    update() {
-        let e = this.scene;
+	constructor(t) {
+		this.scene = t;
+		this.sounds = {};
+	}
+	update() {
+		let e = this.scene;
+		this.muted = e.state.paused || e.settings.soundsEnabled === !1
 		for (let i in this.sounds) {
-			this.sounds[i] && (this.sounds[i].muted = e.state.paused || e.settings.soundsEnabled === !1)
-			if (this.sounds[i] && this.sounds[i].paused && !e.state.paused) {
+			this.sounds[i].muted = this.muted
+			if (this.sounds[i].paused && !e.state.paused) {
 				this.sounds[i].play();
-			} else if (this.sounds[i] && !this.sounds[i].paused && e.state.paused) {
+			} else if (!this.sounds[i].paused && e.state.paused) {
 				this.sounds[i].pause();
 			}
 		}
 	}
-    setVolume(t, e) {
-        this.sounds[t] && (this.sounds[t].volume = e)
-    }
-    mute_all() {
-        let t = this.sounds;
-        for (var e in t)
-            t.hasOwnProperty(e) && (t[e].volume = 0);
-        this.muted = !0
-    }
-    stop_all() {
-        let t = this.sounds;
-        for (var e in t)
-            t.hasOwnProperty(e) && (this.stop(t))
-    }
-    play(t, e) {
-        if ((null === e || "undefined" == typeof e) && (e = 1),
-        this.sounds[t])
-            this.sounds[t].volume = e;
-        else if (this.scene.settings.soundsEnabled) {
-			let o = this.scene.assets.getItem(t);
-			let i = new Audio(o.src)
-			  , s = this;
-			i.volume = e
-			i.addEventListener("ended", () => {
-				s.sounds[t] = null
-			})
-			i.play()
-            this.sounds[t] = i
-        }
-    }
-    stop(t) {
-        this.sounds[t] && (this.sounds[t].pause(),
-        this.sounds[t] = null)
-    }
-    close() {
-        this.sounds = null
-    }
+	setVolume(t, e) {
+		this.sounds[t] && (this.sounds[t].volume = this.muted ? 0 : e ?? 1)
+	}
+	mute_all() {
+		let t = this.sounds;
+		for (let e in t)
+			t[e].muted = true,
+			t[e].volume = 0;
+		this.muted = !0
+	}
+	stop_all() {
+		for (let e in this.sounds)
+			this.stop(e)
+	}
+	play(t, e) {
+		if (!this.sounds[t] && this.scene.settings.soundsEnabled) {
+			let o = this.scene.assets.getItem(t)
+			, i = o && new Audio(o.src);
+			i && (this.sounds[t] = i,
+			i.addEventListener('ended', () => {
+				delete this.sounds[t]
+			}))
+		}
+
+		this.setVolume(t, e)
+	}
+	stop(t) {
+		this.sounds[t] && (this.sounds[t].pause(),
+		delete this.sounds[t])
+	}
+	close() {
+		this.sounds = null
+	}
 }

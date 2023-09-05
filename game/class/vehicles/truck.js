@@ -185,24 +185,24 @@ export default class extends Vehicle {
 	}
 	drawTruck(t) {
 		var e = this.scene
-			, i = e.camera.zoom
-			, n = GameInventoryManager.getItem(this.cosmetics.head)
-			, r = this.drawHeadAngle
-			, o = this.dir
-			, a = new s(this.frontWheel.pos.x, this.frontWheel.pos.y).toScreen(e)
-			, h = new s(this.rearWheel.pos.x, this.rearWheel.pos.y).toScreen(e)
-			, l = new s(this.head.pos.x, this.head.pos.y).toScreen(e)
-			, c = new s(this.backMass.pos.x, this.backMass.pos.y).toScreen(e)
-			, d = (this.backMass.pos.x - this.head.pos.x) * i
-			, f = (this.backMass.pos.y - this.head.pos.y) * i
-			, v = (.5 * (this.head.pos.x + this.backMass.pos.x) - .5 * (this.rearWheel.pos.x + this.frontWheel.pos.x)) * i
-			, g = (.5 * (this.head.pos.y + this.backMass.pos.y) - .5 * (this.rearWheel.pos.y + this.frontWheel.pos.y)) * i;
+		  , i = e.camera.zoom
+		  , n = GameInventoryManager.getItem(this.cosmetics.head)
+		  , r = this.drawHeadAngle
+		  , o = this.dir
+		  , a = new s(this.frontWheel.pos.x, this.frontWheel.pos.y).toScreen(e)
+		  , h = new s(this.rearWheel.pos.x, this.rearWheel.pos.y).toScreen(e)
+		  , l = new s(this.head.pos.x, this.head.pos.y).toScreen(e)
+		  , c = new s(this.backMass.pos.x, this.backMass.pos.y).toScreen(e)
+		  , d = (this.backMass.pos.x - this.head.pos.x) * i
+		  , f = (this.backMass.pos.y - this.head.pos.y) * i
+		  , v = (.5 * (this.head.pos.x + this.backMass.pos.x) - .5 * (this.rearWheel.pos.x + this.frontWheel.pos.x)) * i
+		  , g = (.5 * (this.head.pos.y + this.backMass.pos.y) - .5 * (this.rearWheel.pos.y + this.frontWheel.pos.y)) * i;
 		t.lineWidth = 3 * i;
 		var m = c.x - l.x
-			, y = c.y - l.y
-			, w = Math.sqrt(Math.pow(m, 2) + Math.pow(y, 2))
-			, x = m / w
-			, _ = y / w;
+		  , y = c.y - l.y
+		  , w = Math.sqrt(Math.pow(m, 2) + Math.pow(y, 2))
+		  , x = m / w
+		  , _ = y / w;
 		n.draw(t, c.x - .5 * x * i * 20, c.y - _ * i * 20 * .5, r, .45 * i, o),
 		t.strokeStyle = window.lite.storage.get("theme") === "midnight" ? "#aaa" : window.lite.storage.get("theme") === "dark" ? "#bbb" : "#444",
 		t.beginPath(),
