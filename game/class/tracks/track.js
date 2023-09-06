@@ -398,8 +398,8 @@ export default class {
 		console.log("Track :: Time to draw entire track : " + (r - t) + "ms")
 	}
 	undraw() {
-		for (const t of this.totalSectors) {
-			t.drawn && t.clear(!0)
+		for (let t of this.totalSectors.filter(t => t.drawn)) {
+			t.clear(!0)
 		}
 		this.recachePowerups(Math.max(this.camera.zoom, 1)),
 		this.canvasPool.update()

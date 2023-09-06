@@ -10,7 +10,7 @@ export default class {
 	remove = !1;
 	highlight = !1;
 	recorded = !1;
-	type = "physics";
+	type = 'physics';
 	constructor(t, e, i, n) {
 		this.p1 = new Vector(t, e),
 		this.p2 = new Vector(i, n),

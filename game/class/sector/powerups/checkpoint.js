@@ -1,28 +1,26 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
-	name = "checkpoint";
-	constructor(t, e, i) {
-		super(i);
-		this.x = t;
-		this.y = e;
+	name = 'checkpoint';
+	constructor() {
+		super(...arguments);
 		this.id = Math.random().toString(36).slice(2);
 	}
 	getCode() {
-		return "C " + this.x.toString(32) + " " + this.y.toString(32)
+		return 'C ' + super.getCode()
 	}
 	recache(t) {
 		this.constructor.cache.dirty = !1;
 		var e = this.constructor.cache.canvas;
 		e.width = this.constructor.cache.width * t,
 		e.height = this.constructor.cache.height * t;
-		var i = e.getContext("2d")
+		var i = e.getContext('2d')
 		, s = e.width / 2
 		, n = e.height / 2;
 		this.drawCircle(s, n, t, i),
 		this.settings.developerMode && (i.beginPath(),
 		i.rect(0, 0, e.width, e.height),
-		i.strokeStyle = "red",
+		i.strokeStyle = 'red',
 		i.strokeWidth = 1 * t,
 		i.stroke())
 	}
@@ -47,8 +45,8 @@ export default class extends Powerup {
 		s.lineTo(112 * i, 95 * i),
 		s.lineTo(0 * i, 95 * i),
 		s.closePath(),
-		s.fillStyle = "#826cdc",
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
+		s.fillStyle = '#826cdc',
+		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.lineWidth = 8 * i,
 		s.beginPath(),
 		s.moveTo(3 * i, 10 * i),
@@ -79,11 +77,10 @@ export default class extends Powerup {
 		i.setCheckpointOnUpdate(),
 		i.isGhost() === !1 && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1,
-		this.scene.message.show("Checkpoint Saved", 50, "#826cdc", "#FFFFFF"),
-		this.scene.sound.play("checkpoint_sound")))
+		this.scene.message.show('Checkpoint Saved', 50, '#826cdc', '#FFFFFF'),
+		this.scene.sound.play('checkpoint_sound')))
 	}
-	static cache = Object.assign({}, this.cache, {
-		canvas: document.createElement("canvas"),
+	static cache = Object.assign(this.createCache(), {
 		width: 20,
 		height: 32
 	})

@@ -9,7 +9,7 @@ export default class {
 	collided = !1;
 	remove = !1;
 	recorded = !1;
-	type = "scenery";
+	type = 'scenery';
 	constructor(t, e, i, n) {
 		this.p1 = new Vector(t, e);
 		this.p2 = new Vector(i, n);

@@ -1,15 +1,7 @@
 import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
-	name = "truck";
-	constructor(t, e, i, s) {
-		super(s);
-		this.x = t;
-		this.y = e;
-		this.time = i;
-		this.id = Math.random().toString(36).slice(2);
-		this.hit = !1;
-	}
+	name = 'truck';
 	collide(t) {
 		var e = t.parent
 		  , i = e.player
@@ -21,7 +13,7 @@ export default class extends VehiclePowerup {
 		if (30 > r && i.isAlive() && -1 === h.indexOf(this.id)) {
 			h.push(this.id);
 			var c = this.time * l.settings.drawFPS;
-			i.setTempVehicle("TRUCK", c, {
+			i.setTempVehicle(this.name.toUpperCase(), c, {
 				x: this.x,
 				y: this.y
 			}, e.dir),
@@ -36,74 +28,23 @@ export default class extends VehiclePowerup {
 		i *= 1,
 		s.save(),
 		s.scale(i, i),
-		s.beginPath(),
-		s.moveTo(0, 0),
-		s.lineTo(24, 0),
-		s.lineTo(24, 26),
-		s.lineTo(0, 26),
-		s.closePath(),
-		s.clip(),
-		s.translate(0, 0),
-		s.translate(0, 0),
-		s.scale(1, 1),
-		s.translate(0, 0),
-		s.strokeStyle = "rgba(0,0,0,0)",
-		s.lineCap = "butt",
-		s.lineJoin = "miter",
+		s.lineCap = 'butt',
+		s.lineJoin = 'miter',
 		s.miterLimit = 4,
-		s.save(),
-		s.restore(),
-		s.save(),
-		s.restore(),
-		s.save(),
-		s.fillStyle = "rgba(0, 0, 0, 0)",
-		s.strokeStyle = "rgba(0, 0, 0, 0)",
 		s.lineWidth = 1,
-		s.translate(-1320, -352),
-		s.save(),
-		s.translate(251, 28),
-		s.save(),
-		s.translate(1056, 265),
-		s.save(),
-		s.translate(3, 49),
-		s.save(),
-		s.translate(10, 8),
-		s.save(),
 		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
-		s.beginPath(),
-		s.moveTo(2, 17),
-		s.lineTo(4, 17),
-		s.quadraticCurveTo(6, 17, 6, 19),
-		s.lineTo(6, 26),
-		s.quadraticCurveTo(6, 28, 4, 28),
-		s.lineTo(2, 28),
-		s.quadraticCurveTo(0, 28, 0, 26),
-		s.lineTo(0, 19),
-		s.quadraticCurveTo(0, 17, 2, 17),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-		s.restore(),
-		s.save(),
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
-		s.beginPath(),
-		s.moveTo(20, 17),
-		s.lineTo(22, 17),
-		s.quadraticCurveTo(24, 17, 24, 19),
-		s.lineTo(24, 26),
-		s.quadraticCurveTo(24, 28, 22, 28),
-		s.lineTo(20, 28),
-		s.quadraticCurveTo(18, 28, 18, 26),
-		s.lineTo(18, 19),
-		s.quadraticCurveTo(18, 17, 20, 17),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-		s.restore(),
-		s.save(),
 		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
+		s.translate(0.5, -2),
+		s.save(),
+		s.beginPath(),
+		s.roundRect(0, 17, 6, 11, 1.5 * i),
+        s.roundRect(18, 17, 6, 11, 1.5 * i),
+		s.fill(),
+		s.stroke(),
+		s.restore(),
+		s.save(),
 		s.lineWidth = 2,
-		s.lineCap = "square",
+		s.lineCap = 'square',
 		s.beginPath(),
 		s.moveTo(3.5, 23),
 		s.lineTo(20.5, 23),
@@ -111,9 +52,7 @@ export default class extends VehiclePowerup {
 		s.stroke(),
 		s.restore(),
 		s.save(),
-		s.save(),
-		s.fillStyle = "#94d44e",
-		s.save(),
+		s.fillStyle = '#94d44e',
 		s.beginPath(),
 		s.moveTo(23, 11.2672237),
 		s.bezierCurveTo(23.5979157, 11.6115707, 24, 12.2552568, 24, 12.999615),
@@ -132,9 +71,7 @@ export default class extends VehiclePowerup {
 		s.fill(),
 		s.stroke(),
 		s.restore(),
-		s.restore(),
 		s.save(),
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
 		s.lineWidth = 2,
 		s.beginPath(),
 		s.moveTo(22.5009348, 12.1337882),
@@ -153,53 +90,30 @@ export default class extends VehiclePowerup {
 		s.lineTo(23, 12.999615),
 		s.bezierCurveTo(23, 12.6352349, 22.8086914, 12.311029, 22.5009348, 12.1337882),
 		s.closePath(),
-		s.fill(),
 		s.stroke(),
 		s.restore(),
-		s.restore(),
-		s.save(),
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
 		s.beginPath(),
 		s.moveTo(5, 6),
 		s.lineTo(19, 6),
-		s.quadraticCurveTo(19, 6, 19, 6),
 		s.lineTo(19, 12),
-		s.quadraticCurveTo(19, 12, 19, 12),
 		s.lineTo(5, 12),
-		s.quadraticCurveTo(5, 12, 5, 12),
-		s.lineTo(5, 6),
-		s.quadraticCurveTo(5, 6, 5, 6),
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.restore(),
-		s.save(),
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
 		s.beginPath(),
-		s.arc(5.03571429, 16.0357143, 1.39285714, 0, 6.283185307179586, !0),
+		s.arc(5.03571429, 16.0357143, 1.39285714, 0, 2 * Math.PI, !0),
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.restore(),
-		s.save(),
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
 		s.beginPath(),
-		s.arc(18.9642857, 16.0357143, 1.39285714, 0, 6.283185307179586, !0),
+		s.arc(18.9642857, 16.0357143, 1.39285714, 0, 2 * Math.PI, !0),
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.restore(),
-		s.restore(),
-		s.restore(),
-		s.restore(),
-		s.restore(),
-		s.restore(),
 		s.restore()
 	}
 	getCode() {
-		return "V " + this.x.toString(32) + " " + this.y.toString(32) + " 2 " + this.time.toString(32)
+		return super.getCode() + ' 2 ' + this.time.toString(32)
 	}
-	static cache = Object.assign({}, this.cache, {
-		canvas: document.createElement("canvas")
-	})
+	static cache = this.createCache()
 }
