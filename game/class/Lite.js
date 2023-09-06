@@ -48,12 +48,14 @@ window.lite = new class {
 		}
 	});
 	constructor() {
+		let searchParams = new URLSearchParams(location.search)
+		if (searchParams.has('ajax')) return;
 		if (window.Application) {
 			Application.events.subscribe('route', () => this.loaded = false),
 			Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
 		}
 
-		GameManager.on('stateChange', state => {
+		window.GameManager && GameManager.on('stateChange', state => {
 			if (state.preloading === false && this.loaded === false) {
 				this.loaded = this.load();
 			}

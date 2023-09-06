@@ -83,17 +83,17 @@ export default class {
 		this.powerupCanvasDrawn = !1
 	}
 	erase(t, e, i) {
-		var s = [];
+		let s = [];
 		if (i.physics === !0)
-			for (let n of this.physicsLines)
-				n.erase(t, e) && s.push(n);
+			for (let n of this.physicsLines.filter(n => n.erase(t, e)))
+				s.push(n);
 		if (i.scenery === !0)
-			for (let n of this.sceneryLines)
-				n.erase(t, e) && s.push(n);
+			for (let n of this.sceneryLines.filter(n => n.erase(t, e)))
+				s.push(n);
 		if (i.powerups === !0)
 			for (let n of this.powerups.all) {
 				let g = n.erase(t, e);
-				s.push(...g)
+				g && s.push(...g)
 			}
 		return s
 	}
