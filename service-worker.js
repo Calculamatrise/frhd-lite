@@ -19,21 +19,11 @@ const contentScripts = [{
 	world: "MAIN"
 }];
 
-chrome.runtime.onInstalled.addListener(function() {
-	chrome.storage.local.get(({ enabled = true, settings = null }) => {
-		chrome.storage.local.set({
-			enabled,
-			badges: true,
-			settings: Object.assign(defaults, settings)
-		});
-	});
-});
-
 chrome.runtime.onStartup.addListener(function() {
-	chrome.storage.local.get(setState);
+	self.dispatchEvent(new ExtendableEvent('activate'));
 });
 
-chrome.runtime.onUpdateAvailable.addListener(function({ version }) {
+chrome.runtime.onUpdateAvailable.addListener(function() {
 	chrome.storage.session.set({ updateAvailable: true }).then(() => {
 		chrome.action.setBadgeText({ text: '1' });
 	});
@@ -44,10 +34,22 @@ chrome.storage.local.onChanged.addListener(function({ enabled }) {
 });
 
 self.addEventListener('activate', function() {
-	chrome.storage.local.get(setState);
+	chrome.storage.local.get(({ enabled }) => {
+		enabled || setState({ enabled })
+	});
 });
 
-async function setState({ enabled }) {
+self.addEventListener('install', function() {
+	chrome.storage.local.get(({ enabled = true, settings }) => {
+		chrome.storage.local.set({
+			enabled,
+			badges: true,
+			settings: Object.assign(defaults, settings)
+		});
+	});
+}, { once: true });
+
+async function setState({ enabled = true }) {
 	const path = size => `/icons/${enabled ? '' : 'disabled/'}icon_${size}.png`
 	chrome.action.setIcon({
 		path: {
@@ -59,6 +61,6 @@ async function setState({ enabled }) {
 
 	enabled ? chrome.scripting.getRegisteredContentScripts().then(scripts => scripts.length > 0 || chrome.scripting.registerContentScripts(contentScripts)) : chrome.scripting.unregisterContentScripts();
 	chrome.declarativeNetRequest.updateEnabledRulesets({
-		[(enabled ? 'en' : 'dis') + "ableRulesetIds"]: await chrome.declarativeNetRequest.getEnabledRulesets()
+		[(enabled ? 'en' : 'dis') + 'ableRulesetIds']: await chrome.declarativeNetRequest.getEnabledRulesets()
 	});
 }
