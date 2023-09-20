@@ -55,13 +55,14 @@ window.lite = new class {
 			Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
 		}
 
-		window.GameManager && GameManager.on('stateChange', state => {
+		window.GameManager && ((GameManager.clientMods ||= new Map()).set('frhd-lite', this),
+		GameManager.on('stateChange', state => {
 			if (state.preloading === false && this.loaded === false) {
 				this.loaded = this.load();
 			}
 
 			this.loaded && this.refresh();
-		});
+		}));
 
 		this.#createCustomStyleSheet();
 		this.childLoad();
