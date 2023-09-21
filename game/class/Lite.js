@@ -11,7 +11,7 @@ window.lite = new class {
 			super.push(...args);
 		}
 	}
-	storage = new Map(Object.entries(JSON.parse(sessionStorage.getItem('lite'))));
+	storage = new Map();
 	styleSheet = new Proxy(new Map(), {
 		get: (...args) => {
 			let [target, property, receiver] = args;
@@ -67,8 +67,11 @@ window.lite = new class {
 		this.#createCustomStyleSheet();
 		this.childLoad();
 		addEventListener('message', ({ data }) => {
-			if (!data) return;
+			if (!data) return console.warn('data is missing');
 			switch (data.action) {
+				case 'setStorage':
+					this.storage = new Map(Object.entries(data.storage));
+					break;
 				case 'updateStorage':
 					let oldStorage = new Map(this.storage);
 					this.storage = new Map(Object.entries(data.storage));
@@ -79,7 +82,6 @@ window.lite = new class {
 					}
 
 					this.updateFromSettings(changes);
-					break;
 			}
 		});
 	}

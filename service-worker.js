@@ -1,14 +1,22 @@
 import defaults from "./constants/defaults.js";
 
 const contentScripts = [{
-	id: "bootstrap",
-	js: ["bootstrap.js"],
+	excludeMatches: [
+		"*://*/*?ajax*",
+		"*://*/*&ajax*"
+	],
+	id: "connection-broker",
+	js: ["broker.js"],
 	matches: [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*"
 	],
-	runAt: "document_start"
+	runAt: "document_end"
 }, {
+	excludeMatches: [
+		"*://*/*\?ajax*",
+		"*://*/*&ajax*"
+	],
 	id: "game",
 	js: ["game/main.js"],
 	matches: [
