@@ -47,8 +47,9 @@ self.addEventListener('activate', function() {
 	});
 });
 
-self.addEventListener('install', function() {
-	chrome.scripting.registerContentScripts(contentScripts);
+self.addEventListener('install', async function() {
+	const scripts = await chrome.scripting.getRegisteredContentScripts();
+	scripts.length == 0 && chrome.scripting.registerContentScripts(contentScripts);
 	chrome.storage.local.get(({ enabled = true, settings }) => {
 		chrome.storage.local.set({
 			enabled,

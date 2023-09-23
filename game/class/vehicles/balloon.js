@@ -1,4 +1,4 @@
-import s from "../math/cartesian.js";
+import Cartesian from "../math/cartesian.js";
 import a from "./canopy.js";
 import n from "./mass.js";
 import r from "./spring.js";
@@ -23,7 +23,7 @@ export default class extends Vehicle {
 		this.masses = [];
 		var e = new a(t.x, t.y - 10, this);
 		e.radius = 30;
-		var i = new n(new s(t.x,t.y + 35), this);
+		var i = new n(new Cartesian(t.x,t.y + 35), this);
 		i.friction = .1,
 		this.masses.push(e),
 		this.masses.push(i),
@@ -119,8 +119,8 @@ export default class extends Vehicle {
 	}
 	drawBalloon(t) {
 		var e = this.scene
-			, i = new s(this.basket.pos.x, this.basket.pos.y).toScreen(e)
-			, m = new s(this.head.pos.x, this.head.pos.y).toScreen(e)
+			, i = new Cartesian(this.basket.pos.x, this.basket.pos.y).toScreen(e)
+			, m = new Cartesian(this.head.pos.x, this.head.pos.y).toScreen(e)
 			, n = e.camera.zoom
 			, r = m.x - i.x
 			, o = m.y - i.y

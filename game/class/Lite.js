@@ -50,11 +50,8 @@ window.lite = new class {
 	constructor() {
 		let searchParams = new URLSearchParams(location.search)
 		if (searchParams.has('ajax')) return;
-		if (window.Application) {
-			Application.events.subscribe('route', () => this.loaded = false),
-			Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
-		}
-
+		navigation.addEventListener('navigate', () => this.loaded = false);
+		window.Application && Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
 		window.GameManager && ((GameManager.clientMods ||= new Map()).set('frhd-lite', this),
 		GameManager.on('stateChange', state => {
 			if (state.preloading === false && this.loaded === false) {
