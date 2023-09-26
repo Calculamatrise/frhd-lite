@@ -6,17 +6,17 @@ export default class {
 		this.y = e;
 	}
 	toReal(t) {
-		var e = t.camera
-			, s = t.screen
-			, n = (this.x - s.center.x) / e.zoom + e.position.x
-			, r = (this.y - s.center.y) / e.zoom + e.position.y;
+		let e = t.camera
+		  , s = t.screen
+		  , n = (this.x - s.center.x) / e.zoom + e.position.x
+		  , r = (this.y - s.center.y) / e.zoom + e.position.y;
 		return new this.constructor(n, r)
 	}
 	toScreen(t) {
-		var e = t.camera
-			, s = t.screen
-			, n = (this.x - e.position.x) * e.zoom + s.center.x
-			, r = (this.y - e.position.y) * e.zoom + s.center.y;
+		let e = t.camera
+		  , s = t.screen
+		  , n = (this.x - e.position.x) * e.zoom + s.center.x
+		  , r = (this.y - e.position.y) * e.zoom + s.center.y;
 		return new this.constructor(n, r)
 	}
 	lenSqr() {
@@ -55,29 +55,29 @@ export default class {
 	}
 	subOut(t, e) {
 		e.x = this.x - t.x,
-			e.y = this.y - t.y
+		e.y = this.y - t.y
 	}
 	subSelf(t) {
 		this.x = this.x - t.x,
-			this.y = this.y - t.y
+		this.y = this.y - t.y
 	}
 	equ(t) {
 		this.x = t.x,
-			this.y = t.y
+		this.y = t.y
 	}
 	normalize() {
 		let t = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
 		return new this.constructor(this.x / t, this.y / t)
 	}
 	getAngleInDegrees(t) {
-		var e = t.sub(this)
-			, i = Math.atan2(e.x, -e.y)
-			, s = i * (180 / Math.PI);
-		return 0 > s && (s += 360),
-			s
+		let e = t.sub(this)
+		  , i = Math.atan2(e.x, -e.y)
+		  , s = i * (180 / Math.PI);
+		return s < 0 && (s += 360),
+		s
 	}
 	getAngleInRadians(t) {
-		var e = t.sub(this);
+		let e = t.sub(this);
 		return Math.atan2(e.x, -e.y)
 	}
 }

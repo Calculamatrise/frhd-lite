@@ -22,8 +22,8 @@ export default class extends Powerup {
 	}
 	drawCircle(t, e, i, s) {
 		i *= .2,
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.lineWidth = 8 * i,
 		s.beginPath(),
 		s.moveTo(53 * i, 105 * i),
@@ -64,16 +64,16 @@ export default class extends Powerup {
 		s.beginPath(),
 		s.arc(66 * i, 66 * i, 8 * i, 0 * i, 2 * Math.PI, !0),
 		s.lineWidth = 2 * i,
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.fill(),
 		s.stroke()
 	}
 	collide(t) {
-		var e = t.parent
-			, i = e.player
-			, s = t.pos.x - this.x
-			, n = t.pos.y - this.y
-			, a = Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2));
+		let e = t.parent
+		  , i = e.player
+		  , s = t.pos.x - this.x
+		  , n = t.pos.y - this.y
+		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2));
 		20 > a && i.isAlive() && (e.explode(),
 		i.isGhost() === !1 && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1))

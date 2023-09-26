@@ -21,16 +21,16 @@ export default class extends Vehicle {
 	}
 	createMasses(t) {
 		this.masses = [];
-		var e = new a(t.x, t.y - 10, this);
+		let e = new a(t.x, t.y - 10, this);
 		e.radius = 30;
-		var i = new n(new Cartesian(t.x,t.y + 35), this);
+		let i = new n(new Cartesian(t.x,t.y + 35), this);
 		i.friction = .1,
 		this.masses.push(e),
 		this.masses.push(i),
 		this.head = this.masses[0],
 		this.basket = this.masses[1];
-		var r = this;
-		this.masses[0].drive = this.head.drive = function() {
+		let r = this;
+		this.head.drive = function() {
 			r.explode()
 		}
 	}
@@ -124,20 +124,19 @@ export default class extends Vehicle {
 			, n = e.camera.zoom
 			, r = m.x - i.x
 			, o = m.y - i.y
-			, l = -o
-			, h = r;
+			, l = -o;
 		t.save(),
 		t.strokeStyle = window.lite.storage.get("theme") === "dark" ? "#666" : "#999",
 		t.lineWidth = 1,
 		t.beginPath(),
-		t.moveTo(i.x + .1 * l, i.y + .1 * h),
-		t.lineTo(i.x + .5 * r + .4 * l, i.y + .5 * o + .4 * h),
-		t.moveTo(i.x - .1 * l, i.y - .1 * h),
-		t.lineTo(i.x + .5 * r - .4 * l, i.y + .5 * o - .4 * h),
-		t.moveTo(i.x + .1 * l, i.y + .1 * h),
-		t.lineTo(i.x + .36 * r + .2 * l, i.y + .36 * o + .2 * h),
-		t.moveTo(i.x - .1 * l, i.y - .1 * h),
-		t.lineTo(i.x + .36 * r - .2 * l, i.y + .36 * o - .2 * h),
+		t.moveTo(i.x + .1 * l, i.y + .1 * r),
+		t.lineTo(i.x + .5 * r + .39 * l, i.y + .5 * o + .39 * r),
+		t.moveTo(i.x - .1 * l, i.y - .1 * r),
+		t.lineTo(i.x + .5 * r - .39 * l, i.y + .5 * o - .39 * r),
+		t.moveTo(i.x + .1 * l, i.y + .1 * r),
+		t.lineTo(i.x + .4 * r + .21 * l, i.y + .4 * o + .21 * r),
+		t.moveTo(i.x - .1 * l, i.y - .1 * r),
+		t.lineTo(i.x + .4 * r - .21 * l, i.y + .4 * o - .21 * r),
 		t.closePath(),
 		t.stroke();
 		const head = new a(this.head.pos.x, this.head.pos.y, this);
@@ -159,11 +158,11 @@ export default class extends Vehicle {
 		t.stroke()),
 		t.beginPath(),
 		t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
-		t.moveTo(i.x + .1 * l, i.y + .1 * h),
-		t.lineTo(i.x - .1 * l, i.y - .1 * h),
-		t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * h),
-		t.lineTo(i.x - .22 * r + .1 * l, i.y - .22 * o + .1 * h),
-		t.lineTo(i.x + .1 * l, i.y + .1 * h),
+		t.moveTo(i.x + .1 * l, i.y + .1 * r),
+		t.lineTo(i.x - .1 * l, i.y - .1 * r),
+		t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * r),
+		t.lineTo(i.x - .22 * r + .1 * l, i.y - .22 * o + .1 * r),
+		t.lineTo(i.x + .1 * l, i.y + .1 * r),
 		t.closePath(),
 		t.fill(),
 		t.restore()

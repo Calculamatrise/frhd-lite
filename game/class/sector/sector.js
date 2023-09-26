@@ -140,7 +140,7 @@ export default class {
 			this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
 			this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
 			this.ctx = this.canvas.getContext("2d"),
-			this.ctx.lineCap = "round",
+			this.ctx.lineCap = 'round',
 			this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
 		}
 		this.ctx.beginPath(),
@@ -196,14 +196,14 @@ export default class {
 			}
 	}
 	drawLines(t, e, i) {
-		for (const s in t) {
+		for (let s in t) {
 			if (t[s].remove) t.splice(s, 1);
 			else i.moveTo((t[s].p1.x - this.x) * e, (t[s].p1.y - this.y) * e),
 			i.lineTo((t[s].p2.x - this.x) * e, (t[s].p2.y - this.y) * e);
 		}
 	}
 	drawPowerups(t, e, i) {
-		for (const s in t) {
+		for (let s in t) {
 			if (t[s].remove)
 				t.splice(s, 1);
 			else {

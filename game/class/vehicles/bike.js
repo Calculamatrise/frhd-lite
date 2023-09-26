@@ -20,9 +20,9 @@ export default class extends Vehicle {
 	ragdoll = null;
 	createSprings() {
 		this.springs = [];
-		var t = new r(this.head,this.rearWheel,this)
-		, e = new r(this.rearWheel,this.frontWheel,this)
-		, i = new r(this.frontWheel,this.head,this);
+		let t = new r(this.head,this.rearWheel,this)
+		  , e = new r(this.rearWheel,this.frontWheel,this)
+		  , i = new r(this.frontWheel,this.head,this);
 		this.springs.push(t),
 		this.springs.push(e),
 		this.springs.push(i),
@@ -43,9 +43,9 @@ export default class extends Vehicle {
 		this.dead()
 	}
 	playBailSound() {
-		var t = this.scene.sound
-			, e = Math.min(this.speed / 50, 1)
-			, i = Math.floor(3 * Math.random()) + 1;
+		let t = this.scene.sound
+		  , e = Math.min(this.speed / 50, 1)
+		  , i = Math.floor(3 * Math.random()) + 1;
 		switch (i) {
 			case 1:
 				t.play(d.BIKE_FALL_1, e);
@@ -61,15 +61,15 @@ export default class extends Vehicle {
 		this.focalPoint = this.ragdoll ? this.ragdoll.head : this.head
 	}
 	getStickMan() {
-		var t = this.dir
-			, e = this.head
-			, i = this.frontWheel
-			, n = this.rearWheel
-			, r = this.pedala
-			, o = i.pos.sub(n.pos)
-			, a = e.pos.sub(i.pos.add(n.pos).factor(.5))
-			, h = new Vector(o.y * t,-o.x * t)
-			, l = {};
+		let t = this.dir
+		  , e = this.head
+		  , i = this.frontWheel
+		  , n = this.rearWheel
+		  , r = this.pedala
+		  , o = i.pos.sub(n.pos)
+		  , a = e.pos.sub(i.pos.add(n.pos).factor(.5))
+		  , h = new Vector(o.y * t,-o.x * t)
+		  , l = {};
 		l.head = n.pos.add(o.factor(.35)).add(a.factor(1.2)),
 		l.lHand = l.rHand = n.pos.add(o.factor(.8)).add(h.factor(.68));
 		var c = l.head.sub(l.lHand);
@@ -93,16 +93,16 @@ export default class extends Vehicle {
 		this.explosion)
 			this.explosion.fixedUpdate();
 		else {
-			for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
+			for (let t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
 				t[i].fixedUpdate();
-			for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
+			for (let s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
 				s[r].fixedUpdate()
 			if (this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1),
 			this.slow === !1) {
 				this.crashed === !1 && this.control()
-				for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
+				for (let t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
 					t[i].fixedUpdate();
-				for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
+				for (let s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
 					s[r].fixedUpdate()
 			}
 			this.ragdoll ? this.ragdoll.fixedUpdate() : this.updateDrawHeadAngle()
@@ -112,22 +112,22 @@ export default class extends Vehicle {
 	updateSound() {
 		if (this.player.isInFocus()) {
 			this.updateSpeed();
-			var t = Math.min(this.speed / 50, 1)
-				, e = this.scene.sound;
+			let t = Math.min(this.speed / 50, 1)
+			  , e = this.scene.sound;
 			this.rearWheel.contact || this.frontWheel.contact ? (e.play(d.BIKE_GROUND, t),
 			e.stop(d.BIKE_AIR)) : (e.play(d.BIKE_AIR, t),
 			e.stop(d.BIKE_GROUND))
 		}
 	}
 	stopSounds() {
-		var t = this.scene.sound;
+		let t = this.scene.sound;
 		t.stop(d.BIKE_AIR),
 		t.stop(d.BIKE_GROUND)
 	}
 	swap() {
 		this.dir = -1 * this.dir,
 		this.chasse.swap();
-		var t = this.rearSpring.leff;
+		let t = this.rearSpring.leff;
 		this.rearSpring.leff = this.frontSpring.leff,
 		this.frontSpring.leff = t
 	}
@@ -137,7 +137,7 @@ export default class extends Vehicle {
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite.storage.get("snapshots");
+					let t = window.lite && lite.storage.get("snapshots");
 					if (t > 0) {
 						for (let i in this.player._checkpoints) {
 							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._baseVehicle) continue;
@@ -151,10 +151,10 @@ export default class extends Vehicle {
 					}
 				}
 
-				if (window.lite.storage.get("playerTrail")) {
-					for (let i in window.lite.snapshots) {
-						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._baseVehicle) continue;
-						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._baseVehicle)), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+				if (window.lite && lite.storage.get("playerTrail")) {
+					for (let i in lite.snapshots) {
+						if (!lite.snapshots[i] || !lite.snapshots[i]._baseVehicle) continue;
+						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._baseVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1);
 					}
 				}
 			}
@@ -170,7 +170,7 @@ export default class extends Vehicle {
 		}
 	}
 	updateDrawHeadAngle() {
-		var t = this.frontWheel.pos
+		let t = this.frontWheel.pos
 		  , e = this.rearWheel.pos
 		  , i = t.x
 		  , s = t.y

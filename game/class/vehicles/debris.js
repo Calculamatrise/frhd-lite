@@ -19,18 +19,18 @@ export default class extends Mass {
 		this.friction = .05;
 	}
 	drive(t, e) {
-		var i = this.vel
-		, s = this.pos;
+		let i = this.vel
+		  , s = this.pos;
 		this.speed = (t * i.x + e * i.y) / this.radius,
 		this.angle += this.speed;
-		var n = -(t * i.x + e * i.y) * this.friction;
+		let n = -(t * i.x + e * i.y) * this.friction;
 		s.x += t * n,
 		s.y += e * n;
-		var a = Math.sqrt(Math.pow(t, 2) + Math.pow(e, 2));
+		let a = Math.sqrt(Math.pow(t, 2) + Math.pow(e, 2));
 		if (a > 0) {
-			var h = -e / a
-			, l = t / a
-			, c = .8 * (h * i.x + l * i.y);
+			let h = -e / a
+			  , l = t / a
+			  , c = .8 * (h * i.x + l * i.y);
 			this.old.x += h * c,
 			this.old.y += l * c
 		}
@@ -40,24 +40,26 @@ export default class extends Mass {
 		super.fixedUpdate()
 	}
 	draw(d) {
-		var t = this.scene.screen
-		, e = this.scene.camera
-		, i = t.realToScreen(this.pos.x, "x")
-		, s = t.realToScreen(this.pos.y, "y")
-		, n = 0
-		, r = e.zoom
-		, o = this.angle
-		, c = l[0] * r * this.radius
-		, u = i + c * Math.cos(o)
-		, p = s + c * Math.sin(o);
-		for (d.lineWidth = 1 * r,
+		let t = this.scene.screen
+		  , e = this.scene.camera
+		  , i = t.realToScreen(this.pos.x, "x")
+		  , s = t.realToScreen(this.pos.y, "y")
+		  , n = 0
+		  , r = e.zoom
+		  , o = this.angle
+		  , c = l[0] * r * this.radius
+		  , u = i + c * Math.cos(o)
+		  , p = s + c * Math.sin(o)
+		  , a = 2 * Math.PI;
+		d.lineWidth = 1 * r,
 		d.strokeStyle = this.color,
 		d.beginPath(),
 		d.moveTo(u, p),
-		d.fillStyle = this.color; n++ < 8; )
+		d.fillStyle = this.color;
+		while (n++ < 8)
 			c = l[n - 1] * r * this.radius,
-			u = i + c * Math.cos(o + 6.283 * n / 8),
-			p = s + c * Math.sin(o + 6.283 * n / 8),
+			u = i + c * Math.cos(o + a * n / 8),
+			p = s + c * Math.sin(o + a * n / 8),
 			d.lineTo(u, p);
 		d.fill(),
 		d.stroke()

@@ -1,7 +1,7 @@
 export default class {
-    scene = null;
+	scene = null;
 	sprite = null;
-    cached = !1;
+	cached = !1;
 	container = {
 		children: [],
 		color: "#000000",
@@ -37,8 +37,8 @@ export default class {
 		y: 7
 	}
 	constructor(t) {
-        this.scene = t,
-        this.settings = t.settings;
+		this.scene = t,
+		this.settings = t.settings;
 		let { goals } = t.settings.campaignData;
 		this.bronze_container.text = goals.third;
 		this.silver_container.text = goals.second;
@@ -47,29 +47,28 @@ export default class {
 		this.container.children.push(this.silver_container),
 		this.container.children.push(this.gold_container),
 		this.sprite = this.scene.assets.getResult("campaign_icons")
-        this.update_state()
-    }
-    update_state() {
-        switch (this.settings.campaignData.user.has_goal) {
-            case 1:
-            case "first":
-                this.gold_container.alpha = 1;
-            case "second":
-            case 2:
-                this.silver_container.alpha = 1;
-            case "third":
-            case 3:
-                this.bronze_container.alpha = 1;
-            case 0:
-        }
-    }
-    center_container() {
-        let t = this.scene.screen
-          , e = this.container
-          , i = e.children.reduce((width, child) => width += child.width, 0);
+		this.update_state()
+	}
+	update_state() {
+		switch (this.settings.campaignData.user.has_goal) {
+			case 1:
+			case "first":
+				this.gold_container.alpha = 1;
+			case 2:
+			case "second":
+				this.silver_container.alpha = 1;
+			case 3:
+			case "third":
+				this.bronze_container.alpha = 1;
+		}
+	}
+	center_container() {
+		let t = this.scene.screen
+		  , e = this.container
+		  , i = e.children.reduce((width, child) => width += child.width, 0);
 		e.x = t.width / 2 - i / 2 * window.devicePixelRatio,
-        e.y = 40 * window.devicePixelRatio
-    }
+		e.y = 40 * window.devicePixelRatio
+	}
 	draw(t) {
 		t.save();
 		t.fillStyle = this.container.color;
@@ -89,8 +88,8 @@ export default class {
 
 		t.restore();
 	}
-    update() {
-        this.settings.mobile && this.center_container(),
-        this.update_state()
-    }
+	update() {
+		this.settings.mobile && this.center_container(),
+		this.update_state()
+	}
 }

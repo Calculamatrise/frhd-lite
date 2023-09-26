@@ -301,26 +301,26 @@ export default class {
 		this._crashed = !0
 	}
 	gotoCheckpoint() {
-		var t = this._gamepad
+		let t = this._gamepad
 		  , e = t.replaying
 		  , i = this._scene;
 		if (this._checkpoints.length > 0) {
-			var s = this._checkpoints[this._checkpoints.length - 1];
+			let s = this._checkpoints[this._checkpoints.length - 1];
 			if (s._tempVehicle) {
 				this._baseVehicle.stopSounds();
-				var n = this._tempVehicle;
+				let n = this._tempVehicle;
 				this._tempVehicleType !== s._tempVehicleType && (n = new v[s._tempVehicleType](this, {
 					x: 0,
 					y: 0
 				}));
-				var r = JSON.parse(s._tempVehicle);
+				let r = JSON.parse(s._tempVehicle);
 				m(n, r),
 				this._tempVehicle = n,
 				this._tempVehicleType = s._tempVehicleType,
 				this._tempVehicleTicks = s._tempVehicleTicks,
 				n.updateCameraFocalPoint()
 			} else {
-				var n = this._baseVehicle
+				let n = this._baseVehicle
 				  , r = JSON.parse(s._baseVehicle);
 				m(n, r),
 				this._tempVehicle && this._tempVehicle.stopSounds(),
@@ -332,7 +332,7 @@ export default class {
 			if (this._powerupsConsumed = JSON.parse(s._powerupsConsumed),
 				this._crashed = s._crashed,
 				e === !1) {
-				var o = i.settings;
+				let o = i.settings;
 				i.state.playerAlive = this.isAlive(),
 				i.settings.mobile ? i.message.show("Tap to resume", 5, "#826cdc", "#FFFFFF") : i.message.show("Press Backspace To Go Back Further", 5, "#826cdc", "#FFFFFF"),
 				i.track.updatePowerupState(this),
@@ -350,7 +350,7 @@ export default class {
 	}
 	removeCheckpoint(t) {
 		if (this._checkpoints.length > 1) {
-			for (var e = 0; t > e; e++)
+			for (let e = 0; t > e; e++)
 				this._cache.push(this._checkpoints.pop());
 			this.gotoCheckpoint()
 		} else

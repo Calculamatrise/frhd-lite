@@ -8,9 +8,11 @@ export default class {
 	sprites = {};
 	container = {
 		children: [],
+		color: "#000000",
+		font: 20,
+		height: 58,
 		x: 10,
 		y: 10,
-		height: 58,
 		get scale() {
 			return window.devicePixelRatio / 2.5;
 		},
@@ -25,7 +27,6 @@ export default class {
 		target: [2, 2, 58, 58]
 	}
 	time = {
-		color: "#000000",
 		font: 40,
 		text: "0:00.00",
 		x: 57,
@@ -33,7 +34,6 @@ export default class {
 	}
 	time_title = {
 		color: "#999999",
-		font: 20,
 		text: "TIME:",
 		x: 59,
 		y: 3
@@ -52,13 +52,11 @@ export default class {
 	}
 	best_time_title = {
 		color: "#999999",
-		font: 20,
 		text: "BEST:",
 		x: 240,
 		y: 3
 	}
 	goals = {
-		color: "#000000",
 		font: 40,
 		text: "0/0",
 		x: 460,
@@ -83,17 +81,22 @@ export default class {
 	}
 	draw(ctx) {
 		ctx.save();
+		ctx.fillStyle = this.container.color;
+		let font = this.container.font * this.container.scale + 'px helsinki';
+		ctx.font = font;
 		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
 		ctx.imageSmoothingEnabled = true;
 		for (const data of this.container.children) {
-			if (data.hasOwnProperty("image")) {
+			if (data.hasOwnProperty('image')) {
 				let imageData = this.spriteSheet[data.image];
 				ctx.drawImage(this.sprites[data.image.replace("_paused", "")], ...imageData, (this.container.x + data.x) * this.container.scale, (this.container.y + data.y) * this.container.scale, imageData[2] * this.container.scale, imageData[3] * this.container.scale);
-			} else if (data.hasOwnProperty("text")) {
-				ctx.font = data.font * this.container.scale + "px helsinki";
-				ctx.fillStyle = data.color;
+			} else if (data.hasOwnProperty('text')) {
+				data.color && (ctx.fillStyle = data.color),
+				data.font && (ctx.font = data.font * this.container.scale + "px helsinki"),
 				ctx.fillText(data.text, (this.container.x + data.x) * this.container.scale, (this.container.y + data.y) * this.container.scale);
+				data.color && (ctx.fillStyle = this.container.color),
+				data.font && (ctx.font = font);
 			}
 		}
 
@@ -112,7 +115,7 @@ export default class {
 		this.scene.settings.mobile && this.center_container();
 	}
 	center_container() {
-		var t = this.container
+		let t = this.container
 		  , e = t.width
 		  , i = this.scene.screen;
 		t.x = 10 + i.width / 2 - (e / 2) * t.scale,

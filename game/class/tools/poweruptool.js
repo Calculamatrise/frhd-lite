@@ -36,8 +36,8 @@ export default class extends Tool {
 		return this.options
 	}
 	update() {
-		var t = this.toolhandler.gamepad
-		, e = this.options;
+		let t = this.toolhandler.gamepad
+		  , e = this.options;
 		t.isButtonDown("opt1") && (e.selected = "goal",
 		t.setButtonUp("opt1"),
 		this.scene.stateChanged()),
@@ -65,15 +65,15 @@ export default class extends Tool {
 		super.update();
 	}
 	press() {
-		var t = this.options.selected;
+		let t = this.options.selected;
 		this.powerupTools[t].press()
 	}
 	hold() {
-		var t = this.options.selected;
+		let t = this.options.selected;
 		this.powerupTools[t].hold()
 	}
 	release() {
-		var t = this.options.selected;
+		let t = this.options.selected;
 		this.powerupTools[t].release()
 	}
 	draw(e) {

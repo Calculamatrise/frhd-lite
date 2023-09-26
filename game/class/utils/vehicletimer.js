@@ -34,8 +34,8 @@ export default class {
 		this.tweenScale = 1.2 * i
 	}
 	center_container() {
-		var t = this.scene.screen
-		, e = this.container;
+		let t = this.scene.screen
+		  , e = this.container;
 		e.x = t.width / 2 - 100 * e.scaleX,
 		e.y = t.height - 100 * e.scaleY
 	}
@@ -69,11 +69,10 @@ export default class {
 		this.updateTime()) : this.container.visible = !1
 	}
 	updateTime() {
-		var e = this.player._tempVehicleTicks
-		, i = this.scene.settings.drawFPS
-		, s = e / i;
-		s = s.toFixed(2);
-		var n = "";
+		let e = this.player._tempVehicleTicks
+		  , i = this.scene.settings.drawFPS
+		  , s = (e / i).toFixed(2)
+		  , n = "";
 		10 > s && (n = "0"),
 		n += s,
 		this.container.text = n,

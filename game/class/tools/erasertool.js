@@ -27,33 +27,34 @@ export default class extends Tool {
 		this.recordActionsToToolhandler()
 	}
 	hold() {
-		var t = this.mouse.touch
-		, e = t.pos
-		, i = this.scene.track
-		, s = this.scene.screen
-		, n = this.scene.camera
-		, o = s.center
-		, a = n.position
-		, h = (e.x - o.x) / n.zoom + a.x
-		, l = (e.y - o.y) / n.zoom + a.y;
+		let t = this.mouse.touch
+		  , e = t.pos
+		  , i = this.scene.track
+		  , s = this.scene.screen
+		  , n = this.scene.camera
+		  , o = s.center
+		  , a = n.position
+		  , h = (e.x - o.x) / n.zoom + a.x
+		  , l = (e.y - o.y) / n.zoom + a.y;
 		this.eraserPoint.x = Math.round(h),
 		this.eraserPoint.y = Math.round(l);
-		var c = i.erase(this.eraserPoint, this.options.radius / this.scene.camera.zoom, this.options.types);
+		let c = i.erase(this.eraserPoint, this.options.radius / this.scene.camera.zoom, this.options.types);
 		c.length > 0 && this.erasedObjects.push(c)
 	}
 	draw(e) {
 		this.drawEraser(e)
 	}
 	drawEraser(t) {
-		var e = this.mouse.touch,
-			i = e.pos;
+		let e = this.mouse.touch
+		  , i = e.pos
+		  , colorScheme = window.lite && lite.storage.get('theme');
 		t.save();
 		t.beginPath(),
 		t.arc(i.x, i.y, this.options.radius, 0, 2 * Math.PI, !1),
 		t.lineWidth = 1,
-		t.fillStyle = window.lite.storage.get("theme") === "dark" ? "rgba(33,33,33,0.8)" : "rgba(255,255,255,0.8)",
+		t.fillStyle = /^midnight$/i.test(colorScheme) ? "rgba(29,35,40,0.8)" : /^dark$/i.test(colorScheme) ? "rgba(33,33,33,0.8)" : "rgba(255,255,255,0.8)",
 		t.fill(),
-		t.strokeStyle = window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
+		t.strokeStyle = '#'.padEnd(7, /^midnight$/i.test(colorScheme) ? 'C' : /^dark$/i.test(colorScheme) ? 'FB' : '0'),
 		t.stroke(),
 		t.restore()
 	}
@@ -64,19 +65,18 @@ export default class extends Tool {
 		return this.options
 	}
 	update() {
-		var t = this.toolhandler.gamepad
-		, e = this.mouse;
+		let t = this.toolhandler.gamepad
+		  , e = this.mouse;
 		t.isButtonDown("shift") && e.mousewheel !== !1 && this.adjustRadius(e.mousewheel),
 		super.update();
 	}
 	adjustRadius(t) {
-		var e = this.options.radius
-		, i = this.options.radiusSizeSensitivity
-		, s = this.options.maxRadius
-		, n = this.options.minRadius
-		, r = t > 0 ? i : -i;
+		let e = this.options.radius
+		  , i = this.options.radiusSizeSensitivity
+		  , s = this.options.maxRadius
+		  , n = this.options.minRadius
+		  , r = t > 0 ? i : -i;
 		e += r,
-		n > e ? e = n : e > s && (e = s),
-		this.setOption("radius", e)
+		this.setOption("radius", Math.min(s, Math.max(n, e)))
 	}
 }

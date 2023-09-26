@@ -14,16 +14,16 @@ export default class extends Mass {
 		this.rotationSpeed = 0;
 	}
 	drive(t, e) {
-		var i = this.pos
-			, s = this.motor * this.parent.dir
-			, n = s * t
-			, r = s * e;
+		let i = this.pos
+		  , s = this.motor * this.parent.dir
+		  , n = s * t
+		  , r = s * e;
 		if (i.x += n,
 		i.y += r,
 		this.brake) {
-			var o = .3 * -(t * this.vel.x + e * this.vel.y)
-				, a = t * o
-				, h = e * o;
+			let o = .3 * -(t * this.vel.x + e * this.vel.y)
+			  , a = t * o
+			  , h = e * o;
 			i.x += a,
 			i.y += h
 		}

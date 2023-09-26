@@ -13,15 +13,14 @@ export default class extends Mass {
 		this.contact = !0
 	}
 	fixedUpdate() {
-		var t = this.vel
-			, e = this.pos
-			, i = this.old
-			, s = this.parent.gravity
-			, n = this.parent.gamepad
-			, r = n.isButtonDown("up")
-			, o = n.isButtonDown("left")
-			, a = n.isButtonDown("right")
-			, contact;
+		let t = this.vel
+		  , e = this.pos
+		  , i = this.old
+		  , s = this.parent.gravity
+		  , n = this.parent.gamepad
+		  , r = n.isButtonDown("up")
+		  , o = n.isButtonDown("left")
+		  , a = n.isButtonDown("right");
 		(0 !== s.x || 0 !== s.y) && (t.x = .9 * t.x,
 		t.y = .99 * t.y),
 		o && (e.x += -.05),
@@ -31,7 +30,7 @@ export default class extends Mass {
 		this.wind && (e.x += .3),
 		e.x += t.x,
 		e.y += t.y,
-		contact = !1,
+		this.contact = !1,
 		this.collide && this.scene.track.collide(this),
 		(0 !== s.x || 0 !== s.y) && (t.x = e.x - i.x,
 		t.y = e.y - i.y),
@@ -39,11 +38,11 @@ export default class extends Mass {
 		i.y = e.y
 	}
 	draw(t) {
-		var e = this.parent.scene
-		, i = this.pos.toScreen(e)
-		, s = this.radius * e.camera.zoom;
+		let e = this.scene
+		  , i = this.pos.toScreen(e)
+		  , s = this.radius * e.camera.zoom;
 		t.beginPath(),
-		t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
+		t.fillStyle = this.scene.settings.physicsLineColor,
 		t.arc(i.x, i.y, s, 0, 2 * Math.PI, !1),
 		t.closePath(),
 		t.fill()

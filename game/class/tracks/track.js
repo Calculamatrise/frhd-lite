@@ -253,8 +253,8 @@ export default class {
 	}
 	addRef(t, e, i, s, n, r) {
 		let o = Math.floor(t / r)
-		, h = Math.floor(e / r)
-		, c = !1;
+		  , h = Math.floor(e / r)
+		  , c = !1;
 		if (void 0 === n[o] && (n[o] = []), void 0 === n[o][h]) {
 			let u = new Sector(o, h, this);
 			n[o][h] = u,
@@ -264,8 +264,7 @@ export default class {
 			case M.LINE:
 				n[o][h].addLine(i),
 				i.addSectorReference(n[o][h]);
-			break;
-
+				break;
 			case M.POWERUPS:
 				n[o][h].addPowerup(i),
 				i.addSectorReference(n[o][h])

@@ -9,10 +9,10 @@ export default GameInventoryManager.HeadClass = class {
 		for (let s in t)
 			i += t[s];
 		this.versionName = i,
-		e[i] || (e[i] = {
+		e[i] ||= {
 			dirty: !0,
 			canvas: document.createElement('canvas')
-		})
+		}
 	}
 	draw(t, e, i, s, n, r) {
 		let o = this.getCache(n)

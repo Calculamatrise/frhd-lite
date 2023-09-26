@@ -18,9 +18,9 @@ export default class {
 		this.springConstant = .7;
 	}
 	swap() {
-		var t = new i
-			, e = this.m1
-			, s = this.m2;
+		let t = new i
+		  , e = this.m1
+		  , s = this.m2;
 		t.equ(e.pos),
 		e.pos.equ(s.pos),
 		s.pos.equ(t),
@@ -30,36 +30,32 @@ export default class {
 		t.equ(e.vel),
 		e.vel.equ(s.vel),
 		s.vel.equ(t);
-		var n = e.angle;
-		e.angle = s.angle,
-		s.angle = n
+		[e.angle, s.angle] = [s.angle, e.angle];
 	}
 	fixedUpdate() {
-		var t = new i(0,0)
-			, e = this.m1
-			, s = this.m2
-			, n = e.pos
-			, r = s.pos
-			, o = e.vel
-			, a = s.vel;
-		t.x = r.x - n.x,
-		t.y = r.y - n.y;
-		var h = t.len();
+		let e = this.m1
+		  , s = this.m2
+		  , n = e.pos
+		  , r = s.pos
+		  , o = e.vel
+		  , a = s.vel
+		  , t = new i(r.x - n.x, r.y - n.y);
+		let h = t.len();
 		if (!(1 > h)) {
-			var l = 1 / h;
+			let l = 1 / h;
 			t.x *= l,
 			t.y *= l;
-			var c = (h - this.leff) * this.springConstant
-				, u = {
-				x: t.x * c,
-				y: t.y * c
-			}
-				, p = a.x - o.x
-				, d = a.y - o.y
-				, f = p * t.x + d * t.y
-				, v = f * this.dampConstant
-				, g = t.x * v
-				, m = t.y * v;
+			let c = (h - this.leff) * this.springConstant
+			  , u = {
+				  x: t.x * c,
+				  y: t.y * c
+			  }
+			  , p = a.x - o.x
+			  , d = a.y - o.y
+			  , f = p * t.x + d * t.y
+			  , v = f * this.dampConstant
+			  , g = t.x * v
+			  , m = t.y * v;
 			u.x += g,
 			u.y += m,
 			a.x += -u.x,
@@ -69,12 +65,12 @@ export default class {
 		}
 	}
 	rotate(t) {
-		var e = this.m1
-			, i = this.m2
-			, s = i.pos.x - e.pos.x
-			, n = i.pos.y - e.pos.y
-			, r = -n / this.leff
-			, o = s / this.leff;
+		let e = this.m1
+		  , i = this.m2
+		  , s = i.pos.x - e.pos.x
+		  , n = i.pos.y - e.pos.y
+		  , r = -n / this.leff
+		  , o = s / this.leff;
 		e.pos.x += r * t,
 		e.pos.y += o * t,
 		i.pos.x += r * -t,

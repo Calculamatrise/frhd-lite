@@ -11,12 +11,12 @@ export default class extends Powerup {
 	}
 	recache(t) {
 		this.constructor.cache.dirty = !1;
-		var e = this.constructor.cache.canvas;
+		let e = this.constructor.cache.canvas;
 		e.width = this.constructor.cache.width * t,
 		e.height = this.constructor.cache.height * t;
-		var i = e.getContext('2d')
-		, s = e.width / 2
-		, n = e.height / 2;
+		let i = e.getContext('2d')
+		  , s = e.width / 2
+		  , n = e.height / 2;
 		this.drawCircle(s, n, t, i),
 		this.settings.developerMode && (i.beginPath(),
 		i.rect(0, 0, e.width, e.height),
@@ -26,10 +26,10 @@ export default class extends Powerup {
 	}
 	draw(t, e, i, s) {
 		this.constructor.cache.dirty && this.recache(i);
-		var n = this.constructor.cache.width * i
-		, r = this.constructor.cache.height * i
-		, o = n / 2
-		, h = r / 2;
+		let n = this.constructor.cache.width * i
+		  , r = this.constructor.cache.height * i
+		  , o = n / 2
+		  , h = r / 2;
 		s.save(),
 		this.hit && (s.globalAlpha = .3),
 		s.drawImage(this.constructor.cache.canvas, t - o, e - h, n, r),
@@ -46,7 +46,7 @@ export default class extends Powerup {
 		s.lineTo(0 * i, 95 * i),
 		s.closePath(),
 		s.fillStyle = '#826cdc',
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.lineWidth = 8 * i,
 		s.beginPath(),
 		s.moveTo(3 * i, 10 * i),

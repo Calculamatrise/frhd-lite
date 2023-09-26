@@ -3,8 +3,6 @@ import n from "../sector/physicsline.js";
 import r from "../sector/sceneryline.js";
 import o from "../sector/powerups/target.js";
 
-let a = 50;
-
 export default class {
 	currentTool = "";
     scene = null;
@@ -31,6 +29,7 @@ export default class {
         this.gridCache = !1;
         this.initAnalytics();
         this.actionTimeline = [];
+        this.actionTimelineMax = 50;
         this.actionTimelinePointer = 0;
     }
     initAnalytics() {
@@ -61,8 +60,8 @@ export default class {
         this.analytics.actions++)
     }
     addActionToTimeline(t) {
-        this.actionTimeline.length >= a && (this.actionTimeline.splice(0, this.actionTimeline.length - a),
-        this.actionTimelinePointer = a),
+        this.actionTimeline.length >= this.actionTimelineMax && (this.actionTimeline.splice(0, this.actionTimeline.length - this.actionTimelineMax),
+        this.actionTimelinePointer = this.actionTimelineMax),
         this.actionTimeline.splice(this.actionTimelinePointer),
         this.actionTimeline.push(t),
         this.actionTimelinePointer++
@@ -336,7 +335,7 @@ export default class {
         this.gridCacheAlpha = Math.min(t + .2, 1)
     }
     resize() {
-        var t = this.scene.game.pixelRatio;
+        let t = this.scene.game.pixelRatio;
         this.cacheGrid(t)
     }
     undo() {}

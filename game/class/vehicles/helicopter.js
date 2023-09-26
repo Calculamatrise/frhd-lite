@@ -52,7 +52,7 @@ export default class extends Vehicle {
 		this.rotor = 0,
 		this.rotor2 = 0,
 		this.dir = 1;
-		var l = this;
+		let l = this;
 		e[3].drive = this.head.drive = function() {
 			l.explode()
 		}
@@ -60,8 +60,8 @@ export default class extends Vehicle {
 		this.masses = e
 	}
 	createSprings() {
-		var t = this.masses
-		, e = [];
+		let t = this.masses
+		  , e = [];
 		e.push(new Spring(t[0],t[1],this)),
 		e.push(new Spring(t[2],t[0],this)),
 		e.push(new Spring(t[2],t[1],this)),
@@ -81,14 +81,14 @@ export default class extends Vehicle {
 		e[2].leff = e[4].lrest = 35,
 		e[4].leff = e[4].lrest = 35,
 		e[6].leff = e[4].lrest = 35;
-		for (var i in e)
+		for (let i in e)
 			e[i].dampConstant = .4;
-		for (var i in e)
+		for (let i in e)
 			e[i].springConstant = .5;
 		this.springs = e
 	}
 	drawCockpit() {
-		var t = this.canvasCockpit
+		let t = this.canvasCockpit
 		  , i = this.scene
 		  , s = i.camera.zoom
 		  , r = 50 * s
@@ -151,27 +151,27 @@ export default class extends Vehicle {
 		}
 	}
 	update(progress) {
-		for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
+		for (let s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
 			s[r].update(progress)
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
-			var t = this.scene.sound
+			let t = this.scene.sound
 			  , e = Math.min(this.head.motor, 1);
 			t.play(c.HELICOPTER, e)
 		}
 	}
 	stopSounds() {
-		var t = this.scene.sound;
+		let t = this.scene.sound;
 		t.stop(c.HELICOPTER)
 	}
 	swap() {
-		var t = this.dir
+		let t = this.dir
 		  , e = this.springs
 		  , i = this.masses;
 		t = -1 * t,
 		e[2].swap();
-		var n = new s(0,0)
+		let n = new s(0,0)
 		  , r = new s(0,0)
 		  , o = new s(0,0);
 		n.equ(i[3].pos),
@@ -186,7 +186,7 @@ export default class extends Vehicle {
 		this.dir = t
 	}
 	control() {
-		var t = this.player.getGamepad()
+		let t = this.player.getGamepad()
 		  , e = t.isButtonDown("up")
 		  , i = t.isButtonDown("back")
 		  , s = t.isButtonDown("left")
@@ -197,19 +197,19 @@ export default class extends Vehicle {
 		r && !this.swapped && (this.swap(),
 		this.swapped = !0),
 		r || (this.swapped = !1);
-		var h = o[1].pos.add(o[2].pos).factor(.5);
+		let h = o[1].pos.add(o[2].pos).factor(.5);
 		h = o[0].pos.sub(h),
 		h = h.factor(1 / h.len()),
 		o[0].angle.equ(h);
-		var l = e ? 1 : 0;
+		let l = e ? 1 : 0;
 		o[0].motor += (l - o[0].motor) / 10;
-		var c = s ? 1 : 0;
+		let c = s ? 1 : 0;
 		c += n ? -1 : 0,
 		a[2].rotate(c / 6),
 		i && (this.scene.restartTrack = !0)
 	}
 	updateCockpitAngle() {
-		var t = this.masses
+		let t = this.masses
 		  , e = t[0].pos
 		  , i = t[3].pos
 		  , s = e.x
@@ -233,7 +233,7 @@ export default class extends Vehicle {
 			ctx.mozImageSmoothingEnabled = !0;
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite.storage.get("snapshots");
+					let t = window.lite && lite.storage.get("snapshots");
 					if (t > 0) {
 						for (let i in this.player._checkpoints) {
 							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
@@ -249,11 +249,11 @@ export default class extends Vehicle {
 					}
 				}
 
-				if (window.lite.storage.get("playerTrail")) {
-					for (let i in window.lite.snapshots) {
-						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
+				if (window.lite && lite.storage.get("playerTrail")) {
+					for (let i in lite.snapshots) {
+						if (!lite.snapshots[i] || !lite.snapshots[i]._tempVehicle) continue;
 						let e = document.createElement('canvas');
-						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1);
 					}
 				}
 			}
@@ -263,7 +263,7 @@ export default class extends Vehicle {
 	}
 	drawHelicopter(t, alpha = this.player._opacity) {
 		t.globalAlpha = alpha;
-		var i = this.dir
+		let i = this.dir
 		  , n = this.rotor
 		  , r = this.rotor2
 		  , o = this.scene
@@ -323,17 +323,13 @@ export default class extends Vehicle {
 		t.lineWidth = 2 * a,
 		t.arc(f.x, f.y, this.mass4.radius * a, 0, 2 * Math.PI, !1),
 		t.stroke();
-		var m = this.drawCockpit()
-		  , y = m.width
+		m = this.drawCockpit()
+		var y = m.width
 		  , w = m.height
 		  , x = c.x + 5 * a * this.dir
 		  , _ = c.y + 2 * a
-		  , b = 0
-		  , T = 0
-		  , C = y
-		  , k = w
-		  , S = b * a - C / 2
-		  , P = T * a - k / 2
+		  , S = -y / 2
+		  , P = -w / 2
 		  , M = this.cockpitAngle
 		  , A = -1 === i
 		  , D = this.cosmetics
@@ -343,7 +339,7 @@ export default class extends Vehicle {
 		t.translate(x, _),
 		t.rotate(M),
 		A && t.scale(1, -1),
-		t.drawImage(m, S, P, C, k),
+		t.drawImage(m, S, P, y, w),
 		A && t.scale(1, -1),
 		t.rotate(-M),
 		t.translate(-x, -_),

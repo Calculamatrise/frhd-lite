@@ -31,8 +31,8 @@ export default class extends VehiclePowerup {
 		s.lineCap = 'butt',
 		s.lineJoin = 'miter',
 		s.miterLimit = 4,
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline;
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline;
+		s.fillStyle = s.strokeStyle,
 		s.beginPath(),
 		s.moveTo(15, 4.5),
 		s.lineTo(15, 2.5),
@@ -83,7 +83,7 @@ export default class extends VehiclePowerup {
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.beginPath(),
 		s.moveTo(21, 17),
 		s.bezierCurveTo(21, 12.6, 17.4, 9, 13, 9),

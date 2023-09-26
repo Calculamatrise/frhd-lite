@@ -3,7 +3,7 @@ import VehiclePowerup from "../vehiclepowerup.js";
 export default class extends VehiclePowerup {
 	name = 'truck';
 	collide(t) {
-		var e = t.parent
+		let e = t.parent
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , n = t.pos.y - this.y
@@ -12,7 +12,7 @@ export default class extends VehiclePowerup {
 		  , l = this.scene;
 		if (30 > r && i.isAlive() && -1 === h.indexOf(this.id)) {
 			h.push(this.id);
-			var c = this.time * l.settings.drawFPS;
+			let c = this.time * l.settings.drawFPS;
 			i.setTempVehicle(this.name.toUpperCase(), c, {
 				x: this.x,
 				y: this.y
@@ -32,8 +32,8 @@ export default class extends VehiclePowerup {
 		s.lineJoin = 'miter',
 		s.miterLimit = 4,
 		s.lineWidth = 1,
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
+		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
+		s.strokeStyle = s.fillStyle,
 		s.translate(0.5, -2),
 		s.save(),
 		s.beginPath(),

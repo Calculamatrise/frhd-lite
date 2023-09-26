@@ -14,48 +14,46 @@ export default class {
 		this.positionY = t.y;
 	}
 	draw(l, t) {
-		var e = this.time
-			, i = this.positionX
-			, s = this.positionY
-			, n = this.scene.camera.zoom
-			, h = this.scene.screen;
+		let e = this.time
+		  , i = this.positionX
+		  , s = this.positionY
+		  , n = this.scene.camera.zoom
+		  , h = this.scene.screen;
 		if (l.globalAlpha = t,
 		e > 0) {
 			e -= 10;
-			var c = h.realToScreen(i, "x")
-				, u = h.realToScreen(s, "y")
-				, p = 0
-				, d = 6.2 * Math.random()
-				, f = e * n
-				, v = c + f * Math.cos(d)
-				, g = u + f * Math.sin(d);
-			for (l.lineWidth = 0,
-			l.strokeStyle = lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000",
+			let c = h.realToScreen(i, "x")
+			  , u = h.realToScreen(s, "y")
+			  , p = 0
+			  , d = 6.2 * Math.random()
+			  , f = e * n
+			  , v = c + f * Math.cos(d)
+			  , g = u + f * Math.sin(d);
 			l.beginPath(),
 			l.moveTo(v, g),
-			l.fillStyle = lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000"; p++ < 16; )
+			l.fillStyle = this.scene.settings.physicsLineColor;
+			while (p++ < 16)
 				f = (e + 30 * Math.random()) * n,
 				v = c + f * Math.cos(d + 6.283 * p / 16),
 				g = u + f * Math.sin(d + 6.283 * p / 16),
 				l.lineTo(v, g);
-			l.fill(),
-			l.stroke()
+			l.fill()
 		}
-		var m = this.masses;
-		for (var y in m)
+		let m = this.masses;
+		for (let y in m)
 			m[y].draw(l);
 		l.globalAlpha = 1,
 		this.time = e
 	}
 	createMasses(t) {
 		this.masses = [],
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000")),
-		this.masses.push(new n(t, this, lite.storage.get("theme") === "midnight" ? "#ccc" : lite.storage.get("theme") === "dark" ? "#fff" : "#000"))
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor)),
+		this.masses.push(new n(t, this, this.scene.settings.physicsLineColor))
 	}
 	fixedUpdate() {
 		for (let t of this.masses)

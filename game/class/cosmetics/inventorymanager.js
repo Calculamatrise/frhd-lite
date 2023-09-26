@@ -14,7 +14,7 @@ class InventoryManager {
 		this.loaded.has(i) || (this.loaded.add(i),
 		GameManager.loadFile(i)));
 		let h = this.generateID(a, e, o);
-		return this.cache[h] || (this.cache[h] = new this.inventory[e](o)), this.cache[h];
+		return this.cache[h] ||= new this.inventory[e](o);
 	}
 	redraw() {
 		let n = this.cache

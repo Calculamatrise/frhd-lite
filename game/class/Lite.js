@@ -135,19 +135,19 @@ window.lite = new class {
 					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 					break;
 				case 'theme':
-					let background = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '1d2328' : this.storage.get('theme') == 'dark' ? '1b' : 'f');
+					let background = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
 					GameManager.game.canvas.style.setProperty('background-color', background);
 					this.styleSheet.set('.gameFocusOverlay', {
 						backgroundColor: GameManager.game.canvas.style.getPropertyValue('background-color').replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
-						color: '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'eb' : '2d')
+						color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
 					});
 
-					this.scene.message.color = /^#(0|3){3,6}$/.test(this.scene.message.color) && /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '#ccc' : '#333';
+					this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
 					this.scene.message.outline = background;
-					let gray = '#'.padEnd(7, /^(dark|midnight)$/i.test(this.storage.get('theme')) ? '6' : '9');
+					let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
 					this.scene.score.best_time.color = gray;
 					this.scene.score.best_time_title.color = gray;
-					let color = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'd' : this.storage.get('theme') == 'dark' ? 'f' : '0');
+					let color = '#'.padEnd(7, value == 'midnight' ? 'd' : /^dark(er)?$/i.test(value) ? 'f' : '0');
 					this.scene.score.goals.color = color;
 					this.scene.score.time.color = color;
 					this.scene.score.time_title.color = gray;
@@ -170,10 +170,10 @@ window.lite = new class {
 						// });
 					}
 
-					GameSettings.physicsLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? 'c' : this.storage.get('theme') == 'dark' ? 'fd' : '0');
-					GameSettings.sceneryLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '4' : this.storage.get('theme') == 'dark' ? '6' : 'a');
-					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '20282e' : this.storage.get('theme') == 'dark' ? '25' : 'e');
-					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, this.storage.get('theme') == 'midnight' ? '161b20' : this.storage.get('theme') == 'dark' ? '3e' : 'c');
+					GameSettings.physicsLineColor = '#'.padEnd(7, value == 'midnight' ? 'c' : value == 'darker' ? 'f' : value == 'dark' ? 'fd' : '0');
+					GameSettings.sceneryLineColor = '#'.padEnd(7, value == 'midnight' ? '5' : value == 'darker' ? '121319' : value == 'dark' ? '6' : 'a');
+					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, value == 'midnight' ? '20282e' : value == 'dark' ? '25' : 'e');
+					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, value == 'midnight' ? '161b20' : value == 'dark' ? '3e' : 'c');
 					this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
 					for (const player of this.scene.playerManager._players) {
 						player._baseVehicle.color = GameSettings.physicsLineColor,

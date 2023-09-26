@@ -35,10 +35,10 @@ export default class extends VehiclePowerup {
 		s.save(),
 		s.scale(i, i),
         s.beginPath(),
-        s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+        s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
         s.fillStyle = '#a784c5',
         s.lineWidth = 2,
-        s.roundRect(1, 1, 22, 20, 3.5 * i),
+        s.roundRect(1, 1, 22, 20, 3.5),
         s.fill(),
         s.stroke()
 		s.restore()

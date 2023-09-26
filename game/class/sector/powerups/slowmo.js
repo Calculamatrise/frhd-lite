@@ -4,12 +4,12 @@ export default class extends Powerup {
 	name = 'slowmo';
 	recache(t) {
 		this.constructor.cache.dirty = !1;
-		var e = this.constructor.cache.canvas;
+		let e = this.constructor.cache.canvas;
 		e.width = this.constructor.cache.width * t,
 		e.height = this.constructor.cache.height * t;
-		var i = e.getContext('2d')
-		, s = e.width / 2
-		, n = e.height / 2;
+		let i = e.getContext('2d')
+		  , s = e.width / 2
+		  , n = e.height / 2;
 		this.drawCircle(s, n, t, i),
 		this.settings.developerMode && (i.beginPath(),
 		i.rect(0, 0, e.width, e.height),
@@ -22,18 +22,18 @@ export default class extends Powerup {
 	}
 	draw(t, e, i, s) {
 		this.constructor.cache.dirty && this.recache(i);
-		var n = this.constructor.cache.width * i
-		, r = this.constructor.cache.height * i
-		, a = n / 2
-		, h = r / 2;
+		let n = this.constructor.cache.width * i
+		  , r = this.constructor.cache.height * i
+		  , a = n / 2
+		  , h = r / 2;
 		s.drawImage(this.constructor.cache.canvas, t - a, e - h, n, r)
 	}
 	collide(t) {
-		var e = t.parent
-		, i = e.player
-		, s = t.pos.x - this.x
-		, o = t.pos.y - this.y
-		, a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2));
+		let e = t.parent
+		  , i = e.player
+		  , s = t.pos.x - this.x
+		  , o = t.pos.y - this.y
+		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2));
 		!this.hit && 26 > a && i.isAlive() && (e.slow = !0,
 		i.isGhost() === !1 && (this.scene.sound.play('slowmo_sound'),
 		this.scene.message.show('Slow Motion', 50, '#FFFFFF', '#000000')))
@@ -47,8 +47,7 @@ export default class extends Powerup {
 		s.lineTo(116 * i, 114 * i),
 		s.lineTo(0 * i, 114 * i),
 		s.closePath(),
-		s.fillStyle = '#ffffff00',
-		s.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.lineWidth = Math.max(3 * i, .5),
 		s.beginPath(),
 		s.moveTo(58 * i, 111 * i),
@@ -99,7 +98,6 @@ export default class extends Powerup {
 		s.lineTo(60 * i, 12 * i),
 		s.lineTo(57 * i, 12 * i),
 		s.closePath(),
-		s.fill(),
 		s.stroke()
 	}
 	static cache = Object.assign(this.createCache(), {

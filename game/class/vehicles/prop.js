@@ -13,15 +13,13 @@ export default class extends Mass {
 		this.speed = 0;
 	}
 	fixedUpdate() {
-		var t = this.vel
-			, e = this.angle
-			, i = this.pos
-			, s = this.old
-			, n = this.motor;
-		t.y += 0,
+		let t = this.vel
+		  , e = this.angle
+		  , i = this.pos
+		  , s = this.old
+		  , n = this.motor;
 		t.inc(e.factor(2 * n)),
-		t = t.factor(.99),
-		i.inc(t),
+		i.inc(t.factor(.99)),
 		this.contact = !1,
 		this.collide && this.scene.track.collide(this),
 		this.vel = i.sub(s),

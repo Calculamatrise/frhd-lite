@@ -17,12 +17,12 @@ export default class extends Vehicle {
 		this.stopSounds();
 	}
 	createMasses(t) {
-		var e = [];
+		let e = [];
 		e.push(new o(new n(t.x + 15,t.y + 40),this)),
 		e.push(new o(new n(t.x + -15,t.y + 40),this)),
 		e.push(new o(new n(t.x + -15,t.y + 10),this)),
 		e.push(new o(new n(t.x + 15,t.y + 10),this));
-		var i = new r(new n(0,0), this);
+		let i = new r(new n(0,0), this);
 		i.vel = new n(0,0),
 		this.m0 = e[0],
 		this.m1 = e[1],
@@ -47,7 +47,7 @@ export default class extends Vehicle {
 		e.push(r),
 		e.push(o),
 		e.push(h);
-		for (var l in e)
+		for (let l in e)
 			e[l].springConstant = .2,
 			e[l].dampConstant = .2;
 		this.springs = e
@@ -76,7 +76,7 @@ export default class extends Vehicle {
 			}
 			let r = 0,
 				o = 0;
-			for (const t of this.masses)
+			for (let t of this.masses)
 				r += t.pos.x,
 				o += t.pos.y;
 			let a = this.head;
@@ -86,30 +86,30 @@ export default class extends Vehicle {
 		}
 	}
 	update(progress) {
-		for (var t = this.masses, e = t.length, m = e - 1; m >= 0; m--)
+		for (let t = this.masses, e = t.length, m = e - 1; m >= 0; m--)
 			t[m].update(progress);
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
-			var t = this.scene.sound;
+			let t = this.scene.sound;
 			t.play(l.BLOB, .4)
 		}
 	}
 	stopSounds() {
-		var t = this.scene.sound;
+		let t = this.scene.sound;
 		t.stop(l.BLOB)
 	}
 	updateCameraFocalPoint() {}
 	control() {
-		var t, e, i = this.player.getGamepad(), s = i.isButtonDown("up"), n = i.isButtonDown("down"), r = i.isButtonDown("left"), o = i.isButtonDown("right"), a = i.isButtonDown("z"), h = this.masses, l = this.springs, c = h.length, u = l.length, p = this.dir;
+		let t, e, i = this.player.getGamepad(), s = i.isButtonDown("up"), n = i.isButtonDown("down"), r = i.isButtonDown("left"), o = i.isButtonDown("right"), a = i.isButtonDown("z"), h = this.masses, l = this.springs, c = h.length, u = l.length, p = this.dir;
 		p = o ? 1 : -1;
-		var d = o || r ? 1 : 0;
+		let d = o || r ? 1 : 0;
 		for (n && (d = 0),
 		t = c - 1; t >= 0; t--)
 			h[t].motor += (d * p * 1 - h[t].motor) / 10,
 			0 == d && (h[t].motor = 0),
 			h[t].brake = n;
-		var f = r ? 1 : 0;
+		let f = r ? 1 : 0;
 		if (f += o ? -1 : 0,
 		l[4].rotate(f / 9),
 		l[5].rotate(f / 9),
@@ -126,7 +126,7 @@ export default class extends Vehicle {
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite.storage.get("snapshots");
+					let t = window.lite && lite.storage.get("snapshots");
 					if (t > 0) {
 						for (let i in this.player._checkpoints) {
 							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
@@ -140,10 +140,10 @@ export default class extends Vehicle {
 					}
 				}
 
-				if (window.lite.storage.get("playerTrail")) {
-					for (let i in window.lite.snapshots) {
-						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
-						this.drawBlob.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle)), ctx, window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1);
+				if (window.lite && lite.storage.get("playerTrail")) {
+					for (let i in lite.snapshots) {
+						if (!lite.snapshots[i] || !lite.snapshots[i]._tempVehicle) continue;
+						this.drawBlob.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._tempVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1);
 					}
 				}
 			}
@@ -153,12 +153,12 @@ export default class extends Vehicle {
 	}
 
 	drawBlob(t, alpha = this.player._opacity) {
-		var i = this.scene
-		, s = i.camera.zoom
-		, m = new n(this.m0.pos.x, this.m0.pos.y).toScreen(i)
-		, r = new n(this.m1.pos.x, this.m1.pos.y).toScreen(i)
-		, o = new n(this.m2.pos.x, this.m2.pos.y).toScreen(i)
-		, a = new n(this.m3.pos.x, this.m3.pos.y).toScreen(i);
+		let i = this.scene
+		  , s = i.camera.zoom
+		  , m = new n(this.m0.pos.x, this.m0.pos.y).toScreen(i)
+		  , r = new n(this.m1.pos.x, this.m1.pos.y).toScreen(i)
+		  , o = new n(this.m2.pos.x, this.m2.pos.y).toScreen(i)
+		  , a = new n(this.m3.pos.x, this.m3.pos.y).toScreen(i);
 		t.globalAlpha = alpha,
 		t.beginPath(),
 		t.fillStyle = t.strokeStyle,
@@ -168,7 +168,7 @@ export default class extends Vehicle {
 		t.lineTo(r.x, r.y),
 		t.lineTo(o.x, o.y),
 		t.lineTo(a.x, a.y),
-		t.lineTo(m.x, m.y),
+		t.closePath(),
 		t.fill(),
 		t.stroke(),
 		t.globalAlpha = 1

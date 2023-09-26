@@ -48,7 +48,7 @@ export default class extends Powerup {
 		s.miterLimit = 4,
 		s.strokeStyle = 'rgba(0, 0, 0, 0)',
 		s.lineWidth = 1,
-		s.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		s.beginPath(),
 		s.moveTo(17, 3),
 		s.bezierCurveTo(16.9424049, 2.83458834, 16.4420628, 2.62968665, 15.9196825, 2.4515011),
@@ -128,7 +128,7 @@ export default class extends Powerup {
 		s.bezierCurveTo(21.6393464, 2.28934588, 23.9052288, 5.91261647, 23.9052288, 5.91261647),
 		s.fill(),
 		s.stroke(),
-		s.fillStyle = lite.storage.get('dark') ? '#1e1e1e' : '#fefefe',
+		s.fillStyle = /^(dark(er)|midnight)?$/i.test(lite.storage.get('theme')) ? '#1e1e1e' : '#fefefe',
 		s.beginPath(),
 		s.moveTo(5.22875817, 24.6992965),
 		s.lineTo(5.22875817, 23.0451553),
@@ -196,8 +196,8 @@ export default class extends Powerup {
 	}
 	collide(t) {
 		let e = t.parent
-		, i = e.player
-		, s = i._powerupsConsumed.misc;
+		  , i = e.player
+		  , s = i._powerupsConsumed.misc;
 		if (-1 === s.indexOf(this.id)) {
 			let n = t.pos.x - this.x
 			, o = t.pos.y - this.y

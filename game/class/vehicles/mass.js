@@ -48,7 +48,6 @@ export default class {
 		e.beginPath(),
 		e.fillStyle = "rgba(0,0,0,1)",
 		e.arc(t.x, t.y, this.radius * i, 0, 2 * Math.PI, !1),
-		e.fill(),
-		e.closePath()
+		e.fill()
 	}
 }

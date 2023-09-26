@@ -2,7 +2,7 @@ import defaults from "./constants/defaults.js";
 
 const contentScripts = [{
 	excludeMatches: [
-		"*://*/*?ajax*",
+		"*://*/*\?ajax*",
 		"*://*/*&ajax*"
 	],
 	id: "connection-broker",

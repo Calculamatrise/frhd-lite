@@ -31,8 +31,8 @@ export default class {
 	}
 	getCode(t) {
 		this.recorded = !0;
-		let i = " " + this.p2.x.toString(32) + " " + this.p2.y.toString(32),
-			s = this.checkForConnectedLine(t, this.p2);
+		let i = " " + this.p2.x.toString(32) + " " + this.p2.y.toString(32)
+		  , s = this.checkForConnectedLine(t, this.p2);
 		return s && (i += s.getCode(t)), i
 	}
 	checkForConnectedLine(t, e) {

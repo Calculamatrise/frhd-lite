@@ -49,22 +49,22 @@ export default class {
 		this.replaying = !0;
 	}
 	setKeyMap(t) {
-		var e = {};
-		for (var i in t)
+		let e = {};
+		for (let i in t)
 			if (t[i] instanceof Array)
-				for (var s in t[i])
-					e[t[i][s]] = i;
+				for (let s of t[i])
+					e[s] = i;
 			else
 				e[t[i]] = i;
 		this.keymap = e
 	}
 	handleButtonDown(t) {
-		var e = this.getInternalCode(t.keyCode);
+		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && t.preventDefault(),
 		this.setButtonDown(e)
 	}
 	handleButtonUp(t) {
-		var e = this.getInternalCode(t.keyCode);
+		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && t.preventDefault(),
 		this.setButtonUp(e)
 	}
@@ -84,7 +84,7 @@ export default class {
 		return this.keymap[t] || t
 	}
 	setButtonsDown(t) {
-		for (var e = 0, i = t.length; i > e; e++)
+		for (let e in t)
 			this.setButtonDown(t[e])
 	}
 	setButtonUp(t) {
@@ -103,17 +103,17 @@ export default class {
 		return this.tickDownButtons[t] > 0
 	}
 	getButtonDownOccurances(t) {
-		var e = 0;
+		let e = 0;
 		if (this.isButtonDown(t)) {
 			e = 1;
-			var i = this.tickDownButtons[t];
+			let i = this.tickDownButtons[t];
 			i !== !0 && (e = i)
 		}
 		return e
 	}
 	getDownButtons() {
-		var t = [];
-		for (var e in this.tickDownButtons)
+		let t = [];
+		for (let e in this.tickDownButtons)
 			this.tickDownButtons[e] && t.push(e);
 		return t
 	}
@@ -136,37 +136,37 @@ export default class {
 		this.recording && this.updateRecording()
 	}
 	areKeysDown() {
-		for (var t in this.downButtons)
+		for (let t in this.downButtons)
 			if (this.downButtons[t] === !0)
 				return !0;
 		return !1
 	}
 	updatePlayback() {
-		var t = this.keysToPlay
+		let t = this.keysToPlay
 		  , e = this.playback
 		  , i = this.playbackTicks ?? this.scene.ticks;
-		for (var s in t) {
-			var n = t[s]
+		for (let s in t) {
+			let n = t[s]
 			  , r = n + "_up"
 			  , o = n + "_down";
 			if ("undefined" != typeof e[o] && "undefined" != typeof e[o][i]) {
-				var a = e[o][i];
+				let a = e[o][i];
 				this.setButtonDown(n, a)
 			}
 			"undefined" != typeof e[r] && "undefined" != typeof e[r][i] && this.setButtonUp(n)
 		}
 	}
 	updateRecording() {
-		var t = this.scene.ticks
+		let t = this.scene.ticks
 		  , e = this.records
 		  , s = this.tickDownButtons
 		  , n = this.previousTickDownButtons;
-		for (var o of this.keysToRecord) {
+		for (let o of this.keysToRecord) {
 			if ("undefined" != typeof s[o]) {
-				var a = s[o]
+				let a = s[o]
 				  , h = "undefined" != typeof n[o] && n[o];
 				if (a !== h) {
-					var l = o + "_up"
+					let l = o + "_up"
 					  , c = o + "_down"
 					  , u = l;
 					a && (u = c);
@@ -186,16 +186,15 @@ export default class {
 		}
 	}
 	buttonWasRecentlyDown(t) {
-		var e = this.records;
+		let e = this.records;
 		this.replaying && (e = this.playback);
-		var i = t + "_down"
+		let i = t + "_down"
 		  , s = !1;
 		if (e[i]) {
-			var n = (this.replaying && this.playbackTicks) ?? this.scene.ticks
-			  , r = n
+			let n = (this.replaying && this.playbackTicks) ?? this.scene.ticks
 			  , o = e[i]
 			  , a = -1;
-			a = this.replaying ? "undefined" != typeof o[r] : o.indexOf(r),
+			a = this.replaying ? "undefined" != typeof o[n] : o.indexOf(n),
 			-1 !== a && (s = !0)
 		}
 		return s
@@ -204,15 +203,15 @@ export default class {
 		return JSON.stringify(this.records)
 	}
 	encodeReplayString(t) {
-		var e = this.scene.settings
+		let e = this.scene.settings
 		  , i = {
 				version: e.replayVersion
 			};
-		for (var s in t) {
-			var n = t[s];
+		for (let s in t) {
+			let n = t[s];
 			i[s] = "";
-			for (var r in n) {
-				var o = n[r];
+			for (let r in n) {
+				let o = n[r];
 				i[s] += o.toString(32) + " "
 			}
 		}

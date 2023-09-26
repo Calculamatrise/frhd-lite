@@ -17,12 +17,12 @@ export default class extends Powerup {
 		this.cacheEmptyStar(t)
 	}
 	cacheStar(t) {
-		var e = this.constructor.cache.canvas;
+		let e = this.constructor.cache.canvas;
 		e.width = this.constructor.cache.width * t,
 		e.height = this.constructor.cache.height * t;
-		var i = e.getContext('2d')
-		, s = e.width / 2
-		, n = e.height / 2;
+		let i = e.getContext('2d')
+		  , s = e.width / 2
+		  , n = e.height / 2;
 		this.drawStar(s, n, 5, 10, 5, !0, t, i),
 		this.settings.developerMode && (i.beginPath(),
 		i.rect(0, 0, e.width, e.height),
@@ -31,12 +31,12 @@ export default class extends Powerup {
 		i.stroke())
 	}
 	cacheEmptyStar(t) {
-		var e = this.constructor.hitCache.canvas;
+		let e = this.constructor.hitCache.canvas;
 		e.width = this.constructor.hitCache.width * t,
 		e.height = this.constructor.hitCache.height * t;
-		var i = e.getContext('2d')
-		, s = e.width / 2
-		, n = e.height / 2;
+		let i = e.getContext('2d')
+		  , s = e.width / 2
+		  , n = e.height / 2;
 		this.drawStar(s, n, 5, 10, 5, !1, t, i),
 		this.settings.developerMode && (i.beginPath(),
 		i.rect(0, 0, e.width, e.height),
@@ -70,10 +70,9 @@ export default class extends Powerup {
 		  , u = Math.PI / i;
 		s *= o,
 		n *= o,
-		a.strokeSyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		a.beginPath(),
 		a.moveTo(t, e - s);
-		for (var p = 0; i > p; p++)
+		for (let p = 0; i > p; p++)
 			l = t + Math.cos(h) * s,
 			c = e + Math.sin(h) * s,
 			a.lineTo(l, c),
@@ -85,7 +84,7 @@ export default class extends Powerup {
 		a.lineTo(t, e - s),
 		a.closePath(),
 		a.lineWidth = Math.max(2 * o, 1),
-		a.strokeStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		a.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		a.stroke(),
 		a.fillStyle = r ? '#FAE335' : '#FFFFFF',
 		a.fill()
