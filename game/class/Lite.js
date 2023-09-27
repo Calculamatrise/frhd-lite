@@ -123,7 +123,9 @@ window.lite = new class {
 		this.initGhostPlayer(),
 		this.storage.get('uploadGhosts') && this.initUploadGhosts());
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts();
-		location.pathname.match(/^\/u\//i) && this.initFriendsLastPlayed();
+		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
+		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && this.initUserTrackAnalytics(),
+		/* Application.settings.user.moderator && */this.initUserTrackModeration());
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
 	}
 
@@ -833,6 +835,144 @@ window.lite = new class {
 
 			challenge.after(this.ghostUploadButton);
 		})
+	}
+
+	initUserTrackAnalytics() {
+		document.querySelectorAll("#created_tracks .bottom").forEach(metadata => {
+			metadata.innerHTML = metadata.innerHTML.replace(/<!--|-->/g, '');
+		});
+	}
+
+	initUserTrackModeration() {
+		for (let metadata of document.querySelectorAll("#created_tracks .bottom")) {
+			let label = metadata.appendChild(document.createElement('label'));
+			let avatar = metadata.querySelector('.profileGravatarIcon');
+			avatar && avatar.style.setProperty('margin-right', '4px');
+			label.appendChild(metadata.querySelector('.profileGravatarIcon'));
+			label.appendChild(metadata.querySelector('.author'));
+			label.style.setProperty('display', 'block')
+			let checkbox = label.appendChild(document.createElement('input'));
+			checkbox.setAttribute('type', 'checkbox');
+			checkbox.style.setProperty('float', 'right');
+			checkbox.style.setProperty('height', '1.5rem');
+		}
+
+		let nav = document.querySelector("#content > div > div.profile-tabs > section > div.tab_buttons > div");
+		let action = nav.appendChild(document.createElement('select'));
+		action.style.setProperty('float', 'right');
+		action.style.setProperty('margin-right', '10px');
+		action.style.setProperty('margin-top', '8px');
+		let placeholder = action.appendChild(document.createElement('option'));
+		placeholder.setAttribute('value', 'default');
+		placeholder.disabled = true;
+		placeholder.innerText = 'Select an action';
+		let deleteSelected = action.appendChild(document.createElement('option'));
+		deleteSelected.setAttribute('value', 'hide');
+		deleteSelected.innerText = 'Delete selected';
+		let deselect = action.appendChild(document.createElement('option'));
+		deselect.setAttribute('value', 'deselect');
+		deselect.innerText = 'Deselect all';
+		let selectAll = action.appendChild(document.createElement('option'));
+		selectAll.setAttribute('value', 'select');
+		selectAll.innerText = 'Select all';
+		action.addEventListener('change', async event => {
+			event.target.disabled = true;
+			switch (event.target.value) {
+				case 'hide':
+					let tracks = document.querySelectorAll("#created_tracks li:has(.bottom > label > input[type='checkbox']:checked)");
+					if (tracks.length > 0) {
+						let dialog = document.body.appendChild(document.createElement('dialog'));
+						dialog.style.setProperty('max-height', '80vh'); // 75vh
+						dialog.style.setProperty('max-width', '60vw'); // 50vw
+						dialog.style.setProperty('padding', 0);
+						let title = dialog.appendChild(document.createElement('p'));
+						title.style.setProperty('background-color', 'inherit');
+						title.style.setProperty('box-shadow', '0 0 4px 0 black');
+						title.style.setProperty('padding', '1rem');
+						title.style.setProperty('position', 'sticky');
+						title.style.setProperty('top', '0');
+						title.style.setProperty('z-index', '3');
+						title.innerText = 'Are you sure you would like to delete the following tracks?';
+						let close = title.appendChild(document.createElement('span'));
+						close.classList.add('core_icons', 'core_icons-icon_close');
+						close.style.setProperty('float', 'right');
+						close.addEventListener('click', () => dialog.remove());
+						let list = dialog.appendChild(document.createElement('ul'));
+						list.classList.add('track-list', 'clearfix');
+						list.style.setProperty('padding', '1rem');
+						list.style.setProperty('text-align', 'center');
+						list.append(...Array.from(tracks).map(track => {
+							let clone = track.cloneNode(true);
+							clone.style.setProperty('width', 'min-content');
+							return clone;
+						}));
+						let form = dialog.appendChild(document.createElement('form'));
+						form.setAttribute('method', 'dialog');
+						form.style.setProperty('background-color', 'inherit');
+						form.style.setProperty('bottom', '0');
+						form.style.setProperty('display', 'flex');
+						form.style.setProperty('gap', '.25em');
+						form.style.setProperty('box-shadow', '0 0 4px 0 black');
+						form.style.setProperty('padding', '1rem');
+						form.style.setProperty('position', 'sticky');
+						form.style.setProperty('z-index', '2');
+						let cancel = form.appendChild(document.createElement('button'));
+						cancel.classList.add('new-button', 'button-type-1');
+						cancel.setAttribute('value', 'cancel');
+						cancel.innerText = 'Cancel';
+						let confirm = form.appendChild(document.createElement('button'));
+						confirm.classList.add('new-button', 'button-type-2');
+						confirm.setAttribute('value', 'default');
+						confirm.innerText = 'Confirm';
+						confirm.addEventListener('click', async event => {
+							event.preventDefault();
+							for (let button of form.querySelectorAll('button')) {
+								button.disabled = true;
+								button.style.setProperty('opacity', .5);
+								button.style.setProperty('pointer-events', 'none');
+							}
+
+							let hourglass = form.appendChild(document.createElement('span'));
+							hourglass.classList.add('loading-hourglass');
+							let cache = [];
+							let tracks = list.querySelectorAll(".bottom:has(> label > input[type='checkbox']:checked)");
+							for (let metadata of tracks) {
+								let name = metadata.querySelector('.name');
+								let url = name.getAttribute('href');
+								let [tid] = url.match(/(?<=\/t\/)\d+/);
+								await fetch('/moderator/hide_track/' + tid);
+								cache.push(tid);
+								let container = metadata.closest('li');
+								container.remove();
+							}
+
+							// post message to extension?
+							let key = 'frhd-lite_recently-hidden-tracks';
+							let storage = Object.assign({}, JSON.parse(sessionStorage.getItem(key)));
+							storage[Date.now()] = cache;
+							sessionStorage.setItem(key, JSON.stringify(storage));
+							dialog.close(event.target.value);
+						});
+						dialog.addEventListener('close', event => {
+							action.disabled = false;
+							dialog.remove();
+						});
+						dialog.showModal();
+					}
+				case 'deselect':
+					for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:checked")) {
+						checkbox.checked = false;
+					}
+					break;
+				case 'select':
+					for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:not(:checked)")) {
+						checkbox.checked = true;
+					}
+			}
+
+			event.target.value = 'default';
+			event.target.disabled = false;
+		});
 	}
 
 	refreshAchievements() {

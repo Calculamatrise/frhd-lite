@@ -39,7 +39,7 @@ export default class {
 	show(t, e, i, s) {
 		this.message = t,
 		this.timeout = e,
-		this.color = /^#(0|3){3,6}$/.test(this.color) ? this.scene.settings.physicsLineColor : i,
+		this.color = /^#(0|3){3,6}$/.test(i) ? this.scene.settings.physicsLineColor : i,
 		this.outline = lite.storage.get('theme') == 'midnight' ? '#1d2328' : lite.storage.get('theme') == 'darker' ? '#000' : lite.storage.get('theme') == 'dark' ? '#1b1b1b' : s
 	}
 	hide() {

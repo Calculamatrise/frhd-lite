@@ -9,10 +9,21 @@
 	<div class="view">
 		<button class="tab" id="state"></button>
 		<nav>
+			<!-- <label for="filters" class="tab ripple">Filters</label> -->
 			<label for="options" class="tab ripple">Options</label>
 			<label for="keybinds" class="tab ripple">Keybinds</label>
 			<label for="themes" class="tab ripple">Themes</label>
 		</nav>
+		<div class="details">
+			<input type="radio" name="nav" id="filters">
+			<!-- <label class="ripple" title="Filter notifications from blocked users">
+				<input type="checkbox" id="playerTrail">
+				<span>Notification filter</span>
+			</label> -->
+			<input type="text" placeholder="Username" id="" style="max-width: 50%;">
+			<button style="display: inline-block;">Ignore</button>
+			<div id="ignored-users"></div>
+		</div>
 		<div class="details">
 			<input type="radio" name="nav" id="options" checked>
 			<label class="ripple" title="Display the last 15 snapshots of your rider">
