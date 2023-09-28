@@ -25,17 +25,14 @@ export default class extends Powerup {
 		i.stroke())
 	}
 	draw(t, e, i, s) {
-		this.constructor.cache.dirty && this.recache(i);
-		let n = this.constructor.cache.width * i
-		  , r = this.constructor.cache.height * i
-		  , o = n / 2
-		  , h = r / 2;
 		s.save(),
 		this.hit && (s.globalAlpha = .3),
-		s.drawImage(this.constructor.cache.canvas, t - o, e - h, n, r),
+		super.draw(t, e, i, s),
 		s.restore()
 	}
 	drawCircle(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= .15,
 		s.save(),
 		s.translate(1, 1),
@@ -46,7 +43,7 @@ export default class extends Powerup {
 		s.lineTo(0 * i, 95 * i),
 		s.closePath(),
 		s.fillStyle = '#826cdc',
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = n,
 		s.lineWidth = 8 * i,
 		s.beginPath(),
 		s.moveTo(3 * i, 10 * i),

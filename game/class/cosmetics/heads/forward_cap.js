@@ -38,7 +38,6 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		l.fillStyle = f.front,
 		l.fill()),
 		l.restore(),
-		l.save(),
 		l.lineWidth = 12,
 		l.beginPath(),
 		l.moveTo(16.3, 60),

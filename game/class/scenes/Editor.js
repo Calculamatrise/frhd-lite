@@ -2,21 +2,16 @@ import Scene from "./Scene.js";
 import b from "../controls/pause.js";
 import T from "../controls/redoundo.js";
 import p from "../tools/brushtool.js";
-import l from "../tools/cameratool.js";
 import c from "../tools/curvetool.js";
 import f from "../tools/erasertool.js";
 import v from "../tools/poweruptool.js";
 import d from "../tools/selecttool.js";
 import u from "../tools/straightlinetool.js";
-import h from "../tools/toolhandler.js";
 import g from "../tools/vehiclepoweruptool.js";
 
 export default class extends Scene {
-	canvas = null;
-	dialogOptions = !1;
 	clear = !1;
 	redoundoControls = null;
-	inFocus = !0;
 	verified = !1;
 	constructor(t) {
 		super(t);
@@ -28,6 +23,20 @@ export default class extends Scene {
 		this.oldState = this.setStateDefaults(),
 		this.restart(),
 		this.initializeAnalytics()
+	}
+	createMainPlayer() {
+		let i = super.createMainPlayer();
+		i.setKeyMap(this.settings.editorHotkeys)
+	}
+	createTrack() {
+		let t = super.createTrack()
+		  , e = this.getAvailableTrackCode();
+		0 != e ? (t.read(e),
+		this.state.preloading = !1,
+		this.state.loading = !1) : t.addDefaultLine(),
+		this.importCode = !1,
+		this.restartTrack = !0,
+		this.clear = !1
 	}
 	getCanvasOffset() {
 		return {
@@ -47,17 +56,16 @@ export default class extends Scene {
 		this.pauseControls = new b(this)
 	}
 	registerTools() {
-		this.toolHandler = new h(this);
-		this.toolHandler.enableGridUse(),
-		this.toolHandler.registerTool(l),
-		this.toolHandler.registerTool(c),
-		this.toolHandler.registerTool(u),
-		this.toolHandler.registerTool(p),
-		this.toolHandler.registerTool(d),
-		this.toolHandler.registerTool(f),
-		this.toolHandler.registerTool(v),
-		this.toolHandler.registerTool(g),
-		this.toolHandler.setTool(this.settings.startTool)
+		let t = super.registerTools();
+		t.enableGridUse(),
+		t.registerTool(c),
+		t.registerTool(u),
+		t.registerTool(p),
+		t.registerTool(d),
+		t.registerTool(f),
+		t.registerTool(v),
+		t.registerTool(g),
+		t.setTool(this.settings.startTool)
 	}
 	play() {
 		this.state.playing = !0
@@ -131,12 +139,6 @@ export default class extends Scene {
 				this.stateChanged()
 		}
 	}
-	toggleFullscreen() {
-		if (this.settings.embedded) {
-			window.open(this.settings.basePlatformUrl + "/t/" + this.settings.track.url)
-		} else
-			this.settings.fullscreenAvailable && (this.settings.fullscreen = this.state.fullscreen = !this.settings.fullscreen)
-	}
 	resize() {
 		this.pauseControls.resize(),
 		this.redoundoControls.resize(),
@@ -144,7 +146,7 @@ export default class extends Scene {
 	}
 	updateState() {
 		if (null !== this.game.onStateChange) {
-			var t = this.state;
+			let t = this.state;
 			t.tool = this.toolHandler.currentTool,
 			t.toolOptions = this.toolHandler.getToolOptions(),
 			t.grid = this.toolHandler.options.grid,
@@ -155,21 +157,16 @@ export default class extends Scene {
 		}
 	}
 	setStateDefaults() {
-		var t = {};
+		let t = super.setStateDefaults();
 		return t.paused = this.settings.mobile ? !0 : this.settings.startPaused,
 		t.loading = !1,
-		t.playing = this.settings.waitForKeyPress,
+		t.preloading = !1,
 		t.tool = this.toolHandler.currentTool,
 		t.toolOptions = this.toolHandler.getToolOptions(),
 		t.grid = this.toolHandler.options.grid,
 		t.cameraLocked = this.toolHandler.options.cameraLocked,
 		t.zoomPercentage = this.camera.zoomPercentage,
 		t.vehicle = this.vehicle,
-		t.showDialog = !1,
-		t.dialogOptions = !1,
-		t.preloading = !1,
-		t.fullscreen = this.settings.fullscreen,
-		t.inFocus = !0,
 		this.controls && (t.hideMenus = this.controls.isVisible()),
 		t
 	}
@@ -197,8 +194,7 @@ export default class extends Scene {
 		case "upload":
 			"undefined" == typeof isChromeApp && setTimeout(this.getTrackCode.bind(this), 750)
 		}
-		this.state.playing = !1,
-		this.state.showDialog = t
+		super.openDialog(t)
 	}
 	getTrackCode() {
 		this.state.dialogOptions = {},
@@ -206,21 +202,21 @@ export default class extends Scene {
 		this.state.dialogOptions.code = this.track.getCode()
 	}
 	trackComplete() {
-		this.verified = this.track.dirty ? !1 : !0
+		this.verified = !this.track.dirty
 	}
 	hideControlPlanel() {}
 	showControlPlanel() {}
 	command() {
-		var t = Array.prototype.slice.call(arguments, 0)
-			, e = t.shift();
+		let t = Array.prototype.slice.call(arguments, 0)
+		  , e = t.shift();
 		switch (e) {
 		case "change tool":
-			var i = t[0];
+			let i = t[0];
 			this.toolHandler.setTool(i);
 			break;
 		case "change tool option":
-			var s = t[0]
-				, n = t[1];
+			let s = t[0]
+			  , n = t[1];
 			"undefined" != typeof t[2] ? this.toolHandler.setToolOption(s, n, t[2]) : this.toolHandler.setToolOption(s, n);
 			break;
 		case "snap":
@@ -252,7 +248,7 @@ export default class extends Scene {
 			this.camera.decreaseZoom();
 			break;
 		case "change lineType":
-			var r = t[0];
+			let r = t[0];
 			this.toolHandler.options.lineType = r,
 			this.stateChanged();
 			break;
@@ -261,7 +257,7 @@ export default class extends Scene {
 			this.clear = !0;
 			break;
 		case "import":
-			var h = t[0];
+			let h = t[0];
 			h.length <= 0 && (h = !1),
 			this.importCode = h,
 			this.clear = t[1],

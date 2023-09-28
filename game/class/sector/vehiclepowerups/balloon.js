@@ -27,34 +27,20 @@ export default class extends VehiclePowerup {
 	drawIcon(t, e, i, s) {
 		s.save(),
 		s.scale(i, i),
-		s.translate(0, -0.6),
-		s.lineCap = 'round',
-		s.lineJoin = 'miter',
-		s.miterLimit = 4,
 		s.lineWidth = 2,
 		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
-		s.save(),
 		s.fillStyle = s.strokeStyle,
 		s.beginPath(),
 		s.roundRect(6, 23, 9, 8, 1),
 		s.fill(),
-		s.beginPath(),
-		s.moveTo(15, 19),
-		s.lineTo(12.9375, 24.6875),
-		s.stroke(),
-		s.translate(7.03125, 21.84375),
-		s.scale(-1, 1),
-		s.translate(-7.03125, -21.84375),
-		s.beginPath(),
-		s.moveTo(8.0625, 19),
-		s.lineTo(6, 24.6875),
-		s.stroke(),
-		s.restore(),
-		s.save(),
 		s.fillStyle = '#f02728',
 		s.beginPath(),
-		s.arc(10.5, 11.125, 10.5 - s.lineWidth / 2, 0, 2 * Math.PI, !0),
+		s.arc(10.5, 10.5, 10.5 - s.lineWidth / 2, 0, 2 * Math.PI, !0),
 		s.fill(),
+		s.moveTo(15, 18.5),
+		s.lineTo(13, 24),
+		s.moveTo(8, 24),
+		s.lineTo(6, 18.5),
 		s.stroke(),
 		s.restore()
 	}
@@ -62,7 +48,7 @@ export default class extends VehiclePowerup {
 		return super.getCode() + " 3 " + this.time.toString(32)
 	}
 	static cache = Object.assign(this.createCache(), {
-		width: 22,
-		height: 43
+		width: 21,
+		height: 31
 	})
 }

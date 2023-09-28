@@ -182,17 +182,10 @@ export default class extends Powerup {
 		s.restore()
 	}
 	draw(t, e, i, s) {
-		this.constructor.cache.dirty && this.recache(i);
-		let n = this.constructor.cache.width * i
-		  , r = this.constructor.cache.height * i
-		  , o = n / 2
-		  , h = r / 2
-		  , l = t
-		  , c = e;
+		s.save(),
 		s.globalAlpha = this.hit === !1 ? 1 : .2,
-		s.translate(l, c),
-		s.drawImage(this.constructor.cache.canvas, -o, -h, n, r),
-		s.translate(-l, -c)
+		super.draw(t, e, i, s),
+		s.restore()
 	}
 	collide(t) {
 		let e = t.parent

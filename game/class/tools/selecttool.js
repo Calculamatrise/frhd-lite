@@ -6,22 +6,20 @@ export default class extends Tool {
 	name = "Select";
 	passive = !1;
 	active = !1;
+	dashOffset = 0;
 	p1 = null;
 	p2 = null;
 	travelDistance = 1;
+	addedObjects = [];
 	selectedElements = [];
 	selectedSegments = [];
 	constructor(t) {
 		super(t);
 		this.p1 = new Vector(0, 0),
-		this.p2 = new Vector(0, 0),
-		this.addedObjects = [],
-		this.selectedElements = [],
-		this.selectedSegments = [],
-		this.dashOffset = 0
+		this.p2 = new Vector(0, 0)
 	}
 	press() {
-		var t = this.mouse.touch.real;
+		let t = this.mouse.touch.real;
 		this.passive = !1,
 		this.active = !0,
 		this.p1.x = t.x,
@@ -30,18 +28,18 @@ export default class extends Tool {
 		this.p2.y = t.y
 	}
 	hold() {
-		var t = this.mouse.touch.real;
+		let t = this.mouse.touch.real;
 		this.p2.x = t.x,
 		this.p2.y = t.y
 	}
 	unselectElements() {
 		this.selectedElements = [],
-		this.selectedSegments = [];
+		this.selectedSegments = []
 	}
 	moveSelected(t) {
-		for (const e in this.selectedSegments) {
+		for (let e in this.selectedSegments) {
 			if (this.selectedSegments.find(e => e.otherPortal == t)) {
-				this.selectedSegments.splice(selectedSegments.indexOf(t), 1);
+				this.selectedSegments.splice(e, 1);
 				continue;
 			}
 			this.selectedSegments[e] = this.selectedSegments[e].move(t == "ArrowLeft" ? -this.travelDistance : t == "ArrowRight" ? this.travelDistance : 0, t == "ArrowUp" ? -this.travelDistance : t == "ArrowDown" ? this.travelDistance : 0);
@@ -62,7 +60,7 @@ export default class extends Tool {
 		this.selectedElements.push(...this.selectedSegments);
 		this.selectedSegments.length > 0 && this.toolhandler.addActionToTimeline({
 			type: "add",
-			objects: this.selectedSegments.flatMap(t => t)
+			objects: this.selectedSegments.flat()
 		});
 	}
 	rotateSelected() {
@@ -77,12 +75,8 @@ export default class extends Tool {
 		}
 	}
 	copyAndPasteSelected() {
-		for (const i of this.selectedSegments) {
-			if (i.type == "physics") {
-				this.scene.track.addPhysicsLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
-			} else if(i.type == "scenery") {
-				this.scene.track.addSceneryLine(i.p1.x, i.p1.y, i.p2.x, i.p2.y)
-			}
+		for (let i of this.selectedSegments.filter(i => i.type == 'physics' || i.type == 'scenery')) {
+			this.scene.track['add' + (i.type == 'physics' ? 'Physics' : 'Scenery') + 'Line'](i.p1.x, i.p1.y, i.p2.x, i.p2.y)
 		}
 	}
 	release() {
@@ -99,11 +93,11 @@ export default class extends Tool {
 				case "=":
 				case "+":
 					this.travelDistance++;
-					this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000000", "#FFFFFF");
+					this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
 					break;
 				case "-":
 					this.travelDistance--;
-					this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000000", "#FFFFFF");
+					this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
 					break;
 				case "c":
 					this.copyAndPasteSelected(e.key),
@@ -118,81 +112,77 @@ export default class extends Tool {
 						t.removeAllReferences()
 					}
 					this.reset();
-					this.scene.message.show("Deleted selected area", !1, "#000000", "#FFFFFF");
+					this.scene.message.show("Deleted selected area", !1, "#000", "#FFF");
 					break;
 				case "f":
 					if (confirm("Are you sure you would you like to fill the selected area?"))
 						this.fillSelected(),
-						this.scene.message.show("Filled selected area", !1, "#000000", "#FFFFFF");
+						this.scene.message.show("Filled selected area", !1, "#000", "#FFF");
 					break;
 				case "r":
 					this.rotateSelected();
-					this.scene.message.show("Rotated selected area", !1, "#000000", "#FFFFFF");
+					this.scene.message.show("Rotated selected area", !1, "#000", "#FFF");
 					break;
 				case "ArrowUp":
 				case "ArrowDown":
 				case "ArrowLeft":
 				case "ArrowRight":
 					this.moveSelected(e.key);
-					this.scene.message.show("Moved Selected Area", !1, "#000000", "#FFFFFF");
+					this.scene.message.show("Moved Selected Area", !1, "#000", "#FFF");
 					break;
 				case "`":
 				case "Escape":
 					this.reset()
 			}
-			this.timeout = setTimeout(() => this.scene.message.hide(), 1000);
+			this.timeout = setTimeout(() => this.scene.message.hide(), 1e3);
 		}
 	}
 	buildPaths(t) {
-		for (var e = []; t.length > 0; ) {
-			var i = new Path;
+		for (let e = []; t.length > 0; ) {
+			let i = new Path;
 			i.build(t),
 			e.push(i)
 		}
 	}
 	intersectsLine(t, e) {
-		var i = Math.min(this.p1.y, this.p2.y)
-		, s = Math.min(this.p1.x, this.p2.x)
-		, n = Math.max(this.p1.y, this.p2.y)
-		, r = Math.max(this.p1.x, this.p2.x)
-		, o = Math.abs(r - s)
-		, c = Math.abs(i - n)
-		, u = t.x
-		, p = e.x;
+		let i = Math.min(this.p1.y, this.p2.y)
+		  , s = Math.min(this.p1.x, this.p2.x)
+		  , n = Math.max(this.p1.y, this.p2.y)
+		  , r = Math.max(this.p1.x, this.p2.x)
+		  , o = Math.abs(r - s)
+		  , c = Math.abs(i - n)
+		  , u = t.x
+		  , p = e.x;
 		if (t.x > e.x && (u = e.x,
 		p = t.x),
 		p > s + o && (p = s + o),
 		s > u && (u = s),
 		u > p)
 			return !1;
-		var d = t.y
-		, f = e.y
-		, v = e.x - t.x;
+		let d = t.y
+		  , f = e.y
+		  , v = e.x - t.x;
 		if (Math.abs(v) > 1e-7) {
-			var g = (e.y - t.y) / v
-			, m = t.y - g * t.x;
+			let g = (e.y - t.y) / v
+			  , m = t.y - g * t.x;
 			d = g * u + m,
 			f = g * p + m
 		}
-		if (d > f) {
-			var y = f;
-			f = d,
-			d = y
-		}
+		d > f && ([f, d] = [d, f]);
 		return f > i + c && (f = i + c),
 		i > d && (d = i),
 		d > f ? !1 : !0
 	}
 	toScreen(t, e) {
 		let i = this.scene.camera
-		, s = this.scene.screen;
+		  , s = this.scene.screen;
 		return (t - i.position[e]) * i.zoom + s.center[e]
 	}
 	draw(e) {
 		let t = this.scene;
 		if (this.active || this.passive) {
-			let i = this.p1.toScreen(this.scene)
-			, s = this.p2.toScreen(this.scene)
+			let i = this.p1.toScreen(t)
+			, s = this.p2.toScreen(t)
 			, n = s.x - i.x
 			, r = s.y - i.y;
 			e.save(),
@@ -217,25 +207,9 @@ export default class extends Tool {
 		this.passive = !1,
 		this.unselectElements()
 	}
-	drawSectors() {
-		for (var t = this.scene, e = t.camera, i = t.screen, s = t.game.canvas.getContext("2d"), n = e.zoom, r = e.position, o = t.screen.center, a = this.settings.drawSectorSize * n, h = r.x * n / a, l = r.y * n / a, c = i.width / a, u = i.height / a, p = u / 2, d = c / 2, f = h - d - 1, v = l - p - 1, g = h + d, m = l + p, y = this.totalSectors, w = y.length, x = 0; w > x; x++) {
-			var _ = y[x]
-			, b = _.row
-			, T = _.column;
-			if (T >= f && g >= T && b >= v && m >= b) {
-				_.drawn === !1 && _.image === !1 && _.draw();
-				var C = T * a - h * a + o.x
-				, k = b * a - l * a + o.y;
-				C = 0 | C,
-				k = 0 | k,
-				_.image ? s.drawImage(_.image, C, k) : s.drawImage(_.canvas, C, k)
-			} else
-				_.drawn && _.clear()
-		}
-	}
 	close() {
 		this.dashOffset = 0,
-		this.selectedElements = [],
+		this.selectedElements = null,
 		this.mouse = null,
 		this.camera = null,
 		this.scene = null,

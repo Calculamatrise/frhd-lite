@@ -43,6 +43,8 @@ export default class extends Powerup {
 		s.translate(-t, -e)
 	}
 	drawArrow(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= .2,
 		s.beginPath(),
 		s.moveTo(0 * i, 0 * i),
@@ -56,7 +58,7 @@ export default class extends Powerup {
 		s.lineWidth = Math.max(6 * i, 1),
 		s.save(),
 		s.fillStyle = '#376eb7',
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = n,
 		s.beginPath(),
 		s.moveTo(41 * i, 70 * i),
 		s.lineTo(41 * i, 95 * i),

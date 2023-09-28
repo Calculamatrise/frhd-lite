@@ -19,7 +19,7 @@ export default class extends Tool {
 	recordActionsToToolhandler() {
 		this.erasedObjects.length > 0 && this.toolhandler.addActionToTimeline({
 			type: "remove",
-			objects: this.erasedObjects.flatMap(t => t)
+			objects: this.erasedObjects.flat()
 		}),
 		this.erasedObjects = []
 	}
@@ -54,7 +54,7 @@ export default class extends Tool {
 		t.lineWidth = 1,
 		t.fillStyle = /^midnight$/i.test(colorScheme) ? "rgba(29,35,40,0.8)" : /^dark$/i.test(colorScheme) ? "rgba(33,33,33,0.8)" : "rgba(255,255,255,0.8)",
 		t.fill(),
-		t.strokeStyle = '#'.padEnd(7, /^midnight$/i.test(colorScheme) ? 'C' : /^dark$/i.test(colorScheme) ? 'FB' : '0'),
+		t.strokeStyle = this.scene.settings.physicsLineColor,
 		t.stroke(),
 		t.restore()
 	}

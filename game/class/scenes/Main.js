@@ -2,12 +2,9 @@ import Scene from "./Scene.js";
 import b from "../controls/fullscreen.js";
 import w from "../controls/pause.js";
 import T from "../controls/settings.js";
-import u from "../tools/cameratool.js";
-import c from "../tools/toolhandler.js";
 import r from "../utils/campaignscore.js";
 import P from "../utils/formatnumber.js";
 import o from "../utils/racetimes.js";
-import Track from "../tracks/track.js";
 
 async function digestMessage(message) {
 	const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
@@ -21,18 +18,15 @@ async function digestMessage(message) {
 
 export default class extends Scene {
 	races = [];
-	playing = !1;
-	ready = !1;
-	preloading = !0;
-	loading = !0;
+	playing = false;
+	ready = false;
+	loading = false;
 	fullscreenControls = null;
 	settingsControls = null;
-	showSkip = !1;
 	constructor(t) {
 		super(t);
 		this.raceTimes = new o(this);
 		this.settings.isCampaign && (this.campaignScore = new r(this));
-		this.loading = !1;
 		this.setStartingVehicle(),
 		this.state = this.setStateDefaults(),
 		this.oldState = this.setStateDefaults(),
@@ -44,11 +38,10 @@ export default class extends Scene {
 		this.initializeAnalytics()
 	}
 	getCanvasOffset() {
-		var t = {
+		return {
 			height: 0,
 			width: 0
-		};
-		return t
+		}
 	}
 	initializeAnalytics() {
 		this.analytics = {
@@ -56,15 +49,9 @@ export default class extends Scene {
 		}
 	}
 	createMainPlayer() {
-		var t = this.playerManager
-			, e = t.createPlayer(this, this.settings.user)
-			, i = e.getGamepad();
-		i.setKeyMap(this.settings.playHotkeys),
-		i.recordKeys(this.settings.keysToRecord),
-		i.onButtonDown = this.buttonDown.bind(this),
-		i.listen(),
-		this.playerManager.firstPlayer = e,
-		this.playerManager.addPlayer(e)
+		let t = super.createMainPlayer();
+		t.setKeyMap(this.settings.playHotkeys),
+		t.recordKeys(this.settings.keysToRecord)
 	}
 	createControls() {
 		this.pauseControls = new w(this),
@@ -72,17 +59,14 @@ export default class extends Scene {
 		this.settingsControls = new T(this)
 	}
 	createTrack() {
-		this.track && this.track.close();
-		let t = new Track(this)
-		, e = this.getAvailableTrackCode();
+		let t = super.createTrack()
+		  , e = this.getAvailableTrackCode();
 		0 != e && (t.read(e),
-		this.track = t,
 		this.setTrackAllowedVehicles(),
 		this.state.preloading = !1,
 		this.loading = !1,
 		this.restartTrack = !0,
-		this.ready = !0),
-		this.track = t
+		this.ready = !0)
 	}
 	play() {
 		this.state.playing || (this.state.playing = !0,
@@ -90,7 +74,7 @@ export default class extends Scene {
 	}
 	buttonDown(t) {
 		if (!this.state.showDialog) {
-			var e = this.camera;
+			let e = this.camera;
 			switch (t) {
 			case "change_camera":
 				e.focusOnNextPlayer();
@@ -124,28 +108,21 @@ export default class extends Scene {
 		this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen"))
 	}
 	toggleFullscreen() {
-		if (this.settings.embedded) {
-			var t = this.settings
-				, e = t.basePlatformUrl + "/t/" + t.track.url;
-			window.open(e)
-		} else
-			this.settings.fullscreenAvailable && (this.settings.fullscreen = !this.settings.fullscreen,
-			this.state.fullscreen = !this.settings.fullscreen,
-			this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen"))
+		let t = super.toggleFullscreen();
+		t && this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen")
 	}
 	trackEvent(t, e, i) {
-		var s = {
+		Application.Helpers.GoogleAnalyticsHelper.track_event({
 			category: t,
 			action: e,
 			label: i,
 			value: 0,
 			non_interaction: !0
-		};
-		Application.Helpers.GoogleAnalyticsHelper.track_event(s)
+		})
 	}
 	setTrackAllowedVehicles() {
-		var t = this.track
-			, e = this.settings.track;
+		let t = this.track
+		  , e = this.settings.track;
 		e && (t.allowedVehicles = e.vehicles)
 	}
 	interactWithControls() {
@@ -159,9 +136,7 @@ export default class extends Scene {
 		this.settingsControls.update()
 	}
 	registerTools() {
-		var t = new c(this);
-		this.toolHandler = t,
-		t.registerTool(u),
+		let t = super.registerTools();
 		t.setTool("Camera")
 	}
 	fixedUpdate() {
@@ -202,8 +177,8 @@ export default class extends Scene {
 		this.showControlPlanel("main")
 	}
 	setStartingVehicle() {
-		var t = this.settings
-			, e = t.startVehicle;
+		let t = this.settings
+		  , e = t.startVehicle;
 		t.track && (e = t.track.vehicle),
 		this.vehicle = e
 	}
@@ -228,35 +203,25 @@ export default class extends Scene {
 		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
 	setStateDefaults() {
-		var t = {};
-		return t.playing = !this.settings.waitForKeyPress,
-		t.paused = !1,
+		let t = super.setStateDefaults();
+		return t.paused = !1,
 		t.playerAlive = !0,
-		t.inFocus = !0,
-		t.preloading = !0,
-		t.fullscreen = this.settings.fullscreen,
 		t.showControls = !1,
 		t.showSkip = !1,
-		t.showDialog = !1,
-		t.dialogOptions = !1,
 		t
 	}
-	openDialog(t) {
-		this.state.playing = !1,
-		this.state.showDialog = t
-	}
 	command() {
-		var t = Array.prototype.slice.call(arguments, 0)
-			, e = t.shift();
+		let t = Array.prototype.slice.call(arguments, 0)
+		  , e = t.shift();
 		switch (e) {
 		case "clear race":
-			this.races = [],
+			this.races.splice(0),
 			this.restartTrack = !0,
 			this.raceTimes.clear();
 			break;
 		case "add race":
-			var r = t[0]
-				, o = t[1];
+			let r = t[0]
+			  , o = t[1];
 			this.addRaces(r),
 			o && (this.state.dialogOptions = {
 				races: this.races
@@ -264,7 +229,7 @@ export default class extends Scene {
 			this.command("dialog", "race_dialog"));
 			break;
 		case "change vehicle":
-			var a = t[0];
+			let a = t[0];
 			this.selectVehicle(a);
 			break;
 		case "restart":
@@ -280,7 +245,6 @@ export default class extends Scene {
 		case "exit_fullscreen":
 			this.exitFullscreen()
 		}
-
 		super.command(...arguments);
 	}
 	addRaces(t) {
@@ -292,44 +256,37 @@ export default class extends Scene {
 		this.restartTrack = !0
 	}
 	addRaceTimes() {
-		var t = this.settings.raceColors
-			, e = t.length
-			, i = this.races
-			, s = this.raceTimes;
+		let t = this.settings.raceColors
+		  , e = t.length
+		  , i = this.races
+		  , s = this.raceTimes;
 		s.clear();
-		for (var n in i) {
-			var r = i[n];
+		for (let n in i) {
+			let r = i[n];
 			r.user.color = t[n % e],
 			s.addRace(r, n)
 		}
 	}
 	addPlayers() {
-		var t = this.races
-			, e = this.playerManager;
-		e.clear();
-		var i = this.settings.keysToRecord;
-		for (var s in t) {
-			var n = t[s]
-				, r = n.user
-				, o = n.race
-				, a = o.code;
+		let t = this.playerManager;
+		t.clear();
+		let e = this.settings.keysToRecord;
+		for (let { user: r, race: o, code: a } of this.races) {
 			"string" == typeof a && (a = JSON.parse(a));
-			var h = e.createPlayer(this, r);
+			let h = t.createPlayer(this, r);
 			h.setBaseVehicle(o.vehicle),
 			h.setAsGhost();
-			var l = h.getGamepad();
-			l.loadPlayback(a, i),
-			e.addPlayer(h)
+			let l = h.getGamepad();
+			l.loadPlayback(a, e),
+			t.addPlayer(h)
 		}
 	}
 	formatRaces() {
-		var t = this.races;
-		for (var e in t) {
-			var i = t[e].race
-				, s = i.code;
+		for (let { race: i } of this.races) {
+			let s = i.code;
 			if ("string" == typeof s) {
 				s = JSON.parse(s);
-				for (var n in s) {
+				for (let n in s) {
 					s[n] instanceof Array && (s[n] = s[n].reduce((o, r) => (o[r] = ~~o[r] + 1, o), {}))
 				}
 				i.code = s
@@ -340,36 +297,35 @@ export default class extends Scene {
 		this.races = this.races.filter((race, index, races) => index === races.findIndex(dup => this.uniqesByUserIdIterator(dup) == this.uniqesByUserIdIterator(race)))
 	}
 	uniqesByUserIdIterator(t) {
-		var e = t.user;
+		let e = t.user;
 		return e.u_id
 	}
 	sortRaces() {
 		this.races = this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b))
 	}
 	mergeRaces(t) {
-		var e = this.races;
+		let e = this.races;
 		t && t.forEach(t => {
-			var i = e.find(e => {
+			let i = e.find(e => {
 				return e.user.u_id === t.user.u_id
 			});
 			i ? Object.assign(i, t) : e.push(t)
 		})
 	}
 	sortByRunTicksIterator(t) {
-		var e = this.settings
-			, i = parseInt(t.race.run_ticks)
-			, s = P(i / e.drawFPS * 1e3);
+		let e = this.settings
+		  , i = parseInt(t.race.run_ticks)
+		  , s = P(i / e.drawFPS * 1e3);
 		return t.runTime = s,
 		i
 	}
 	verifyComplete() {
-		var t = this.playerManager.firstPlayer
-			, e = t._powerupsConsumed.targets
-			, i = this.track.targets
-			, s = !0;
-		for (var n in i) {
-			var r = i[n]
-				, o = r.id;
+		let t = this.playerManager.firstPlayer
+		  , e = t._powerupsConsumed.targets
+		  , i = this.track.targets
+		  , s = !0;
+		for (let n of i) {
+			let o = n.id;
 			-1 === e.indexOf(o) && (s = !1)
 		}
 		return s
@@ -377,16 +333,16 @@ export default class extends Scene {
 	async trackComplete() {
 		if (this.verifyComplete()) {
 			this.sound.play("victory_sound");
-			var t = this.playerManager;
+			let t = this.playerManager;
 			t.mutePlayers();
-			var e = t.firstPlayer
-				, i = e.getGamepad()
-				, s = i.getReplayString()
-				, n = this.settings
-				, r = this.ticks
-				, o = P(r / n.drawFPS * 1e3)
-				, a = $("#track-data").data("t_id")
-				, h = {
+			let e = t.firstPlayer
+			  , i = e.getGamepad()
+			  , s = i.getReplayString()
+			  , n = this.settings
+			  , r = this.ticks
+			  , o = P(r / n.drawFPS * 1e3)
+			  , a = $("#track-data").data("t_id")
+			  , h = {
 					t_id: a,
 					u_id: n.user.u_id,
 					code: s,
@@ -396,14 +352,8 @@ export default class extends Scene {
 					time: o
 				};
 			h.sig = await digestMessage(h.t_id + "|" + h.u_id + "|" + h.code + "|" + h.run_ticks + "|" + h.vehicle + "|" + h.fps + "|erxrHHcksIHHksktt8933XhwlstTekz");
-			var u = this.races
-				, p = u.length
-				, d = [];
-			if (p > 0) {
-				for (var f = 0; p > f; f++)
-					d.push(u[f].user.u_id);
-				h.races = d
-			}
+			let u = this.races;
+			u.length > 0 && (h.races = u.map(({ user }) => user.u_id)),
 			n.isCampaign && (h.is_campaign = !0),
 			this.state.dialogOptions = {
 				postData: h,
@@ -412,7 +362,7 @@ export default class extends Scene {
 			navigator.onLine || (localStorage.setItem('offline_races', Object.assign(Object.assign({}, JSON.parse(localStorage.getItem('offline_races'))), {
 				[this.settings.track.id]: this.state.dialogOptions
 			})), alert('Your connection is offline! Free Rider Lite saved your ghost, and it will be published when your connection is back online!')),
-			n.isCampaign ? this.command("dialog", "campaign_complete") : this.command("dialog", "track_complete"),
+			this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
 			i.reset(!0),
 			this.listen()
 		}

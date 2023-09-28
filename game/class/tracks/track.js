@@ -31,7 +31,6 @@ export default class {
 	game = null;
 	scene = null;
 	camera = null;
-	canvas = null;
 	canvasPool = null;
 	settings = null;
 	physicsLines = [];

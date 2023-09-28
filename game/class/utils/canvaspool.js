@@ -1,11 +1,11 @@
 export default class {
 	canvasPool = [];
 	poolCap = 5e3;
-	setToScreen = !0;
+	setToScreen = true;
 	options = null;
 	constructor(t) {
 		this.options = t;
-		t.screen && (this.setToScreen = !0, this.update());
+		t.screen && this.update();
 		t.cap && (this.setToScreen = !1, this.poolCap = t.cap);
 	}
 	update() {

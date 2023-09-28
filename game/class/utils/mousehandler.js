@@ -2,9 +2,11 @@ import Vector from "../math/cartesian.js";
 import EventEmitter from "../EventEmitter.js";
 
 export default class extends EventEmitter {
+	enabled = !0;
 	scene = null;
 	touch = null;
 	touches = [];
+	updateCallback = !1;
 	wheel = !1;
 	mousewheel = !1;
 	mouseMoveListener = null;
@@ -15,14 +17,12 @@ export default class extends EventEmitter {
 	constructor(t) {
 		super();
 		this.scene = t;
-		this.enabled = !0;
 		this.touch = this.getTouchObject();
 		this.touch.old = this.getTouchObject();
 		this.secondaryTouch = this.getTouchObject();
 		this.secondaryTouch.old = this.getTouchObject();
 		this.initAnalytics();
 		this.bindToMouseEvents();
-		this.updateCallback = !1;
 	}
 	contextMenuHandler(t) {
 		return t.stopPropagation(),
@@ -96,13 +96,14 @@ export default class extends EventEmitter {
 		if (this.scene.toolHandler.options.grid) {
 			let p = this.scene.settings.toolHandler.gridSize | 0;
 			if (lite.storage.get("isometricGrid")) {
-				function Ab(t, e) {
+				function c(t, e) {
 					return ((t % e) + e) % e
 				}
-				let g = p / 2,
-					adjusted = Math.round(i.x / p);
+				let g = p / 2
+				  , adjusted = Math.round(i.x / p)
+				  , k = c(adjusted, 2);
 				i.x = adjusted * p;
-				i.y = i.y - Ab(i.y + g * (Ab(adjusted, 2) + 1), p) - (g * (Ab(adjusted, 2) - 1)) + (Ab(adjusted, 2) * g);
+				i.y = i.y - c(i.y + g * (k + 1), p) - (g * (k - 1)) + (k * g);
 			} else {
 				i.x = Math.round(i.x / p) * p
 				i.y = Math.round(i.y / p) * p

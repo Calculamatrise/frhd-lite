@@ -125,7 +125,7 @@ window.lite = new class {
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts();
 		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
 		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && this.initUserTrackAnalytics(),
-		/* Application.settings.user.moderator && */this.initUserTrackModeration());
+		Application.settings.user.moderator && this.initUserTrackModeration());
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
 	}
 
@@ -268,10 +268,11 @@ window.lite = new class {
 	}
 
 	initAccountManager() {
-		let logout = document.querySelector("a.logout");
-		logout.removeAttribute("id");
+		if (!Application.User.logged_in) return;
+		let logout = Application.router.left_navigation_view.el.querySelector('a.logout');
+		logout.removeAttribute('id');
 		logout.innerText = "Switch";
-		logout.addEventListener("click", () => {
+		logout.addEventListener('click', () => {
 			let overlay = this.constructor.createElement("div", {
 				className: "simplemodal-overlay",
 				id: "simplemodal-overlay",
@@ -302,7 +303,7 @@ window.lite = new class {
 						}
 					}),
 					this.constructor.createElement("button", {
-						className: "btn new-button button-type-2",
+						className: "new-button button-type-2",
 						innerText: "Add account",
 						onclick() {
 							if (document.querySelector("div#login-container")) {
@@ -339,15 +340,15 @@ window.lite = new class {
 											Application.Helpers.AjaxHelper.post("/auth/standard_login", {
 												login: document.querySelector("#save-account-login")?.value,
 												password: document.querySelector("#save-account-password")?.value
-											}).done((response) => {
-												if (response.result) {
+											}).done(res => {
+												if (res.result) {
 													let accounts = JSON.parse(localStorage.getItem("switcher-accounts")) || [];
-													if (accounts.find(({ login }) => login === response.data.user.d_name)) {
+													if (accounts.find(({ login }) => login === res.data.user.d_name)) {
 														return;
 													}
 
 													accounts.push({
-														login: response.data.user.d_name,
+														login: res.data.user.d_name,
 														password: document.querySelector("#save-account-password")?.value
 													});
 
@@ -382,7 +383,7 @@ window.lite = new class {
 					inset: 0,
 					margin: 'auto',
 					maxHeight: '50vmin',
-					maxWidth: '360px',
+					maxWidth: '25vw',
 					minWidth: '230px',
 					overflow: 'hidden auto',
 					padding: '2.5rem',
@@ -391,6 +392,31 @@ window.lite = new class {
 					zIndex: 1002
 				}
 			});
+
+			if (Application.User.logged_in) {
+				container.appendChild(
+					this.constructor.createElement("button", {
+						className: "new-button",
+						innerText: "Logout",
+						style: {
+							backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)'
+						},
+						onclick() {
+							Application.Helpers.AjaxHelper.post('/auth/logout').done(res => {
+								if (res.result) {
+									Application.User.logged_in = !1,
+									Application.User.clear(),
+									Application.events.publish('user.change'),
+									Application.events.unsubscribe('user.change');
+									Application.events.publish("user.logout");
+									Application.User.unset_game_settings_user();
+									this.remove();
+								}
+							});
+						}
+					})
+				);
+			}
 
 			document.body.append(overlay, container);
 		});
@@ -491,7 +517,7 @@ window.lite = new class {
 			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
 				race.setAttribute('title', 'Loading...');
 				race.addEventListener('mouseover', event => {
-					Application.Helpers.AjaxHelper.get(location.pathname).done(({ user_track_stats: { best_date } = {}} = {}) => {
+					fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { best_date } = {}} = {}) => {
 						event.target.setAttribute('title', best_date ?? 'Failed to load');
 					});
 				}, { once: true });
@@ -586,7 +612,7 @@ window.lite = new class {
 	}
 
 	initFriendsLastPlayed() {
-		Application.Helpers.AjaxHelper.get(location.pathname).done(({ friends, is_profile_owner }) => {
+		fetch(location.pathname + '?ajax').then(r => r.json()).then(({ friends, is_profile_owner }) => {
 			is_profile_owner || document.querySelectorAll('.friend-list-item-name').forEach(item => {
 				item.after(this.constructor.createElement('div', {
 					className: "friend-list-item-date",
@@ -687,19 +713,23 @@ window.lite = new class {
 
 	initRequestTrackData() {
 		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
-		let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
-		requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
-		requestTrackData.style.setProperty('float', 'right');
-		requestTrackData.style.setProperty('font-size', '13px');
-		requestTrackData.style.setProperty('height', 'auto');
-		requestTrackData.style.setProperty('line-height', '23px');
-		requestTrackData.style.setProperty('margin-top', '6px');
-		requestTrackData.style.setProperty('margin-right', '14px');
-		requestTrackData.style.setProperty('padding', '0 1rem');
-		requestTrackData.innerText = 'Request All Data';
-		requestTrackData.addEventListener('click', () => {
-			this.constructor.downloadAllTracks();
-		});
+		if (deleteALlPersonalData) {
+			let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
+			requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
+			requestTrackData.style.setProperty('float', 'right');
+			requestTrackData.style.setProperty('font-size', '13px');
+			requestTrackData.style.setProperty('height', 'auto');
+			requestTrackData.style.setProperty('line-height', '23px');
+			requestTrackData.style.setProperty('margin-top', '6px');
+			requestTrackData.style.setProperty('margin-right', '14px');
+			requestTrackData.style.setProperty('padding', '0 1rem');
+			requestTrackData.innerText = 'Request All Data';
+			requestTrackData.addEventListener('click', () => {
+				this.constructor.downloadAllTracks();
+			});
+		} else {
+			console.warn("Request track data failed to load! Personal data is not present.");
+		}
 	}
 
 	ghostUploadDialog = null;
@@ -859,7 +889,10 @@ window.lite = new class {
 
 		let nav = document.querySelector("#content > div > div.profile-tabs > section > div.tab_buttons > div");
 		let action = nav.appendChild(document.createElement('select'));
+		action.style.setProperty('border-radius', '4px');
 		action.style.setProperty('float', 'right');
+		action.style.setProperty('font-family', 'system-ui,roboto_medium,Arial,Helvetica,sans-serif');
+		action.style.setProperty('letter-spacing', '-.02em');
 		action.style.setProperty('margin-right', '10px');
 		action.style.setProperty('margin-top', '8px');
 		let placeholder = action.appendChild(document.createElement('option'));
@@ -882,16 +915,19 @@ window.lite = new class {
 					let tracks = document.querySelectorAll("#created_tracks li:has(.bottom > label > input[type='checkbox']:checked)");
 					if (tracks.length > 0) {
 						let dialog = document.body.appendChild(document.createElement('dialog'));
-						dialog.style.setProperty('max-height', '80vh'); // 75vh
-						dialog.style.setProperty('max-width', '60vw'); // 50vw
+						dialog.style.setProperty('border', 'none');
+						dialog.style.setProperty('box-shadow', '0 0 4px 0px hsl(190deg 25% 60%)');
+						dialog.style.setProperty('max-height', '75vh');
+						dialog.style.setProperty('max-width', '50vw');
 						dialog.style.setProperty('padding', 0);
+						dialog.style.setProperty('width', '120vmin');
 						let title = dialog.appendChild(document.createElement('p'));
 						title.style.setProperty('background-color', 'inherit');
 						title.style.setProperty('box-shadow', '0 0 4px 0 black');
 						title.style.setProperty('padding', '1rem');
 						title.style.setProperty('position', 'sticky');
-						title.style.setProperty('top', '0');
-						title.style.setProperty('z-index', '3');
+						title.style.setProperty('top', 0);
+						title.style.setProperty('z-index', 3);
 						title.innerText = 'Are you sure you would like to delete the following tracks?';
 						let close = title.appendChild(document.createElement('span'));
 						close.classList.add('core_icons', 'core_icons-icon_close');
@@ -899,6 +935,8 @@ window.lite = new class {
 						close.addEventListener('click', () => dialog.remove());
 						let list = dialog.appendChild(document.createElement('ul'));
 						list.classList.add('track-list', 'clearfix');
+						list.style.setProperty('max-height', '50cqh');
+						list.style.setProperty('overflow-y', 'auto');
 						list.style.setProperty('padding', '1rem');
 						list.style.setProperty('text-align', 'center');
 						list.append(...Array.from(tracks).map(track => {
@@ -909,13 +947,13 @@ window.lite = new class {
 						let form = dialog.appendChild(document.createElement('form'));
 						form.setAttribute('method', 'dialog');
 						form.style.setProperty('background-color', 'inherit');
-						form.style.setProperty('bottom', '0');
+						form.style.setProperty('bottom', 0);
 						form.style.setProperty('display', 'flex');
 						form.style.setProperty('gap', '.25em');
 						form.style.setProperty('box-shadow', '0 0 4px 0 black');
 						form.style.setProperty('padding', '1rem');
 						form.style.setProperty('position', 'sticky');
-						form.style.setProperty('z-index', '2');
+						form.style.setProperty('z-index', 2);
 						let cancel = form.appendChild(document.createElement('button'));
 						cancel.classList.add('new-button', 'button-type-1');
 						cancel.setAttribute('value', 'cancel');
@@ -1001,7 +1039,7 @@ window.lite = new class {
 					}
 				}),
 				this.createElement("button", {
-					className: "btn new-button button-type-1",
+					className: "new-button",
 					innerText: "X",
 					style: {
 						aspectRatio: 1,

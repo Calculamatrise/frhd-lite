@@ -2,7 +2,6 @@ import s from "./physicsline.js";
 import n from "./sceneryline.js";
 
 export default class {
-	image = !1;
 	scene = null;
 	settings = null;
 	drawSectorSize = null;
@@ -14,19 +13,20 @@ export default class {
 	y = 0;
 	realX = 0;
 	realY = 0;
-	lineCount = 0;
-	powerupsCount = 0;
-	drawn = !1;
 	physicsLines = [];
 	sceneryLines = [];
-	powerups = [];
 	canvasPool = null;
 	canvas = null;
 	ctx = null;
+	dirty = !1;
+	drawn = !1;
+	hasPowerups = !1;
+	lineCount = 0;
 	powerupCanvas = null;
 	powerupCanvasOffset = 30;
 	powerupCanvasDrawn = !1;
-	dirty = !1;
+	powerups = null;
+	powerupsCount = 0;
 	constructor(t, e, i) {
 		this.track = i;
 		this.scene = i.scene;
@@ -41,13 +41,6 @@ export default class {
 		this.y = e * this.drawSectorSize;
 		this.realX = this.x * this.zoom;
 		this.realY = this.y * this.zoom;
-		this.lineCount = 0;
-		this.powerupsCount = 0;
-		this.drawn = !1;
-		this.dirty = !1;
-		this.physicsLines = [];
-		this.sceneryLines = [];
-		this.hasPowerups = !1;
 		this.powerups = {
 			all: [],
 			goals: [],
@@ -109,8 +102,10 @@ export default class {
 	cleanSectorType(t, e) {
 		let i = this[t];
 		e && (i = i[e]);
-		for (let s in i.filter(s => s.remove))
-			i.splice(s, 1)
+		for (let s = i.length, n = s - 1; n >= 0; n--) {
+			let r = i[n];
+			r.remove && i.splice(n, 1)
+		}
 	}
 	draw() {
 		this.canvas = this.canvasPool.getCanvas(),

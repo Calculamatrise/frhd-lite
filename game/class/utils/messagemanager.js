@@ -1,11 +1,9 @@
 export default class {
-	message = null;
-	timeout = null;
+	color = "#000";
+	message = false;
+	timeout = false;
 	constructor(t) {
 		this.scene = t;
-		this.message = !1;
-		this.timeout = !1;
-		this.color = "#000";
 	}
 	draw(a) {
 		let t = this.message
@@ -15,8 +13,8 @@ export default class {
 		if (e !== !1 && 0 >= e && (t = !1),
 		this.scene.state.paused && (i = !1,
 		s = !1,
-		t = this.scene.settings.mobile ? "Paused" : "Paused - Press Spacebar to Continue"),
-		i === !1 && (i = lite.storage.get("theme") == "midnight" ? "#888" : /^dark(er)?$/i.test(lite.storage.get("theme")) ? "#ccc" : "#333333"),
+		t = 'Paused' + (this.scene.settings.mobile ? '' : " - Press Spacebar to Continue")),
+		i === !1 && (i = '#'.padEnd(7, lite.storage.get("theme") == "midnight" ? '8' : /^dark(er)?$/i.test(lite.storage.get("theme")) ? 'c' : '3')),
 		t) {
 			let n = this.scene.game
 			  , r = this.scene

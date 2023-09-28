@@ -1,23 +1,18 @@
-import i from "../../math/cartesian.js";
-import Tool from "../tool.js";
+import Cartesian from "../../math/cartesian.js";
+import PowerupTool from "./poweruptool.js";
 import n from "../../sector/powerups/gravity.js";
 
-export default class extends Tool {
-	powerup = null;
+export default class extends PowerupTool {
 	name = "gravity";
-	p1 = null;
 	p2 = null;
-	active = !1;
 	constructor(t) {
 		super(t);
+		this.p2 = new Cartesian(0, 0);
 		this.powerup = new n(0, 0, 0, t.scene.track);
-		this.p1 = new i(0, 0);
-		this.p2 = new i(0, 0);
-		this.active = !1;
 	}
 	press() {
-		var t = this.mouse.touch
-		, e = t.real;
+		let t = this.mouse.touch
+		  , e = t.real;
 		this.p1.x = e.x,
 		this.p1.y = e.y,
 		this.p2.x = e.x,
@@ -25,14 +20,14 @@ export default class extends Tool {
 		this.active = !0
 	}
 	hold() {
-		var t = this.mouse.touch
-		, e = t.real;
+		let t = this.mouse.touch
+		  , e = t.real;
 		this.p2.x = e.x,
 		this.p2.y = e.y
 	}
 	release() {
-		var t = this.scene.track
-		, e = new n(this.p1.x,this.p1.y,this.powerup.angle - 180,t);
+		let t = this.scene.track
+		  , e = new n(this.p1.x,this.p1.y,this.powerup.angle - 180,t);
 		t.addPowerup(e),
 		this.active = !1,
 		this.toolhandler.addActionToTimeline({
@@ -69,36 +64,30 @@ export default class extends Tool {
 		}
 	}
 	drawPathToMouse(t, e) {
-		var i = this.p1
-		, s = this.p2
-		, n = this.scene.screen
-		, o = this.scene.camera.zoom
-		, u = n.realToScreen(i.x, "x")
-		, p = n.realToScreen(i.y, "y")
-		, d = n.realToScreen(s.x, "x")
-		, f = n.realToScreen(s.y, "y")
-		, v = Math.sqrt(Math.pow(d - u, 2) + Math.pow(f - p, 2));
+		let i = this.p1
+		  , s = this.p2
+		  , n = this.scene.screen
+		  , o = this.scene.camera.zoom
+		  , u = n.realToScreen(i.x, "x")
+		  , p = n.realToScreen(i.y, "y")
+		  , d = n.realToScreen(s.x, "x")
+		  , f = n.realToScreen(s.y, "y")
+		  , v = Math.sqrt(Math.pow(d - u, 2) + Math.pow(f - p, 2));
 		30 * o > v && (v = 30 * o),
 		t.strokeStyle = "#A2B7D2",
 		t.lineWidth = Math.max(1, 2 * o),
 		t.beginPath(),
-		t.moveTo(u, p),
-		t.lineTo(u + v, p),
-		t.stroke(),
-		t.beginPath(),
-		t.moveTo(u, p),
+		t.moveTo(u + v, p),
+		t.lineTo(u, p),
 		t.lineTo(d, f),
-		t.stroke(),
-		t.closePath();
-		var g = e + 180 * (Math.PI / 180)
-		, m = Math.min(v, 50 * o);
+		t.stroke();
+		let g = e + 180 * (Math.PI / 180)
+		  , m = Math.min(v, 50 * o);
 		t.beginPath(),
 		t.moveTo(u, p),
 		t.arc(u, p, m, g, 0, !1),
-		t.moveTo(u, p),
 		t.stroke(),
 		t.fillStyle = "rgba(162, 183, 210,0.2)",
-		t.fill(),
-		t.closePath()
+		t.fill()
 	}
 }

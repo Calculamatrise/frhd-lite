@@ -29,7 +29,7 @@ export default function (t, e, i) {
 			if (v * (T * T + C * C) >= k * k) {
 				if (w > y)
 					return void points.push(_, b);
-				var S = Math.abs(Math.atan2(l - o, h - i) - Math.atan2(o - e, i - t));
+				let S = Math.abs(Math.atan2(l - o, h - i) - Math.atan2(o - e, i - t));
 				if (S >= Math.PI && (S = 2 * Math.PI - S),
 					y > S)
 					return void points.push(_, b)

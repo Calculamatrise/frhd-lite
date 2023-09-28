@@ -57,7 +57,7 @@ export default class extends Tool {
 		  , s = this.options.trailSpeed
 		  , n = this.options.breakLength;
 		i.inc(t.sub(i).factor(s));
-		var r = screen.height + t.sub(i).len();
+		let r = screen.height + t.sub(i).len();
 		if (r *= n,
 		i.sub(e).lenSqr() > r) {
 			let o = this.scene.track,
@@ -140,7 +140,7 @@ export default class extends Tool {
 		  , i = this.options.breakLength
 		  , s = this.options.trailSpeed
 		  , n = this.game.pixelRatio;
-		t.fillStyle = /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000',
+		t.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000',
 		t.font = 12 * n + "pt arial",
 		t.fillText(e, 10 * n, 20 * n),
 		t.font = 8 * n + "pt arial",

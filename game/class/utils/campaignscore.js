@@ -4,7 +4,7 @@ export default class {
 	cached = !1;
 	container = {
 		children: [],
-		color: "#000000",
+		color: "#000",
 		font: 30 * window.devicePixelRatio / 2.5,
 		x: 0,
 		y: 80 * window.devicePixelRatio / 2.5,

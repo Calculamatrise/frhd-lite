@@ -9,7 +9,7 @@ export default class {
 	maxRaces = 10;
 	container = {
 		children: [],
-		color: "#000000",
+		color: "#000",
 		font: 25,
 		x: 15,
 		y: 80,

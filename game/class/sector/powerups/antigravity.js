@@ -25,19 +25,9 @@ export default class extends Powerup {
 		i.strokeWidth = 1 * t,
 		i.stroke())
 	}
-	draw(t, e, i, s) {
-		this.constructor.cache.dirty && this.recache(i);
-		var n = this.constructor.cache.width * i
-			, o = this.constructor.cache.height * i
-			, a = n / 2
-			, h = o / 2
-			, l = t
-			, c = e;
-		s.translate(l, c),
-		s.drawImage(this.constructor.cache.canvas, -a, -h, n, o),
-		s.translate(-l, -c)
-	}
 	drawPowerup(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= .5,
 		s.save(),
 		s.scale(i, i),
@@ -45,7 +35,7 @@ export default class extends Powerup {
 		s.lineJoin = 'miter',
 		s.miterLimit = 4,
 		s.fillStyle = '#08faf3',
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = n,
 		s.lineWidth = 1,
 		s.save(),
 		s.beginPath(),
@@ -55,7 +45,7 @@ export default class extends Powerup {
 		s.stroke(),
 		s.restore(),
 		s.save(),
-		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = n,
 		s.beginPath(),
 		s.moveTo(1.0370609, 29.702878),
 		s.lineTo(.571767448, 27.3196417),

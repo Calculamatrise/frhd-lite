@@ -96,5 +96,8 @@ export default class extends VehiclePowerup {
 	getCode() {
 		return super.getCode() + ' 1 ' + this.time.toString(32)
 	}
-	static cache = this.createCache()
+	static cache = Object.assign(this.createCache(), {
+		width: 26,
+		height: 35
+	})
 }

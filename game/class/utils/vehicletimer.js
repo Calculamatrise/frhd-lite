@@ -15,7 +15,7 @@ export default class {
 	constructor(t) {
 		this.scene = t,
 		this.settings = t.settings,
-		this.player = !1,
+		this.removePlayer(),
 		this.createPulseTween()
 	}
 	setPlayer(t) {

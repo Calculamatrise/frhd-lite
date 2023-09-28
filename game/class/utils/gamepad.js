@@ -1,10 +1,10 @@
 export default class {
-	tickDownButtons = null;
-	previousTickDownButtons = null;
-	downButtons = null;
+	tickDownButtons = {};
+	previousTickDownButtons = {};
+	downButtons = {};
 	paused = !1;
-	keymap = null;
-	records = null;
+	keymap = {};
+	records = {};
 	keysToRecord = null;
 	keysToPlay = null;
 	recording = !1;
@@ -14,13 +14,6 @@ export default class {
 	replaying = !1;
 	constructor(t) {
 		this.scene = t;
-		this.tickDownButtons = {};
-		this.previousTickDownButtons = {};
-		this.downButtons = {};
-		this.keymap = {};
-		this.records = {};
-		this.numberOfKeysDown = 0;
-		this.tickNumberOfKeysDown = 0;
 	}
 	listen() {
 		document.onkeydown = this.handleButtonDown.bind(this);
@@ -128,8 +121,8 @@ export default class {
 	update() {
 		this.replaying && this.updatePlayback()
 		if (!this.blurred) {
-			this.previousTickDownButtons = Object.assign({}, this.tickDownButtons)
-			this.tickDownButtons = Object.assign({}, this.downButtons);
+			this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
+			this.tickDownButtons = Object.assign({}, this.downButtons)
 		}
 
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
@@ -142,18 +135,16 @@ export default class {
 		return !1
 	}
 	updatePlayback() {
-		let t = this.keysToPlay
-		  , e = this.playback
-		  , i = this.playbackTicks ?? this.scene.ticks;
-		for (let s in t) {
-			let n = t[s]
-			  , r = n + "_up"
-			  , o = n + "_down";
-			if ("undefined" != typeof e[o] && "undefined" != typeof e[o][i]) {
-				let a = e[o][i];
-				this.setButtonDown(n, a)
+		let t = this.playback
+		  , e = this.playbackTicks ?? this.scene.ticks;
+		for (let i of this.keysToPlay) {
+			let s = i + "_up"
+			  , n = i + "_down";
+			if ("undefined" != typeof t[n] && "undefined" != typeof t[n][e]) {
+				let a = t[n][e];
+				this.setButtonDown(i, a)
 			}
-			"undefined" != typeof e[r] && "undefined" != typeof e[r][i] && this.setButtonUp(n)
+			"undefined" != typeof t[s] && "undefined" != typeof t[s][e] && this.setButtonUp(i)
 		}
 	}
 	updateRecording() {

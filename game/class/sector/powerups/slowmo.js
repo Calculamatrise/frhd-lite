@@ -20,14 +20,6 @@ export default class extends Powerup {
 	getCode() {
 		return 'S ' + super.getCode()
 	}
-	draw(t, e, i, s) {
-		this.constructor.cache.dirty && this.recache(i);
-		let n = this.constructor.cache.width * i
-		  , r = this.constructor.cache.height * i
-		  , a = n / 2
-		  , h = r / 2;
-		s.drawImage(this.constructor.cache.canvas, t - a, e - h, n, r)
-	}
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -39,6 +31,8 @@ export default class extends Powerup {
 		this.scene.message.show('Slow Motion', 50, '#FFFFFF', '#000000')))
 	}
 	drawCircle(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		s.save(),
 		s.beginPath(),
 		i *= .2,
@@ -47,7 +41,7 @@ export default class extends Powerup {
 		s.lineTo(116 * i, 114 * i),
 		s.lineTo(0 * i, 114 * i),
 		s.closePath(),
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.strokeStyle = n,
 		s.lineWidth = Math.max(3 * i, .5),
 		s.beginPath(),
 		s.moveTo(58 * i, 111 * i),

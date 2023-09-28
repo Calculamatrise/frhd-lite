@@ -29,10 +29,10 @@ export default class {
 		t.mousewheel !== !1 && s.isButtonDown("shift") === !1 && this.mousewheel(t.mousewheel)
 	}
 	moveCamera() {
-		var t = this.mouse.secondaryTouch
-			, e = t.pos
-			, i = this.camera
-			, s = t.old.pos.sub(e).factor(1 / i.zoom);
+		let t = this.mouse.secondaryTouch
+		  , e = t.pos
+		  , i = this.camera
+		  , s = t.old.pos.sub(e).factor(1 / i.zoom);
 		i.position.inc(s)
 	}
 	draw() { }

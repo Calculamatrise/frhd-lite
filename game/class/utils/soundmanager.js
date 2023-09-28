@@ -1,9 +1,8 @@
 export default class {
 	muted = !1;
-	sounds = null;
+	sounds = {};
 	constructor(t) {
 		this.scene = t;
-		this.sounds = {};
 	}
 	update() {
 		let e = this.scene;

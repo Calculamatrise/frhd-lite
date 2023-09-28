@@ -8,27 +8,25 @@ export default class {
 	settings = null;
 	outline = '#000'; // /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000';
 	remove = !1;
-	constructor(e, i) {
-		let t = arguments[arguments.length - 1];
-		this.game = t.scene.game,
-		this.scene = t.scene,
+	constructor(t, e) {
+		let i = arguments[arguments.length - 1];
+		this.game = i.scene.game,
+		this.scene = i.scene,
 		this.settings = this.game.settings,
-		this.x = e,
-		this.y = i,
+		this.x = t,
+		this.y = e,
 		this.remove = !1
 	}
 	getCode() {
 		return this.x.toString(32) + ' ' + this.y.toString(32)
 	}
 	draw(t, e, i, s) {
-		if (!this.hit) {
-			this.constructor.cache.dirty && this.recache(i);
-			let r = this.constructor.cache.width * i
-			, o = this.constructor.cache.height * i
-			, a = r / 2
-			, h = o / 2;
-			s.drawImage(this.constructor.cache.canvas, t - a, e - h, r, o)
-		}
+		this.constructor.cache.dirty && this.recache(i);
+		let r = this.constructor.cache.width * i
+		  , o = this.constructor.cache.height * i
+		  , a = r / 2
+		  , h = o / 2;
+		s.drawImage(this.constructor.cache.canvas, t - a, e - h, r, o)
 	}
 	erase(t, e) {
 		let i = !1;

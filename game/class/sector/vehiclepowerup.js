@@ -9,6 +9,9 @@ export default class extends Powerup {
 		this.time = i;
 		this.id = Math.random().toString(36).slice(2);
 	}
+	draw(t, e, i, s) {
+		this.hit || super.draw(t, e, i, s)
+	}
 	getCode() {
 		return 'V ' + super.getCode()
 	}
@@ -20,12 +23,17 @@ export default class extends Powerup {
 		let i = e.getContext('2d')
 		  , s = e.width / 2
 		  , r = e.height / 2;
-		this.drawIcon(s, r, t, i)
+		this.drawIcon(s, r, t, i),
+		this.settings.developerMode && (i.beginPath(),
+		i.rect(0, 0, e.width, e.height),
+		i.strokeStyle = 'red',
+		i.strokeWidth = 1 * t,
+		i.stroke())
 	}
 	static createCache() {
 		return Object.assign(super.createCache(), {
-			width: 32,
-			height: 42
+			width: 24,
+			height: 24
 		})
 	}
 }
