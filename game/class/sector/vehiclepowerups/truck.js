@@ -1,6 +1,7 @@
 import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
+	color = '#94d44e';
 	name = 'truck';
 	collide(t) {
 		let e = t.parent
@@ -21,15 +22,17 @@ export default class extends VehiclePowerup {
 			l.vehicleTimer.playerAddedTime(i)),
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
-			this.scene.message.show("Truck Powerup!", 50, "#94d44e", !1))
+			this.scene.message.show("Truck Powerup!", 50, this.color, !1))
 		}
 	}
 	drawIcon(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= 1,
 		s.save(),
 		s.scale(i, i),
-		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? "#FBFBFB" : this.outline,
-		s.strokeStyle = s.fillStyle,
+		s.fillStyle = n,
+		s.strokeStyle = n,
 		s.save(),
 		s.beginPath(),
 		s.roundRect(1, 16.5, 6, 10.5, 1.5),
@@ -39,7 +42,7 @@ export default class extends VehiclePowerup {
 		s.lineTo(21, 22),
         s.lineWidth = 2,
 		s.stroke(),
-		s.fillStyle = '#94d44e',
+		s.fillStyle = this.color,
 		s.beginPath(),
 		s.moveTo(23, 10),
 		s.bezierCurveTo(23.5, 10.5, 24, 11, 24, 12),

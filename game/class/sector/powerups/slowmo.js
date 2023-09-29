@@ -2,24 +2,6 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	name = 'slowmo';
-	recache(t) {
-		this.constructor.cache.dirty = !1;
-		let e = this.constructor.cache.canvas;
-		e.width = this.constructor.cache.width * t,
-		e.height = this.constructor.cache.height * t;
-		let i = e.getContext('2d')
-		  , s = e.width / 2
-		  , n = e.height / 2;
-		this.drawCircle(s, n, t, i),
-		this.settings.developerMode && (i.beginPath(),
-		i.rect(0, 0, e.width, e.height),
-		i.strokeStyle = 'red',
-		i.strokeWidth = 1 * t,
-		i.stroke())
-	}
-	getCode() {
-		return 'S ' + super.getCode()
-	}
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -28,74 +10,43 @@ export default class extends Powerup {
 		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2));
 		!this.hit && 26 > a && i.isAlive() && (e.slow = !0,
 		i.isGhost() === !1 && (this.scene.sound.play('slowmo_sound'),
-		this.scene.message.show('Slow Motion', 50, '#FFFFFF', '#000000')))
+		this.scene.message.show('Slow Motion', 50, this.color, '#000000')))
 	}
-	drawCircle(t, e, i, s) {
+	drawPowerup(t, e, i, s) {
 		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
+		i *= .24,
 		s.save(),
+		s.scale(i, i),
 		s.beginPath(),
-		i *= .2,
-		s.moveTo(0 * i, 0 * i),
-		s.lineTo(116 * i, 0 * i),
-		s.lineTo(116 * i, 114 * i),
-		s.lineTo(0 * i, 114 * i),
-		s.closePath(),
 		s.strokeStyle = n,
-		s.lineWidth = Math.max(3 * i, .5),
+		s.lineWidth = 3,
+		s.arc(50, 50, 50 - s.lineWidth / 2, 0, 2 * Math.PI),
+		s.stroke(),
 		s.beginPath(),
-		s.moveTo(58 * i, 111 * i),
-		s.bezierCurveTo(89 * i, 111 * i, 114 * i, 87 * i, 114 * i, 56 * i),
-		s.bezierCurveTo(114 * i, 26 * i, 89 * i, 2 * i, 58 * i, 2 * i),
-		s.bezierCurveTo(27.1748289 * i, 2 * i, 2 * i, 26 * i, 2 * i, 56 * i),
-		s.bezierCurveTo(2 * i, 87 * i, 27.1748289 * i, 111 * i, 58 * i, 111 * i),
-		s.closePath(),
-		s.moveTo(58 * i, 103 * i),
-		s.bezierCurveTo(84 * i, 103 * i, 106 * i, 82 * i, 106 * i, 56 * i),
-		s.bezierCurveTo(106 * i, 30 * i, 84 * i, 9 * i, 58 * i, 9 * i),
-		s.bezierCurveTo(31 * i, 9 * i, 10 * i, 30 * i, 10 * i, 56 * i),
-		s.bezierCurveTo(10 * i, 82 * i, 31 * i, 103 * i, 58 * i, 103 * i),
-		s.closePath(),
-		s.moveTo(58 * i, 55 * i),
-		s.lineTo(37 * i, 23 * i),
-		s.lineTo(35 * i, 25 * i),
-		s.lineTo(56 * i, 57 * i),
-		s.lineTo(58 * i, 55 * i),
-		s.closePath(),
-		s.moveTo(58.5 * i, 59 * i),
-		s.lineTo(81.5 * i, 59 * i),
-		s.lineTo(81.5 * i, 56 * i),
-		s.lineTo(58.5 * i, 56 * i),
-		s.lineTo(58.5 * i, 59 * i),
-		s.closePath(),
-		s.moveTo(98.5 * i, 59 * i),
-		s.lineTo(105.5 * i, 59 * i),
-		s.lineTo(105.5 * i, 56 * i),
-		s.lineTo(98.5 * i, 56 * i),
-		s.lineTo(98.5 * i, 59 * i),
-		s.closePath(),
-		s.moveTo(11.5 * i, 59 * i),
-		s.lineTo(18.5 * i, 59 * i),
-		s.lineTo(18.5 * i, 56 * i),
-		s.lineTo(11.5 * i, 56 * i),
-		s.lineTo(11.5 * i, 59 * i),
-		s.closePath(),
-		s.moveTo(57 * i, 96 * i),
-		s.lineTo(57 * i, 101.5 * i),
-		s.lineTo(60 * i, 101.5 * i),
-		s.lineTo(60 * i, 96 * i),
-		s.lineTo(57 * i, 96 * i),
-		s.closePath(),
-		s.moveTo(57 * i, 12 * i),
-		s.lineTo(57 * i, 17.5 * i),
-		s.lineTo(60 * i, 17.5 * i),
-		s.lineTo(60 * i, 12 * i),
-		s.lineTo(57 * i, 12 * i),
-		s.closePath(),
-		s.stroke()
+		s.arc(50, 50, 42.5 - s.lineWidth / 2, 0, 2 * Math.PI),
+		s.stroke(),
+		s.beginPath(),
+		s.lineWidth = 5,
+		s.moveTo(70, 50),
+		s.lineTo(50, 50),
+		s.lineTo(30, 20),
+		s.moveTo(92.5, 50),
+		s.lineTo(82.5, 50),
+		s.moveTo(50, 7.5),
+		s.lineTo(50, 17.5),
+		s.moveTo(50, 92.5),
+		s.lineTo(50, 82.5),
+		s.moveTo(7.5, 50),
+		s.lineTo(17.5, 50),
+		s.stroke(),
+		s.restore()
+	}
+	getCode() {
+		return 'S ' + super.getCode()
 	}
 	static cache = Object.assign(this.createCache(), {
-		width: 24,
+		width: 26,
 		height: 24
 	})
 }

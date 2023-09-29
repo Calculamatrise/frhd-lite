@@ -1,6 +1,7 @@
 export default class {
 	scene = null;
 	angle = 0;
+	color = '#FFF';
 	x = 0;
 	y = 0;
 	name = null;
@@ -17,8 +18,15 @@ export default class {
 		this.y = e,
 		this.remove = !1
 	}
-	getCode() {
-		return this.x.toString(32) + ' ' + this.y.toString(32)
+	addSectorReference(t) {
+		this.sector = t
+	}
+	collide(t) {
+		let e = t.pos.x - this.x
+		  , i = t.pos.y - this.y
+		  , r = Math.sqrt(Math.pow(e, 2) + Math.pow(i, 2));
+		!this.hit && 26 > r && (this.hit = !0,
+		this.sector.powerupCanvasDrawn = !1)
 	}
 	draw(t, e, i, s) {
 		this.constructor.cache.dirty && this.recache(i);
@@ -31,11 +39,34 @@ export default class {
 	erase(t, e) {
 		let i = !1;
 		if (!this.remove) {
-			let r = Math.sqrt(Math.pow(t.x - this.x, 2) + Math.pow(t.y - this.y, 2));
-			e >= r && (i = [this],
+			let s = Math.sqrt(Math.pow(t.x - this.x, 2) + Math.pow(t.y - this.y, 2));
+			e >= s && (i = [this],
 			this.removeAllReferences())
 		}
 		return i
+	}
+	getCode() {
+		return this.x.toString(32) + ' ' + this.y.toString(32)
+	}
+	move(t, e) {
+		this.x += parseInt(t) | 0,
+		this.y += parseInt(e) | 0;
+		return this
+	}
+	recache(t) {
+		this.setDirty(!1);
+		let e = this.constructor.cache.canvas;
+		e.width = this.constructor.cache.width * t,
+		e.height = this.constructor.cache.height * t;
+		let i = e.getContext('2d')
+		  , s = e.width / 2
+		  , r = e.height / 2;
+		this.drawPowerup(s, r, t, i),
+		this.settings.developerMode && (i.beginPath(),
+		i.rect(0, 0, e.width, e.height),
+		i.strokeStyle = 'red',
+		i.strokeWidth = 1 * t,
+		i.stroke())
 	}
 	removeAllReferences() {
 		this.remove = !0,
@@ -43,21 +74,6 @@ export default class {
 		this.sector.dirty = !0,
 		this.sector = null),
 		this.scene.track.cleanPowerups()
-	}
-	collide(t) {
-		let e = t.pos.x - this.x
-		  , i = t.pos.y - this.y
-		  , r = Math.sqrt(Math.pow(e, 2) + Math.pow(i, 2));
-		!this.hit && 26 > r && (this.hit = !0,
-		this.sector.powerupCanvasDrawn = !1)
-	}
-	addSectorReference(t) {
-		this.sector = t
-	}
-	move(t, e) {
-		this.x += parseInt(t) | 0;
-		this.y += parseInt(e) | 0;
-		return this;
 	}
 	setDirty(t) {
 		this.constructor.cache.dirty = t

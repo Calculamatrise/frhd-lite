@@ -23,7 +23,7 @@ export default class {
 	hasPowerups = !1;
 	lineCount = 0;
 	powerupCanvas = null;
-	powerupCanvasOffset = 30;
+	powerupCanvasOffset = 35;
 	powerupCanvasDrawn = !1;
 	powerups = null;
 	powerupsCount = 0;
@@ -148,9 +148,9 @@ export default class {
 		this.powerupCanvasDrawn = !0;
 		if (this.powerups.all.length > 0) {
 			this.powerupCanvas = this.canvasPool.getCanvas();
-			this.powerupCanvas.width = (this.drawSectorSize * this.scene.camera.zoom | 0) + this.powerupCanvasOffset * this.scene.camera.zoom,
-			this.powerupCanvas.height = (this.drawSectorSize * this.scene.camera.zoom | 0) + this.powerupCanvasOffset * this.scene.camera.zoom;
-			const ctx = this.powerupCanvas.getContext("2d");
+			this.powerupCanvas.width = (this.drawSectorSize * this.scene.camera.zoom) + this.powerupCanvasOffset * this.scene.camera.zoom | 0,
+			this.powerupCanvas.height = (this.drawSectorSize * this.scene.camera.zoom) + this.powerupCanvasOffset * this.scene.camera.zoom | 0;
+			let ctx = this.powerupCanvas.getContext("2d");
 			ctx.clearRect(0, 0, this.powerupCanvas.width, this.powerupCanvas.height),
 			this.drawPowerups(this.powerups.slowmos, this.scene.camera.zoom, ctx),
 			this.drawPowerups(this.powerups.checkpoints, this.scene.camera.zoom, ctx),
@@ -164,7 +164,6 @@ export default class {
 			this.drawPowerups(this.powerups.trucks, this.scene.camera.zoom, ctx),
 			this.drawPowerups(this.powerups.balloons, this.scene.camera.zoom, ctx),
 			this.drawPowerups(this.powerups.blobs, this.scene.camera.zoom, ctx),
-			this.drawPowerups(this.powerups.gliders, this.scene.camera.zoom, ctx),
 			this.settings.developerMode && (ctx.beginPath(),
 			ctx.strokeStyle = "red",
 			ctx.rect(0, 0, this.powerupCanvas.width, this.powerupCanvas.height),
@@ -197,8 +196,18 @@ export default class {
 			i.lineTo((t[s].p2.x - this.x) * e, (t[s].p2.y - this.y) * e);
 		}
 	}
+	maxOverlapPowerups = 0;
 	drawPowerups(t, e, i) {
-		for (let s in t) {
+		console.log(t, t.reduce((e, i) => {
+			let other = e.filter(s => (i.x === s.x && i.y === s.y) || s.otherPortal && (i.x === s.otherPortal.x && i.y === s.otherPortal.y));
+			other.length > this.maxOverlapPowerups || e.push(i);
+			return e
+		}, []))
+		for (let s in t.reduce((e, i) => {
+			let other = e.some(s => (i.x === s.x && i.y === s.y) || s.otherPortal && (i.x === s.otherPortal.x && i.y === s.otherPortal.y));
+			other || e.push(i);
+			return e
+		}, [])) {
 			if (t[s].remove)
 				t.splice(s, 1);
 			else {

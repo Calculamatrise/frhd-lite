@@ -1,6 +1,7 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
+	color = '#826cdc';
 	name = 'checkpoint';
 	constructor() {
 		super(...arguments);
@@ -9,57 +10,34 @@ export default class extends Powerup {
 	getCode() {
 		return 'C ' + super.getCode()
 	}
-	recache(t) {
-		this.constructor.cache.dirty = !1;
-		let e = this.constructor.cache.canvas;
-		e.width = this.constructor.cache.width * t,
-		e.height = this.constructor.cache.height * t;
-		let i = e.getContext('2d')
-		  , s = e.width / 2
-		  , n = e.height / 2;
-		this.drawCircle(s, n, t, i),
-		this.settings.developerMode && (i.beginPath(),
-		i.rect(0, 0, e.width, e.height),
-		i.strokeStyle = 'red',
-		i.strokeWidth = 1 * t,
-		i.stroke())
-	}
 	draw(t, e, i, s) {
 		s.save(),
 		this.hit && (s.globalAlpha = .3),
 		super.draw(t, e, i, s),
 		s.restore()
 	}
-	drawCircle(t, e, i, s) {
+	drawPowerup(t, e, i, s) {
 		let n = this.outline;
 		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= .15,
 		s.save(),
-		s.translate(1, 1),
-		s.beginPath(),
-		s.moveTo(0 * i, 0 * i),
-		s.lineTo(112 * i, 0 * i),
-		s.lineTo(112 * i, 95 * i),
-		s.lineTo(0 * i, 95 * i),
-		s.closePath(),
-		s.fillStyle = '#826cdc',
+		s.fillStyle = this.color,
 		s.strokeStyle = n,
 		s.lineWidth = 8 * i,
 		s.beginPath(),
-		s.moveTo(3 * i, 10 * i),
-		s.bezierCurveTo(3 * i, 10 * i, 33.5 * i, 27 * i, 55 * i, 10 * i),
-		s.bezierCurveTo(76 * i, -6 * i, 108 * i, 10 * i, 108 * i, 10 * i),
-		s.lineTo(109 * i, 86 * i),
-		s.bezierCurveTo(109 * i, 86 * i, 74 * i, 73.5 * i, 56.5 * i, 86 * i),
-		s.bezierCurveTo(40 * i, 98 * i, 3 * i, 88.5 * i, 3 * i, 88.5 * i),
-		s.lineTo(3 * i, 10 * i),
+		s.moveTo(4 * i, 11 * i),
+		s.bezierCurveTo(4 * i, 11 * i, 34.5 * i, 28 * i, 56 * i, 11 * i),
+		s.bezierCurveTo(77 * i, -5 * i, 109 * i, 11 * i, 109 * i, 11 * i),
+		s.lineTo(110 * i, 87 * i),
+		s.bezierCurveTo(110 * i, 87 * i, 75 * i, 74.5 * i, 57.5 * i, 87 * i),
+		s.bezierCurveTo(41 * i, 99 * i, 4 * i, 89.5 * i, 4 * i, 89.5 * i),
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
 		s.beginPath(),
-		s.lineWidth = 15 * i,
-		s.moveTo(3 * i, 10 * i),
-		s.lineTo(3 * i, 180 * i),
+		s.lineWidth = 10 * i,
+		s.moveTo(5 * i, 11 * i),
+		s.lineTo(5 * i, 181 * i),
 		s.stroke(),
 		s.restore()
 	}
@@ -74,11 +52,11 @@ export default class extends Powerup {
 		i.setCheckpointOnUpdate(),
 		i.isGhost() === !1 && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1,
-		this.scene.message.show('Checkpoint Saved', 50, '#826cdc', '#FFFFFF'),
+		this.scene.message.show('Checkpoint Saved', 50, this.color, '#FFFFFF'),
 		this.scene.sound.play('checkpoint_sound')))
 	}
 	static cache = Object.assign(this.createCache(), {
-		width: 20,
-		height: 32
+		width: 18,
+		height: 28
 	})
 }

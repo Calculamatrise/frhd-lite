@@ -2,7 +2,6 @@ export default class {
 	scene = null;
 	clockwise = !1;
 	screen = null;
-	pixelRatio = 1;
 	settings = null;
 	constructor(t) {
 		this.scene = t;

@@ -1,9 +1,10 @@
 import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
+	color = '#a784c5';
 	name = 'blob';
 	collide(t) {
-		var e = t.parent
+		let e = t.parent
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , n = t.pos.y - this.y
@@ -21,11 +22,8 @@ export default class extends VehiclePowerup {
 			l.vehicleTimer.playerAddedTime(i)),
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
-			this.scene.message.show('Blob Powerup!', 50, '#A784C5', !1))
+			this.scene.message.show('Blob Powerup!', 50, this.color, !1))
 		}
-	}
-	getCode() {
-		return super.getCode() + ' 4 ' + this.time.toString(32)
 	}
 	drawIcon(t, e, i, s) {
 		i *= 1,
@@ -33,12 +31,15 @@ export default class extends VehiclePowerup {
 		s.scale(i, i),
 		s.beginPath(),
 		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
-		s.fillStyle = '#a784c5',
+		s.fillStyle = this.color,
 		s.lineWidth = 2,
 		s.roundRect(1, 1, 22, 22, 3.5),
 		s.fill(),
 		s.stroke()
 		s.restore()
+	}
+	getCode() {
+		return super.getCode() + ' 4 ' + this.time.toString(32)
 	}
 	static cache = this.createCache()
 }

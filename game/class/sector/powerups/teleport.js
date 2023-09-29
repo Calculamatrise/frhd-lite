@@ -1,6 +1,7 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
+	color = '#dd45ec';
 	id = null;
 	otherPortal = null;
 	hit = !1;
@@ -10,100 +11,50 @@ export default class extends Powerup {
 		super(...arguments);
 		this.id = Math.random().toString(36).slice(2)
 	}
-	erase(t, e) {
-		let i = !1;
-		if (!this.remove) {
-			let s = Math.sqrt(Math.pow(t.x - this.x, 2) + Math.pow(t.y - this.y, 2));
-			e >= s && (i = [this, this.otherPortal],
-			this.removeAllReferences(),
-			this.otherPortal.removeAllReferences())
-		}
-		return i
-	}
 	addOtherPortalRef(t) {
 		this.otherPortal = t
 	}
-	getCode() {
-		let t = '';
-		return this.recorded === !1 && this.otherPortal.recorded === !0 ? this.recorded = !0 : this.recorded === !1 && this.otherPortal.recorded === !1 ? (this.recorded = !0,
-		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)) : this.recorded === !0 && this.otherPortal.recorded === !0 && (this.otherPortal.recorded = !1,
-		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)),
-		t
+	collide(t) {
+		let e = t.parent
+		  , i = e.player
+		  , s = i._powerupsConsumed.misc;
+		if (-1 === s.indexOf(this.id)) {
+			let n = t.pos.x - this.x
+			  , o = t.pos.y - this.y
+			  , a = Math.pow(n, 2) + Math.pow(o, 2);
+			1e3 > a && i.isAlive() && (s.push(this.id),
+			s.push(this.otherPortal.id),
+			e.moveVehicle(this.otherPortal.x - this.x, this.otherPortal.y - this.y),
+			i.isGhost() === !1 && (this.hit = !0,
+			this.otherPortal.hit = !0,
+			this.sector.powerupCanvasDrawn = !1,
+			this.otherPortal.sector.powerupCanvasDrawn = !1,
+			this.scene.sound.play('teleport_sound', .3),
+			this.scene.message.show('Teleport Engaged', 50, '#8ac832')))
+		}
 	}
-	recache(t) {
-		this.constructor.cache.dirty = !1,
-		this.drawPowerup(t, this.constructor.cache)
-	}
-	drawPowerup(t, e) {
-		let i = e.canvas;
-		i.width = e.width * t,
-		i.height = e.height * t;
-		let s = i.getContext('2d')
-		  , n = .65 * t;
+	draw(t, e, i, s) {
 		s.save(),
-		s.scale(n, n),
-		s.translate(2, 2),
-		s.lineCap = 'butt',
-		s.lineJoin = 'miter',
-		s.miterLimit = 4,
-		s.strokeStyle = 'rgba(0, 0, 0, 0)',
-		s.lineWidth = 1,
-		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
-		s.beginPath(),
-		s.moveTo(17, 3),
-		s.bezierCurveTo(16.9424049, 2.83458834, 16.4420628, 2.62968665, 15.9196825, 2.4515011),
-		s.lineTo(8.51063934, -.0757469011),
-		s.lineTo(16.223952, -1.41205186),
-		s.bezierCurveTo(21.2423806, -2.2814774, 25.8773816, -1.40451316, 29.9447883, .583562762),
-		s.bezierCurveTo(31.7394578, 1.46076529, 33.0361403, 2.35169307, 33.7316821, 2.95217334),
-		s.bezierCurveTo(35.1972328, 4.14751314, 36.509471, 5.52829294, 37.6336956, 7.05811132),
-		s.bezierCurveTo(39.8993675, 10.1439271, 41.2801108, 13.6041318, 41.7252304, 17.3208639),
-		s.bezierCurveTo(41.7397043, 17.4414782, 41.7543021, 17.5670407, 41.7704814, 17.7094344),
-		s.bezierCurveTo(41.7921038, 17.9009058, 41.7921038, 17.9009058, 41.8132645, 18.0904969),
-		s.lineTo(41.840873, 18.3390683),
-		s.lineTo(41.8856209, 18.735971),
-		s.lineTo(41.8856209, 21.4226506),
-		s.lineTo(41.8542399, 21.5977061),
-		s.bezierCurveTo(41.8009577, 21.89487, 41.7866262, 21.9747988, 41.7740749, 22.044061),
-		s.bezierCurveTo(41.759051, 22.1809078, 41.759051, 22.1809078, 41.7559584, 22.2091488),
-		s.bezierCurveTo(41.6872107, 22.8267498, 41.6438556, 23.1562694, 41.5609313, 23.6049736),
-		s.bezierCurveTo(40.8769441, 27.3127264, 39.3221077, 30.5993535, 36.9456235, 33.3462518),
-		s.bezierCurveTo(32.8945821, 38.029004, 27.65733, 40.5391341, 21.868366, 40.5391341),
-		s.bezierCurveTo(21.742671, 40.5391341, 21.6184358, 40.538205, 21.4955986, 40.5363608),
-		s.bezierCurveTo(22.1492681, 41.0434881, 22.8806236, 41.5794806, 23.6943816, 42.1440112),
-		s.lineTo(28.4276887, 45.4276613),
-		s.lineTo(22.6779106, 45.7834802),
-		s.bezierCurveTo(18.1741264, 46.062192, 14.0554746, 45.155711, 10.4302114, 43.4736066),
-		s.bezierCurveTo(8.54152696, 42.5972663, 7.17424655, 41.7066293, 6.38621142, 41.0629331),
-		s.bezierCurveTo(4.99599225, 40.025971, 3.38305673, 38.3146562, 2.25448469, 36.778713),
-		s.bezierCurveTo(-.0125398982, 33.6943248, -1.39399999, 30.2338948, -1.84021156, 26.5118367),
-		s.bezierCurveTo(-1.86468983, 26.3063181, -1.88762639, 26.1042985, -1.92006182, 25.811651),
-		s.lineTo(-1.95463612, 25.5020237),
-		s.lineTo(-2.00013072, 25.1020716),
-		s.lineTo(-2.00013072, 22.4141906),
-		s.lineTo(-1.96885958, 22.2394346),
-		s.bezierCurveTo(-1.92214724, 21.9784071, -1.90657901, 21.8914122, -1.89618079, 21.8334198),
-		s.bezierCurveTo(-1.83478692, 21.2274076, -1.79887919, 20.9331002, -1.72945035, 20.5323584),
-		s.bezierCurveTo(-.927733904, 15.885014, 1.1979378, 11.9079902, 4.5664052, 8.76464131),
-		s.bezierCurveTo(8.29993169, 5.27968493, 12.7861394, 3.24768826, 17.4210789, 3.06365477),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-		s.fillStyle = '#dd45ec',
+		s.globalAlpha = this.hit === !1 ? 1 : .2,
+		super.draw(t, e, i, s),
+		s.restore()
+	}
+	drawPowerup(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
+		i *= .64,
+		s.save(),
+		s.scale(i, i),
+		s.translate(2.6, 3),
+		s.fillStyle = this.color,
+		s.strokeStyle = n,
+		s.lineWidth = 5,
 		s.beginPath(),
 		s.moveTo(23.9052288, 5.91261647),
 		s.bezierCurveTo(23.9052288, 5.91261647, 22.5543791, 5.13614588, 18.1099346, 5.04995765),
 		s.bezierCurveTo(13.6479739, 5.05021647, 9.39411765, 6.99424, 5.93111111, 10.2266871),
 		s.bezierCurveTo(2.88431373, 13.0698635, .969542484, 16.6517224, .241437908, 20.8723576),
-		s.bezierCurveTo(.169019608, 21.2903576, .131372549, 21.6617694, .101045752, 21.9601929),
-		s.bezierCurveTo(.0960784314, 22.0104047, .0911111111, 22.0611341, .0858823529, 22.1113459),
 		s.bezierCurveTo(.0837908497, 22.1227341, .0816993464, 22.1341224, .0796078431, 22.1452518),
-		s.lineTo(-.000130718954, 22.5917224),
-		s.lineTo(-.000130718954, 23.0451812),
-		s.lineTo(-.000130718954, 24.6993224),
-		s.lineTo(-.000130718954, 24.9886871),
-		s.lineTo(.0325490196, 25.2759812),
-		s.lineTo(.0675816993, 25.5896753),
 		s.bezierCurveTo(.0929411765, 25.8184753, .118562092, 26.0470165, .145751634, 26.2752988),
 		s.bezierCurveTo(.550457516, 29.6511341, 1.80196078, 32.7860047, 3.86601307, 35.59424),
 		s.bezierCurveTo(4.76326797, 36.8153694, 6.27176471, 38.4928047, 7.6179085, 39.4864282),
@@ -112,22 +63,14 @@ export default class extends Powerup {
 		s.bezierCurveTo(16.4521569, 37.6208282, 18.1535948, 38.5391341, 21.868366, 38.5391341),
 		s.bezierCurveTo(27.0628758, 38.5391341, 31.7535948, 36.2909929, 35.4330719, 32.0377459),
 		s.bezierCurveTo(37.5739869, 29.5631341, 38.9739869, 26.6037459, 39.5941176, 23.2421459),
-		s.bezierCurveTo(39.6816993, 22.76824, 39.7295425, 22.3354871, 39.7682353, 21.9878871),
-		s.bezierCurveTo(39.7768627, 21.9092047, 39.7852288, 21.8300047, 39.7946405, 21.7510635),
-		s.bezierCurveTo(39.7983007, 21.7319106, 39.8019608, 21.7124988, 39.8053595, 21.6930871),
 		s.lineTo(39.8856209, 21.2448047),
-		s.lineTo(39.8856209, 20.7895341),
-		s.lineTo(39.8856209, 19.1356518),
-		s.lineTo(39.8856209, 18.8483576),
-		s.lineTo(39.8534641, 18.5631341),
-		s.lineTo(39.8254902, 18.3112988),
 		s.bezierCurveTo(39.7975163, 18.0607576, 39.7695425, 17.8096988, 39.7394771, 17.5591576),
 		s.bezierCurveTo(39.3355556, 14.1864282, 38.0845752, 11.0515576, 36.0215686, 8.24176941),
 		s.bezierCurveTo(34.9975163, 6.84826353, 33.8019608, 5.59038118, 32.4675817, 4.50202824),
 		s.bezierCurveTo(32.4675817, 4.50202824, 25.996732, -1.07536, 16.5653595, .558592941),
 		s.bezierCurveTo(21.6393464, 2.28934588, 23.9052288, 5.91261647, 23.9052288, 5.91261647),
-		s.fill(),
 		s.stroke(),
+        s.fill(),
 		s.fillStyle = /^(dark(er)|midnight)?$/i.test(lite.storage.get('theme')) ? '#1e1e1e' : '#fefefe',
 		s.beginPath(),
 		s.moveTo(5.22875817, 24.6992965),
@@ -178,40 +121,29 @@ export default class extends Powerup {
 		s.bezierCurveTo(6.57986928, 30.4886612, 5.6420915, 28.2016965, 5.33830065, 25.66652),
 		s.bezierCurveTo(5.29960784, 25.3442847, 5.26535948, 25.0215318, 5.22875817, 24.6992965),
 		s.fill(),
-		s.stroke(),
 		s.restore()
 	}
-	draw(t, e, i, s) {
-		s.save(),
-		s.globalAlpha = this.hit === !1 ? 1 : .2,
-		super.draw(t, e, i, s),
-		s.restore()
-	}
-	collide(t) {
-		let e = t.parent
-		  , i = e.player
-		  , s = i._powerupsConsumed.misc;
-		if (-1 === s.indexOf(this.id)) {
-			let n = t.pos.x - this.x
-			, o = t.pos.y - this.y
-			, a = Math.pow(n, 2) + Math.pow(o, 2);
-			1e3 > a && i.isAlive() && (s.push(this.id),
-			s.push(this.otherPortal.id),
-			e.moveVehicle(this.otherPortal.x - this.x, this.otherPortal.y - this.y),
-			i.isGhost() === !1 && (this.hit = !0,
-			this.otherPortal.hit = !0,
-			this.sector.powerupCanvasDrawn = !1,
-			this.otherPortal.sector.powerupCanvasDrawn = !1,
-			this.scene.sound.play('teleport_sound', .3),
-			this.scene.message.show('Teleport Engaged', 50, '#8ac832')))
+	erase(t, e) {
+		let i = !1;
+		if (!this.remove) {
+			let s = Math.sqrt(Math.pow(t.x - this.x, 2) + Math.pow(t.y - this.y, 2));
+			e >= s && (i = [this, this.otherPortal],
+			this.removeAllReferences(),
+			this.otherPortal.removeAllReferences())
 		}
+		return i
+	}
+	getCode() {
+		let t = '';
+		return this.recorded === !1 && this.otherPortal.recorded === !0 ? this.recorded = !0 : this.recorded === !1 && this.otherPortal.recorded === !1 ? (this.recorded = !0,
+		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)) : this.recorded === !0 && this.otherPortal.recorded === !0 && (this.otherPortal.recorded = !1,
+		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)),
+		t
 	}
 	move(t, e) {
-		this.x += parseInt(t) | 0;
-		this.y += parseInt(e) | 0;
-		this.otherPortal.x += parseInt(t) | 0;
+		this.otherPortal.x += parseInt(t) | 0,
 		this.otherPortal.y += parseInt(e) | 0;
-		return this;
+		return super.move(t, e)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 29,

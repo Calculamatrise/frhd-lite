@@ -1,26 +1,19 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
+	color = '#d12929';
 	name = 'bomb';
-	getCode() {
-		return 'O ' + super.getCode()
+	collide(t) {
+		let e = t.parent
+		  , i = e.player
+		  , s = t.pos.x - this.x
+		  , n = t.pos.y - this.y
+		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2));
+		20 > a && i.isAlive() && (e.explode(),
+		i.isGhost() === !1 && (this.hit = !0,
+		this.sector.powerupCanvasDrawn = !1))
 	}
-	recache(t) {
-		this.constructor.cache.dirty = !1;
-		let e = this.constructor.cache.canvas;
-		e.width = this.constructor.cache.width * t,
-		e.height = this.constructor.cache.height * t;
-		let i = e.getContext('2d')
-		  , s = e.width / 2
-		  , r = e.height / 2;
-		this.drawCircle(s, r, t, i),
-		this.settings.developerMode && (i.beginPath(),
-		i.rect(0, 0, e.width, e.height),
-		i.strokeStyle = 'red',
-		i.strokeWidth = 1 * t,
-		i.stroke())
-	}
-	drawCircle(t, e, i, s) {
+	drawPowerup(t, e, i, s) {
 		let n = this.outline;
 		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= .2,
@@ -60,7 +53,7 @@ export default class extends Powerup {
 		s.beginPath(),
 		s.arc(66 * i, 66 * i, 40 * i, 0 * i, 2 * Math.PI, !0),
 		s.lineWidth = 2 * i,
-		s.fillStyle = '#d12929',
+		s.fillStyle = this.color,
 		s.fill(),
 		s.stroke(),
 		s.beginPath(),
@@ -69,15 +62,8 @@ export default class extends Powerup {
 		s.fill(),
 		s.stroke()
 	}
-	collide(t) {
-		let e = t.parent
-		  , i = e.player
-		  , s = t.pos.x - this.x
-		  , n = t.pos.y - this.y
-		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2));
-		20 > a && i.isAlive() && (e.explode(),
-		i.isGhost() === !1 && (this.hit = !0,
-		this.sector.powerupCanvasDrawn = !1))
+	getCode() {
+		return 'O ' + super.getCode()
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 26,

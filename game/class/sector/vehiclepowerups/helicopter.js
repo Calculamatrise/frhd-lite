@@ -1,6 +1,7 @@
 import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
+	color = '#f59423';
 	name = 'helicopter';
 	collide(t) {
 		let e = t.parent
@@ -25,14 +26,16 @@ export default class extends VehiclePowerup {
 		}
 	}
 	drawIcon(t, e, i, s) {
+		let n = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
 		i *= 1,
 		s.save(),
 		s.scale(i, i),
 		s.lineCap = 'butt',
 		s.lineJoin = 'miter',
 		s.miterLimit = 4,
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline;
-		s.fillStyle = s.strokeStyle,
+		s.strokeStyle = n;
+		s.fillStyle = n,
 		s.beginPath(),
 		s.moveTo(15, 4.5),
 		s.lineTo(15, 2.5),
@@ -76,14 +79,14 @@ export default class extends VehiclePowerup {
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.fillStyle = '#f59423',
+		s.fillStyle = this.color,
 		s.lineWidth = 2,
 		s.beginPath(),
 		s.arc(13, 17, 11, 0, 2 * Math.PI, !0),
 		s.closePath(),
 		s.fill(),
 		s.stroke(),
-		s.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		s.fillStyle = n,
 		s.beginPath(),
 		s.moveTo(21, 17),
 		s.bezierCurveTo(21, 12.6, 17.4, 9, 13, 9),

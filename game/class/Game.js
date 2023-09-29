@@ -43,20 +43,18 @@ window.Game = class {
 	}
 
 	setSize() {
-		let t = window.innerHeight,
-			e = window.innerWidth;
+		let t = window.innerHeight
+		  , e = window.innerWidth;
 		if (!this.settings.fullscreen && !this.settings.isStandalone) {
 			t = this.gameContainer.clientHeight,
 			e = this.gameContainer.clientWidth
 		}
-		if (this.currentScene) {
-			t -= this.currentScene.getCanvasOffset().height
-		}
+		this.currentScene && (t -= this.currentScene.getCanvasOffset().height)
 		let n = 1;
-		void 0 !== window.devicePixelRatio && (n = window.devicePixelRatio),
+		window.devicePixelRatio && (n = window.devicePixelRatio),
 		this.settings.lowQualityMode && (n = 1);
-		let r = e * n,
-			o = t * n;
+		let r = e * n
+		  , o = t * n;
 		(r !== this.width || o !== this.height) && (this.width = r,
 		this.height = o,
 		this.canvas.width = r,
@@ -64,7 +62,7 @@ window.Game = class {
 		this.pixelRatio = n,
 		this.canvas.style.width = e + "px",
 		this.canvas.style.height = t + "px",
-		this.ctx.strokeStyle = "#".padEnd(7, lite.storage.get("theme") == "midnight" ? "C" : lite.storage.get("theme") == "dark" ? "FB" : "0"),
+		this.ctx.strokeStyle = this.settings.physicsLineColor,
 		this.ctx.lineCap = "round",
 		this.ctx.lineJoin = "round",
 		this.currentScene && this.currentScene.command("resize")

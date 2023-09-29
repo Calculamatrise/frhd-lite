@@ -1,20 +1,12 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
-	dirty = !0;
+	color = '#FAE335';
 	name = "goal";
 	hit = !1;
 	constructor(t, e, i) {
 		super(...arguments);
 		this.id = Math.random().toString(36).slice(2)
-	}
-	getCode() {
-		return 'T ' + super.getCode()
-	}
-	recache(t) {
-		this.dirty = !1,
-		this.cacheStar(t),
-		this.cacheEmptyStar(t)
 	}
 	cacheStar(t) {
 		let e = this.constructor.cache.canvas;
@@ -44,24 +36,34 @@ export default class extends Powerup {
 		i.strokeWidth = 1 * t,
 		i.stroke())
 	}
-	setDirty(t) {
-		this.dirty = t
+	collide(t) {
+		let e = t.parent
+		  , i = e.player
+		  , s = t.pos.x - this.x
+		  , o = t.pos.y - this.y
+		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2))
+		  , h = i._powerupsConsumed.targets
+		  , l = this.scene;
+		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
+			h.push(this.id);
+			let c = h.length
+			, u = l.track.targetCount;
+			i.isGhost() === !1 && (this.hit = !0,
+			this.sector.powerupCanvasDrawn = !1,
+			l.sound.play('goal_sound'),
+			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666666')),
+			c >= u && (i.complete = !0)
+		}
 	}
 	draw(t, e, i, s) {
-		if (this.hit) {
-			let n = this.constructor.hitCache.width * i
-			  , r = this.constructor.hitCache.height * i
-			  , o = n / 2
-			  , c = r / 2;
-			s.drawImage(this.constructor.hitCache.canvas, t - o, e - c, n, r)
-		} else {
-			this.dirty && this.recache(i);
-			let n = this.constructor.cache.width * i
-			  , r = this.constructor.cache.height * i
-			  , o = n / 2
-			  , c = r / 2;
-			s.drawImage(this.constructor.cache.canvas, t - o, e - c, n, r)
-		}
+		let cache = this.constructor.hitCache;
+		this.hit || (cache = this.constructor.cache,
+		cache.dirty && this.recache(i));
+		let n = cache.width * i
+		  , r = cache.height * i
+		  , o = n / 2
+		  , c = r / 2;
+		s.drawImage(cache.canvas, t - o, e - c, n, r)
 	}
 	drawStar(t, e, i, s, n, r, o, a) {
 		let h = Math.PI / 2 * 3
@@ -86,27 +88,16 @@ export default class extends Powerup {
 		a.lineWidth = Math.max(2 * o, 1),
 		a.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
 		a.stroke(),
-		a.fillStyle = r ? '#FAE335' : '#FFFFFF',
+		a.fillStyle = r ? this.color : '#FFFFFF',
 		a.fill()
 	}
-	collide(t) {
-		let e = t.parent
-		  , i = e.player
-		  , s = t.pos.x - this.x
-		  , o = t.pos.y - this.y
-		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2))
-		  , h = i._powerupsConsumed.targets
-		  , l = this.scene;
-		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
-			h.push(this.id);
-			var c = h.length
-			, u = l.track.targetCount;
-			i.isGhost() === !1 && (this.hit = !0,
-			this.sector.powerupCanvasDrawn = !1,
-			l.sound.play('goal_sound'),
-			l.message.show(c + " of " + u + ' Stars', 50, '#FAE335', '#666666')),
-			c >= u && (i.complete = !0)
-		}
+	getCode() {
+		return 'T ' + super.getCode()
+	}
+	recache(t) {
+		this.setDirty(!1);
+		this.cacheStar(t),
+		this.cacheEmptyStar(t)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 35,
