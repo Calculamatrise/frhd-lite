@@ -1,8 +1,10 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
+	angle = null;
 	color = '#376eb7';
 	name = "gravity";
+	prefix = 'G';
 	realAngle = 0;
 	constructor(t, e, i, s) {
 		super(...arguments);
@@ -41,13 +43,13 @@ export default class extends Powerup {
 	}
 	drawPowerup(t, e, i, s) {
 		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
 		i *= .2,
 		s.lineJoin = 'round'
 		s.save(),
 		s.lineWidth = Math.max(6 * i, 1),
 		s.fillStyle = this.color,
-		s.strokeStyle = 'black',
+		s.strokeStyle = n,
 		s.beginPath(),
 		s.moveTo(45 * i, 70 * i),
 		s.lineTo(45 * i, 95 * i),
@@ -62,7 +64,7 @@ export default class extends Powerup {
         s.restore()
 	}
 	getCode() {
-		return 'G ' + super.getCode() + ' ' + this.realAngle.toString(32)
+		return super.getCode() + ' ' + this.realAngle.toString(32)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 20,

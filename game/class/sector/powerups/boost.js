@@ -1,8 +1,10 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
+	angle = null;
 	color = '#8ac832';
 	name = 'boost';
+	prefix = 'B';
 	realAngle = 0;
 	directionX = 0;
 	directionY = 0;
@@ -25,8 +27,8 @@ export default class extends Powerup {
 		if (1e3 > o && i.isAlive()) {
 			for (var u = h - 1; u >= 0; u--) {
 				var p = a[u].pos;
-				p.x += this.directionX,
-				p.y += this.directionY
+				p.x += this.directionX * (1 + this.stack),
+				p.y += this.directionY * (1 + this.stack)
 			}
 			i.isGhost() === !1 && (this.scene.sound.play('boost_sound'),
 			this.scene.message.show('Boost Engaged', 50, this.color))
@@ -51,7 +53,7 @@ export default class extends Powerup {
 		i *= .2,
 		s.save(),
 		s.fillStyle = this.color,
-		s.strokeStyle = 'black',
+		s.strokeStyle = n,
 		s.lineWidth = Math.max(8 * i, 1),
 		s.beginPath(),
 		s.moveTo(8 * i, 4 * i),
@@ -72,7 +74,7 @@ export default class extends Powerup {
 		s.stroke()
 	}
 	getCode() {
-		return 'B ' + super.getCode() + ' ' + this.realAngle.toString(32)
+		return super.getCode() + ' ' + this.realAngle.toString(32)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 25,

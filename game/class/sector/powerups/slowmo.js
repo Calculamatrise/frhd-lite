@@ -2,6 +2,7 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	name = 'slowmo';
+	prefix = 'S';
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -41,9 +42,6 @@ export default class extends Powerup {
 		s.lineTo(17.5, 50),
 		s.stroke(),
 		s.restore()
-	}
-	getCode() {
-		return 'S ' + super.getCode()
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 26,

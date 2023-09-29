@@ -125,8 +125,8 @@ export default class {
 					n.push(a)
 				}
 				var h = Math.round(n[0])
-				, l = Math.round(n[1])
-				, p = null;
+				  , l = Math.round(n[1])
+				  , p = null;
 				switch (i[0]) {
 				case "B":
 					p = new Boost(h,l,n[2],this),
@@ -159,13 +159,20 @@ export default class {
 					break;
 				case "V":
 					var d = n[2]
-					, P = n[3]
-					, M = this.settings.vehiclePowerup.minTime
-					, A = this.settings.vehiclePowerup.maxTime;
+					  , P = n[3]
+					  , M = this.settings.vehiclePowerup.minTime
+					  , A = this.settings.vehiclePowerup.maxTime;
 					P = P || M,
 					P = Math.min(P, A),
 					P = Math.max(P, M);
-					var p;
+					if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups && p) {
+						p = this.powerups.find(t => t.x == h && t.y == l);
+						if (p) {
+							p.stack.push(P),
+							p.time += P
+							continue;
+						}
+					}
 					switch (d) {
 					case 1:
 						p = new Helicopter(h,l,P,this);
@@ -180,17 +187,17 @@ export default class {
 						p = new Blob(h,l,P,this);
 						break;
 					default:
-						continue
+						continue;
 					}
 					this.addPowerup(p);
 					break;
 				case "W":
 					var D = n[0]
-					, I = n[1]
-					, E = n[2]
-					, O = n[3]
-					, z = new Teleport(D,I,this)
-					, j = new Teleport(E,O,this);
+					  , I = n[1]
+					  , E = n[2]
+					  , O = n[3]
+					  , z = new Teleport(D,I,this)
+					  , j = new Teleport(E,O,this);
 					z.addOtherPortalRef(j),
 					j.addOtherPortalRef(z),
 					this.addPowerup(z),
@@ -203,7 +210,16 @@ export default class {
 		this.targetCount++,
 		this.targets.push(t)
 	}
+	maxDuplicatePowerups = 0;
 	addPowerup(t) {
+		// if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
+		// 	let e = this.powerups.filter(e => e.x == t.x && e.y == t.y);
+		// 	t instanceof Teleport && (e = this.powerups.filter(e => e.otherPortal != t && (e.x == t.x && e.y == t.y && e.otherPortal.x == t.otherPortal.x && e.otherPortal.y == t.otherPortal.y || e.x == t.otherPortal.x && e.y == t.otherPortal.y && e.otherPortal.x == t.x && e.otherPortal.y == t.y)));
+		// 	if (e.length > this.maxDuplicatePowerups) {
+		// 		e[0].stack++
+		// 		return t;
+		// 	}
+		// }
 		this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.physicsSectors, this.settings.physicsSectorSize);
 		let a = this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.drawSectors, this.settings.drawSectorSize);
 		return a !== !1 && this.totalSectors.push(a), t !== null && (this.powerups.push(t), t.id && (this.powerupsLookupTable[t.id] = t)), t
@@ -265,6 +281,14 @@ export default class {
 				i.addSectorReference(n[o][h]);
 				break;
 			case M.POWERUPS:
+				if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
+					let a = this.powerups.filter(i => i.x == t && i.y == e);
+					i instanceof Teleport && (a = this.powerups.filter(s => s.otherPortal !== i && (s.x == t && s.y == e && s.otherPortal.x == i.otherPortal.x && s.otherPortal.y == i.otherPortal.y || s.x == i.otherPortal.x && s.y == i.otherPortal.y && s.otherPortal.x == t && s.otherPortal.y == e)));
+					if (a.length > this.maxDuplicatePowerups) {
+						a[0].stack++
+						return !1;
+					}
+				}
 				n[o][h].addPowerup(i),
 				i.addSectorReference(n[o][h])
 		}
@@ -281,10 +305,10 @@ export default class {
 			e[r].remove && e.splice(r, 1)
 	}
 	cleanPowerups() {
-		for (const t in this.powerups)
-			this.powerups[t].remove && this.powerups.splice(t, 1);
-		for (const t in this.targets)
-			this.targets[t].remove && this.targets.splice(t, 1);
+		for (var t = this.powerups, e = this.targets, i = this.targets.length, s = t.length, n = s - 1; n >= 0; n--)
+			t[n].remove && t.splice(n, 1);
+		for (var r = i - 1; r >= 0; r--)
+			e[r].remove && e.splice(r, 1);
 		this.targetCount = this.targets.length
 	}
 	updatePowerupState(t) {
@@ -333,12 +357,12 @@ export default class {
 	getCode() {
 		this.cleanTrack();
 		var t = this.powerups
-		, e = this.physicsLines
-		, i = this.sceneryLines
-		, s = ""
-		, n = e.length
-		, r = i.length
-		, o = t.length;
+		  , e = this.physicsLines
+		  , i = this.sceneryLines
+		  , s = ""
+		  , n = e.length
+		  , r = i.length
+		  , o = t.length;
 		if (n > 0) {
 			for (var a in e) {
 				var h = e[a];
@@ -403,8 +427,8 @@ export default class {
 		this.canvasPool.update()
 	}
 	collide(t) {
-		let i = Math.floor(t.pos.x / this.settings.physicsSectorSize - .5),
-			s = Math.floor(t.pos.y / this.settings.physicsSectorSize - .5);
+		let i = Math.floor(t.pos.x / this.settings.physicsSectorSize - .5)
+		  , s = Math.floor(t.pos.y / this.settings.physicsSectorSize - .5);
 		this.sectors.physicsSectors[i] && this.sectors.physicsSectors[i][s] && this.sectors.physicsSectors[i][s].resetCollided(),
 		this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s] && this.sectors.physicsSectors[i + 1][s].resetCollided(),
 		this.sectors.physicsSectors[i + 1] && this.sectors.physicsSectors[i + 1][s + 1] && this.sectors.physicsSectors[i + 1][s + 1].resetCollided(),

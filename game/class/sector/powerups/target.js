@@ -4,6 +4,7 @@ export default class extends Powerup {
 	color = '#FAE335';
 	name = "goal";
 	hit = !1;
+	prefix = 'T';
 	constructor(t, e, i) {
 		super(...arguments);
 		this.id = Math.random().toString(36).slice(2)
@@ -46,12 +47,12 @@ export default class extends Powerup {
 		  , l = this.scene;
 		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
 			h.push(this.id);
-			let c = h.length
-			, u = l.track.targetCount;
+			let c = h.length + this.stack
+			  , u = l.track.targetCount;
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
 			l.sound.play('goal_sound'),
-			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666666')),
+			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666')),
 			c >= u && (i.complete = !0)
 		}
 	}
@@ -90,9 +91,6 @@ export default class extends Powerup {
 		a.stroke(),
 		a.fillStyle = r ? this.color : '#FFFFFF',
 		a.fill()
-	}
-	getCode() {
-		return 'T ' + super.getCode()
 	}
 	recache(t) {
 		this.setDirty(!1);

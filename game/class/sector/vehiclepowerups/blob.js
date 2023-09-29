@@ -2,6 +2,7 @@ import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
 	color = '#a784c5';
+	index = 4;
 	name = 'blob';
 	collide(t) {
 		let e = t.parent
@@ -37,9 +38,6 @@ export default class extends VehiclePowerup {
 		s.fill(),
 		s.stroke()
 		s.restore()
-	}
-	getCode() {
-		return super.getCode() + ' 4 ' + this.time.toString(32)
 	}
 	static cache = this.createCache()
 }

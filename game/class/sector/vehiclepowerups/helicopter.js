@@ -2,6 +2,7 @@ import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
 	color = '#f59423';
+	index = 1;
 	name = 'helicopter';
 	collide(t) {
 		let e = t.parent
@@ -95,9 +96,6 @@ export default class extends VehiclePowerup {
 		s.closePath(),
 		s.fill(),
 		s.restore()
-	}
-	getCode() {
-		return super.getCode() + ' 1 ' + this.time.toString(32)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 26,

@@ -1,12 +1,12 @@
 export default class {
 	scene = null;
-	angle = 0;
 	color = '#FFF';
 	x = 0;
 	y = 0;
 	name = null;
 	sector = null;
 	settings = null;
+	stack = 0;
 	outline = '#000'; // /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000';
 	remove = !1;
 	constructor(t, e) {
@@ -46,7 +46,9 @@ export default class {
 		return i
 	}
 	getCode() {
-		return this.x.toString(32) + ' ' + this.y.toString(32)
+		let t = '';
+		this.prefix && (t = this.prefix + ' ');
+		return t + this.x.toString(32) + ' ' + this.y.toString(32)
 	}
 	move(t, e) {
 		this.x += parseInt(t) | 0,

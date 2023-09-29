@@ -3,6 +3,7 @@ import Powerup from "../powerup.js";
 export default class extends Powerup {
 	color = '#d12929';
 	name = 'bomb';
+	prefix = 'O';
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -61,9 +62,6 @@ export default class extends Powerup {
 		s.fillStyle = n,
 		s.fill(),
 		s.stroke()
-	}
-	getCode() {
-		return 'O ' + super.getCode()
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 26,

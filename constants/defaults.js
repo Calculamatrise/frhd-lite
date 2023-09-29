@@ -2,6 +2,10 @@ export default {
 	accountManager: false,
 	bikeFrameColor: null,
 	dailyAchievementsDisplay: true,
+	experiments: {
+		filterDuplicatePowerups: true,
+		filterOverlappingPowerups: true
+	},
 	featuredGhostsDisplay: true,
 	inputDisplay: true,
 	inputDisplayOpacity: 1,

@@ -2,6 +2,7 @@ import VehiclePowerup from "../vehiclepowerup.js";
 
 export default class extends VehiclePowerup {
 	color = '#94d44e';
+	index = 2;
 	name = 'truck';
 	collide(t) {
 		let e = t.parent
@@ -69,9 +70,6 @@ export default class extends VehiclePowerup {
 		s.arc(19.5, 15, 1.895, 0, 2 * Math.PI, !0),
 		s.fill(),
 		s.restore()
-	}
-	getCode() {
-		return super.getCode() + ' 2 ' + this.time.toString(32)
 	}
 	static cache = Object.assign(this.createCache(), {
 		width: 25,

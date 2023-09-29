@@ -3,12 +3,10 @@ import Powerup from "../powerup.js";
 export default class extends Powerup {
 	color = '#826cdc';
 	name = 'checkpoint';
+	prefix = 'C';
 	constructor() {
 		super(...arguments);
 		this.id = Math.random().toString(36).slice(2);
-	}
-	getCode() {
-		return 'C ' + super.getCode()
 	}
 	draw(t, e, i, s) {
 		s.save(),

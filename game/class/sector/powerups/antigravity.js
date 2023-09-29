@@ -3,6 +3,7 @@ import Powerup from "../powerup.js";
 export default class extends Powerup {
 	color = '#08faf3';
 	name = 'antigravity';
+	prefix = 'A';
 	constructor(t, e, i) {
 		super(i);
 		this.x = t;
@@ -57,9 +58,6 @@ export default class extends Powerup {
 		s.stroke(),
         s.fill(),
 		s.restore()
-	}
-	getCode() {
-		return 'A ' + super.getCode()
 	}
 	static cache = this.createCache()
 }

@@ -71,6 +71,17 @@
 					<span class="name">Snapshot Count (10)</span>
 					<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
 				</label>
+				<details>
+					<summary class="tab ripple">Experiments</summary>
+					<label class="ripple" title="Remove duplicate powerups">
+						<input type="checkbox" id="experiments.filterDuplicatePowerups">
+						<span class="name">Filter duplicates</span>
+					</label>
+					<label class="ripple" title="Don't render overlapping powerups">
+						<input type="checkbox" id="experiments.filterOverlappingPowerups">
+						<span class="name">Filter overlap</span>
+					</label>
+				</details>
 				<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
 			</details>
 		</div>

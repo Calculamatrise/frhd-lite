@@ -198,20 +198,17 @@ export default class {
 	}
 	maxOverlapPowerups = 0;
 	drawPowerups(t, e, i) {
-		console.log(t, t.reduce((e, i) => {
-			let other = e.filter(s => (i.x === s.x && i.y === s.y) || s.otherPortal && (i.x === s.otherPortal.x && i.y === s.otherPortal.y));
-			other.length > this.maxOverlapPowerups || e.push(i);
+		let n = t;
+		window.hasOwnProperty('lite') && lite.storage.get('experiments').filterOverlappingPowerups && (n = t.reduce((e, i) => {
+			let n = e.filter(s => i.x === s.x && i.y === s.y);
+			n.length > this.maxOverlapPowerups || e.push(i);
 			return e
-		}, []))
-		for (let s in t.reduce((e, i) => {
-			let other = e.some(s => (i.x === s.x && i.y === s.y) || s.otherPortal && (i.x === s.otherPortal.x && i.y === s.otherPortal.y));
-			other || e.push(i);
-			return e
-		}, [])) {
-			if (t[s].remove)
-				t.splice(s, 1);
+		}, []));
+		for (let s of n) {
+			if (s.remove)
+				t.splice(t.indexOf(s), 1);
 			else {
-				t[s].draw((t[s].x - this.x) * e + this.powerupCanvasOffset * e / 2, (t[s].y - this.y) * e + this.powerupCanvasOffset * e / 2, e, i)
+				s.draw((s.x - this.x) * e + this.powerupCanvasOffset * e / 2, (s.y - this.y) * e + this.powerupCanvasOffset * e / 2, e, i)
 			}
 		}
 	}
