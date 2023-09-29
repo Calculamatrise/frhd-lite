@@ -215,9 +215,9 @@ export default class {
 	clear() {
 		this.drawn = !1,
 		this.powerupCanvasDrawn = !1,
-		this.canvas && (this.canvas = null,
-		this.ctx = null,
-		this.canvasPool.releaseCanvas(this.canvas)),
+		this.canvas && (this.canvasPool.releaseCanvas(this.canvas),
+		this.canvas = null,
+		this.ctx = null),
 		this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),
 		this.powerupCanvas = null)
 	}

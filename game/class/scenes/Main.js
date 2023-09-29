@@ -271,7 +271,8 @@ export default class extends Scene {
 		let t = this.playerManager;
 		t.clear();
 		let e = this.settings.keysToRecord;
-		for (let { user: r, race: o, code: a } of this.races) {
+		for (let { user: r, race: o} of this.races) {
+			let a = o.code;
 			"string" == typeof a && (a = JSON.parse(a));
 			let h = t.createPlayer(this, r);
 			h.setBaseVehicle(o.vehicle),
