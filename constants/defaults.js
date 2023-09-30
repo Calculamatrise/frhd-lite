@@ -3,8 +3,8 @@ export default {
 	bikeFrameColor: null,
 	dailyAchievementsDisplay: true,
 	experiments: {
-		filterDuplicatePowerups: true,
-		filterOverlappingPowerups: true
+		filterDuplicatePowerups: false,
+		filterOverlappingPowerups: false
 	},
 	featuredGhostsDisplay: true,
 	inputDisplay: true,

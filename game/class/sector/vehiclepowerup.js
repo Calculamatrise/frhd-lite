@@ -2,7 +2,8 @@ import Powerup from "./powerup.js";
 
 export default class extends Powerup {
 	hit = !1;
-	index = 0;
+	index = null;
+	prefix = 'V';
 	stack = [];
 	constructor(t, e, i, s) {
 		super(s);
@@ -16,7 +17,7 @@ export default class extends Powerup {
 	}
 	getCode() {
 		let t = this.time
-		  , e = 'V ' + super.getCode() + ' ' + this.index + ' '
+		  , e = super.getCode() + ' ' + this.index + ' '
 		  , i = '';
 		this.stack.length > 0 && (i += ',' + this.stack.map(s => e + s.toString(32)).join(','),
 		t -= this.stack.reduce((i, s) => i += s, 0));

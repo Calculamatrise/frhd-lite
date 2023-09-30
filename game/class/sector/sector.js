@@ -25,7 +25,21 @@ export default class {
 	powerupCanvas = null;
 	powerupCanvasOffset = 35;
 	powerupCanvasDrawn = !1;
-	powerups = null;
+	powerups = {
+		all: [],
+		goals: [],
+		gravitys: [],
+		boosts: [],
+		slowmos: [],
+		checkpoints: [],
+		bombs: [],
+		antigravitys: [],
+		teleports: [],
+		helicopters: [],
+		trucks: [],
+		balloons: [],
+		blobs: []
+	};
 	powerupsCount = 0;
 	constructor(t, e, i) {
 		this.track = i;
@@ -41,21 +55,6 @@ export default class {
 		this.y = e * this.drawSectorSize;
 		this.realX = this.x * this.zoom;
 		this.realY = this.y * this.zoom;
-		this.powerups = {
-			all: [],
-			goals: [],
-			gravitys: [],
-			boosts: [],
-			slowmos: [],
-			checkpoints: [],
-			bombs: [],
-			antigravitys: [],
-			teleports: [],
-			helicopters: [],
-			trucks: [],
-			balloons: [],
-			blobs: []
-		}
 	}
 	addLine(t) {
 		t instanceof s && this.physicsLines.push(t),
@@ -125,7 +124,7 @@ export default class {
 		this.ctx.stroke(),
 		this.settings.developerMode && (this.ctx.beginPath(),
 		this.ctx.strokeStyle = 'blue',
-		this.ctx.rect(0, 0, this.drawSectorSize * this.scene.camera.zoom | 0, this.drawSectorSize * this.scene.camera.zoom | 0),
+		this.ctx.rect(0, 0, this.canvas.width, this.canvas.height),
 		this.ctx.stroke()),
 		this.drawn = !0
 	}
@@ -196,12 +195,23 @@ export default class {
 			i.lineTo((t[s].p2.x - this.x) * e, (t[s].p2.y - this.y) * e);
 		}
 	}
-	maxOverlapPowerups = 0;
+	maxOverlappingPowerups = 0;
 	drawPowerups(t, e, i) {
 		let n = t;
 		window.hasOwnProperty('lite') && lite.storage.get('experiments').filterOverlappingPowerups && (n = t.reduce((e, i) => {
-			let n = e.filter(s => i.x === s.x && i.y === s.y);
-			n.length > this.maxOverlapPowerups || e.push(i);
+			let n = e.filter(s => s.name === i.name && s.x === i.x && s.y === i.y);
+			switch(i.prefix) {
+				case 'B':
+				case 'G':
+					n = n.filter(s => s.angle === i.angle);
+					break;
+				case 'C':
+				case 'O':
+				case 'T':
+				case 'V':
+					n = n.filter(s => s.hit === i.hit)
+			}
+			n.length > Math.min(this.track.maxDuplicatePowerups, this.maxOverlappingPowerups) || e.push(i);
 			return e
 		}, []));
 		for (let s of n) {

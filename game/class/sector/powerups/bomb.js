@@ -2,6 +2,7 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	color = '#d12929';
+	hit = !1;
 	name = 'bomb';
 	prefix = 'O';
 	collide(t) {

@@ -9,7 +9,7 @@ export default class extends Powerup {
 		  , s = t.pos.x - this.x
 		  , o = t.pos.y - this.y
 		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2));
-		!this.hit && 26 > a && i.isAlive() && (e.slow = !0,
+		26 > a && i.isAlive() && (e.slow = !0,
 		i.isGhost() === !1 && (this.scene.sound.play('slowmo_sound'),
 		this.scene.message.show('Slow Motion', 50, this.color, '#000000')))
 	}

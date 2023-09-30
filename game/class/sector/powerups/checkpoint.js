@@ -2,12 +2,10 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	color = '#826cdc';
+	hit = !1;
+	id = crypto.randomUUID();
 	name = 'checkpoint';
 	prefix = 'C';
-	constructor() {
-		super(...arguments);
-		this.id = Math.random().toString(36).slice(2);
-	}
 	draw(t, e, i, s) {
 		s.save(),
 		this.hit && (s.globalAlpha = .3),

@@ -29,8 +29,10 @@ export default class {
 		s.old.equ(t),
 		t.equ(e.vel),
 		e.vel.equ(s.vel),
-		s.vel.equ(t);
-		[e.angle, s.angle] = [s.angle, e.angle];
+		s.vel.equ(t),
+		t = e.angle,
+		e.angle = s.angle,
+		s.angle = t
 	}
 	fixedUpdate() {
 		let e = this.m1

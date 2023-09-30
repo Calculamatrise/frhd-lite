@@ -1,12 +1,12 @@
 export default class {
 	scene = null;
+	duplicates = 0;
 	color = '#FFF';
 	x = 0;
 	y = 0;
 	name = null;
 	sector = null;
 	settings = null;
-	stack = 0;
 	outline = '#000'; // /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000';
 	remove = !1;
 	constructor(t, e) {

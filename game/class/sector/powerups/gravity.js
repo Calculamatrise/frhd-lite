@@ -7,7 +7,7 @@ export default class extends Powerup {
 	prefix = 'G';
 	realAngle = 0;
 	constructor(t, e, i, s) {
-		super(...arguments);
+		super(t, e, s);
 		this.angle = i - 180;
 		this.realAngle = i;
 		let n = this.angle / 360 * 2 * Math.PI;

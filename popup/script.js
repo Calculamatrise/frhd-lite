@@ -62,45 +62,51 @@ resetSettings.addEventListener('click', function () {
 for (const item in defaults) {
 	let element = document.getElementById(item);
 	switch (item) {
-		case 'bikeFrameColor': {
-			element.parentElement.addEventListener('focusout', function () {
-				this.removeAttribute('tabindex');
-			});
-			element.addEventListener('click', function (event) {
-				if (this.parentElement.hasAttribute('tabindex')) {
+		case 'bikeFrameColor':
+			element.parentElement.addEventListener('focusout', event => event.target.removeAttribute('tabindex'));
+			element.addEventListener('click', event => {
+				let t = event.target;
+				if (t.parentElement.hasAttribute('tabindex')) {
 					event.preventDefault();
-					this.parentElement.removeAttribute('tabindex');
+					t.parentElement.removeAttribute('tabindex');
 					return;
 				}
 
-				this.parentElement.setAttribute('tabindex', '0');
-				this.parentElement.focus();
+				t.parentElement.setAttribute('tabindex', '0');
+				t.parentElement.focus();
 			});
-		}
-
-		case 'inputDisplayOpacity':
-		case 'inputDisplaySize':
-		case 'snapshots': {
-			element.addEventListener('input', function () {
-				chrome.storage.proxy.local.settings.set(item, this.value);
-				if (this.id === 'bikeFrameColor' && (element = document.querySelector(`#${item}-visible`)) !== null) {
-					element.checked = this.value !== '#000000';
-				}
+			element.addEventListener('input', event => {
+				chrome.storage.proxy.local.settings.set(item, event.target.value);
+				(element = document.querySelector(`#${item}-visible`) !== null) && (element.checked = event.target.value !== '#000000');
 			});
 			break;
-		}
-
-		case 'keymap': {
+		case 'experiments':
+			for (const experiment in defaults[item]) {
+				element = document.getElementById(item + '.' + experiment);
+				switch (experiment) {
+					default:
+						element && element.type === 'checkbox' && element.addEventListener('input', () => {
+							chrome.storage.proxy.local.settings[item].set(experiment, !chrome.storage.proxy.local.settings[item].get(experiment));
+						})
+				}
+			}
+			break;
+		case 'inputDisplayOpacity':
+		case 'inputDisplaySize':
+		case 'snapshots':
+			element.addEventListener('input', event => {
+				chrome.storage.proxy.local.settings.set(item, event.target.value);
+			});
+			break;
+		case 'keymap':
 			let action = document.querySelector('#keybind-action');
 			action && action.addEventListener('change', function (event) {
 				element.value && saveKeybind(element.value, event.target.value);
 			});
-
 			element.addEventListener('keyup', function (event) {
 				this.value.length > 0 && (this.value = event.key.toUpperCase());
 				action.value !== 'default' && saveKeybind(event.key, action.value);
 			});
-
 			function saveKeybind(key = element.value, value = action.value) {
 				if (typeof key != 'string' || typeof value != 'string') return;
 				chrome.storage.proxy.local.settings.keymap[key.toUpperCase()] = value;
@@ -108,22 +114,16 @@ for (const item in defaults) {
 				element.value = null;
 			}
 			break;
-		}
-
-		case 'theme': {
-			for (const theme of document.querySelectorAll("input[name='theme']")) {
+		case 'theme':
+			for (const theme of document.querySelectorAll("input[name='theme']"))
 				theme.addEventListener('input', function () {
 					chrome.storage.proxy.local.settings.set(item, this.id);
 				});
-			}
 			break;
-		}
-
-		default: {
+		default:
 			element && element.type === 'checkbox' && element.addEventListener('input', function () {
 				chrome.storage.proxy.local.settings.set(this.id, !chrome.storage.proxy.local.settings.get(this.id));
-			});
-		}
+			})
 	}
 }
 
@@ -144,6 +144,15 @@ function restoreSettings(data) {
 			case 'bikeFrameColor':
 				element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
 				element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
+				break;
+			case 'experiments':
+				for (const experiment in data[item]) {
+					element = document.getElementById(item + '.' + experiment);
+					switch (experiment) {
+						default:
+							element && element.type === 'checkbox' && (element.checked = data[item][experiment]);
+					}
+				}
 				break;
 			case 'inputDisplayOpacity':
 			case 'inputDisplaySize':

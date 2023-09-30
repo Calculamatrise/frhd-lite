@@ -23,7 +23,7 @@ export default class {
 		return Math.pow(this.x, 2) + Math.pow(this.y, 2)
 	}
 	len() {
-		return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2))
+		return Math.sqrt(this.lenSqr())
 	}
 	dot(t) {
 		return this.x * t.x + this.y * t.y
@@ -58,8 +58,8 @@ export default class {
 		e.y = this.y - t.y
 	}
 	subSelf(t) {
-		this.x = this.x - t.x,
-		this.y = this.y - t.y
+		this.x -= t.x,
+		this.y -= t.y
 	}
 	equ(t) {
 		this.x = t.x,

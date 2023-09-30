@@ -2,15 +2,12 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	color = '#dd45ec';
-	id = null;
-	otherPortal = null;
 	hit = !1;
+	id = crypto.randomUUID();
+	otherPortal = null;
 	name = 'teleport';
+	prefix = 'W';
 	recorded = !1;
-	constructor() {
-		super(...arguments);
-		this.id = Math.random().toString(36).slice(2)
-	}
 	addOtherPortalRef(t) {
 		this.otherPortal = t
 	}
@@ -30,7 +27,7 @@ export default class extends Powerup {
 			this.sector.powerupCanvasDrawn = !1,
 			this.otherPortal.sector.powerupCanvasDrawn = !1,
 			this.scene.sound.play('teleport_sound', .3),
-			this.scene.message.show('Teleport Engaged', 50, '#8ac832')))
+			this.scene.message.show('Teleport Engaged', 50, this.color)))
 		}
 	}
 	draw(t, e, i, s) {
@@ -136,8 +133,8 @@ export default class extends Powerup {
 	getCode() {
 		let t = '';
 		return this.recorded === !1 && this.otherPortal.recorded === !0 ? this.recorded = !0 : this.recorded === !1 && this.otherPortal.recorded === !1 ? (this.recorded = !0,
-		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)) : this.recorded === !0 && this.otherPortal.recorded === !0 && (this.otherPortal.recorded = !1,
-		t = 'W ' + super.getCode() + " " + this.otherPortal.x.toString(32) + " " + this.otherPortal.y.toString(32)),
+		t = super.getCode() + ' ' + this.otherPortal.x.toString(32) + ' ' + this.otherPortal.y.toString(32)) : this.recorded === !0 && this.otherPortal.recorded === !0 && (this.otherPortal.recorded = !1,
+		t = super.getCode() + ' ' + this.otherPortal.x.toString(32) + ' ' + this.otherPortal.y.toString(32)),
 		t
 	}
 	move(t, e) {

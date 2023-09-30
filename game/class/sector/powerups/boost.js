@@ -27,8 +27,8 @@ export default class extends Powerup {
 		if (1e3 > o && i.isAlive()) {
 			for (var u = h - 1; u >= 0; u--) {
 				var p = a[u].pos;
-				p.x += this.directionX * (1 + this.stack),
-				p.y += this.directionY * (1 + this.stack)
+				p.x += this.directionX * (1 + this.duplicates),
+				p.y += this.directionY * (1 + this.duplicates)
 			}
 			i.isGhost() === !1 && (this.scene.sound.play('boost_sound'),
 			this.scene.message.show('Boost Engaged', 50, this.color))

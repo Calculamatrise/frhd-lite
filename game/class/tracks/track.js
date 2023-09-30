@@ -129,33 +129,26 @@ export default class {
 				  , p = null;
 				switch (i[0]) {
 				case "B":
-					p = new Boost(h,l,n[2],this),
-					this.addPowerup(p);
+					p = new Boost(h,l,n[2],this);
 					break;
 				case "S":
-					p = new Slowmo(h,l,this),
-					this.addPowerup(p);
+					p = new Slowmo(h,l,this);
 					break;
 				case "O":
-					p = new Bomb(h,l,this),
-					this.addPowerup(p);
+					p = new Bomb(h,l,this);
 					break;
 				case "G":
-					p = new Gravity(h,l,n[2],this),
-					this.addPowerup(p);
+					p = new Gravity(h,l,n[2],this);
 					break;
 				case "C":
-					p = new Checkpoint(h,l,this),
-					this.addPowerup(p);
+					p = new Checkpoint(h,l,this);
 					break;
 				case "T":
 					p = new Target(h,l,this),
-					this.addTarget(p),
-					this.addPowerup(p);
+					this.addTarget(p);
 					break;
 				case "A":
-					p = new Antigravity(h,l,this),
-					this.addPowerup(p);
+					p = new Antigravity(h,l,this);
 					break;
 				case "V":
 					var d = n[2]
@@ -165,14 +158,6 @@ export default class {
 					P = P || M,
 					P = Math.min(P, A),
 					P = Math.max(P, M);
-					if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups && p) {
-						p = this.powerups.find(t => t.x == h && t.y == l);
-						if (p) {
-							p.stack.push(P),
-							p.time += P
-							continue;
-						}
-					}
 					switch (d) {
 					case 1:
 						p = new Helicopter(h,l,P,this);
@@ -189,7 +174,6 @@ export default class {
 					default:
 						continue;
 					}
-					this.addPowerup(p);
 					break;
 				case "W":
 					var D = n[0]
@@ -201,25 +185,53 @@ export default class {
 					z.addOtherPortalRef(j),
 					j.addOtherPortalRef(z),
 					this.addPowerup(z),
-					this.addPowerup(j)
+					this.addPowerup(j);
+				default:
+					continue;
 				}
+				this.addPowerup(p);
 			}
 	}
 	addTarget(t) {
 		this.dirty = !0,
-		this.targetCount++,
+		this.targetCount++;
 		this.targets.push(t)
 	}
 	maxDuplicatePowerups = 0;
 	addPowerup(t) {
-		// if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
-		// 	let e = this.powerups.filter(e => e.x == t.x && e.y == t.y);
-		// 	t instanceof Teleport && (e = this.powerups.filter(e => e.otherPortal != t && (e.x == t.x && e.y == t.y && e.otherPortal.x == t.otherPortal.x && e.otherPortal.y == t.otherPortal.y || e.x == t.otherPortal.x && e.y == t.otherPortal.y && e.otherPortal.x == t.x && e.otherPortal.y == t.y)));
-		// 	if (e.length > this.maxDuplicatePowerups) {
-		// 		e[0].stack++
-		// 		return t;
-		// 	}
-		// }
+		if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
+			let e = this.powerups.filter(e => e.name === t.name && e.x == t.x && e.y == t.y);
+			if (e.length > this.maxDuplicatePowerups) {
+				switch(t.prefix) {
+					case 'B':
+						e = e.filter(e => e.angle == t.angle);
+						if (e.length > this.maxDuplicatePowerups) {
+							e[0].duplicates++;
+							return t
+						}
+						break;
+					case 'G':
+						e = e.filter(e => e.angle == t.angle);
+						if (e.length > this.maxDuplicatePowerups)
+							return t;
+						break;
+					case 'V':
+						e[0].duplicates++,
+						e[0].stack.push(t.time),
+						e[0].time += t.time;
+						return t
+					case 'W': // maybe limit to 2
+						if (e.length > 2 * (1 + this.maxDuplicatePowerups))
+							return t;
+						break;
+					case 'T':
+						this.targetCount--,
+						this.targets.pop()
+					default:
+						return t
+				}
+			}
+		}
 		this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.physicsSectors, this.settings.physicsSectorSize);
 		let a = this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.drawSectors, this.settings.drawSectorSize);
 		return a !== !1 && this.totalSectors.push(a), t !== null && (this.powerups.push(t), t.id && (this.powerupsLookupTable[t.id] = t)), t
@@ -245,7 +257,7 @@ export default class {
 		}
 	}
 	addPhysicsLineToTrack(t) {
-		for (let l = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.drawSectorSize), p = 0; l.length > p; p += 2) {
+		for (let l = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.drawSectorSize, !0), p = 0; l.length > p; p += 2) {
 			let v = this.addRef(l[p], l[p + 1], t, M.LINE, this.sectors.drawSectors, this.settings.drawSectorSize);
 			v !== !1 && this.totalSectors.push(v)
 		}
@@ -260,7 +272,7 @@ export default class {
 		}
 	}
 	addSceneryLineToTrack(t) {
-		for (let e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
+		for (let e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e, !0), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
 			let v = this.addRef(l[p], l[p + 1], t, M.LINE, c, e);
 			v !== !1 && this.totalSectors.push(v)
 		}
@@ -281,14 +293,6 @@ export default class {
 				i.addSectorReference(n[o][h]);
 				break;
 			case M.POWERUPS:
-				if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
-					let a = this.powerups.filter(i => i.x == t && i.y == e);
-					i instanceof Teleport && (a = this.powerups.filter(s => s.otherPortal !== i && (s.x == t && s.y == e && s.otherPortal.x == i.otherPortal.x && s.otherPortal.y == i.otherPortal.y || s.x == i.otherPortal.x && s.y == i.otherPortal.y && s.otherPortal.x == t && s.otherPortal.y == e)));
-					if (a.length > this.maxDuplicatePowerups) {
-						a[0].stack++
-						return !1;
-					}
-				}
 				n[o][h].addPowerup(i),
 				i.addSectorReference(n[o][h])
 		}

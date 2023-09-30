@@ -1,4 +1,4 @@
-export default function (t, e, i, a, h) {
+export default function (t, e, i, a, h, q) {
 	let l = []
 	  , c = t
 	  , u = e
@@ -7,8 +7,8 @@ export default function (t, e, i, a, h) {
 	  , f = a > e ? 1 : -1
 	  , v = 0;
 	l.push(t, e),
-	t % 300 == 0 && l.push(t - .5, e),
-	e % 300 == 0 && l.push(t, e - .5);
+	q === !0 && (t % h == 0 && l.push(t - .5, e),
+	e % h == 0 && l.push(t, e - .5));
 	do {
 		let g = Math.floor(c / h) == Math.floor(i / h)
 		  , m = Math.floor(u / h) == Math.floor(a / h);
@@ -27,12 +27,12 @@ export default function (t, e, i, a, h) {
 		Math.pow(y - t, 2) + Math.pow(w - e, 2) < Math.pow(x - t, 2) + Math.pow(_ - e, 2) ? (c = y,
 		u = w,
 		l.push(y, w),
-		y % 300 == 0 && l.push(y - 1, w),
-		w % 300 == 0 && l.push(y, w - 1)) : (c = x,
+		q === !0 && (y % h == 0 && l.push(y - 1, w),
+		w % h == 0 && l.push(y, w - 1))) : (c = x,
 		u = _,
 		l.push(x, _),
-		x % 300 == 0 && l.push(x - .5, _),
-		_ % 300 == 0 && l.push(x, _ - .5))
+		q === !0 && (x % h == 0 && l.push(x - .5, _),
+		_ % h == 0 && l.push(x, _ - .5)))
 	} while (v++ < 5e3);
 	return l;
 }

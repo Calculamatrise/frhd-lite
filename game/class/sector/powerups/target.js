@@ -4,11 +4,8 @@ export default class extends Powerup {
 	color = '#FAE335';
 	name = "goal";
 	hit = !1;
+	id = crypto.randomUUID();
 	prefix = 'T';
-	constructor(t, e, i) {
-		super(...arguments);
-		this.id = Math.random().toString(36).slice(2)
-	}
 	cacheStar(t) {
 		let e = this.constructor.cache.canvas;
 		e.width = this.constructor.cache.width * t,
@@ -47,7 +44,7 @@ export default class extends Powerup {
 		  , l = this.scene;
 		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
 			h.push(this.id);
-			let c = h.length + this.stack
+			let c = h.length
 			  , u = l.track.targetCount;
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,

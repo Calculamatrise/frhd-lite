@@ -8,8 +8,14 @@ export default class extends PowerupTool {
 		this.powerup = new n(0, 0, t.scene.track);
 	}
 	release() {
-		let t = this.scene.track;
+		let t = this.scene.track
+		  , e = new this.powerup.constructor(this.p1.x,this.p1.y,t);
 		t.addTarget(e),
-		super.release()
+		t.addPowerup(e),
+		this.active = !1,
+		this.toolhandler.addActionToTimeline({
+			type: "add",
+			objects: [e]
+		})
 	}
 }
