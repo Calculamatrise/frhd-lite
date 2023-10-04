@@ -50,24 +50,22 @@ window.lite = new class {
 	constructor() {
 		let searchParams = new URLSearchParams(location.search)
 		if (searchParams.has('ajax')) return;
-		navigation.addEventListener('navigate', () => this.loaded = false);
+		navigation.addEventListener('navigate', () => this.loaded = !1);
 		window.Application && Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
 		window.GameManager && ((GameManager.clientMods ||= new Map()).set('frhd-lite', this),
 		GameManager.on('stateChange', state => {
-			if (state.preloading === false && this.loaded === false) {
+			if (state.preloading === !1 && this.loaded === !1)
 				this.loaded = this.load();
-			}
-
-			this.loaded && this.refresh();
+			this.loaded && this.refresh()
 		}));
 
 		this.#createCustomStyleSheet();
-		this.childLoad();
 		addEventListener('message', ({ data }) => {
 			if (!data) return console.warn('data is missing');
 			switch (data.action) {
 				case 'setStorage':
 					this.storage = new Map(Object.entries(data.storage));
+					this.childLoad();
 					break;
 				case 'updateStorage':
 					let oldStorage = new Map(this.storage);
@@ -131,8 +129,15 @@ window.lite = new class {
 
 	updateFromSettings(changes = this.storage) {
 		if (!this.scene) return;
+		let childLoad = false
+		  , redraw = false;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
+				case 'accountManager':
+				case 'dailyAchievementsDisplay':
+				case 'featuredGhosts':
+					childLoad = true;
+					break;
 				case 'keymap':
 					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 					break;
@@ -154,7 +159,6 @@ window.lite = new class {
 					this.scene.score.time.color = color;
 					this.scene.score.time_title.color = gray;
 					if (this.scene.hasOwnProperty('campaignScore')) {
-						this.scene.campaignScore.container.color = color;
 						this.scene.campaignScore.container.children.forEach(medal => {
 							medal.children.forEach(element => {
 								element.color = color;
@@ -181,12 +185,13 @@ window.lite = new class {
 						player._tempVehicle && (player._tempVehicle.color = GameSettings.physicsLineColor)
 					}
 				case 'isometricGrid':
-					this.scene.redraw();
-					break;
+					redraw = true;
 			}
 		}
 
-		this.refresh();
+		childLoad && this.childLoad(),
+		redraw && this.scene.redraw(),
+		this.refresh()
 	}
 
 	refresh() {
