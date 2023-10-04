@@ -1,16 +1,9 @@
-export default class {
-	scene = null;
+import GUI from "../interfaces/gui.js";
+import Component from "../interfaces/component.js";
+import Container from "../interfaces/container.js";
+
+export default class extends GUI {
 	sprite = null;
-	cached = !1;
-	container = {
-		children: [],
-		color: "#000",
-		font: 30 * window.devicePixelRatio / 2.5,
-		x: 0,
-		y: 80 * window.devicePixelRatio / 2.5,
-		scaleX: window.devicePixelRatio / 2.5,
-		scaleY: window.devicePixelRatio / 2.5
-	}
 	spriteSheet = {
 		bronze_medal: [548, 68, 44, 44],
 		center_panel: [2, 68, 452, 56],
@@ -18,35 +11,84 @@ export default class {
 		left_panel: [2, 2, 588, 64],
 		gold_medal: [456, 68, 44, 44]
 	}
-	bronze_container = {
+	bronze_container = new Container({
 		alpha: 0.4,
-		image: "bronze_medal",
-		x: 16,
-		y: 7
-	}
-	silver_container = {
+		font: { size: 12 },
+		inline: true,
+		x: 6.4
+	}, this.container)
+	silver_container = new Container({
 		alpha: 0.4,
-		image: "silver_medal",
-		x: 175,
-		y: 7
-	}
-	gold_container = {
+		font: { size: 12 },
+		inline: true,
+		x: 6.4
+	}, this.container)
+	gold_container = new Container({
 		alpha: 0.4,
-		image: "gold_medal",
-		x: 350,
-		y: 7
-	}
+		font: { size: 12 },
+		inline: true,
+		x: 6.4
+	}, this.container)
 	constructor(t) {
-		this.scene = t,
+		super(t, {
+			font: { size: 12 },
+			inline: true,
+			y: 32
+		}),
 		this.settings = t.settings;
-		let { goals } = t.settings.campaignData;
-		this.bronze_container.text = goals.third;
-		this.silver_container.text = goals.second;
-		this.gold_container.text = goals.first;
-		this.container.children.push(this.bronze_container),
-		this.container.children.push(this.silver_container),
-		this.container.children.push(this.gold_container),
-		this.sprite = this.scene.assets.getResult("campaign_icons")
+		let e = t.settings.campaignData.goals;
+		this.sprite = t.assets.getResult("campaign_icons"),
+		this.bronze_container.addChild(new Component({
+			cached: true,
+			image: {
+				canvas: this.sprite,
+				x: 548,
+				y: 68,
+				width: 44,
+				height: 44
+			},
+			width: 18,
+			height: 18
+		})),
+		this.bronze_container.addChild(new Component({
+			text: e.third,
+			x: 4,
+			y: 3
+		})),
+		this.silver_container.addChild(new Component({
+			cached: true,
+			image: {
+				canvas: this.sprite,
+				x: 502,
+				y: 68,
+				width: 44,
+				height: 44
+			},
+			width: 18,
+			height: 18
+		})),
+		this.silver_container.addChild(new Component({
+			text: e.second,
+			x: 4,
+			y: 3
+		})),
+		this.gold_container.addChild(new Component({
+			cached: true,
+			image: {
+				canvas: this.sprite,
+				x: 456,
+				y: 68,
+				width: 44,
+				height: 44
+			},
+			width: 18,
+			height: 18
+		})),
+		this.gold_container.addChild(new Component({
+			text: e.first,
+			x: 4,
+			y: 3
+		})),
 		this.update_state()
 	}
 	update_state() {
@@ -61,35 +103,17 @@ export default class {
 			case "third":
 				this.bronze_container.alpha = 1;
 		}
+		this.redraw()
 	}
-	center_container() {
+	centerContainer() {
 		let t = this.scene.screen
 		  , e = this.container
-		  , i = e.children.reduce((width, child) => width += child.width, 0);
-		e.x = t.width / 2 - i / 2 * window.devicePixelRatio,
-		e.y = 40 * window.devicePixelRatio
-	}
-	draw(t) {
-		t.save();
-		t.fillStyle = this.container.color;
-		t.font = this.container.font + "px helsinki";
-		t.textBaseline = "middle";
-		for (const data of this.container.children) {
-			let imageData = this.spriteSheet[data.image];
-			let imageX = this.container.x + data.x * this.container.scaleX;
-			let imageY = this.container.y + data.y * this.container.scaleY;
-			t.drawImage(this.sprite, ...imageData, imageX, imageY, imageData[2] * this.container.scaleX, imageData[3] * this.container.scaleY);
-			t.globalAlpha = data.alpha;
-			let e = t.measureText(data.text);
-			data.width = imageData[2] + e.width;
-			data.height = imageData[3] + e.actualBoundingBoxAscent + e.actualBoundingBoxDescent;
-			t.fillText(data.text, imageX + imageData[2] * this.container.scaleX + e.width / 2 + 8 * this.container.scaleX, imageY + imageData[3] / 2 * this.container.scaleY);
-		}
-
-		t.restore();
+		  , i = e.width;
+		e.x = t.width / 2 / window.devicePixelRatio - i / 2,
+		e.y = 40
 	}
 	update() {
-		this.settings.mobile && this.center_container(),
+		this.settings.mobile && this.centerContainer(),
 		this.update_state()
 	}
 }

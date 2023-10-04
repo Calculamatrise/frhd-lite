@@ -313,6 +313,10 @@ export default class extends Scene {
 			i ? Object.assign(i, t) : e.push(t)
 		})
 	}
+	redraw() {
+		super.redraw(),
+		this.raceTimes.redraw()
+	}
 	sortByRunTicksIterator(t) {
 		let e = this.settings
 		  , i = parseInt(t.race.run_ticks)

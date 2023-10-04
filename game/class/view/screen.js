@@ -12,7 +12,7 @@ export default class {
 		this.game = t.game;
 		this.size = new Vector(0, 0);
 		this.center = new Vector(0, 0);
-		this.setScreen();
+		this.setScreen()
 	}
 	setScreen() {
 		this.width = this.game.width,

@@ -1,9 +1,9 @@
 export default class {
 	scene = null;
-	cached = !1;
+	settings = null;
 	container = {
 		borderRadius: 25,
-		font: 35 * window.devicePixelRatio / 2,
+		font: 17.5,
 		text: "00:00",
 		scaleX: window.devicePixelRatio / 2,
 		scaleY: window.devicePixelRatio / 2,
@@ -48,8 +48,8 @@ export default class {
 		t.roundRect(this.container.x, this.container.y, this.container.width * this.container.scaleX, this.container.height * this.container.scaleY, this.container.borderRadius * this.container.scaleY);
 		t.fill();
 		t.stroke();
-		t.font = this.container.font + "px helsinki";
-		t.fillStyle = "#000000";
+		t.font = this.container.font * window.devicePixelRatio + "px helsinki";
+		t.fillStyle = "#000";
 		t.textAlign = "center";
 		t.textBaseline = "middle";
 		t.fillText(this.container.text, this.container.x + this.container.width / 2 * this.container.scaleX, this.container.y + this.container.height / 2 * this.container.scaleY);

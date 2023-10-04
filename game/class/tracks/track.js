@@ -390,7 +390,7 @@ export default class {
 		o > 0) {
 			for (var c in t) {
 				var u = t[c]
-					, p = u.getCode();
+				  , p = u.getCode();
 				p && (s += p + ",")
 			}
 			s = s.slice(0, -1)

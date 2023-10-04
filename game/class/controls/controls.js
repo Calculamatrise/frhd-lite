@@ -11,7 +11,6 @@ export default class {
 	controlsSprite = null;
 	gamepad = null;
 	properties = {
-		alpha: 1,
 		right: 0,
 		scaleX: window.devicePixelRatio / 2,
 		scaleY: window.devicePixelRatio / 2,
@@ -37,24 +36,23 @@ export default class {
 	click() {}
 	createSprite() {
 		let t = this.scene.assets.getResult(this.name)
-		, e = this.controlsSpriteSheetData;
+		  , e = this.controlsSpriteSheetData;
 		e.images = [t];
 		this.controlsSprite = t
 	}
 	draw(t) {
 		if (!this.properties.visible) return;
-		t.save();
-		t.globalAlpha = this.properties.alpha;
+		t.save(),
+		this.properties.alpha && (t.globalAlpha = this.properties.alpha);
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
-			let ctrlData = this.controlsSpriteSheetData[(component.image || i) + "_btn"];
-			let width = ctrlData[2] * this.properties.scaleX;
-			let height = ctrlData[3] * this.properties.scaleY;
-			t.globalAlpha = this.properties.alpha * component.alpha;
+			let ctrlData = this.controlsSpriteSheetData[(component.image || i) + "_btn"]
+			  , width = ctrlData[2] * this.properties.scaleX
+			  , height = ctrlData[3] * this.properties.scaleY;
+			t.globalAlpha *= component.alpha,
 			t.drawImage(this.controlsSpriteSheetData.images[0], ...ctrlData, this.game.width - component.right * this.properties.scaleX - width / 2, component.top * this.properties.scaleY - height / 2, width, height);
 		}
-
-		t.restore();
+		t.restore()
 	}
 	isVisible() {
 		return this.properties.visible

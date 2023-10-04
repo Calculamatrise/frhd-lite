@@ -41,7 +41,8 @@ export default class {
 		this.createTrack(),
 		this.loadingcircle = new LoadingCircle(this),
 		this.playerManager = new PlayerManager(this),
-		this.vehicleTimer = new VehicleTimer(this)
+		this.vehicleTimer = new VehicleTimer(this),
+		window.addEventListener('resize', () => this.redraw())
 	}
 	get stateDirty() {
 		return this.isStateDirty()
@@ -136,6 +137,7 @@ export default class {
 		return i
 	}
 	redraw() {
+		this.score.redraw(),
 		this.track.undraw(),
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()

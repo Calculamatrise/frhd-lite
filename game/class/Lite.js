@@ -156,20 +156,19 @@ window.lite = new class {
 					if (this.scene.hasOwnProperty('campaignScore')) {
 						this.scene.campaignScore.container.color = color;
 						this.scene.campaignScore.container.children.forEach(medal => {
-							medal.color = color;
-							// medal.children.forEach(element => {
-							// 	element.color = color;
-							// });
+							medal.children.forEach(element => {
+								element.color = color;
+							});
 						});
 					}
 
 					if (this.scene.hasOwnProperty('raceTimes')) {
 						this.scene.raceTimes.container.color = color;
-						// this.scene.raceTimes.raceList.forEach((race) => {
-						// 	race.children.forEach(element => {
-						// 		element.color = color;
-						// 	});
-						// });
+						this.scene.raceTimes.raceList.forEach(race => {
+							race.children.forEach(element => {
+								element.color = color;
+							});
+						});
 					}
 
 					GameSettings.physicsLineColor = '#'.padEnd(7, value == 'midnight' ? 'c' : value == 'darker' ? 'f' : value == 'dark' ? 'fd' : '0');

@@ -1,44 +1,25 @@
+import GUI from "../interfaces/gui.js";
+import Component from "../interfaces/component.js";
+import Container from "../interfaces/container.js";
 import formatnumber from "./formatnumber.js";
 
-export default class {
+export default class extends GUI {
 	raceCount = 0;
+	raceList = null;
 	highlightedRace = null;
 	raceOpacity = .3;
-	raceYOffset = 50;
-	mobileRaceXOffset = 180;
+	raceYOffset = 20;
+	mobileRaceXOffset = 72;
 	maxRaces = 10;
-	container = {
-		children: [],
-		color: "#000",
-		font: 25,
-		x: 15,
-		y: 80,
-		visible: true,
-		get scale() {
-			return window.devicePixelRatio / 2.5
-		}
-	}
 	constructor(t) {
-		this.scene = t,
-		this.scene.game.settings.isCampaign && (this.container.y += 60),
-		this.maxRaces = this.scene.settings.mobile ? 3 : 10
-	}
-	get raceList() {
-		return this.container.children;
-	}
-	clear() {
-		this.container.children.splice(0);
-		this.raceCount = 0
-	}
-	centerContainer() {
-		let t = this.scene
-		  , e = t.screen
-		  , i = this.container
-		  , s = i.children.reduce((width, child) => width += 160 /* child.width */, 0)
-		  , n = this.scene.game.pixelRatio;
-		i.x = e.width / 2 - s / 2 * i.scale;
-		t.settings.isCampaign && (i.visible = !1),
-		i.y = 40 * n
+		super(t, {
+			font: { size: 10 },
+			x: 6,
+			y: 32
+		}),
+		this.scene.game.settings.isCampaign && (this.container.y += 24),
+		this.maxRaces = this.scene.settings.mobile ? 3 : 10,
+		this.raceList = this.container.children
 	}
 	addRace(t, e) {
 		if (this.raceCount < this.maxRaces) {
@@ -47,44 +28,58 @@ export default class {
 			  , o = t.race
 			  , a = i.settings
 			  , h = a.drawFPS
-			  , u = {
+			  , u = new Container({
 					alpha: this.raceOpacity,
-					children: [],
-					color: r.color,
-					initial: r.d_name.charAt(0).toUpperCase(),
-					runTime: formatnumber(parseInt(o.run_ticks) / h * 1e3),
-					x: 25,
-					y: 25
-				};
+					color: '#'.padEnd(7, /^midnight$/i.test(window.lite?.storage.get('theme')) ? 'd' : /^dark(er)?$/i.test(window.lite?.storage.get('theme')) ? 'f' : '0'),
+					inline: true,
+					textAlign: 'center',
+					textBaseline: 'middle'
+				}, this.container);
 			a.mobile ? u.x = e * this.mobileRaceXOffset : u.y = e * this.raceYOffset,
-			this.container.children.push(u);
-			this.raceCount++
+			u.addChild(new Component({
+				background: r.color,
+				border: 'round',
+				font: { size: 10 },
+				radius: 8,
+				text: r.d_name.charAt(0).toUpperCase(),
+				textAlign: 'center'
+			})),
+			u.addChild(new Component({
+				font: { size: 12 },
+				text: formatnumber(parseInt(o.run_ticks) / h * 1e3),
+				x: 4,
+				y: 2
+			})),
+			this.raceCount++,
+			this.redraw()
 		}
 	}
-	draw(t) {
-		if (this.raceCount > 0) {
-			t.save();
-			t.textAlign = "center";
-			t.textBaseline = "middle";
-			for (const i in this.container.children) {
-				const data = this.container.children[i];
-				t.globalAlpha = data.alpha;
-				t.fillStyle = data.color;
-				t.beginPath();
-				t.arc((this.container.x + data.x) * this.container.scale, (this.container.y + data.y + 20) * this.container.scale/* * i*/, 20 * this.container.scale, 0, 2 * Math.PI);
-				t.fill();
-				t.fillStyle = this.container.color;
-				t.font = this.container.font * this.container.scale + "px helsinki";
-				t.fillText(data.initial, (this.container.x + data.x) * this.container.scale, (this.container.y + data.y + 20) * this.container.scale/* * i*/);
-				t.font = (this.container.font + 5) * this.container.scale + "px helsinki";
-				let e = t.measureText(data.runTime);
-				data.width = 20 + e.width;
-				data.height = 20 + e.actualBoundingBoxAscent + e.actualBoundingBoxDescent;
-				t.fillText(data.runTime, (this.container.x + data.x + 20 + 9) * this.container.scale + e.width / 2, (this.container.y + data.y + 20) * this.container.scale/* * i*/);
-			}
-
-			t.restore();
+	centerContainer() {
+		let t = this.scene
+		  , e = t.screen
+		  , i = this.container
+		  , s = i.width;
+		i.x = e.width / 2 / window.devicePixelRatio - s / 2;
+		t.settings.isCampaign && (i.visible = !1),
+		i.y = 40
+	}
+	clear() {
+		this.container.children.splice(0);
+		this.raceCount = 0
+	}
+	highlightRace(t) {
+		if (this.highlightedRace !== this.raceList[t]) {
+			this.unhighlightRace();
+			let e = this.raceList[t];
+			e.alpha = 1,
+			this.highlightedRace = e,
+			this.redraw()
 		}
+	}
+	unhighlightRace() {
+		this.highlightedRace && (this.highlightedRace.alpha = this.raceOpacity,
+		this.highlightedRace = null,
+		this.redraw())
 	}
 	update() {
 		if (this.raceCount > 0) {
@@ -92,17 +87,5 @@ export default class {
 			t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace(),
 			this.scene.settings.mobile && this.centerContainer()
 		}
-	}
-	highlightRace(t) {
-		if (this.highlightedRace !== this.raceList[t]) {
-			this.unhighlightRace();
-			let e = this.raceList[t];
-			e.alpha = 1,
-			this.highlightedRace = e
-		}
-	}
-	unhighlightRace() {
-		this.highlightedRace && (this.highlightedRace.alpha = this.raceOpacity,
-		this.highlightedRace = null)
 	}
 }
