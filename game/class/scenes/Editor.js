@@ -263,7 +263,6 @@ export default class extends Scene {
 			this.clear = t[1],
 			this.command("dialog", !1)
 		}
-
 		super.command(...arguments);
 	}
 	close() {

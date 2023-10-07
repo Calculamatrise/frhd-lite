@@ -44,7 +44,7 @@ export default class {
 				i.fillStyle = this.background,
 				i.fill(),
 				i.restore()),
-				this.color && (i.fillStyle = this.color) || this.container && this.container.color && (i.fillStyle = this.color),
+				this.color && (i.fillStyle = this.color) || this.container && this.container.color && (i.fillStyle = this.container.color),
 				i.font = s,
 				this.textAlign && (i.textAlign = this.textAlign) || this.container && this.container.textAlign && (i.textAlign = this.container.textAlign),
 				i.textBaseline = this.textBaseline || (this.container && this.container.textBaseline) || 'top',

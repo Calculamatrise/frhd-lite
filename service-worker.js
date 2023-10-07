@@ -71,6 +71,6 @@ async function setState({ enabled = true }) {
 
 	enabled ? chrome.scripting.getRegisteredContentScripts().then(scripts => scripts.length > 0 || chrome.scripting.registerContentScripts(contentScripts)) : chrome.scripting.unregisterContentScripts();
 	chrome.declarativeNetRequest.updateEnabledRulesets({
-		[(enabled ? 'en' : 'dis') + 'ableRulesetIds']: await chrome.declarativeNetRequest.getEnabledRulesets()
+		[(enabled ? 'en' : 'dis') + 'ableRulesetIds']: enabled ? ["frhd-assets"] : await chrome.declarativeNetRequest.getEnabledRulesets()
 	});
 }

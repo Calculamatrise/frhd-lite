@@ -8,7 +8,7 @@
 		}
 	},
 	"condition": {
-		"urlFilter": "free_rider_hd/assets/scripts/game/game.min.*.js",
+		"urlFilter": "||cdn.*.com/free_rider_hd/assets/scripts/game/game.min.*.js",
 		"initiatorDomains": [
 			"freeriderhd.com",
 			"kanoapps.com"

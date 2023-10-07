@@ -23,7 +23,7 @@
 		"48": "icons/icon_48.png",
 		"128": "icons/icon_128.png"
 	},
-	"permissions": ["declarativeNetRequest", "scripting", "storage"],
+	"permissions": ["declarativeNetRequestWithHostAccess", "scripting", "storage"],
 	"host_permissions": [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*",
@@ -38,8 +38,8 @@
 			"shared/*"
 		],
 		"matches": [
-			"*://frhd.kanoapps.com/*",
-			"*://www.freeriderhd.com/*"
+			"*://*.kanoapps.com/*",
+			"*://*.freeriderhd.com/*"
 		]
 	}]
 }
