@@ -138,19 +138,29 @@ window.lite = new class {
 				case 'featuredGhosts':
 					childLoad = true;
 					break;
+				case 'experiments':
+					for (const experiment in value) {
+						switch(experiment) {
+							case 'brightness':
+								this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
+									filter: 'brightness(' + value[experiment] / 100 + ')'
+								}));
+						}
+					}
+					break;
 				case 'keymap':
 					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 					break;
 				case 'theme':
-					let background = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
-					GameManager.game.canvas.style.setProperty('background-color', background);
+					let backgroundColor = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
+					this.styleSheet.set('#game-container > canvas', Object.assign({}, this.styleSheet.get('#game-container > canvas'), { backgroundColor }));
 					this.styleSheet.set('.gameFocusOverlay', {
-						backgroundColor: GameManager.game.canvas.style.getPropertyValue('background-color').replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
+						backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
 						color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
 					});
 
 					this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
-					this.scene.message.outline = background;
+					this.scene.message.outline = backgroundColor;
 					let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
 					this.scene.score.best_time.color = gray;
 					this.scene.score.best_time_title.color = gray;
@@ -458,8 +468,8 @@ window.lite = new class {
 						],
 						href: '/achievements',
 						style: {
-							borderBottom: '1px solid gray',
-							color: 'white',
+							borderBottom: '1px solid hsl(190deg 25% 60%)',
+							color: 'black',
 							fontFamily: 'helsinki',
 							paddingBottom: '5px'
 						}
@@ -474,17 +484,15 @@ window.lite = new class {
 						}
 					})
 				],
-				className: 'simplemodal-container',
 				style: {
-					backgroundColor: 'rgb(27 82 100)',
-					backgroundImage: 'linear-gradient(transparent, rgb(20, 63, 77))',
+					backgroundColor: 'hsl(190 25% 95% / 1)',
+					// backgroundImage: 'linear-gradient(transparent, hsl(191 25% 90% / 1))',
+					border: '1px solid hsl(190deg 25% 60%)',
 					borderRadius: '1rem',
-					boxShadow: '0px 4px 8px 0px black',
-					color: 'white',
 					display: 'flex',
 					flexDirection: 'column',
 					gap: '0.6rem',
-					margin: '0 10px',
+					margin: '0 0.6rem',
 					padding: '1.5rem',
 					width: '-webkit-fill-available'
 				}
@@ -1076,6 +1084,7 @@ window.lite = new class {
 							className: 'achievements-coin store_icons store_icons-coin_icon_lg achievement-coin-value',
 							innerText: achievement.coins,
 							style: {
+								color: 'white',
 								lineHeight: '45px',
 								textAlign: 'center',
 								textShadow: '0 -1px 1px #9E8500'
@@ -1128,7 +1137,7 @@ window.lite = new class {
 									className: 'achievement-info-desc condensed',
 									innerText: achievement.desc,
 									style: {
-										color: 'darkgray',
+										color: 'hsl(190deg 25% 60%)',
 										fontFamily: 'roboto_bold',
 										margin: 0
 									}

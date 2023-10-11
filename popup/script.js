@@ -76,17 +76,22 @@ for (const item in defaults) {
 				t.parentElement.focus();
 			});
 			element.addEventListener('input', event => {
-				chrome.storage.proxy.local.settings.set(item, event.target.value);
-				(element = document.querySelector(`#${item}-visible`) !== null) && (element.checked = event.target.value !== '#000000');
+				chrome.storage.proxy.local.settings.set(item, event.target.value),
+				(element = document.querySelector(`#${item}-visible`) !== null) && (element.checked = event.target.value !== '#000000')
 			});
 			break;
 		case 'experiments':
 			for (const experiment in defaults[item]) {
 				element = document.getElementById(item + '.' + experiment);
 				switch (experiment) {
+					case 'brightness':
+						element.addEventListener('input', event => {
+							chrome.storage.proxy.local.settings[item].set(experiment, event.target.value | 0)
+						})
+						break;
 					default:
 						element && element.type === 'checkbox' && element.addEventListener('input', () => {
-							chrome.storage.proxy.local.settings[item].set(experiment, !chrome.storage.proxy.local.settings[item].get(experiment));
+							chrome.storage.proxy.local.settings[item].set(experiment, !chrome.storage.proxy.local.settings[item].get(experiment))
 						})
 				}
 			}
@@ -149,6 +154,11 @@ function restoreSettings(data) {
 				for (const experiment in data[item]) {
 					element = document.getElementById(item + '.' + experiment);
 					switch (experiment) {
+						case 'brightness':
+							element.value = Math.min(100, Math.max(1, data[item][experiment] | 0));
+							let name = element.parentElement.querySelector('.name');
+							name.textContent = name.textContent.replace(/(?<=\()([\d.]+)(?=%\))/, element.value);
+							break;
 						default:
 							element && element.type === 'checkbox' && (element.checked = data[item][experiment]);
 					}

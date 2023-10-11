@@ -204,16 +204,14 @@ export default class {
 			if (e.length > this.maxDuplicatePowerups) {
 				switch(t.prefix) {
 					case 'B':
-						e = e.filter(e => e.angle == t.angle);
-						if (e.length > this.maxDuplicatePowerups) {
-							e[0].duplicates++;
-							return t
-						}
+						// e = e.filter(e => e.angle == t.angle);
+						// if (e.length > this.maxDuplicatePowerups)
+						// 	return e[0].duplicates++, t;
 						break;
 					case 'G':
-						e = e.filter(e => e.angle == t.angle);
-						if (e.length > this.maxDuplicatePowerups)
-							return t;
+						// e = e.filter(e => e.angle == t.angle);
+						// if (e.length > this.maxDuplicatePowerups)
+						// 	return t;
 						break;
 					case 'V':
 						e[0].duplicates++,

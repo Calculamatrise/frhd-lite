@@ -15,6 +15,9 @@ export default class extends Powerup {
 		i.isGhost() === !1 && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1))
 	}
+	draw(...t) {
+		this.hit || super.draw(...t)
+	}
 	drawPowerup(t, e, i, s) {
 		let n = this.outline;
 		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
