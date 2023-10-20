@@ -3,7 +3,8 @@ import defaults from "./constants/defaults.js";
 const contentScripts = [{
 	excludeMatches: [
 		"*://*/*\?ajax*",
-		"*://*/*&ajax*"
+		"*://*/*&ajax*",
+		"*://*.com/*api/*"
 	],
 	id: "connection-broker",
 	js: ["broker.js"],
@@ -15,7 +16,8 @@ const contentScripts = [{
 }, {
 	excludeMatches: [
 		"*://*/*\?ajax*",
-		"*://*/*&ajax*"
+		"*://*/*&ajax*",
+		"*://*.com/*api/*"
 	],
 	id: "game",
 	js: ["game/main.js"],

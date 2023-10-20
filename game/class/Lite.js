@@ -542,9 +542,9 @@ window.lite = new class {
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' });
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
 		Application.router.current_view.on('leaderboard.rendered', () => {
-			for (let actionRow of Array.from(document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')).filter(actionRow => !actionRow.querySelector('#download-race'))) {
+			for (let actionRow of Array.from(document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')).filter(actionRow => !actionRow.querySelector('#frhd-lite\\.download-race'))) {
 				let download = document.createElement('span');
-				download.setAttribute('id', 'download-race');
+				download.setAttribute('id', 'frhd-lite.download-race');
 				download.setAttribute('title', 'Download Race');
 				download.classList.add('core_icons', 'core_icons-btn_add_race');
 				download.style.setProperty('background-image', "linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))");
@@ -582,16 +582,19 @@ window.lite = new class {
 
 	async initDownloadTracks() {
 		let subscribeToAuthor = document.querySelector('.subscribe-to-author');
-		let downloadTrack = subscribeToAuthor.cloneNode(true);
-		let subscriberCount = downloadTrack.querySelector('#subscribe_to_author_count');
-		subscriberCount && subscriberCount.remove();
-		let download = downloadTrack.querySelector('#subscribe_to_author');
-		download.removeAttribute('id');
-		download.innerText = 'Download';
-		download.addEventListener('click', () => {
-			this.constructor.downloadTrack(GameSettings.track.id);
-		});
-		subscribeToAuthor.after(downloadTrack);
+		let downloadTrack = document.querySelector('#frhd-lite\\.download-track');
+		if (!downloadTrack) {
+			downloadTrack = subscribeToAuthor.cloneNode(true);
+			let subscriberCount = downloadTrack.querySelector('#subscribe_to_author_count');
+			subscriberCount && subscriberCount.remove();
+			let download = downloadTrack.querySelector('#subscribe_to_author');
+			download.setAttribute('id', 'frhd-lite.download-track'); // check if it exists first
+			download.innerText = 'Download';
+			download.addEventListener('click', () => {
+				this.constructor.downloadTrack(GameSettings.track.id);
+			});
+			subscribeToAuthor.after(downloadTrack);
+		}
 	}
 
 	featuredGhosts = null;
