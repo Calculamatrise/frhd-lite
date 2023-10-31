@@ -140,10 +140,14 @@ export default class extends Scene {
 		t.setTool("Camera")
 	}
 	fixedUpdate() {
+		let t, e;
 		this.ready ? (this.updateToolHandler(),
 		this.mouse.update(),
 		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
 		this.playerManager.checkKeys()),
+		this.camera.focusIndex > 0 && (t =  this.playerManager.firstPlayer._gamepad.downButtons,
+		t = ~~t['right'] - ~~t['left']) && (e = this.playerManager.getPlayerByIndex(this.camera.focusIndex)) && e.isGhost() && e._gamepad.playbackTicks > 0 && (e._replayIterator.next((e._gamepad.playbackTicks ?? this.ticks) + 5 * t), /* add option for amount of ticks to skip */
+		this.state.playing = false),
 		super.fixedUpdate(),
 		this.updateScore()) : this.importCode && this.createTrack()
 	}

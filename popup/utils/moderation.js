@@ -28,7 +28,7 @@ function setupSection(section, identifiers) {
 		}
 
 		switch (id) {
-			case 'check-features': {
+			case 'check-features':
 				let progress = section.querySelector('progress');
 				let dialog = section.querySelector('#result');
 				let stolen = section.querySelector('#stolen-ghosts');
@@ -126,9 +126,7 @@ function setupSection(section, identifiers) {
 					this.classList.remove('loading');
 				});
 				break;
-			}
-
-			case 'uname-add': {
+			case 'uname-add':
 				let dropdown = section.querySelector('.dropdown > main');
 				let query = section.querySelector('#uname-query');
 				let users = section.querySelector('#users');
@@ -137,34 +135,46 @@ function setupSection(section, identifiers) {
 					this.classList.add('loading');
 					await fetch('https://www.freeriderhd.com/u/' + query.value + '?ajax').then(r => r.json()).then(({ user }) => {
 						if (!user || section.querySelector('details > summary[data-u_id="' + user.u_id + '"]')) return;
-						let actions = template.content.cloneNode(true);
-						let summary = actions.querySelector('summary');
-						summary.dataset.u_id = user.u_id;
-						summary.prepend(user.d_name);
-						// summary.innerText = user.d_name;
-						let classic = actions.querySelector('#set-official-author');
-						classic.innerText = (user.classic ? 'Re' : 'In') + 'voke Official Author';
-						for (let div of users.children) {
-							div.open = false;
-						}
-
-						users.appendChild(attachComponents(actions));
-						summary.scrollIntoView({ behavior: 'smooth' });
+						createUserActions(user);
+						chrome.storage.proxy.session.workingUsers ||= {};
+						chrome.storage.proxy.session.workingUsers.set(user.u_id, user);
 					});
 
 					dropdown.replaceChildren();
 					query.value = null;
 					this.classList.remove('loading');
 				});
-				break;
-			}
 
+				let workingUsers = chrome.storage.proxy.session.workingUsers;
+				for (let id in workingUsers) {
+					createUserActions(workingUsers[id]);
+				}
+
+				function createUserActions(user) {
+					let actions = template.content.cloneNode(true);
+					let summary = actions.querySelector('summary');
+					summary.dataset.u_id = user.u_id;
+					summary.prepend(user.d_name);
+					let banned = actions.querySelector('#' + (user.banned ? '' : 'un') + 'ban-user');
+					banned && banned.style.setProperty('display', 'none');
+					let classic = actions.querySelector('#set-official-author');
+					classic.innerText = (user.classic ? 'Re' : 'In') + 'voke Official Author';
+					for (let div of users.children) {
+						div.open = false;
+					}
+			
+					users.appendChild(attachComponents(actions));
+					summary.scrollIntoView({ behavior: 'smooth' });
+				}
+				break;
 			case 'uname-query': {
 				let add = section.querySelector('#uname-add');
 				let dropdown = section.querySelector('.dropdown > main');
-				element.addEventListener('change', add.click.bind(add));
 				element.addEventListener('input', async function() {
-					dropdown.replaceChildren(...await AjaxHelper.userSearch(this.value /*, add.click.bind(add)*/));
+					dropdown.replaceChildren(...await AjaxHelper.userSearch(this.value, data => {
+						this.value = data.d_name;
+						add.click();
+					}));
 				});
 				break;
 			}
@@ -182,8 +192,11 @@ function setupSection(section, identifiers) {
 function attachComponents(template) {
 	let search = template.querySelector('summary');
 	let remove = search.querySelector('button');
-	remove.addEventListener('click', () => search.parentElement.remove());
-	let dname = search.textContent.slice(0, -1);
+	remove.addEventListener('click', () => {
+		chrome.storage.proxy.session.workingUsers.delete(search.dataset.u_id);
+		search.parentElement.remove();
+	});
+	let dname = search.firstChild.textContent;
 	let uname = dname.toLowerCase();
 	let banUser = template.querySelector('#ban-user');
 	banUser.addEventListener('click', async function () {
@@ -195,9 +208,10 @@ function attachComponents(template) {
 		await AjaxHelper.post("/moderator/ban_user", {
 			u_id: chrome.storage.proxy.session.userCache.get(uname)
 		}).then(res => {
-			if (res.result !== true)
-				throw new Error(res.msg ?? 'Something went wrong! Please try again.');
-			// ??
+			alert(res.msg);
+			unBanUser.style.removeProperty('display');
+			banUser.style.setProperty('display', 'none');
+			chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('banned', true);
 		}).catch(err => alert(err.message));
 		this.classList.remove('loading');
 	});
@@ -208,9 +222,10 @@ function attachComponents(template) {
 		await AjaxHelper.post("/moderator/unban_user", {
 			u_id: chrome.storage.proxy.session.userCache.get(uname)
 		}).then(res => {
-			if (res.result !== true)
-				throw new Error(res.msg ?? 'Something went wrong! Please try again.');
-			// ??
+			alert(res.msg);
+			banUser.style.removeProperty('display');
+			unBanUser.style.setProperty('display', 'none');
+			chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('banned', false);
 		}).catch(err => alert(err.message));
 		this.classList.remove('loading');
 	});
@@ -230,11 +245,7 @@ function attachComponents(template) {
 		await AjaxHelper.post("/moderator/change_email", {
 			u_id: chrome.storage.proxy.session.userCache.get(uname),
 			email: newValue
-		}).then(res => {
-			if (res.result !== true)
-				throw new Error(res.msg ?? 'Something went wrong! Please try again.');
-			// ??
-		}).catch(err => alert(err.message));
+		}).then(res => alert(res.msg)).catch(err => alert(err.message));
 		this.classList.remove('loading');
 	});
 
@@ -254,10 +265,30 @@ function attachComponents(template) {
 			u_id: chrome.storage.proxy.session.userCache.get(uname),
 			username: newValue
 		}).then(res => {
-			if (res.result !== true)
-				throw new Error(res.msg ?? 'Something went wrong! Please try again.');
-			// ??
-		}).catch(err => alert(err.message));
+			if (res.result !== true && res.msg !== 'Username changed')
+				throw new Error(res.msg || 'Something went wrong! Please try again.');
+
+			alert(res.msg);
+			chrome.storage.proxy.session.userCache.delete(uname);
+			dname = newValue;
+			uname = dname.toLowerCase();
+			search.firstChild.textContent = dname;
+			chrome.storage.proxy.session.userCache.set(uname, search.dataset.u_id);
+			chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('d_name', dname);
+			chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('u_name', uname);
+		}).catch(err => {
+			if (err.message == 'Username changed') {
+				chrome.storage.proxy.session.userCache.delete(uname);
+				dname = newValue,
+				uname = dname.toLowerCase(),
+				search.firstChild.textContent = dname;
+				chrome.storage.proxy.session.userCache.set(uname, search.dataset.u_id);
+				chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('d_name', dname);
+				chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('u_name', uname);
+			}
+
+			alert(err.message);
+		});
 		this.classList.remove('loading');
 	});
 
@@ -265,9 +296,10 @@ function attachComponents(template) {
 	toggleOA.addEventListener('click', async function () {
 		this.classList.add('loading');
 		await AjaxHelper.post("/moderator/toggle_official_author/" + chrome.storage.proxy.session.userCache.get(uname)).then(res => {
-			if (res.result !== true)
-				throw new Error(res.msg ?? 'Something went wrong! Please try again.');
-			toggleOA.innerText = /^in/i.test(toggleOA.innerText) ? toggleOA.innerText.replace('In', 'Re') : toggleOA.innerText.replace('Re', 'In');
+			alert(res.msg);
+			let isOA = /^in/i.test(toggleOA.innerText);
+			toggleOA.innerText = isOA ? toggleOA.innerText.replace('In', 'Re') : toggleOA.innerText.replace('Re', 'In');
+			chrome.storage.proxy.session.workingUsers[search.dataset.u_id].set('classic', !isOA);
 		}).catch(err => alert(err.message));
 		this.classList.remove('loading');
 	});

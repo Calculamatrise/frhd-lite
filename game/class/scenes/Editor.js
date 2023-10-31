@@ -160,6 +160,7 @@ export default class extends Scene {
 		let t = super.setStateDefaults();
 		return t.paused = this.settings.mobile ? !0 : this.settings.startPaused,
 		t.loading = !1,
+		t.playing = this.settings.waitForKeyPress,
 		t.preloading = !1,
 		t.tool = this.toolHandler.currentTool,
 		t.toolOptions = this.toolHandler.getToolOptions(),

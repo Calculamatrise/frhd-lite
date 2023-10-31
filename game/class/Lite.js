@@ -113,9 +113,10 @@ window.lite = new class {
     }
 
 	childLoad() {
+		Application.events.publish("game.prerollAdStopped");
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
-		location.pathname.match(/^\/t\//i) && (this.initBestDate(),
+		location.pathname.match(/^\/t\//i) && GameSettings.track && (this.initBestDate(),
 		this.initDownloadGhosts(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
 		this.initGhostPlayer(),

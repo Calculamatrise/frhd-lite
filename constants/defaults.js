@@ -5,7 +5,8 @@ export default {
 	experiments: {
 		brightness: 100,
 		filterDuplicatePowerups: false,
-		filterOverlappingPowerups: false
+		filterOverlappingPowerups: false,
+		raceProgress: false
 	},
 	featuredGhostsDisplay: true,
 	inputDisplay: true,

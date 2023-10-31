@@ -100,9 +100,6 @@ export default class {
 		this.controls && this.controls.draw(ctx)
 	}
 	fixedUpdate() {
-		let t, e;
-		(this.camera.focusIndex > 0 && (t = this.playerManager.firstPlayer._gamepad.downButtons['right'] - this.playerManager.firstPlayer._gamepad.downButtons['left'])) && ((e = this.playerManager.getPlayerByIndex(this.camera.focusIndex)) && e.isGhost() && e._replayIterator.next((e._gamepad.playbackTicks ?? this.ticks) + 5 * t), /* add option for amount of ticks to skip */
-		this.state.playing = false),
 		this.screen.update(),
 		this.updateControls(),
 		this.camera.update(),

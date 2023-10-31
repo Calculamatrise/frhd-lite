@@ -1,5 +1,5 @@
 export default new Proxy(class {
-	static request(path, options = {}) {
+	static async request(path, options = {}) {
 		let searchParams = new URLSearchParams(path.replace(/[^?]*/, match => {
 			path = match;
 			return '';
@@ -15,11 +15,15 @@ export default new Proxy(class {
 			delete options.body;
 		}
 
-		return fetch(`https://www.freeriderhd.com${path}?${searchParams}`, Object.assign({
+		let res = await fetch(`https://www.freeriderhd.com${path}?${searchParams}`, Object.assign({
 			headers: {
 				'Content-Type': "application/x-www-form-urlencoded"
 			}
 		}, options)).then(r => r.json());
+		if (res.result === false || /^page\snot\sfound/i.test(res.app_title))
+			throw new Error(res.msg || 'Something went wrong! Please try again.');
+
+		return res;
 	}
 
 	static trackSearch(query, callback) {

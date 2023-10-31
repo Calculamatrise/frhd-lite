@@ -306,8 +306,8 @@ function setupSection(section, identifiers) {
 			case 'u_name': {
 				let dropdown = section.querySelector('#u_name-search-results');
 				element.addEventListener('input', async function() {
-					dropdown.replaceChildren(...await AjaxHelper.userSearch(this.value, user => {
-						this.value = user.d_name;
+					dropdown.replaceChildren(...await AjaxHelper.userSearch(this.value, data => {
+						this.value = data.d_name;
 						dropdown.replaceChildren();
 					}));
 				});

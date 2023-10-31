@@ -80,7 +80,7 @@ export default class {
 			  , e = t.settings
 			  , i = t.message;
 			t.state.playerAlive = this.isAlive(),
-			this._checkpoints.length > 0 ? e.mobile ? i.show("Tap to go to checkpoint!", !1, "#000000", "#FFFFFF") : i.show("Press Enter For Checkpoint", !1, "#000000", "#FFFFFF") : e.mobile ? i.show("Tap to Restart!", !1, "#000000", "#FFFFFF") : i.show("Press Enter To Restart", !1, "#000000", "#FFFFFF")
+			this._checkpoints.length > 0 ? e.mobile ? i.show("Tap to go to checkpoint!", !1, "#000", "#FFF") : i.show("Press Enter For Checkpoint", !1, "#000", "#FFF") : e.mobile ? i.show("Tap to Restart!", !1, "#000", "#FFF") : i.show("Press Enter To Restart", !1, "#000", "#FFF")
 		}
 	}
 	setAsGhost() {
@@ -235,7 +235,8 @@ export default class {
 	checkKeys() {
 		var t = this._gamepad
 		  , e = this._ghost
-		  , i = this._scene;
+		  , i = this._scene
+		  , s;
 		!t.isButtonDown("enter") && !t.isButtonDown("backspace") && t.areKeysDown() && this._cache.length > 0 && (this._cache = []);
 		if (t.isButtonDown("shift") && t.isButtonDown("enter")) {
 			var s = t.getButtonDownOccurances("enter");
@@ -245,7 +246,7 @@ export default class {
 		if (e === !1 && (t.areKeysDown() && !this._crashed && i.play(),
 		t.isButtonDown("restart") && (i.restartTrack = !0,
 		t.setButtonUp("restart")),
-		(t.isButtonDown("up") || t.isButtonDown("down") || !i.camera.focusIndex && (t.isButtonDown("left") || t.isButtonDown("right"))) && i.camera.focusOnMainPlayer()),
+		(t.isButtonDown("up") || t.isButtonDown("down") || (!i.camera.focusIndex || ((s = i.playerManager.getPlayerByIndex(i.camera.focusIndex)) && s._gamepad.playbackTicks < 1)) && (t.isButtonDown("left") || t.isButtonDown("right"))) && i.camera.focusOnMainPlayer()),
 		t.isButtonDown("enter") && (this.gotoCheckpoint(),
 		t.setButtonUp("enter")),
 		t.isButtonDown("backspace")) {

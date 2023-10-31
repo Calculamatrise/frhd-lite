@@ -81,6 +81,10 @@
 						<input type="checkbox" id="experiments.filterOverlappingPowerups">
 						<span class="name">Filter overlap</span>
 					</label>
+					<label class="ripple" title="Display a progress bar for your race">
+						<input type="checkbox" id="experiments.raceProgress">
+						<span class="name">Race Progress</span>
+					</label>
 				</details>
 				<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
 			</details>
@@ -189,7 +193,7 @@
 					<summary class="tab" id="dname" style="text-align: left;"><button style="bottom: 0;position: absolute;right: 0;top: 0;">&Cross;</button></summary>
 					<div class="actions" style="margin: 0.25rem 0;">
 						<div style="align-items: center;display: flex;">
-							<button class="tab danger ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
+							<button class="tab danger hover-border ripple" id="ban-user" style="text-align: left;width: -webkit-fill-available">Ban</button>
 							<button class="tab ripple" id="unban-user" style="text-align: left;width: -webkit-fill-available">Unban</button>
 						</div>
 						<button class="tab ripple" id="change-uemail" style="text-align: left;width: -webkit-fill-available">Change Email</button>
