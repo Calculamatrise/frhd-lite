@@ -52,13 +52,9 @@ window.lite = new class {
 		if (searchParams.has('ajax')) return;
 		navigation.addEventListener('navigate', () => this.loaded = !1);
 		window.Application && Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
-		window.GameManager && ((GameManager.clientMods ||= new Map()).set('frhd-lite', this),
-		GameManager.on('stateChange', state => {
-			if (state.preloading === !1 && this.loaded === !1)
-				this.loaded = this.load();
-			this.loaded && this.refresh()
-		}));
-
+		window.ModManager && (ModManager.hook(this, { name: 'lite' }),
+		ModManager.on('ready', this.load.bind(this)),
+		ModManager.on('stateChange', this.refresh.bind(this)));
 		this.#createCustomStyleSheet();
 		addEventListener('message', ({ data }) => {
 			if (!data) return console.warn('data is missing');
@@ -113,15 +109,15 @@ window.lite = new class {
     }
 
 	childLoad() {
-		Application.events.publish("game.prerollAdStopped");
 		this.storage.get('accountManager') && this.initAccountManager();
 		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
-		location.pathname.match(/^\/t\//i) && GameSettings.track && (this.initBestDate(),
+		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
+		this.initBestDate(),
 		this.initDownloadGhosts(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
+		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
 		this.initGhostPlayer(),
 		this.storage.get('uploadGhosts') && this.initUploadGhosts());
-		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts();
 		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
 		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && this.initUserTrackAnalytics(),
 		Application.settings.user.moderator && this.initUserTrackModeration());

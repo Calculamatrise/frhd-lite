@@ -137,25 +137,19 @@ export default class extends Vehicle {
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite && lite.storage.get("snapshots");
+					let t = window.lite && parseInt(lite.storage.get("snapshots"));
 					if (t > 0) {
-						for (let i in this.player._checkpoints) {
-							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._baseVehicle) continue;
+						for (let i in this.player._checkpoints.filter((e, i) => i > this.player._checkpoints.length - (t + 1) && e._baseVehicle))
 							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._baseVehicle)), ctx, t / 3e2 * parseInt(i) % 1);
-						}
 
-						for (let i in this.player._cache) {
-							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._baseVehicle) continue;
+						for (let i in this.player._cache.filter((e, i) => i > this.player._checkpoints.length - (t + 1) && e._baseVehicle))
 							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._baseVehicle)), ctx, t / 3e2 * ++e % 1);
-						}
 					}
 				}
 
 				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let i in lite.snapshots) {
-						if (!lite.snapshots[i] || !lite.snapshots[i]._baseVehicle) continue;
-						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._baseVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1);
-					}
+					for (let e in lite.snapshots.filter(t => t._baseVehicle))
+						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._baseVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * e % 1);
 				}
 			}
 

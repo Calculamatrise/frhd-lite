@@ -1,11 +1,13 @@
 // Changes on line 78 onwards
 
+import "./ThirdPartyManager.js";
 import "./Lite.js";
+import EventEmitter from "./EventEmitter.js";
 
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
 
-window.Game = class {
+window.Game = class extends EventEmitter {
 	gameContainer = null;
 	_frames = 0;
 	frames = 0;
@@ -24,24 +26,23 @@ window.Game = class {
 	fullscreen = !1;
 	onStateChange = null;
 	constructor(t, e, i) {
+		super();
 		this.assets = e,
 		this.settings = i,
 		this.initCanvas(),
 		this.setSize(),
 		this.switchScene(t),
 		this.setSize(),
-		this.updateCallback = requestAnimationFrame(this.update.bind(this));
+		((window.createjs ||= {}).Ticker ||= {}).addEventListener = this.on.bind(this),
+		this.updateCallback = requestAnimationFrame(this.update.bind(this)),
+		this.emit('ready', this)
 	}
-
 	initCanvas() {
 		this.canvas = document.createElement("canvas");
 		this.ctx = this.canvas.getContext("2d");
 		this.gameContainer = document.getElementById(this.settings.defaultContainerID);
-		if (this.gameContainer !== null) {
-			this.gameContainer.appendChild(this.canvas);
-		}
+		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas);
 	}
-
 	setSize() {
 		let t = window.innerHeight
 		  , e = window.innerWidth;
@@ -88,14 +89,15 @@ window.Game = class {
 		this.lastTime = time;
 
 		while (this.progress >= 1) {
-			this.currentScene.fixedUpdate();
-			this._updates++;
-			this.progress--;
+			this.currentScene.fixedUpdate(),
+			this.emit('tick', ++this._updates),
+			this.progress--
 		}
 
 		this.currentScene.draw(this.ctx),
-		lite.draw(this.ctx)
-		this._frames++;
+		this.emit('draw'),
+		// lite.draw(this.ctx),
+		this._frames++
 
 		if (time - this.timer > 1e3) {
 			this.timer = time;
