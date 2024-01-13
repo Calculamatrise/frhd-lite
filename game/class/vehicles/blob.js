@@ -155,7 +155,7 @@ export default class extends Vehicle {
 		  , a = new n(this.m3.pos.x, this.m3.pos.y).toScreen(i);
 		t.globalAlpha = alpha,
 		t.beginPath(),
-		t.fillStyle = t.strokeStyle,
+		t.fillStyle = this.color,
 		t.lineWidth = 20 * s,
 		t.lineCap = "round",
 		t.moveTo(m.x, m.y),

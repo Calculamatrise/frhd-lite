@@ -33,7 +33,7 @@ window.Game = class extends EventEmitter {
 		this.setSize(),
 		this.switchScene(t),
 		this.setSize(),
-		((window.createjs ||= {}).Ticker ||= {}).addEventListener = this.on.bind(this),
+		(window.createjs ||= {}).Ticker ||= this,
 		this.updateCallback = requestAnimationFrame(this.update.bind(this)),
 		this.emit('ready', this)
 	}
@@ -95,8 +95,7 @@ window.Game = class extends EventEmitter {
 		}
 
 		this.currentScene.draw(this.ctx),
-		this.emit('draw'),
-		// lite.draw(this.ctx),
+		this.emit('draw', this.ctx),
 		this._frames++
 
 		if (time - this.timer > 1e3) {

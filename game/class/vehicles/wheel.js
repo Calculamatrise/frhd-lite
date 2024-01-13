@@ -1,18 +1,11 @@
 import Mass from "./mass.js";
 
 export default class extends Mass {
-	motor = 0;
-	brake = !1;
 	angle = 0;
+	brake = !1;
+	motor = 0;
+	rotationSpeed = 0;
 	speed = 0;
-	constructor(t, e) {
-		super(t, e);
-		this.motor = 0;
-		this.brake = !1;
-		this.angle = 0;
-		this.speed = 0;
-		this.rotationSpeed = 0;
-	}
 	drive(t, e) {
 		let i = this.pos
 		  , s = this.motor * this.parent.dir

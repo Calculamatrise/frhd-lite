@@ -96,10 +96,10 @@ export default class {
 		}
 	}
 	removeObjects(t) {
-		for (let e = t.length, i = 0; e > i; i++) {
-			let s = t[i];
-			s.remove = !0,
-			s.removeAllReferences()
+		for (let e = 0; e < t.length; e++) {
+			let i = t[e];
+			i.remove = !0,
+			i.removeAllReferences()
 		}
 		this.scene.track.cleanTrack()
 	}
@@ -286,13 +286,12 @@ export default class {
 		o.height = i;
 		let a = o.getContext("2d");
 		a.fillStyle = this.options.gridMinorLineColor;
-		for (let width = Math.floor(e / r), l = 0; width >= l; l++) {
+		for (let width = Math.floor(e / r), l = 0; width >= l; l++)
 			for (let height = Math.floor(i / r), b = 0; height >= b; b += .5) {
 				a.beginPath();
 				a.arc(2 * b * r, (l + b % 1) * r, 1 * t, 0, 2 * Math.PI)
 				a.fill()
 			}
-		}
 		this.gridCache = o,
 		this.gridCacheAlpha = Math.min(t + .2, 1)
 	}

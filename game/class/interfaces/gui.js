@@ -18,7 +18,6 @@ export default class {
 	}
 	update() {
 		let t = this.container;
-		for (let e of t.children)
-			e.cached || (t.cached = !1)
+		t.cached ||= t.children.findIndex(t => !t.cached) === -1
 	}
 }

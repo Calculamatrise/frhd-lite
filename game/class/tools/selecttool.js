@@ -16,7 +16,8 @@ export default class extends Tool {
 	constructor(t) {
 		super(t);
 		this.p1 = new Vector(0, 0),
-		this.p2 = new Vector(0, 0)
+		this.p2 = new Vector(0, 0),
+		document.addEventListener('keydown', this.keyPress.bind(this))
 	}
 	press() {
 		let t = this.mouse.touch.real;
@@ -64,78 +65,75 @@ export default class extends Tool {
 		});
 	}
 	rotateSelected() {
-		const x = (this.travelDistance || 0) * Math.PI / 180;
+		let x = (this.travelDistance || 0) * Math.PI / 180;
 		let selectedSegments = this.selectedSegments;
 		this.selectedSegments = [];
-		for (const i of selectedSegments) {
-			if (i.p2 && !i.name) {
-				this.selectedSegments.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](Math.cos(x) * i.p1.x + Math.sin(x) * i.p1.y, -Math.sin(x) * i.p1.x + Math.cos(x) * i.p1.y, Math.cos(x) * i.p2.x + Math.sin(x) * i.p2.y, -Math.sin(x) * i.p2.x + Math.cos(x) * i.p2.y));
-				i.removeAllReferences();
-			}
+		for (let i of selectedSegments.filter(t => t.type == 'physics' || t.type == 'scenery')) {
+			this.selectedSegments.push(this.scene.track[i.type == "physics" ? "addPhysicsLine" : "addSceneryLine"](Math.cos(x) * i.p1.x + Math.sin(x) * i.p1.y, -Math.sin(x) * i.p1.x + Math.cos(x) * i.p1.y, Math.cos(x) * i.p2.x + Math.sin(x) * i.p2.y, -Math.sin(x) * i.p2.x + Math.cos(x) * i.p2.y));
+			i.removeAllReferences();
 		}
 	}
 	copyAndPasteSelected() {
-		for (let i of this.selectedSegments.filter(i => i.type == 'physics' || i.type == 'scenery')) {
+		for (let i of this.selectedSegments.filter(i => i.type == 'physics' || i.type == 'scenery'))
 			this.scene.track['add' + (i.type == 'physics' ? 'Physics' : 'Scenery') + 'Line'](i.p1.x, i.p1.y, i.p2.x, i.p2.y)
-		}
 	}
 	release() {
 		this.unselectElements();
-		for (const t of this.scene.track.select(this.p1, this.p2)) {
+		for (let t of this.scene.track.select(this.p1, this.p2))
 			this.intersectsLine(t.x ? t : t.p1, t.x ? t : t.p2) && this.selectedSegments.push(t)
-		}
 		this.selectedElements = this.selectedSegments,
 		this.active = !1,
-		this.passive = !0,
-		document.onkeydown = e => {
-			e.preventDefault();
-			switch(e.key) {
-				case "=":
-				case "+":
-					this.travelDistance++;
-					this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
-					break;
-				case "-":
-					this.travelDistance--;
-					this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
-					break;
-				case "c":
-					this.copyAndPasteSelected(e.key),
-					this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
-					break;
-				case "Delete":
-					this.selectedElements.length > 0 && this.toolhandler.addActionToTimeline({
-						type: "remove",
-						objects: this.selectedElements.flatMap(t => t)
-					});
-					for (const t of this.selectedElements) {
-						t.removeAllReferences()
-					}
-					this.reset();
-					this.scene.message.show("Deleted selected area", !1, "#000", "#FFF");
-					break;
-				case "f":
-					if (confirm("Are you sure you would you like to fill the selected area?"))
-						this.fillSelected(),
-						this.scene.message.show("Filled selected area", !1, "#000", "#FFF");
-					break;
-				case "r":
-					this.rotateSelected();
-					this.scene.message.show("Rotated selected area", !1, "#000", "#FFF");
-					break;
-				case "ArrowUp":
-				case "ArrowDown":
-				case "ArrowLeft":
-				case "ArrowRight":
-					this.moveSelected(e.key);
-					this.scene.message.show("Moved Selected Area", !1, "#000", "#FFF");
-					break;
-				case "`":
-				case "Escape":
-					this.reset()
-			}
-			this.timeout = setTimeout(() => this.scene.message.hide(), 1e3);
+		this.passive = !0
+	}
+	keyPress(e) {
+		if (!this.active) return;
+		e.preventDefault();
+		switch(e.key) {
+			case "=":
+			case "+":
+				this.travelDistance++;
+				this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
+				break;
+			case "-":
+				this.travelDistance--;
+				this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
+				break;
+			case "c":
+				this.copyAndPasteSelected(e.key),
+				this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
+				break;
+			case "Delete":
+				this.selectedElements.length > 0 && this.toolhandler.addActionToTimeline({
+					type: "remove",
+					objects: this.selectedElements.flatMap(t => t)
+				});
+				for (const t of this.selectedElements) {
+					t.removeAllReferences()
+				}
+				this.reset();
+				this.scene.message.show("Deleted selected area", !1, "#000", "#FFF");
+				break;
+			case "f":
+				if (confirm("Are you sure you would you like to fill the selected area?"))
+					this.fillSelected(),
+					this.scene.message.show("Filled selected area", !1, "#000", "#FFF");
+				break;
+			case "r":
+				this.rotateSelected();
+				this.scene.message.show("Rotated selected area", !1, "#000", "#FFF");
+				break;
+			case "ArrowUp":
+			case "ArrowDown":
+			case "ArrowLeft":
+			case "ArrowRight":
+				this.moveSelected(e.key);
+				this.scene.message.show("Moved Selected Area", !1, "#000", "#FFF");
+				break;
+			case "`":
+			case "Escape":
+				this.reset()
 		}
+		this.timeout = setTimeout(() => this.scene.message.hide(), 1e3);
 	}
 	buildPaths(t) {
 		for (let e = []; t.length > 0; ) {

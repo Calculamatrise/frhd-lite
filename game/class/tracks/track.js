@@ -237,7 +237,7 @@ export default class {
 	addLines(t, e) {
 		for (let i = t.length, s = 0; i > s; s++) {
 			let n = t[s].split(" ")
-			, r = n.length;
+			  , r = n.length;
 			if (r > 3)
 				for (let o = 0; r - 2 > o; o += 2) {
 					let a = parseInt(n[o], 32)
@@ -320,7 +320,7 @@ export default class {
 		this.setPowerupStates(t._powerupsConsumed.misc)
 	}
 	setPowerupStates(t) {
-		for (const e of t) {
+		for (let e of t) {
 			this.powerupsLookupTable[e].remove && this.powerupsLookupTable[e].id && (delete this.powerupsLookupTable[e], delete t[e]),
 			this.powerupsLookupTable[e].hit = !0,
 			this.powerupsLookupTable[e].sector.powerupCanvasDrawn = !1
@@ -366,31 +366,24 @@ export default class {
 		  , r = i.length
 		  , o = t.length;
 		if (n > 0) {
-			for (var a in e) {
-				var h = e[a];
-				h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
-			}
+			for (var a of e.filter(t => !t.recorded))
+				s += a.p1.x.toString(32) + " " + a.p1.y.toString(32) + a.getCode(this) + ",";
 			s = s.slice(0, -1);
-			for (var a in e)
-				e[a].recorded = !1
+			for (var a of e)
+				a.recorded = !1
 		}
 		if (s += "#",
 		r > 0) {
-			for (var l in i) {
-				var h = i[l];
-				h.recorded || (s += h.p1.x.toString(32) + " " + h.p1.y.toString(32) + h.getCode(this) + ",")
-			}
+			for (var l of i.filter(t => !t.recorded))
+				s += l.p1.x.toString(32) + " " + l.p1.y.toString(32) + l.getCode(this) + ",";
 			s = s.slice(0, -1);
-			for (var l in i)
-				i[l].recorded = !1
+			for (var l of i)
+				l.recorded = !1
 		}
 		if (s += "#",
 		o > 0) {
-			for (var c in t) {
-				var u = t[c]
-				  , p = u.getCode();
-				p && (s += p + ",")
-			}
+			for (var c of t.map(t => t.getCode()).filter(t => t))
+				s += c + ",";
 			s = s.slice(0, -1)
 		}
 		return s

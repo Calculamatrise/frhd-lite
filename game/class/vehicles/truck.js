@@ -9,7 +9,7 @@ let d = {
 }
 
 export default class extends Vehicle {
-	color = '#444';
+	color = "#444";
 	pedala = 0;
 	swapped = !1;
 	vehicleName = "TRUCK";

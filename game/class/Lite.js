@@ -1,14 +1,11 @@
 window.lite = new class {
 	#customStyleSheet = null;
 	featuredGhostsLoaded = false;
-	loaded = false;
 	snapshots = new class extends Array {
 		push(...args) {
-			if (this.length >= parseInt(lite.storage.get('snapshots'))) {
+			if (this.length >= parseInt(lite.storage.get('snapshots')))
 				this.splice(0, this.length - parseInt(lite.storage.get('snapshots')));
-			}
-
-			super.push(...args);
+			return super.push(...args);
 		}
 	}
 	storage = new Map();
@@ -19,38 +16,34 @@ window.lite = new class {
 			if (typeof returnValue == 'function') {
 				return (...args) => {
 					switch (property) {
-						case 'delete':
-							returnValue = returnValue.apply(target, args);
-							this.updateCustomStyleSheet(this.styleSheet.entries());
-							break;
-						case 'set':
-							let [key, value] = args;
-							returnValue.call(target, key, new Proxy(value, {
-								set: (...args) => {
-									let returnValue = Reflect.set(...args);
-									this.updateCustomStyleSheet(this.styleSheet.entries());
-									return returnValue;
-								}
-							}));
-
-							returnValue = receiver;
-							this.updateCustomStyleSheet(this.styleSheet.entries());
-							break;
-						default:
-							returnValue = returnValue.apply(target, args);
+					case 'delete':
+						returnValue = returnValue.apply(target, args);
+						this.updateCustomStyleSheet(this.styleSheet.entries());
+						break;
+					case 'set':
+						let [key, value] = args;
+						returnValue.call(target, key, new Proxy(value, {
+							set: (...args) => {
+								let returnValue = Reflect.set(...args);
+								this.updateCustomStyleSheet(this.styleSheet.entries());
+								return returnValue;
+							}
+						}));
+						returnValue = receiver;
+						this.updateCustomStyleSheet(this.styleSheet.entries());
+						break;
+					default:
+						returnValue = returnValue.apply(target, args);
 					}
-
 					return returnValue;
 				}
 			}
-
 			return returnValue;
 		}
 	});
 	constructor() {
-		let searchParams = new URLSearchParams(location.search)
+		let searchParams = new URLSearchParams(location.search);
 		if (searchParams.has('ajax')) return;
-		navigation.addEventListener('navigate', () => this.loaded = !1);
 		window.Application && Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
 		window.ModManager && (ModManager.hook(this, { name: 'lite' }),
 		ModManager.on('ready', this.load.bind(this)),
@@ -59,20 +52,19 @@ window.lite = new class {
 		addEventListener('message', ({ data }) => {
 			if (!data) return console.warn('data is missing');
 			switch (data.action) {
-				case 'setStorage':
-					this.storage = new Map(Object.entries(data.storage));
-					this.childLoad();
-					break;
-				case 'updateStorage':
-					let oldStorage = new Map(this.storage);
-					this.storage = new Map(Object.entries(data.storage));
-					let changes = new Map();
-					for (const [key, value] of this.storage.entries()) {
-						if (JSON.stringify(value) == JSON.stringify(oldStorage.get(key))) continue;
-						changes.set(key, value);
-					}
-
-					this.updateFromSettings(changes);
+			case 'setStorage':
+				this.storage = new Map(Object.entries(data.storage));
+				this.childLoad();
+				break;
+			case 'updateStorage':
+				let oldStorage = new Map(this.storage);
+				this.storage = new Map(Object.entries(data.storage));
+				let changes = new Map();
+				for (const [key, value] of this.storage.entries()) {
+					if (JSON.stringify(value) == JSON.stringify(oldStorage.get(key))) continue;
+					changes.set(key, value);
+				}
+				this.updateFromSettings(changes);
 			}
 		});
 	}
@@ -92,21 +84,18 @@ window.lite = new class {
 		let textContent = '';
 		for (let [key, properties] of filteredEntries) {
 			properties = Object.entries(properties);
-			for (let property of properties) {
+			for (let property of properties)
 				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
-			}
-
 			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}';
 		}
-
 		this.#customStyleSheet.textContent = textContent;
 	}
 
-	load() {
-        this.snapshots.splice(0, this.snapshots.length);
-		this.updateFromSettings(this.storage);
-        return true;
-    }
+	load(game) {
+		game.on('draw', this.draw.bind(this)),
+		this.snapshots.splice(0, this.snapshots.length),
+		this.updateFromSettings(this.storage)
+	}
 
 	childLoad() {
 		this.storage.get('accountManager') && this.initAccountManager();
@@ -127,73 +116,72 @@ window.lite = new class {
 
 	updateFromSettings(changes = this.storage) {
 		if (!this.scene) return;
-		let childLoad = false
-		  , redraw = false;
+		let childLoad = !1
+		  , redraw = !1;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
-				case 'accountManager':
-				case 'dailyAchievementsDisplay':
-				case 'featuredGhosts':
-					childLoad = true;
-					break;
-				case 'experiments':
-					for (const experiment in value) {
-						switch(experiment) {
-							case 'brightness':
-								this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
-									filter: 'brightness(' + value[experiment] / 100 + ')'
-								}));
-						}
+			case 'accountManager':
+			case 'dailyAchievementsDisplay':
+			case 'featuredGhosts':
+				childLoad = true;
+				break;
+			case 'experiments':
+				for (const experiment in value) {
+					switch(experiment) {
+						case 'brightness':
+							this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
+								filter: 'brightness(' + value[experiment] / 100 + ')'
+							}));
 					}
-					break;
-				case 'keymap':
-					this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
-					break;
-				case 'theme':
-					let backgroundColor = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
-					this.styleSheet.set('#game-container > canvas', Object.assign({}, this.styleSheet.get('#game-container > canvas'), { backgroundColor }));
-					this.styleSheet.set('.gameFocusOverlay', {
-						backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
-						color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
+				}
+				break;
+			case 'keymap':
+				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
+				break;
+			case 'theme':
+				let backgroundColor = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
+				this.styleSheet.set('#game-container > canvas', Object.assign({}, this.styleSheet.get('#game-container > canvas'), { backgroundColor }));
+				this.styleSheet.set('.gameFocusOverlay', {
+					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
+					color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
+				});
+
+				this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
+				this.scene.message.outline = backgroundColor;
+				let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
+				this.scene.score.best_time.color = gray;
+				this.scene.score.best_time_title.color = gray;
+				let color = '#'.padEnd(7, value == 'midnight' ? 'd' : /^dark(er)?$/i.test(value) ? 'f' : '0');
+				this.scene.score.goals.color = color;
+				this.scene.score.time.color = color;
+				this.scene.score.time_title.color = gray;
+				if (this.scene.hasOwnProperty('campaignScore')) {
+					this.scene.campaignScore.container.children.forEach(medal => {
+						medal.children.forEach(element => {
+							element.color = color;
+						});
 					});
+				}
 
-					this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
-					this.scene.message.outline = backgroundColor;
-					let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
-					this.scene.score.best_time.color = gray;
-					this.scene.score.best_time_title.color = gray;
-					let color = '#'.padEnd(7, value == 'midnight' ? 'd' : /^dark(er)?$/i.test(value) ? 'f' : '0');
-					this.scene.score.goals.color = color;
-					this.scene.score.time.color = color;
-					this.scene.score.time_title.color = gray;
-					if (this.scene.hasOwnProperty('campaignScore')) {
-						this.scene.campaignScore.container.children.forEach(medal => {
-							medal.children.forEach(element => {
-								element.color = color;
-							});
+				if (this.scene.hasOwnProperty('raceTimes')) {
+					this.scene.raceTimes.container.color = color;
+					this.scene.raceTimes.raceList.forEach(race => {
+						race.children.forEach(element => {
+							element.color = color;
 						});
-					}
+					});
+				}
 
-					if (this.scene.hasOwnProperty('raceTimes')) {
-						this.scene.raceTimes.container.color = color;
-						this.scene.raceTimes.raceList.forEach(race => {
-							race.children.forEach(element => {
-								element.color = color;
-							});
-						});
-					}
-
-					GameSettings.physicsLineColor = '#'.padEnd(7, value == 'midnight' ? 'c' : value == 'darker' ? 'f' : value == 'dark' ? 'fd' : '0');
-					GameSettings.sceneryLineColor = '#'.padEnd(7, value == 'midnight' ? '5' : value == 'darker' ? '121319' : value == 'dark' ? '6' : 'a');
-					this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, value == 'midnight' ? '20282e' : value == 'dark' ? '25' : 'e');
-					this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, value == 'midnight' ? '161b20' : value == 'dark' ? '3e' : 'c');
-					this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
-					for (const player of this.scene.playerManager._players) {
-						player._baseVehicle.color = GameSettings.physicsLineColor,
-						player._tempVehicle && (player._tempVehicle.color = GameSettings.physicsLineColor)
-					}
-				case 'isometricGrid':
-					redraw = true;
+				GameSettings.physicsLineColor = '#'.padEnd(7, value == 'midnight' ? 'c' : value == 'darker' ? 'f' : value == 'dark' ? 'fd' : '0');
+				GameSettings.sceneryLineColor = '#'.padEnd(7, value == 'midnight' ? '5' : value == 'darker' ? '121319' : value == 'dark' ? '6' : 'a');
+				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, value == 'midnight' ? '20282e' : value == 'dark' ? '25' : 'e');
+				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, value == 'midnight' ? '161b20' : value == 'dark' ? '3e' : 'c');
+				this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
+				for (const player of this.scene.playerManager._players)
+					player._baseVehicle.color = GameSettings.physicsLineColor,
+					player._tempVehicle && (player._tempVehicle.color = GameSettings.physicsLineColor)
+			case 'isometricGrid':
+				redraw = true;
 			}
 		}
 
@@ -204,13 +192,10 @@ window.lite = new class {
 
 	refresh() {
 		let keymap = this.storage.get('keymap');
-		for (let key in keymap) {
+		for (let key in keymap)
 			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
-		}
-
-		for (const player of this.scene.playerManager._players.filter(player => player._user.u_id == this.scene.playerManager.firstPlayer._user.u_id)) {
+		for (const player of this.scene.playerManager._players.filter(player => player._user.u_id == this.scene.playerManager.firstPlayer._user.u_id))
 			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || GameSettings.physicsLineColor
-		}
 	}
 
 	draw(ctx) {
@@ -1176,32 +1161,31 @@ window.lite = new class {
 									],
 									href: await (description => {
 										switch (description) {
-											case 'Buy 1 item from the shop':
-												return 'store/gear';
-											case 'Complete 1 friend race':
-											case 'Win 5 friend(s) race':
-												return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(async ({ friends }) => {
-													if (friends.friend_cnt > 0) {
-														let track;
-														for (let friend of friends.friends_data) {
-															if (track = await fetch('/u/' + friend.u_name).then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
-																return tracks[Math.floor(Math.random() * tracks.length)];
-															})) {
-																return track;
-															}
+										case 'Buy 1 item from the shop':
+											return 'store/gear';
+										case 'Complete 1 friend race':
+										case 'Win 5 friend(s) race':
+											return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(async ({ friends }) => {
+												if (friends.friend_cnt > 0) {
+													let track;
+													for (let friend of friends.friends_data) {
+														if (track = await fetch('/u/' + friend.u_name).then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
+															return tracks[Math.floor(Math.random() * tracks.length)];
+														})) {
+															return track;
 														}
 													}
-
-													return 'random/track';
-												});
-											case 'Improve 5 best times':
-											case 'Send 5 friend race challenges':
-												return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
-													let track = tracks[Math.floor(Math.random() * tracks.length)];
-													return track ? track.slug : 'random/track';
-												});
-											default:
+												}
 												return 'random/track';
+											});
+										case 'Improve 5 best times':
+										case 'Send 5 friend race challenges':
+											return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
+												let track = tracks[Math.floor(Math.random() * tracks.length)];
+												return track ? track.slug : 'random/track';
+											});
+										default:
+											return 'random/track';
 										}
 									})(achievement.desc),
 									style: {
@@ -1261,14 +1245,11 @@ window.lite = new class {
 					if (/^children$/i.test(attribute)) {
 						element.append(...options[attribute]);
 					} else if (/^on/i.test(attribute)) {
-						for (const listener of options[attribute]) {
+						for (const listener of options[attribute])
 							element.addEventListener(attribute.slice(2), listener);
-						}
 					}
-				} else if (/^style$/i.test(attribute)) {
+				} else if (/^style$/i.test(attribute))
 					Object.assign(element[attribute.toLowerCase()], options[attribute]);
-				}
-
 				delete options[attribute];
 			}
 		}
@@ -1301,10 +1282,8 @@ window.lite = new class {
 			let zip = new JSZip();
 			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
 			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
-			for (let track of tracks) {
+			for (let track of tracks)
 				zip.file(track.title + '-' + track.id + '.txt', track.code);
-			}
-
 			zip.generateAsync({ type: 'uint8array' })
 			.then(content => {
 				let blob = new Blob([content], { type: 'application/zip' });
@@ -1319,17 +1298,14 @@ window.lite = new class {
 
 	static waitForElm(selector) {
 		return new Promise(resolve => {
-			if (document.querySelector(selector)) {
+			if (document.querySelector(selector))
 				return resolve(document.querySelector(selector));
-			}
-	
 			const observer = new MutationObserver(mutations => {
 				if (document.querySelector(selector)) {
 					resolve(document.querySelector(selector));
 					observer.disconnect();
 				}
 			});
-	
 			observer.observe(document.body, {
 				childList: true,
 				subtree: true

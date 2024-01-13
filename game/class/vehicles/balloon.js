@@ -9,7 +9,6 @@ let h = {
 }
 
 export default class extends Vehicle {
-	color = "#000";
 	basket = null;
 	head = null;
 	outline = "#999";
@@ -134,7 +133,7 @@ export default class extends Vehicle {
 		t.lineTo(i.x + .4 * r - .21 * l, i.y + .4 * o - .21 * r),
 		t.closePath(),
 		t.stroke();
-		const head = new a(this.head.pos.x, this.head.pos.y, this);
+		let head = new a(this.head.pos.x, this.head.pos.y, this);
 		head.radius = 30,
 		head.draw(t),
 		this.gamepad.isButtonDown("up") && (t.beginPath(),
@@ -152,7 +151,7 @@ export default class extends Vehicle {
 		t.closePath(),
 		t.stroke()),
 		t.beginPath(),
-		t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : this.color,
+		t.fillStyle = this.color,
 		t.moveTo(i.x + .1 * l, i.y + .1 * r),
 		t.lineTo(i.x - .1 * l, i.y - .1 * r),
 		t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * r),

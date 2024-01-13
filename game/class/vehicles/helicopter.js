@@ -81,10 +81,9 @@ export default class extends Vehicle {
 		e[2].leff = e[4].lrest = 35,
 		e[4].leff = e[4].lrest = 35,
 		e[6].leff = e[4].lrest = 35;
-		for (let i in e)
-			e[i].dampConstant = .4;
-		for (let i in e)
-			e[i].springConstant = .5;
+		for (let i of e)
+			i.dampConstant = .4,
+			i.springConstant = .5;
 		this.springs = e
 	}
 	drawCockpit() {

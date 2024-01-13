@@ -2,10 +2,9 @@ import Mass from "./mass.js";
 import n from "../math/cartesian.js";
 
 export default class extends Mass {
+	wind = !1;
 	constructor(t, e, i) {
 		super(new n(t, e), i);
-		this.radius = 10;
-		this.collide = !0;
 		this.wind = !0;
 	}
 	drive(t, e) {

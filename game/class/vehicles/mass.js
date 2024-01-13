@@ -7,7 +7,7 @@ export default class {
 	parent = null;
 	radius = 0;
 	friction = 0;
-	collide = !1;
+	collide = !0;
 	contact = !1;
 	scene = null;
 	constructor(t, e) {
@@ -15,10 +15,7 @@ export default class {
 		this.old = new s,
 		this.vel = new s(0,0),
 		this.radius = 10,
-		this.friction = 0,
 		this.parent = e,
-		this.collide = !0,
-		this.contact = !1,
 		this.scene = e.scene,
 		this.pos.equ(t),
 		this.old.equ(t)

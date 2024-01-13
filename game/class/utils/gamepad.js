@@ -152,27 +152,25 @@ export default class {
 		  , e = this.records
 		  , s = this.tickDownButtons
 		  , n = this.previousTickDownButtons;
-		for (let o of this.keysToRecord) {
-			if ("undefined" != typeof s[o]) {
-				let a = s[o]
-				  , h = "undefined" != typeof n[o] && n[o];
-				if (a !== h) {
-					let l = o + "_up"
-					  , c = o + "_down"
-					  , u = l;
-					a && (u = c);
-					if (!a && e[c] && -1 !== e[c].indexOf(t)) {
-						if (/^(backspace|enter)$/.test(o)) {
-							e[u] || (e[u] = []),
-							e[u].push(t + 1)
-						} else {
-							e[c].splice(e[c].indexOf(t), 1),
-							e[c].length || delete e[c];
-						}
-					} else
+		for (let o of this.keysToRecord.filter(t => 'undefined' != typeof s[t])) {
+			let a = s[o]
+			  , h = "undefined" != typeof n[o] && n[o];
+			if (a !== h) {
+				let l = o + "_up"
+				  , c = o + "_down"
+				  , u = l;
+				a && (u = c);
+				if (!a && e[c] && -1 !== e[c].indexOf(t)) {
+					if (/^(backspace|enter)$/.test(o)) {
 						e[u] || (e[u] = []),
-						e[u].push(t)
-				}
+						e[u].push(t + 1)
+					} else {
+						e[c].splice(e[c].indexOf(t), 1),
+						e[c].length || delete e[c];
+					}
+				} else
+					e[u] || (e[u] = []),
+					e[u].push(t)
 			}
 		}
 	}

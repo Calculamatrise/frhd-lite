@@ -71,9 +71,9 @@ export default class {
 		for (let n = 1; 4 >= n; n++)
 			i[n].lrest = 13,
 			i[n].leff = 13;
-		for (let n in i)
-			i[n].leff > 20 && (i[n].lrest = 20,
-			i[n].leff = 20);
+		for (let n in i.filter(t => t.leff > 20))
+			i[n].lrest = 20,
+			i[n].leff = 20;
 		let o = [this.head, this.lElbow, this.rElbow, this.lHand, this.rHand]
 		  , a = [this.waist, this.lKnee, this.rKnee, this.lFoot, this.rFoot];
 		for (let n in o)

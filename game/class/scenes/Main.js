@@ -275,27 +275,23 @@ export default class extends Scene {
 		let t = this.playerManager;
 		t.clear();
 		let e = this.settings.keysToRecord;
-		for (let { user: r, race: o } of this.races) {
-			let a = o.code;
-			"string" == typeof a && (a = JSON.parse(a));
-			let h = t.createPlayer(this, r);
-			h.setBaseVehicle(o.vehicle),
+		for (let { user, race: i } of this.races) {
+			let s = i.code;
+			"string" == typeof s && (s = JSON.parse(s));
+			let h = t.createPlayer(this, user);
+			h.setBaseVehicle(i.vehicle),
 			h.setAsGhost();
 			let l = h.getGamepad();
-			l.loadPlayback(a, e),
+			l.loadPlayback(s, e),
 			t.addPlayer(h)
 		}
 	}
 	formatRaces() {
-		for (let { race: i } of this.races) {
-			let s = i.code;
-			if ("string" == typeof s) {
-				s = JSON.parse(s);
-				for (let n in s) {
-					s[n] instanceof Array && (s[n] = s[n].reduce((o, r) => (o[r] = ~~o[r] + 1, o), {}))
-				}
-				i.code = s
-			}
+		for (let { race: t } of this.races.filter(t => 'string' == typeof t.race.code)) {
+			let e = JSON.parse(t.code);
+			for (let i in e)
+				e[i] instanceof Array && (e[i] = e[i].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {}));
+			t.code = e
 		}
 	}
 	removeDuplicateRaces() {
@@ -311,9 +307,7 @@ export default class extends Scene {
 	mergeRaces(t) {
 		let e = this.races;
 		t && t.forEach(t => {
-			let i = e.find(e => {
-				return e.user.u_id === t.user.u_id
-			});
+			let i = e.find(e => e.user.u_id === t.user.u_id);
 			i ? Object.assign(i, t) : e.push(t)
 		})
 	}
@@ -331,13 +325,8 @@ export default class extends Scene {
 	verifyComplete() {
 		let t = this.playerManager.firstPlayer
 		  , e = t._powerupsConsumed.targets
-		  , i = this.track.targets
-		  , s = !0;
-		for (let n of i) {
-			let o = n.id;
-			-1 === e.indexOf(o) && (s = !1)
-		}
-		return s
+		  , i = this.track.targets;
+		return i.findIndex(n => -1 === e.indexOf(n.id)) === -1
 	}
 	async trackComplete() {
 		if (this.verifyComplete()) {
