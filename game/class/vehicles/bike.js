@@ -139,11 +139,11 @@ export default class extends Vehicle {
 				if (!this.scene.state.playing) {
 					let t = window.lite && parseInt(lite.storage.get("snapshots"));
 					if (t > 0) {
-						for (let i in this.player._checkpoints.filter((e, i) => i > this.player._checkpoints.length - (t + 1) && e._baseVehicle))
-							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._baseVehicle)), ctx, t / 3e2 * parseInt(i) % 1);
+						for (let e in this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
 
-						for (let i in this.player._cache.filter((e, i) => i > this.player._checkpoints.length - (t + 1) && e._baseVehicle))
-							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._baseVehicle)), ctx, t / 3e2 * ++e % 1);
+						for (let e in this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._cache[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
 					}
 				}
 

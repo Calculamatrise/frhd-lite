@@ -145,32 +145,25 @@ export default class extends Vehicle {
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite.storage.get("snapshots");
-					if (t > 0) {
-						for (let i in this.player._checkpoints) {
-							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
-							t.globalAlpha = t / 3e2 * parseInt(i) % 1,
-							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {tire: this.tire}), t),
-							t.globalAlpha = 1
+					let e = window.lite.storage.get("snapshots");
+					if (e > 0) {
+						for (let i in this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = e / 3e2 * i % 1,
+							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {tire: this.tire}), t)
 						}
 
-						for (let i in this.player._cache) {
-							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
-							t.globalAlpha = t / 3e2 * parseInt(i) % 1,
-							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {tire: this.tire}), t),
-							t.globalAlpha = 1
+						for (let i in this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = e / 3e2 * i % 1,
+							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {tire: this.tire}), t)
 						}
 					}
 				}
 
-				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let i in lite.snapshots) {
-						if (!lite.snapshots[i] || !lite.snapshots[i]._tempVehicle) continue;
-						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1,
-						this.drawTruck.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._tempVehicle), {tire: this.tire}), t),
-						t.globalAlpha = 1
+				if (window.lite && lite.storage.get("playerTrail"))
+					for (let e in lite.snapshots.filter(t => t._tempVehicle)) {
+						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * e % 1,
+						this.drawTruck.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._tempVehicle), {tire: this.tire}), t)
 					}
-				}
 			}
 
 			if (t.imageSmoothingEnabled = !0,

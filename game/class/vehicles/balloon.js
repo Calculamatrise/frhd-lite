@@ -9,9 +9,11 @@ let h = {
 }
 
 export default class extends Vehicle {
-	vehicleName = "BALLOON";
-	head = null;
+	color = "#000";
 	basket = null;
+	head = null;
+	outline = "#999";
+	vehicleName = "BALLOON";
 	constructor(t, e) {
 		super(t);
 		this.createMasses(e);
@@ -81,32 +83,25 @@ export default class extends Vehicle {
 		else {
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite.storage.get("snapshots");
-					if (t > 0) {
-						for (let i in this.player._checkpoints) {
-							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
-							t.globalAlpha = t / 3e2 * parseInt(i) % 1,
-							this.drawBalloon.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle)), t),
-							t.globalAlpha = 1
+					let e = window.lite && parseInt(lite.storage.get("snapshots"));
+					if (e > 0) {
+						for (let i in this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = e / 3e2 * i % 1,
+							this.drawBalloon.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle)), t)
 						}
 
-						for (let i in this.player._cache) {
-							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
-							t.globalAlpha = t / 3e2 * parseInt(i) % 1,
-							this.drawBalloon.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle)), t),
-							t.globalAlpha = 1
+						for (let i in this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = t / 3e2 * i % 1,
+							this.drawBalloon.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle)), t)
 						}
 					}
 				}
 
-				if (window.lite.storage.get("playerTrail")) {
-					for (let i in window.lite.snapshots) {
-						if (!window.lite.snapshots[i] || !window.lite.snapshots[i]._tempVehicle) continue;
-						t.globalAlpha = window.lite.snapshots.length / (window.lite.snapshots.length * 200) * parseInt(i) % 1,
-						this.drawBalloon.call(Object.assign({}, this, JSON.parse(window.lite.snapshots[i]._tempVehicle)), t),
-						t.globalAlpha = 1
+				if (window.lite && lite.storage.get("playerTrail"))
+					for (let e in lite.snapshots.filter(t => t._tempVehicle)) {
+						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * e % 1,
+						this.drawBalloon.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._tempVehicle)), t)
 					}
-				}
 			}
 
 			if (this.settings.developerMode)
@@ -126,7 +121,7 @@ export default class extends Vehicle {
 			, o = m.y - i.y
 			, l = -o;
 		t.save(),
-		t.strokeStyle = window.lite.storage.get("theme") === "dark" ? "#666" : "#999",
+		t.strokeStyle = window.lite.storage.get("theme") === "dark" ? "#666" : this.outline,
 		t.lineWidth = 1,
 		t.beginPath(),
 		t.moveTo(i.x + .1 * l, i.y + .1 * r),
@@ -157,7 +152,7 @@ export default class extends Vehicle {
 		t.closePath(),
 		t.stroke()),
 		t.beginPath(),
-		t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : "#000",
+		t.fillStyle = window.lite.storage.get("theme") === "midnight" ? "#ccc" : window.lite.storage.get("theme") === "dark" ? "#fbfbfb" : this.color,
 		t.moveTo(i.x + .1 * l, i.y + .1 * r),
 		t.lineTo(i.x - .1 * l, i.y - .1 * r),
 		t.lineTo(i.x - .22 * r - .1 * l, i.y - .22 * o - .1 * r),

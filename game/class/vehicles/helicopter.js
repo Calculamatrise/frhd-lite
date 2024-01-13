@@ -233,27 +233,24 @@ export default class extends Vehicle {
 			ctx.mozImageSmoothingEnabled = !0;
 			if (this.scene.ticks > 0 && !this.player.isGhost()) {
 				if (!this.scene.state.playing) {
-					let t = window.lite && lite.storage.get("snapshots");
+					let t = window.lite && parseInt(lite.storage.get("snapshots"));
 					if (t > 0) {
-						for (let i in this.player._checkpoints) {
-							if (i <= this.player._checkpoints.length - (parseInt(t) + 1) || !this.player._checkpoints[i] || !this.player._checkpoints[i]._tempVehicle) continue;
-							let e = document.createElement('canvas');
-							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * parseInt(i) % 1);
+						for (let e in this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
+							let i = document.createElement('canvas');
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[e]._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * e % 1);
 						}
 
-						for (let i in this.player._cache) {
-							if (i <= this.player._cache.length - (parseInt(t) + 1) || !this.player._cache[i] || !this.player._cache[i]._tempVehicle) continue;
-							let e = document.createElement('canvas');
-							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * ++e % 1);
+						for (let e in this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
+							let i = document.createElement('canvas');
+							this.drawHelicopter.call(Object.assign({}, this, JSON.parse(this.player._cache[e]._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * e % 1);
 						}
 					}
 				}
 
 				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let i in lite.snapshots) {
-						if (!lite.snapshots[i] || !lite.snapshots[i]._tempVehicle) continue;
-						let e = document.createElement('canvas');
-						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(lite.snapshots[i]._tempVehicle), {canvasCockpit: e, ctx: e.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(i) % 1);
+					for (let e in lite.snapshots.filter(t => t._tempVehicle)) {
+						let i = document.createElement('canvas');
+						this.drawHelicopter.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(e) % 1);
 					}
 				}
 			}
