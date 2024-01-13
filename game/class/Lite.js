@@ -120,7 +120,8 @@ window.lite = new class {
 		this.storage.get('uploadGhosts') && this.initUploadGhosts());
 		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
 		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && this.initUserTrackAnalytics(),
-		Application.settings.user.moderator && this.initUserTrackModeration());
+		Application.settings.user.moderator && (this.initUserModeration(),
+		this.initUserTrackModeration()));
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
 	}
 
@@ -876,6 +877,80 @@ window.lite = new class {
 			}
 
 			challenge.after(this.ghostUploadButton);
+		})
+	}
+
+	initUserModeration() {
+		let profileUserData = document.querySelector('#profile-user-data');
+		if (!profileUserData) return;
+		let onclick = event => {
+			self = event.target;
+			let input = self.previousElementSibling;
+			if (self.innerText.toLowerCase() == 'save') {
+				self.dispatchEvent(new CustomEvent('save', {
+					detail: input.value
+				}));
+				input.setAttribute('readonly', '');
+				self.classList.add('button-type-1');
+				self.classList.remove('button-type-2');
+				self.innerText = 'Edit';
+			} else {
+				input.removeAttribute('readonly');
+				self.classList.add('button-type-2');
+				self.classList.remove('button-type-1');
+				self.innerText = 'Save';
+			}
+		}
+
+		let data = profileUserData.dataset;
+		data.u_name = document.querySelector('.profile-username').innerText;
+		let pm = document.querySelector('.pm > .pm-user-properties');
+		let email = pm.appendChild(pm.querySelector('.pm-user-property.pm-user-id').cloneNode(true));
+		email.classList.remove('pm-user-id');
+		let property = email.querySelector('.pm-property');
+		property.innerText = "Email: ";
+		let input = document.createElement('input');
+		input.setAttribute('placeholder', "New email");
+		input.setAttribute('readonly', '');
+		input.setAttribute('type', 'text'); // email
+		property.nextElementSibling.replaceWith(input);
+		let edit = email.querySelector('#pm-ban-user');
+		edit.classList.remove('ban-user-button');
+		edit.innerText = "Edit";
+		edit.removeAttribute('id');
+		edit.addEventListener('click', onclick);
+		edit.addEventListener('save', event => {
+			return Application.Helpers.AjaxHelper.post("moderator/change_email", {
+				u_id: data.u_id,
+				email: event.detail
+			}).then(r => (alert(r.msg), r));
+		});
+		email.querySelector('#pm-unban-user').remove();
+		let username = pm.appendChild(email.cloneNode(true));
+		property = username.querySelector('.pm-property');
+		property.innerText = "Username: ";
+		input = username.querySelector('input');
+		input.setAttribute('placeholder', "New username");
+		input.setAttribute('type', 'text');
+		input.setAttribute('value', data.u_name);
+		edit = username.querySelector('a');
+		edit.addEventListener('click', onclick);
+		edit.addEventListener('save', event => {
+			return Application.Helpers.AjaxHelper.post("moderator/change_username", {
+				u_id: data.u_id,
+				username: event.detail
+			}).then(r => (alert(r.msg), r));
+		});
+		let password = pm.appendChild(email.cloneNode());
+		property = password.appendChild(property.cloneNode());
+		property.innerText = "Password: ";
+		edit = password.appendChild(document.createElement('button'));
+		edit.classList.add('new-button', 'ban-user-button');
+		edit.innerText = 'Reset Password';
+		edit.addEventListener('click', () => {
+			return Application.Helpers.AjaxHelper.post("auth/forgot_password", {
+				email: data.u_name
+			}).then(r => (alert(r.msg), r));
 		})
 	}
 
