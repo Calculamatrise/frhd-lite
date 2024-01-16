@@ -20,7 +20,7 @@ const contentScripts = [{
 		"*://*.com/*api/*"
 	],
 	id: "game",
-	js: ["game/main.js"],
+	js: ["game/main.js", "shared/Zip.js"],
 	matches: [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*"

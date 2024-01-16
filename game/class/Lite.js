@@ -1271,28 +1271,18 @@ window.lite = new class {
 		});
 	}
 
-	static zipHelperScript = null;
 	static async downloadAllTracks() {
-		if (!this.zipHelperScript) {
-			this.zipHelperScript = document.body.appendChild(document.createElement('script'));
-			this.zipHelperScript.textContent = await fetch('https://raw.githubusercontent.com/Stuk/jszip/main/dist/jszip.min.js').then(r => r.text());
-		}
-
 		fetch('/u/' + Application.settings.user.u_name + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
-			let zip = new JSZip();
+			let zip = new Zip();
 			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
 			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
 			for (let track of tracks)
-				zip.file(track.title + '-' + track.id + '.txt', track.code);
-			zip.generateAsync({ type: 'uint8array' })
-			.then(content => {
-				let blob = new Blob([content], { type: 'application/zip' });
-				let a = document.createElement('a');
-				a.href = URL.createObjectURL(blob);
-				a.download = 'created-tracks';
-				a.click();
-				URL.revokeObjectURL(a.href);
-			});
+				zip.newFile(track.title + '-' + track.id + '.txt', track.code);
+			let a = document.createElement('a');
+			a.setAttribute('href', URL.createObjectURL(zip.blob()));
+			a.setAttribute('download', 'created-tracks');
+			a.click();
+			URL.revokeObjectURL(a.getAttribute('href'));
 		});
 	}
 
