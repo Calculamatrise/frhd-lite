@@ -44,6 +44,10 @@ export default class {
 	allowedVehicles = null;
 	dirty = !1;
 	constructor(t) {
+		Object.defineProperties(this, {
+			scene: { enumerable: false },
+			game: { enumerable: false }
+		});
 		this.scene = t;
 		this.game = t.game;
 		this.settings = t.game.settings;
@@ -361,27 +365,24 @@ export default class {
 		var t = this.powerups
 		  , e = this.physicsLines
 		  , i = this.sceneryLines
-		  , s = ""
-		  , n = e.length
-		  , r = i.length
-		  , o = t.length;
-		if (n > 0) {
-			for (var a of e.filter(t => !t.recorded))
-				s += a.p1.x.toString(32) + " " + a.p1.y.toString(32) + a.getCode(this) + ",";
+		  , s = "";
+		if (e.length > 0) {
+			for (var a of e)
+				a.recorded || (s += a.p1.x.toString(32) + " " + a.p1.y.toString(32) + a.getCode(this) + ",");
 			s = s.slice(0, -1);
 			for (var a of e)
 				a.recorded = !1
 		}
 		if (s += "#",
-		r > 0) {
-			for (var l of i.filter(t => !t.recorded))
-				s += l.p1.x.toString(32) + " " + l.p1.y.toString(32) + l.getCode(this) + ",";
+		i.length > 0) {
+			for (var l of i)
+				l.recorded || (s += l.p1.x.toString(32) + " " + l.p1.y.toString(32) + l.getCode(this) + ",");
 			s = s.slice(0, -1);
 			for (var l of i)
 				l.recorded = !1
 		}
 		if (s += "#",
-		o > 0) {
+		t.length > 0) {
 			for (var c of t.map(t => t.getCode()).filter(t => t))
 				s += c + ",";
 			s = s.slice(0, -1)

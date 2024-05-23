@@ -8,10 +8,15 @@ export default class {
 	len = 0;
 	collided = !1;
 	highlight = !1;
-	remove = !1;
 	recorded = !1;
+	remove = !1;
 	type = 'scenery';
 	constructor(t, e, i, n) {
+		Object.defineProperties(this, {
+			recorded: { enumerable: false },
+			remove: { enumerable: false },
+			sectors: { enumerable: false }
+		});
 		this.p1 = new Vector(t, e);
 		this.p2 = new Vector(i, n);
 		this.pp = this.p2.sub(this.p1);

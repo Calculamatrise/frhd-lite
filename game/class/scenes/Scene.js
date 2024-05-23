@@ -29,6 +29,9 @@ export default class {
 	message = null;
 	analytics = null;
 	constructor(t) {
+		Object.defineProperties(this, {
+			game: { enumerable: false }
+		});
 		this.game = t,
 		this.assets = t.assets,
 		this.settings = t.settings,

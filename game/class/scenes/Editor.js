@@ -107,36 +107,36 @@ export default class extends Scene {
 		let e = this.camera;
 		this.state.playing = !0;
 		switch (t) {
-			case "up":
-			case "down":
-			case "left":
-			case "right":
-				e.focusOnMainPlayer();
-				break;
-			case "change_camera":
-				e.focusOnNextPlayer();
-				break;
-			case "pause":
-				this.state.paused = !this.state.paused;
-				break;
-			case "settings":
-				this.command("dialog", "settings");
-				break;
-			case "change_vehicle":
-				this.toggleVehicle(),
-				this.stateChanged();
-				break;
-			case "zoom_increase":
-				e.increaseZoom(),
-				this.stateChanged();
-				break;
-			case "zoom_decrease":
-				e.decreaseZoom(),
-				this.stateChanged();
-				break;
-			case "fullscreen":
-				this.toggleFullscreen(),
-				this.stateChanged()
+		case "up":
+		case "down":
+		case "left":
+		case "right":
+			e.focusOnMainPlayer();
+			break;
+		case "change_camera":
+			e.focusOnNextPlayer();
+			break;
+		case "pause":
+			this.state.paused = !this.state.paused;
+			break;
+		case "settings":
+			this.command("dialog", "settings");
+			break;
+		case "change_vehicle":
+			this.toggleVehicle(),
+			this.stateChanged();
+			break;
+		case "zoom_increase":
+			e.increaseZoom(),
+			this.stateChanged();
+			break;
+		case "zoom_decrease":
+			e.decreaseZoom(),
+			this.stateChanged();
+			break;
+		case "fullscreen":
+			this.toggleFullscreen(),
+			this.stateChanged()
 		}
 	}
 	resize() {
@@ -173,9 +173,9 @@ export default class extends Scene {
 	}
 	trackAction(t, e) {
 		var i = this.toolHandler.analytics.actions
-			, s = this.mouse.analytics.clicks
-			, n = i + s
-			, r = {
+		  , s = this.mouse.analytics.clicks
+		  , n = i + s
+		  , r = {
 			category: "create",
 			action: t,
 			label: e,

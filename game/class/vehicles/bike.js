@@ -47,14 +47,14 @@ export default class extends Vehicle {
 		  , e = Math.min(this.speed / 50, 1)
 		  , i = Math.floor(3 * Math.random()) + 1;
 		switch (i) {
-			case 1:
-				t.play(d.BIKE_FALL_1, e);
-				break;
-			case 2:
-				t.play(d.BIKE_FALL_2, e);
-				break;
-			case 3:
-				t.play(d.BIKE_FALL_3, e)
+		case 1:
+			t.play(d.BIKE_FALL_1, e);
+			break;
+		case 2:
+			t.play(d.BIKE_FALL_2, e);
+			break;
+		case 3:
+			t.play(d.BIKE_FALL_3, e)
 		}
 	}
 	updateCameraFocalPoint() {
@@ -132,36 +132,35 @@ export default class extends Vehicle {
 		this.frontSpring.leff = t
 	}
 	draw(ctx) {
-		if (this.explosion)
+		if (this.explosion) {
 			this.explosion.draw(ctx, 1);
-		else {
-			if (this.scene.ticks > 0 && !this.player.isGhost()) {
-				if (!this.scene.state.playing) {
-					let t = window.lite && parseInt(lite.storage.get("snapshots"));
-					if (t > 0) {
-						for (let e in this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
-							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
+			return;
+		} else if (this.scene.ticks > 0 && !this.player.isGhost()) {
+			if (!this.scene.state.playing) {
+				let t = window.lite && parseInt(lite.storage.get("snapshots"));
+				if (t > 0) {
+					for (let e in this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
 
-						for (let e in this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
-							this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._cache[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
-					}
-				}
-
-				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let e in lite.snapshots.filter(t => t._baseVehicle))
-						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._baseVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * e % 1);
+					for (let e in this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+						this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(this.player._cache[e]._baseVehicle)), ctx, t / 3e2 * e % 1);
 				}
 			}
 
-			if (ctx.imageSmoothingEnabled = !0,
-			ctx.mozImageSmoothingEnabled = !0,
-			ctx.webkitImageSmoothingEnabled = !0,
-			this.settings.developerMode)
-				for (var e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
-					e[s].draw(ctx);
-
-			this.drawBikeFrame(ctx)
+			if (window.lite && lite.storage.get("playerTrail")) {
+				for (let e in lite.snapshots.filter(t => t._baseVehicle))
+					this.drawBikeFrame.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._baseVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * e % 1);
+			}
 		}
+
+		if (ctx.imageSmoothingEnabled = !0,
+		ctx.mozImageSmoothingEnabled = !0,
+		ctx.webkitImageSmoothingEnabled = !0,
+		this.settings.developerMode)
+			for (var e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
+				e[s].draw(ctx);
+
+		this.drawBikeFrame(ctx)
 	}
 	updateDrawHeadAngle() {
 		let t = this.frontWheel.pos

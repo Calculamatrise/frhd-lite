@@ -42,14 +42,14 @@ export default class {
 	}
 	draw(t) {
 		if (!this.properties.visible) return;
-		t.save(),
-		this.properties.alpha && (t.globalAlpha = this.properties.alpha);
+		t.save();
+		typeof this.properties.alpha == 'number' && (t.globalAlpha = this.properties.alpha);
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
 			let ctrlData = this.controlsSpriteSheetData[(component.image || i) + "_btn"]
 			  , width = ctrlData[2] * this.properties.scaleX
 			  , height = ctrlData[3] * this.properties.scaleY;
-			t.globalAlpha *= component.alpha,
+			typeof component.alpha == 'number' && (t.globalAlpha = (typeof this.properties.alpha != 'number' || this.properties.alpha) * (component.alpha / (2 - !component.disabled))),
 			t.drawImage(this.controlsSpriteSheetData.images[0], ...ctrlData, this.game.width - component.right * this.properties.scaleX - width / 2, component.top * this.properties.scaleY - height / 2, width, height);
 		}
 		t.restore()

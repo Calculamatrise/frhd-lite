@@ -3,9 +3,8 @@ import n from "./mass.js";
 import r from "./spring.js";
 
 export default class {
-	parent = null;
 	constructor(t, e) {
-		this.parent = e;
+		Object.defineProperty(this, 'parent', { value: e });
 		let i, o, a, h, l, c, u, p, d, f, v = [], g = [], m = new Vector(0,0);
 		i = new n(m, e),
 		o = new n(m, e),
@@ -99,7 +98,7 @@ export default class {
 		  , c = this.parent.scene
 		  , u = c.camera
 		  , p = u.zoom
-		  , f = this.parent.alpha || 1
+		  , f = this.parent.alpha ?? 1
 		  , q = c.settings.physicsLineColor
 		  , j = q.padEnd(7, q.slice(1, 4));
 		d.strokeStyle = j + Math.min(255, Math.round(255 * .5 * f)).toString(16),

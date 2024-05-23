@@ -8,6 +8,10 @@ export default class {
 		this.scene = t;
 		this.game = t.game;
 		this.settings = t.settings;
+		Object.defineProperties(this, {
+			scene: { enumerable: false },
+			game: { enumerable: false }
+		});
 	}
 	fixedUpdate() {
 		if (!this.scene.camera.focusIndex)

@@ -12,10 +12,18 @@ export default class extends EventEmitter {
 	mouseMoveListener = null;
 	mouseUpListener = null;
 	mouseDownListener = null;
+	mouseWheelListener = null;
 	throttledMouseWheel = null;
 	analytics = null;
 	constructor(t) {
 		super();
+		Object.defineProperties(this, {
+			scene: { enumerable: false },
+			mouseMoveListener: { enumerable: false },
+			mouseUpListener: { enumerable: false },
+			mouseDownListener: { enumerable: false },
+			mouseWheelListener: { enumerable: false }
+		});
 		this.scene = t;
 		this.touch = this.getTouchObject();
 		this.touch.old = this.getTouchObject();

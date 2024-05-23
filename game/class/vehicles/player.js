@@ -33,6 +33,10 @@ export default class {
 		this.id = g++;
 		this._scene = t;
 		this._game = t.game;
+		Object.defineProperties(this, {
+			scene: { enumerable: false },
+			game: { enumerable: false }
+		});
 		this._user = e;
 		this._settings = t.settings;
 		let i = t.settings.startVehicle;
@@ -40,7 +44,7 @@ export default class {
 		this._baseVehicleType = i;
 		this._gamepad = new Gamepad(t);
 		this._ghost = !1;
-		this._color = e.color ? e.color : "#000000";
+		this._color = e.color || "#000000";
 		this.setDefaults();
 		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0));
 	}

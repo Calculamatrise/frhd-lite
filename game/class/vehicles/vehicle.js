@@ -9,6 +9,10 @@ export default class {
 	constructor(t) {
 		this.player = t,
 		this.scene = t._scene,
+		Object.defineProperties(this, {
+			player: { enumerable: false },
+			scene: { enumerable: false }
+		});
 		this.gamepad = t._gamepad,
 		this.settings = t._settings,
 		this.gravity = new Cartesian(0,.3),

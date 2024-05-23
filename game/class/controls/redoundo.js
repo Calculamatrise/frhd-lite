@@ -38,8 +38,11 @@ export default class extends Controls {
 	}
 	update() {
 		let t = this.scene
-		, e = t.state.paused;
-		t.controls && this.properties.visible !== e && (this.properties.visible = e)
+		  , e = t.state.paused
+		  , i = t.toolHandler;
+		t.controls && this.properties.visible !== e && (this.properties.visible = e),
+		this.controlData.undo.disabled = i.actionTimelinePointer === 0,
+		this.controlData.redo.disabled = i.actionTimelinePointer >= i.actionTimeline.length,
 		super.update();
 	}
 }

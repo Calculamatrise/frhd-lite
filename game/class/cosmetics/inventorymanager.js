@@ -2,6 +2,9 @@ class InventoryManager {
 	cache = {}
 	inventory = {}
 	loaded = new Set()
+	constructor() {
+		Object.defineProperty(this, 'cache', { enumerable: false });
+	}
 	getItem(t) {
 		let e = t.classname
 		  , i = t.script

@@ -3,15 +3,14 @@ import i from "../math/cartesian.js";
 export default class {
 	m1 = null;
 	m2 = null;
-	parent = null;
 	lrest = 40;
 	leff = 40;
 	dampConstant = 0;
 	springConstant = 0;
 	constructor(t, e, i) {
+		Object.defineProperty(this, 'parent', { value: i });
 		this.m1 = t;
 		this.m2 = e;
-		this.parent = i;
 		this.lrest = 40;
 		this.leff = 40;
 		this.dampConstant = .5;

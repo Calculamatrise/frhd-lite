@@ -11,6 +11,7 @@ export default class {
 	contact = !1;
 	scene = null;
 	constructor(t, e) {
+		Object.defineProperty(this, 'scene', { enumerable: false });
 		this.pos = new s,
 		this.old = new s,
 		this.vel = new s(0,0),
