@@ -63,9 +63,10 @@ window.Game = class extends EventEmitter {
 		this.pixelRatio = n,
 		this.canvas.style.width = e + "px",
 		this.canvas.style.height = t + "px",
-		this.ctx.strokeStyle = this.settings.physicsLineColor,
+		this.ctx.imageSmoothingEnabled = !1,
 		this.ctx.lineCap = "round",
 		this.ctx.lineJoin = "round",
+		this.ctx.strokeStyle = this.settings.physicsLineColor,
 		this.currentScene && this.currentScene.command("resize")
 	}
 

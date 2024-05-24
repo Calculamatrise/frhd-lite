@@ -107,12 +107,14 @@ export default class {
 		}
 	}
 	draw() {
-		this.canvas = this.canvasPool.getCanvas(),
-		this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
-		this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
-		this.ctx = this.canvas.getContext('2d'),
-		this.ctx.lineCap = 'round',
-		this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
+		if (!this.canvas) {
+			this.canvas = this.canvasPool.getCanvas(),
+			this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
+			this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
+			this.ctx = this.canvas.getContext('2d'),
+			this.ctx.lineCap = 'round',
+			this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
+		}
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height),
 		this.ctx.beginPath(),
 		this.ctx.strokeStyle = this.settings.sceneryLineColor,

@@ -207,30 +207,30 @@ export default class {
 			let e = this.powerups.filter(e => e.name === t.name && e.x == t.x && e.y == t.y);
 			if (e.length > this.maxDuplicatePowerups) {
 				switch(t.prefix) {
-					case 'B':
-						// e = e.filter(e => e.angle == t.angle);
-						// if (e.length > this.maxDuplicatePowerups)
-						// 	return e[0].duplicates++, t;
-						break;
-					case 'G':
-						// e = e.filter(e => e.angle == t.angle);
-						// if (e.length > this.maxDuplicatePowerups)
-						// 	return t;
-						break;
-					case 'V':
-						e[0].duplicates++,
-						e[0].stack.push(t.time),
-						e[0].time += t.time;
-						return t
-					case 'W': // maybe limit to 2
-						if (e.length > 2 * (1 + this.maxDuplicatePowerups))
-							return t;
-						break;
-					case 'T':
-						this.targetCount--,
-						this.targets.pop()
-					default:
-						return t
+				case 'B':
+					// e = e.filter(e => e.angle == t.angle);
+					// if (e.length > this.maxDuplicatePowerups)
+					// 	return e[0].duplicates++, t;
+					break;
+				case 'G':
+					// e = e.filter(e => e.angle == t.angle);
+					// if (e.length > this.maxDuplicatePowerups)
+					// 	return t;
+					break;
+				case 'V':
+					e[0].duplicates++,
+					e[0].stack.push(t.time),
+					e[0].time += t.time;
+					return t
+				case 'W': // maybe limit to 2
+					if (e.length > 2 * (1 + this.maxDuplicatePowerups))
+						return t;
+					break;
+				case 'T':
+					this.targetCount--,
+					this.targets.pop()
+				default:
+					return t
 				}
 			}
 		}
@@ -290,13 +290,13 @@ export default class {
 			c = u
 		}
 		switch (s) {
-			case M.LINE:
-				n[o][h].addLine(i),
-				i.addSectorReference(n[o][h]);
-				break;
-			case M.POWERUPS:
-				n[o][h].addPowerup(i),
-				i.addSectorReference(n[o][h])
+		case M.LINE:
+			n[o][h].addLine(i),
+			i.addSectorReference(n[o][h]);
+			break;
+		case M.POWERUPS:
+			n[o][h].addPowerup(i),
+			i.addSectorReference(n[o][h])
 		}
 		return this.dirty = !0, c
 	}
@@ -305,16 +305,20 @@ export default class {
 		this.cleanPowerups()
 	}
 	cleanLines() {
-		for (var t = this.physicsLines, e = this.sceneryLines, i = t.length, s = e.length, n = i - 1; n >= 0; n--)
-			t[n].remove && t.splice(n, 1);
-		for (var r = s - 1; r >= 0; r--)
-			e[r].remove && e.splice(r, 1)
+		let t = this.physicsLines
+		  , e = this.sceneryLines;
+		for (let i of t.filter(t => t.remove))
+			t.splice(t.indexOf(i), 1);
+		for (let i of e.filter(t => t.remove))
+			e.splice(e.indexOf(i), 1);
 	}
 	cleanPowerups() {
-		for (var t = this.powerups, e = this.targets, i = this.targets.length, s = t.length, n = s - 1; n >= 0; n--)
-			t[n].remove && t.splice(n, 1);
-		for (var r = i - 1; r >= 0; r--)
-			e[r].remove && e.splice(r, 1);
+		let t = this.powerups
+		  , e = this.targets;
+		for (let i of t.filter(t => t.remove))
+			t.splice(t.indexOf(i), 1);
+		for (let i of e.filter(t => t.remove))
+			e.splice(e.indexOf(i), 1);
 		this.targetCount = this.targets.length
 	}
 	updatePowerupState(t) {
@@ -332,30 +336,15 @@ export default class {
 	}
 	select(a, b) {
 		const segments = [];
-		if (a.y < b.y) {
-			for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
-				if (i.p1 || i.p2) {
-					if ((i.p1.x > a.x && i.p1.y > a.y || i.p2.x > a.x && i.p2.y > a.y) && ((i.p1.x < b.x && i.p1.y < b.y) || (i.p2.x < b.x && i.p2.y < b.y))) {
-						segments.push(i);
-					}
-				} else {
-					if (i.x > a.x && i.y > a.y && i.x < b.x && i.y < b.y) {
-						segments.push(i);
-					}
+		let min = new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y))
+		  , max = new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y));
+		for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
+			if (i.p1 || i.p2) {
+				if ((i.p1.x > min.x && i.p1.y > min.y || i.p2.x > min.x && i.p2.y > min.y) && ((i.p1.x < max.x && i.p1.y < max.y) || (i.p2.x < max.x && i.p2.y < max.y))) {
+					segments.push(i);
 				}
-			}
-		} else {
-			for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
-				if (i.p1 || i.p2) {
-					if (i.p1.x <= a.x && i.p1.y <= a.y || i.p2.x <= a.x && i.p2.y <= a.y && i.p1.x >= b.x && i.p1.y >= b.y ||
-					i.p2.x >= b.x && i.p2.y >= b.y) {
-						segments.push(i);
-					}
-				} else {
-					if (i.x < a.x && i.y < a.y && i.x > b.x && i.y > b.y) {
-						segments.push(i);
-					}
-				}
+			} else if (i.x > min.x && i.y > min.y && i.x < max.x && i.y < max.y) {
+				segments.push(i);
 			}
 		}
 		return segments
@@ -416,9 +405,8 @@ export default class {
 		console.log("Track :: Time to draw entire track : " + (r - t) + "ms")
 	}
 	undraw() {
-		for (let t of this.totalSectors.filter(t => t.drawn)) {
+		for (let t of this.totalSectors.filter(t => t.drawn))
 			t.clear(!0)
-		}
 		this.recachePowerups(Math.max(this.camera.zoom, 1)),
 		this.canvasPool.update()
 	}
@@ -444,13 +432,12 @@ export default class {
 			v = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
 			g = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2,
 			m = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2;
-		ctx.imageSmoothingEnabled = !1;
 		for (const t of this.totalSectors) {
 			if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
 				t.drawn === !1 && t.draw(),
 				t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
-				let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.x) | 0,
-					P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) * (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.center.y) | 0;
+				let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom - this.scene.screen.center.x) | 0,
+					P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom - this.scene.screen.center.y) | 0;
 				ctx.drawImage(t.canvas, S, P, this.settings.drawSectorSize * this.scene.camera.zoom, this.settings.drawSectorSize * this.scene.camera.zoom);
 				if (t.hasPowerups && t.powerupCanvasDrawn) {
 					ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * this.scene.camera.zoom / 2, P - t.powerupCanvasOffset * this.scene.camera.zoom / 2, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom)

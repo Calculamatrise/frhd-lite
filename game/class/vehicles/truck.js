@@ -147,22 +147,22 @@ export default class extends Vehicle {
 				if (!this.scene.state.playing) {
 					let e = window.lite.storage.get("snapshots");
 					if (e > 0) {
-						for (let i in this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
-							t.globalAlpha = e / 3e2 * i % 1,
-							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._checkpoints[i]._tempVehicle), {tire: this.tire}), t)
+						for (let i of this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = e / 3e2 * this.player._checkpoints.indexOf(i) % 1,
+							this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
 						}
 
-						for (let i in this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
-							t.globalAlpha = e / 3e2 * i % 1,
-							this.drawTruck.call(Object.assign({}, this, JSON.parse(this.player._cache[i]._tempVehicle), {tire: this.tire}), t)
+						for (let i of this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+							t.globalAlpha = e / 3e2 * this.player._cache.indexOf(i) % 1,
+							this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
 						}
 					}
 				}
 
 				if (window.lite && lite.storage.get("playerTrail"))
-					for (let e in lite.snapshots.filter(t => t._tempVehicle)) {
-						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * e % 1,
-						this.drawTruck.call(Object.assign({}, this, JSON.parse(lite.snapshots[e]._tempVehicle), {tire: this.tire}), t)
+					for (let e of lite.snapshots.filter(t => t._tempVehicle)) {
+						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1,
+						this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {tire: this.tire}), t)
 					}
 			}
 

@@ -34,8 +34,8 @@ export default class {
 		this._scene = t;
 		this._game = t.game;
 		Object.defineProperties(this, {
-			scene: { enumerable: false },
-			game: { enumerable: false }
+			_scene: { enumerable: false },
+			_game: { enumerable: false }
 		});
 		this._user = e;
 		this._settings = t.settings;
@@ -284,19 +284,19 @@ export default class {
 	}
 	_snapshotFilter(t, e) {
 		switch (t) {
-			case "parent":
-			case "player":
-			case "scene":
-			case "settings":
-			case "masses":
-			case "springs":
-			case "focalPoint":
-			case "gamepad":
-				return void 0;
-			case "explosion":
-				return !1;
-			default:
-				return e
+		case "parent":
+		case "player":
+		case "scene":
+		case "settings":
+		case "masses":
+		case "springs":
+		case "focalPoint":
+		case "gamepad":
+			return void 0;
+		case "explosion":
+			return !1;
+		default:
+			return e
 		}
 	}
 	setCheckpointOnUpdate() {

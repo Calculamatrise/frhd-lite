@@ -33,7 +33,7 @@ export default class extends Controls {
 		let t = this.scene.state.paused;
 		this.paused !== t && (t ? (this.controlData.pause.image = "play",
 		this.paused = !0) : (this.controlData.pause.image = "pause",
-		this.paused = !1))
-		super.update();
+		this.paused = !1));
+		super.update()
 	}
 }
