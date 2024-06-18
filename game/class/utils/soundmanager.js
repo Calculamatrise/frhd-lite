@@ -1,23 +1,23 @@
 export default class {
 	muted = !1;
-	sounds = {};
+	sounds = new Map();
 	constructor(t) {
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t || null, writable: true })
 	}
 	update() {
 		let e = this.scene;
-		this.muted = e.state.paused || e.settings.soundsEnabled === !1
-		for (let i in this.sounds) {
-			this.sounds[i].muted = this.muted
-			if (this.sounds[i].paused && !e.state.paused) {
-				this.sounds[i].play();
-			} else if (!this.sounds[i].paused && e.state.paused) {
-				this.sounds[i].pause();
+		this.muted = e.state.paused || e.settings.soundsEnabled === !1;
+		for (let i of this.sounds.values()) {
+			i.muted = this.muted;
+			if (i.paused && !e.state.paused) {
+				i.play();
+			} else if (!i.paused && e.state.paused) {
+				i.pause();
 			}
 		}
 	}
 	setVolume(t, e) {
-		this.sounds[t] && (this.sounds[t].volume = this.muted ? 0 : e ?? 1)
+		this.sounds.has(t) && (this.sounds.get(t).volume = this.muted ? 0 : e ?? 1)
 	}
 	mute_all() {
 		let t = this.sounds;
@@ -31,20 +31,20 @@ export default class {
 			this.stop(e)
 	}
 	play(t, e) {
-		if (!this.sounds[t] && this.scene.settings.soundsEnabled) {
+		if (!this.sounds.has(t) && this.scene.settings.soundsEnabled) {
 			let o = this.scene.assets.getItem(t)
-			, i = o && new Audio(o.src);
-			i && (this.sounds[t] = i,
+			  , i = o && new Audio(o.src);
+			i && (this.sounds.set(t, i),
 			i.addEventListener('ended', () => {
-				delete this.sounds[t]
-			}))
+				this.sounds.delete(t)
+			}, { passive: true }))
 		}
 
 		this.setVolume(t, e)
 	}
 	stop(t) {
-		this.sounds[t] && (this.sounds[t].pause(),
-		delete this.sounds[t])
+		this.sounds.has(t) && (this.sounds.get(t).pause(),
+		this.sounds.delete(t))
 	}
 	close() {
 		this.sounds = null

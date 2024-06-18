@@ -13,7 +13,7 @@ export default class ThirdPartyManager extends EventEmitter {
 			this.#loaded && this.emit('stateChange', state)
 		}),
 		this.#parent = parent,
-		window.hasOwnProperty('navigation') && navigation.addEventListener('navigate', () => this.#loaded = !1)
+		window.hasOwnProperty('navigation') && navigation.addEventListener('navigate', () => this.#loaded = !1, { passive: true })
 	}
 
 	hook(instance, { name, overwrite } = {}) {
@@ -41,4 +41,4 @@ while (!GameManager) {
 		break;
 }
 
-GameManager && (window.ModManager ||= new ThirdPartyManager(GameManager));
+GameManager && (window.ModManager ||= new ThirdPartyManager(GameManager))

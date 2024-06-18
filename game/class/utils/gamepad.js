@@ -13,7 +13,7 @@ export default class {
 	tickNumberOfKeysDown = 0;
 	replaying = !1;
 	constructor(t) {
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t, writable: true })
 	}
 	listen() {
 		document.onkeydown = this.handleButtonDown.bind(this);
@@ -25,6 +25,8 @@ export default class {
 		this.downButtons = {};
 		document.onkeydown = null;
 		document.onkeyup = null;
+		window.onblur = null;
+		window.onfocus = null;
 	}
 	pause() {
 		this.paused = !0

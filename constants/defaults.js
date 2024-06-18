@@ -2,10 +2,12 @@ export default {
 	accountManager: false,
 	bikeFrameColor: null,
 	dailyAchievementsDisplay: true,
+	developerMode: false,
 	experiments: {
 		brightness: 100,
 		filterDuplicatePowerups: false,
 		filterOverlappingPowerups: false,
+		playlists: false,
 		raceProgress: false
 	},
 	featuredGhostsDisplay: true,

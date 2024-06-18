@@ -93,15 +93,15 @@ export default class extends GUI {
 	}
 	update_state() {
 		switch (this.settings.campaignData.user.has_goal) {
-			case 1:
-			case "first":
-				this.gold_container.alpha = 1;
-			case 2:
-			case "second":
-				this.silver_container.alpha = 1;
-			case 3:
-			case "third":
-				this.bronze_container.alpha = 1;
+		case 1:
+		case "first":
+			this.gold_container.alpha = 1;
+		case 2:
+		case "second":
+			this.silver_container.alpha = 1;
+		case 3:
+		case "third":
+			this.bronze_container.alpha = 1;
 		}
 		this.redraw()
 	}

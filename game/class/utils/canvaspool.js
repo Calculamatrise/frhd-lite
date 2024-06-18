@@ -7,7 +7,7 @@ export default class {
 		this.options = t;
 		t.screen && this.update();
 		t.cap && (this.setToScreen = !1,
-		this.poolCap = t.cap);
+		this.poolCap = t.cap)
 	}
 	update() {
 		this.setToScreen && (this.getPoolCapFromScreen(),

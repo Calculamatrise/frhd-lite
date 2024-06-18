@@ -3,28 +3,16 @@ import EventEmitter from "../EventEmitter.js";
 
 export default class extends EventEmitter {
 	enabled = !0;
-	scene = null;
 	touch = null;
 	touches = [];
 	updateCallback = !1;
 	wheel = !1;
 	mousewheel = !1;
-	mouseMoveListener = null;
-	mouseUpListener = null;
-	mouseDownListener = null;
-	mouseWheelListener = null;
 	throttledMouseWheel = null;
 	analytics = null;
 	constructor(t) {
 		super();
-		Object.defineProperties(this, {
-			scene: { enumerable: false },
-			mouseMoveListener: { enumerable: false },
-			mouseUpListener: { enumerable: false },
-			mouseDownListener: { enumerable: false },
-			mouseWheelListener: { enumerable: false }
-		});
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
 		this.touch = this.getTouchObject();
 		this.touch.old = this.getTouchObject();
 		this.secondaryTouch = this.getTouchObject();
@@ -58,17 +46,18 @@ export default class extends EventEmitter {
 		  , i = this.onMouseMove.bind(this)
 		  , n = this.onMouseDown.bind(this)
 		  , r = this.onMouseUp.bind(this);
-		e.addEventListener("pointermove", i),
-		e.addEventListener("pointerdown", n),
-		e.addEventListener("pointerup", r),
-		this.mouseMoveListener = i,
-		this.mouseDownListener = n,
-		this.mouseUpListener = r;
+		e.addEventListener("pointermove", i, { passive: true }),
+		e.addEventListener("pointerdown", n, { passive: true }),
+		e.addEventListener("pointerup", r, { passive: true }),
+		Object.defineProperties(this, {
+			_moveListener: { value: i, writable: true },
+			_upListener: { value: r, writable: true },
+			_downListener: { value: n, writable: true }
+		});
 		let o = this.onMouseWheel.bind(this);
 		e.addEventListener("mousewheel", o),
 		e.addEventListener("wheel", o),
-		e.addEventListener("DOMMouseScroll", o),
-		this.mouseWheelListener = o
+		Object.defineProperty(this, '_wheelListener', { value: o, writable: true })
 	}
 	onMouseDown(t) {
 		this.scene.game.canvas.setPointerCapture(t.pointerId),
@@ -156,14 +145,15 @@ export default class extends EventEmitter {
 	}
 	close() {
 		let e = this.scene.game.canvas;
-		e.removeEventListener("mousewheel", this.mouseWheelListener),
-		e.removeEventListener("DOMMouseScroll", this.mouseWheelListener),
+		e.removeEventListener("mousewheel", this._wheelListener),
+		e.removeEventListener("wheel", this._wheelListener),
 		this.touches = null,
 		this.touch = null,
 		this.scene = null,
 		this.wheel = null,
-		this.mouseMoveListener = null,
-		this.mouseDownListener = null,
-		this.mouseUpListener = null
+		this._moveListener = null,
+		this._downListener = null,
+		this._upListener = null,
+		this._wheelListener = null
 	}
 }

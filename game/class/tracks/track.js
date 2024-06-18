@@ -22,14 +22,11 @@ let M = {
 	POWERUPS: 2  
 }
 let A = [];
-
 export default class {
 	defaultLine = {
 		p1: new Vector(-40,50),
 		p2: new Vector(40,50)
 	}
-	game = null;
-	scene = null;
 	camera = null;
 	canvasPool = null;
 	settings = null;
@@ -45,11 +42,9 @@ export default class {
 	dirty = !1;
 	constructor(t) {
 		Object.defineProperties(this, {
-			scene: { enumerable: false },
-			game: { enumerable: false }
+			scene: { value: t, writable: true },
+			game: { value: t.game, writable: true }
 		});
-		this.scene = t;
-		this.game = t.game;
 		this.settings = t.game.settings;
 		if (!this.settings.track) {
 			this.settings.track = {

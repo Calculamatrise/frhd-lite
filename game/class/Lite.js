@@ -1,6 +1,12 @@
+import ContextMenu from "./ContextMenu.js";
+
 window.lite = new class {
 	#customStyleSheet = null;
-	featuredGhostsLoaded = false;
+	currentTrackData = null;
+	debug = false;
+	dialogs = new Map();
+	nativeEvents = new Map();
+	playlists = new Map()
 	snapshots = new class extends Array {
 		push(...args) {
 			if (this.length >= parseInt(lite.storage.get('snapshots')))
@@ -18,19 +24,19 @@ window.lite = new class {
 					switch (property) {
 					case 'delete':
 						returnValue = returnValue.apply(target, args);
-						this.updateCustomStyleSheet(this.styleSheet.entries());
+						this._updateCustomStyleSheet(this.styleSheet.entries());
 						break;
 					case 'set':
 						let [key, value] = args;
 						returnValue.call(target, key, new Proxy(value, {
 							set: (...args) => {
 								let returnValue = Reflect.set(...args);
-								this.updateCustomStyleSheet(this.styleSheet.entries());
+								this._updateCustomStyleSheet(this.styleSheet.entries());
 								return returnValue;
 							}
 						}));
 						returnValue = receiver;
-						this.updateCustomStyleSheet(this.styleSheet.entries());
+						this._updateCustomStyleSheet(this.styleSheet.entries());
 						break;
 					default:
 						returnValue = returnValue.apply(target, args);
@@ -64,13 +70,16 @@ window.lite = new class {
 					if (JSON.stringify(value) == JSON.stringify(oldStorage.get(key))) continue;
 					changes.set(key, value);
 				}
-				this.updateFromSettings(changes);
+				this._updateFromSettings(changes);
 			}
-		});
+		}, { passive: true });
+		Object.defineProperty(this, 'currentTrackData', { enumerable: false });
+		Object.defineProperty(this, 'dialogs', { enumerable: false });
+		Object.defineProperty(this, 'nativeEvents', { enumerable: false })
 	}
 
 	get scene() {
-		return GameManager.game && GameManager.game.currentScene;
+		return GameManager.game && GameManager.game.currentScene
 	}
 
 	#createCustomStyleSheet() {
@@ -78,7 +87,7 @@ window.lite = new class {
 		this.#customStyleSheet.setAttribute('id', 'frhd-lite-style');
 	}
 
-	updateCustomStyleSheet(data) {
+	_updateCustomStyleSheet(data) {
 		const entries = Array.from(data);
 		const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
 		let textContent = '';
@@ -91,30 +100,7 @@ window.lite = new class {
 		this.#customStyleSheet.textContent = textContent;
 	}
 
-	load(game) {
-		game.on('draw', this.draw.bind(this)),
-		this.snapshots.splice(0, this.snapshots.length),
-		this.updateFromSettings(this.storage)
-	}
-
-	childLoad() {
-		this.storage.get('accountManager') && this.initAccountManager();
-		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
-		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
-		this.initBestDate(),
-		this.initDownloadGhosts(),
-		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
-		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
-		this.initGhostPlayer(),
-		this.storage.get('uploadGhosts') && this.initUploadGhosts());
-		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
-		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && this.initUserTrackAnalytics(),
-		Application.settings.user.moderator && (this.initUserModeration(),
-		this.initUserTrackModeration()));
-		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
-	}
-
-	updateFromSettings(changes = this.storage) {
+	_updateFromSettings(changes = this.storage) {
 		if (!this.scene) return;
 		let childLoad = !1
 		  , redraw = !1;
@@ -128,10 +114,13 @@ window.lite = new class {
 			case 'experiments':
 				for (const experiment in value) {
 					switch(experiment) {
-						case 'brightness':
-							this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
-								filter: 'brightness(' + value[experiment] / 100 + ')'
-							}));
+					case 'brightness':
+						this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
+							filter: 'brightness(' + value[experiment] / 100 + ')'
+						}));
+						break;
+					case 'playlists':
+						childLoad = true
 					}
 				}
 				break;
@@ -145,7 +134,6 @@ window.lite = new class {
 					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
 					color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
 				});
-
 				this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
 				this.scene.message.outline = backgroundColor;
 				let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
@@ -188,6 +176,376 @@ window.lite = new class {
 		childLoad && this.childLoad(),
 		redraw && this.scene.redraw(),
 		this.refresh()
+	}
+
+	attachContextMenu() {
+		if (!this._oncontextmenu) {
+			Object.defineProperty(this, '_oncontextmenu', {
+				value: async event => {
+					// track-list-tile
+					let race = event.target.closest('.track-leaderboard-race-row');
+					if (null !== race) {
+						event.preventDefault();
+						if (event.target.closest('.name')) {
+							ContextMenu.create(await this.buildUserContextMenu(race.dataset), event);
+							return;
+						}
+
+						const options = [{
+							name: 'Race',
+							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
+								t_id: this.currentTrackData.t_id,
+								u_ids: race.dataset.u_id
+							}).then(r => r.result && this.scene.addRaces(r.data))
+						}, {
+							name: 'Copy Race Data', // 'Request Race Data',
+							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
+								t_id: this.currentTrackData.t_id,
+								u_ids: race.dataset.u_id
+							}).then(r => r.result && navigator.clipboard.writeText(JSON.stringify(r.data, '\t', 4)).catch(err => alert(err.message)))
+						}, {
+							name: 'Report',
+							styles: ['danger'],
+							click: () => window.open('https://community.freeriderhd.com/threads/report-a-ghost.11854/#twitter-widget-0', 'blank')
+						}];
+						Application.settings.user.u_id == race.dataset.u_id && options.splice(2, 0, {
+							name: 'Download',
+							click: () => this.constructor.downloadRace(this.currentTrackData.t_id, race.dataset.u_id)
+						})
+						Application.settings.user.moderator && options.splice(options.length - 1, 0, {
+							name: 'Delete',
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
+								t_id: this.currentTrackData.t_id,
+								u_id: race.dataset.u_id
+							}).then(r => r.result && race.remove()).catch(err => alert('Something went wrong! ' + err.message))
+						}, {
+							name: 'Delete & Ban', // only show if mod
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
+								t_id: this.currentTrackData.t_id,
+								u_id: race.dataset.u_id
+							}).then(r => r.result && (race.remove(), Application.Helpers.AjaxHelper.post('moderator/ban_user', {
+								u_id: race.dataset.u_id
+							}))).catch(err => alert('Something went wrong! ' + err.message))
+						});
+						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
+							name: 'Copy Racer Id',
+							click: () => navigator.clipboard.writeText(race.dataset.u_id)
+						});
+						ContextMenu.create(options, event);
+						return;
+					}
+
+					let leaderboard = event.target.closest('.track-leaderboard');
+					if (null !== leaderboard) {
+						event.preventDefault();
+						const options = [{
+							name: 'Race All',
+							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
+								t_id: this.currentTrackData.t_id,
+								u_ids: Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => row.dataset.u_id).join(',')
+							}).then(r => r.result && this.scene.addRaces(r.data))
+						}];
+						Application.settings.user.moderator && options.splice(options.length, 0, {
+							name: 'Delete All',
+							styles: ['danger', 'disabled'],
+							click: () => confirm('Are you sure you want to delete ALL races on this leaderboard? This cannot be undone.') && ''
+						})
+						ContextMenu.create(options, event);
+						return;
+					}
+
+					let comment = event.target.closest('.track-comment');
+					if (null !== comment) {
+						event.preventDefault();
+						if (event.target.closest('.track-comment-img, a.bold')) {
+							ContextMenu.create(await this.buildUserContextMenu(comment), event);
+							return;
+						}
+
+						const options = [{
+							name: 'Reply',
+							click: () => {
+								let input = document.querySelector('#track-comment');
+								input.focus();
+								input.value = '@' + comment.dataset.d_name + ' ';
+							}
+						}, {
+							name: 'Copy Text',
+							click: () => navigator.clipboard.writeText(comment.querySelector('.track-comment-msg').innerText)
+						}, {
+							name: 'Report',
+							styles: ['danger'],
+							click: () => comment.querySelector('.track-comment-confirm-flag > .yes').click()
+						}];
+						Application.settings.user.d_name == comment.dataset.d_name && options.splice(options.length - 1, 0, {
+							name: 'Delete',
+							styles: ['danger'],
+							click: () => Application.router.current_view._delete_comment(this.currentTrackData.t_id, comment.dataset.c_id, r => r.result && comment.remove())
+						});
+						Application.settings.user.admin && options.splice(options.length - 1, 0, {
+							name: 'Set Messaging Ban',
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
+								messaging_ban_uname: comment.dataset.d_name.toLowerCase()
+							})
+						});
+						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
+							name: 'Copy Comment Id',
+							click: () => navigator.clipboard.writeText(comment.dataset.c_id)
+						});
+						ContextMenu.create(options, event);
+						return;
+					}
+
+					let track = event.target.closest('.track-about-panel > .panel-padding');
+					if (null !== track) {
+						event.preventDefault();
+						if (event.target.closest('.track-about-author-img, a.bold')) {
+							ContextMenu.create(await this.buildUserContextMenu(track), event);
+							return;
+						}
+
+						let playlist = this.storage.get('experiments').playlists && this.fetchAndCachePlaylists('playlater');
+						let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+						const options = [{
+							name: 'Copy Title',
+							click: () => navigator.clipboard.writeText(track.querySelector('h1.bold').innerText)
+						}, {
+							name: 'Copy Description',
+							click: () => navigator.clipboard.writeText(track.querySelector('.description').innerText)
+						}, {
+							name: (savedToPlaylater ? 'Remove from' : 'Add to') + ' Playlist',
+							styles: [savedToPlaylater && 'danger', this.storage.get('experiments').playlists || 'disabled'],
+							click: () => Application.Helpers.AjaxHelper.get('t/' + this.currentTrackData.t_id).then(({ track, user_track_stats }) => {
+								const playlist = this.fetchAndCachePlaylists('playlater');
+								playlist[savedToPlaylater ? 'delete' : 'set'](this.currentTrackData.t_id, {
+									author: track.author,
+									averageTime: user_track_stats.avg_time,
+									featured: track.featured,
+									id: this.currentTrackData.t_id,
+									img: track.img,
+									slug: track.slug,
+									title: track.title
+								});
+								playlist.size > 0 ? localStorage.setItem('frhd-lite.playlists.playlater', JSON.stringify(Array.from(playlist.values()))) : localStorage.removeItem('frhd-lite.playlists.playlater');
+							})
+						}, {
+							name: 'Report',
+							styles: ['danger'],
+							click: () => document.querySelector('.track-flag ~ .track-confirm-flag > .yes').click()
+						}];
+						Application.settings.user.u_id == this.currentTrackData.author_id && options.splice(3, 0, {
+							name: 'Download',
+							click: () => this.constructor.downloadTrack(this.currentTrackData.t_id)
+						});
+						Application.settings.user.moderator && options.splice(options.length - 1, 0, {
+							name: 'Add to Track of the Day',
+							styles: ['disabled']
+						}, {
+							name: (GameSettings.track.featured ? 'Unf' : 'F') + 'eature',
+							styles: GameSettings.track.featured && ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('track_api/feature_track/' + this.currentTrackData.t_id + '/' + (1 - GameSettings.track.featured)).then(r => {
+								r.result && (this.currentTrackData.track.featured = !this.currentTrackData.track.featured,
+								GameSettings.track.featured = this.currentTrackData.track.featured)
+							})
+						}, {
+							name: (this.currentTrackData.track.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.get('moderator/hide_track/' + this.currentTrackData.t_id).then(r => {
+								r.result && (this.currentTrackData.track.hide = 1 - this.currentTrackData.track.hide,
+								GameSettings.track.hide = this.currentTrackData.track.hide)
+							})
+						});
+						Application.settings.user.admin && options.splice(options.length - 1, 0, {
+							name: 'Remove Track of the Day',
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('admin/removeTrackOfTheDay', {
+								t_id: this.currentTrackData.t_id
+							})
+						});
+						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
+							name: 'Copy Track Id',
+							click: () => navigator.clipboard.writeText(this.currentTrackData.t_id)
+						});
+						ContextMenu.create(options, event);
+						return;
+					}
+				},
+				writable: true
+			});
+			this.styleSheet.set('context-menu', {
+				backgroundColor: 'hsl(200deg 15% 15%)',
+				border: '1px solid hsl(200deg 25% 25% / 50%)',
+				borderRadius: '.25rem',
+				boxShadow: '2px 2px 4px -1px hsl(0deg 0% 10% / 75%)',
+				display: 'flex',
+				flexDirection: 'column',
+				fontSize: 'clamp(9px, .75rem, 13px)',
+				overflow: 'hidden',
+				padding: '.275em',
+				position: 'absolute',
+				zIndex: 1002
+			});
+			this.styleSheet.set('context-menu button', {
+				backgroundColor: 'transparent',
+				border: 'none',
+				borderRadius: '0.25em',
+				color: 'white',
+				padding: '0.5em 1em',
+				textAlign: 'left'
+			});
+			this.styleSheet.set('context-menu button:hover', { backdropFilter: 'brightness(0.725)' });
+			this.styleSheet.set('context-menu hr', {
+				backgroundColor: 'hsl(200deg 20% 25% / 60%)',
+				border: 'none',
+				height: '1px',
+				color: 'hsl(200deg 30% 20% / 50%)',
+				width: '90%'
+			});
+			this.styleSheet.set('button.danger', { color: 'hsl(0deg, 75%, 55%)' });
+			this.styleSheet.set('button.danger:disabled', { color: 'hsl(0deg 75% 55% / 50%)' });
+		}
+		document.removeEventListener('contextmenu', this._oncontextmenu);
+		document.addEventListener('contextmenu', this._oncontextmenu)
+	}
+
+	async buildUserContextMenu(data) {
+		let currentUser = await this.constructor.fetchCurrentUser();
+		let request = currentUser.friend_requests.request_data.find(({ u_id }) => u_id == data.u_id);
+		let isFriend = currentUser.friends.friends_data.find(({ u_id }) => u_id == data.u_id);
+		const options = [{
+			name: 'Profile',
+			click: () => Application.router.do_route('u/' + data.d_name)
+		}, {
+			name: 'Copy Username',
+			click: () => navigator.clipboard.writeText(comment.dataset.d_name)
+		}, {
+			name: (isFriend ? 'Remove' : 'Add') + ' Friend', // accept, deny, remove, send/add
+			styles: [isFriend && 'danger', currentUser.friends.friend_cnt >= 30 && 'disabled'],
+			click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), {
+				u_name: data.d_name
+			})
+		}, {
+			name: 'Report',
+			styles: ['danger'],
+			click: () => Application.Helpers.AjaxHelper.post('track_comments/post', {
+				t_id: this.currentTrackData.t_id,
+				msg: '@Calculus, @Totoca12, race, ' + data.u_id + ', by @' + data.d_name + ' has been reported.'
+			})
+		}];
+		request && options.splice(3, 0, {
+			name: 'Accept Friend Request',
+			styles: !data.u_id && ['disabled'],
+			click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
+				u_id: data.u_id,
+				action: 'accept'
+			})
+		}, {
+			name: 'Reject Friend Request',
+			styles: ['danger', !data.u_id && 'disabled'],
+			click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
+				u_id: data.u_id,
+				action: 'decline'
+			})
+		});
+		if (Application.settings.user.moderator) {
+			let targetUser = await this.constructor.fetchUser(data.d_name || data.u_name || data.u_id);
+			options.splice(options.length - 1, 0, {
+				name: (targetUser.user.classic ? 'Remove' : 'Set') + ' Official Author',
+				styles: targetUser.user.classic && ['danger']
+			}, {
+				name: (targetUser.user.banned ? 'Unb' : 'B') + 'an',
+				styles: ['danger']
+			});
+		}
+		if (Application.settings.user.admin) {
+			const username = data.u_name || data.d_name.toLowerCase();
+			options.splice(options.length - 1, 0, {
+				name: 'Set Admin Ban',
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
+					ban_secs: prompt('How long should this ban last? (in seconds)'),
+					username,
+					delete_race_stats: confirm('Would you like to delete race stats?')
+				})
+			}, {
+				name: 'Set Messaging Ban',
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
+					messaging_ban_uname: username
+				})
+			}, {
+				name: 'Set Uploading Ban',
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_uploading', {
+					uploading_ban_uname: username
+				})
+			}, {
+				name: 'Deactivate User',
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('admin/deactivate_user', { username })
+			}, {
+				name: 'Delete User Account',
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('admin/delete_user_account', { username })
+			});
+		}
+		this.storage.get('developerMode') && options.push({ type: 'hr' }, {
+			name: 'Copy User Id',
+			click: () => navigator.clipboard.writeText(data.u_id)
+		});
+		return options
+	}
+
+	cacheTrackData() {
+		let trackData = document.querySelector('#track-data');
+		this.currentTrackData = trackData ? Object.assign({}, trackData.dataset, window.hasOwnProperty('GameSettings') && { track: GameSettings.track }) : null
+	}
+
+	childLoad() {
+		this.attachContextMenu();
+		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
+		this.storage.get('accountManager') && this.initAccountManager();
+		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
+		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
+		this.cacheTrackData(),
+		this.initBestDate(),
+		this.initDownloadGhosts(),
+		this.initGhostMetadata(),
+		this.initReportTracks(),
+		location.search.includes('c_id=') && this.initJumpToComment(),
+		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
+		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
+		this.initGhostPlayer(),
+		this.storage.get('uploadGhosts') && this.initUploadGhosts());
+		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
+		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && (this.storage.get('experiments').playlists && this.initPlayLater(),
+		this.initUserTrackAnalytics()),
+		Application.settings.user.moderator && (this.initUserModeration(),
+		this.initUserTrackModeration()));
+		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
+	}
+
+	fetchAndCachePlaylists(name) {
+		typeof name == 'string' && !this.playlists.has(name) && this.playlists.set(name, new Map());
+		for (let key of this.playlists.keys()) {
+			if (typeof name == 'string' && key !== name) continue;
+			const entries = localStorage.getItem('frhd-lite.playlists.' + key);
+			if (null === entries) continue;
+			const playlist = this.playlists.get(key);
+			for (const entry of JSON.parse(entries)) {
+				playlist.set(String(parseInt(entry.id)), entry);
+			}
+		}
+		return name ? this.playlists.get(name) || null : this.playlists
+	}
+
+	load(game) {
+		game.on('draw', this.draw.bind(this)),
+		this.snapshots.splice(0, this.snapshots.length),
+		this._updateFromSettings(this.storage)
 	}
 
 	refresh() {
@@ -416,13 +774,13 @@ window.lite = new class {
 			}
 
 			document.body.append(overlay, container);
-		});
+		}, { passive: true });
 	}
 
 	achievements = null;
 	achievementsContainer = null;
 	initAchievementsDisplay() {
-		this.notificationEvent || this.initNotificationEvent();
+		this.nativeEvents.has('notificationEvent') || this.initNotificationEvent();
 		if (!this.achievementsContainer) {
 			Application.events.subscribe('notification.received', ({ data }) => {
 				if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
@@ -507,55 +865,36 @@ window.lite = new class {
 	}
 
 	initBestDate() {
-		this.leaderboardEvent || this.initLeaderboardEvent();
+		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
 				race.setAttribute('title', 'Loading...');
-				race.addEventListener('mouseover', event => {
+				race.addEventListener('pointerover', () => {
 					fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { best_date } = {}} = {}) => {
-						event.target.setAttribute('title', best_date ?? 'Failed to load');
-					});
-				}, { once: true });
-			});
-		});
+						race.setAttribute('title', best_date ?? 'Failed to load');
+						// save result in sessionStorage
+					})
+				}, { once: true, passive: true })
+			})
+		})
 	}
 
-	async initDownloadGhosts() {
-		this.leaderboardEvent || this.initLeaderboardEvent();
+	initDownloadGhosts() {
+		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' });
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
 		Application.router.current_view.on('leaderboard.rendered', () => {
-			for (let actionRow of Array.from(document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action')).filter(actionRow => !actionRow.querySelector('#frhd-lite\\.download-race'))) {
-				let download = document.createElement('span');
-				download.setAttribute('id', 'frhd-lite.download-race');
-				download.setAttribute('title', 'Download Race');
-				download.classList.add('core_icons', 'core_icons-btn_add_race');
-				download.style.setProperty('background-image', "linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))");
-				download.style.setProperty('clip-path', "polygon(30% 5%, 30% 45%, 10% 45%, 50% 95%, 90% 45%, 70% 45%, 70% 5%)");
-				download.addEventListener('click', function() {
-					Application.Helpers.AjaxHelper.get("/track_api/load_races", {
-						t_id: GameSettings.track.id,
-						u_ids: download.parentElement.parentElement.dataset.u_id
-					}).done(function(res) {
-						if (res.result) {
-							let [data] = res.data;
-							data = Object.assign(data.race, {
-								t_id: GameSettings.track.id,
-								u_id: data.user.u_id
-							});
-							let download = document.createElement('a');
-							download.setAttribute('download', 'frhd_ghost_' + GameSettings.track.id);
-							download.setAttribute('href', URL.createObjectURL(
-								new Blob([JSON.stringify(data, null, 4)], {
-									type: 'application/json'
-								})
-							));
-							download.click();
-							URL.revokeObjectURL(download.getAttribute('href'));
-						}
-					});
+			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action:not(:has(> #frhd-lite\\.download-race))')) {
+				let download = this.constructor.createElement('span', {
+					className: 'core_icons core_icons-btn_add_race',
+					id: 'frhd-lite.download-race',
+					title: 'Download Race',
+					style: {
+						backgroundImage: 'linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))',
+						clipPath: 'polygon(30% 5%, 30% 45%, 10% 45%, 50% 95%, 90% 45%, 70% 45%, 70% 5%)'
+					}
 				});
-
+				download.addEventListener('click', () => this.constructor.downloadRace(GameSettings.track.id, download.parentElement.parentElement.dataset.u_id), { passive: true });
 				actionRow.style.setProperty('width', '20%');
 				actionRow.prepend(download);
 				actionRow.textContent.length > 0 && actionRow.replaceChildren(...actionRow.children);
@@ -563,7 +902,7 @@ window.lite = new class {
 		});
 	}
 
-	async initDownloadTracks() {
+	initDownloadTracks() {
 		let subscribeToAuthor = document.querySelector('.subscribe-to-author');
 		let downloadTrack = document.querySelector('#frhd-lite\\.download-track');
 		if (!downloadTrack) {
@@ -573,19 +912,15 @@ window.lite = new class {
 			let download = downloadTrack.querySelector('#subscribe_to_author');
 			download.setAttribute('id', 'frhd-lite.download-track'); // check if it exists first
 			download.innerText = 'Download';
-			download.addEventListener('click', () => {
-				this.constructor.downloadTrack(GameSettings.track.id);
-			});
+			download.addEventListener('click', () => this.constructor.downloadTrack(GameSettings.track.id), { passive: true });
 			subscribeToAuthor.after(downloadTrack);
 		}
 	}
 
-	featuredGhosts = null;
 	initFeaturedGhosts() {
-		this.leaderboardEvent || this.initLeaderboardEvent();
-		Application.router.current_view.on('leaderboard.rendered', async ({ track_leaderboard }) => {
-			this.featuredGhosts ||= await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
-			const matches = Object.fromEntries(Object.entries(lite.featuredGhosts).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
+		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
+		Application.router.current_view.on('leaderboard.rendered', async () => {
+			const matches = Object.fromEntries(Object.entries(await this.constructor.fetchFeaturedGhosts()).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
 			for (const player in matches) {
 				for (const ghost in matches[player]) {
 					let name = ghost.split('/r/')[1];
@@ -617,6 +952,34 @@ window.lite = new class {
 					innerText: "Last Played " + friends.friends_data.find(({ d_name }) => d_name == item.innerText).activity_time_ago
 				}));
 			});
+		});
+	}
+
+	initGhostMetadata() {
+		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
+		const parseTicks = time => {
+			if (!time) return 0;
+			let parts = time.split(':').map(value => parseFloat(value));
+			return Math.round((parts[1] * 1e3 + parts[0] * 6e4) * (GameSettings.drawFPS / 1e3))
+		}
+		Application.router.current_view.on('leaderboard.rendered', ({ track_leaderboard: trackLeaderboard }) => {
+			trackLeaderboard = trackLeaderboard.filter(({ user_no_race_data }) => !user_no_race_data);
+			const averageTicks = trackLeaderboard.reduce((total, { run_time }) => total += parseTicks(run_time), 0) / trackLeaderboard.length;
+			for (let player of trackLeaderboard.filter(({ run_time: runTime, u_id: userId }, index) => {
+				if (!runTime) return true;
+				const filteredAverageTicks = trackLeaderboard.filter(({ u_id }) => u_id !== userId).reduce((total, { run_time }) => total += parseTicks(run_time), 0) / trackLeaderboard.length;
+				const max = parseTicks(trackLeaderboard.at(-1).run_time);
+				const calculatedMargin = max - parseTicks(trackLeaderboard[Math.min(trackLeaderboard.length - 1, index + 1)].run_time);
+				this.debug && console.log(averageTicks, parseTicks(runTime), 'diff', averageTicks - parseTicks(runTime), 'max diff', max - averageTicks, max - filteredAverageTicks, filteredAverageTicks, calculatedMargin, 'max', max, 'max divided by 100', max / 100, calculatedMargin / max, calculatedMargin * (max / 100), max / calculatedMargin)
+				if (averageTicks - parseTicks(runTime) > max - filteredAverageTicks) return true;
+				return false
+			})) {
+				for (let flag of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + player.u_id + '"] > .num:not(:has(> #frhd-lite\\.flagged))')) {
+					flag.setAttribute('id', 'frhd-lite.flagged');
+					flag.setAttribute('title', 'This race has been flagged by frhd-lite under suspicion of misconduct.');
+					flag.innerText = '⚠️';
+				}
+			}
 		});
 	}
 
@@ -687,61 +1050,182 @@ window.lite = new class {
 		});
 	}
 
-	leaderboardEvent = null;
+	initJumpToComment() {
+		let searchParams = new URLSearchParams(location.search);
+		let commentId = searchParams.get('c_id');
+		if (!commentId || this.lastLoadedComment == commentId || document.querySelector('.track-comment[data-c_id="' + commentId + '"]')) return;
+		Object.defineProperty(this, 'lastLoadedComment', { value: commentId, writable: true });
+		if (typeof Application.router.current_view.load_comments_until != 'function') {
+			const prototype = Object.getPrototypeOf(Application.router.current_view);
+			prototype.load_comments_until = function(cid, callback) {
+				let o = document.querySelector(".track-comments-list div.track-comment:last-child").dataset.c_id
+				  , r = this._get_track_id()
+				  , i = document.querySelector('.track-prev-comments');
+				i.style.setProperty('display', 'none');
+				let s = document.querySelector('.track-comments-loading');
+				s.style.setProperty('display', 'block');
+				this._get_comment_template(() => {
+					Application.Helpers.AjaxHelper.post("track_comments/load_more/" + r + "/" + o).then(e => {
+						if (e.result === !0 && e.data.track_comments.length > 0) {
+							var a = Application.Helpers.TemplateHelper.render(this.templates["track/track_comment"], {}, e.data)
+							  , o = this.$el.find(".track-comments-list")
+							  , n = e.data.track_comments.findIndex(({ comment }) => comment.id == cid) > 0;
+							o.append(a),
+							e.data.track_comments_load_more === !0 && (n ? i.style.removeProperty('display') : this.load_comments_until(...arguments)),
+							n && typeof callback == 'function' && callback(document.querySelector('.track-comment[data-c_id="' + cid + '"]'))
+						}
+						s.style.setProperty('display', 'none'),
+						Application.events.publish('resize')
+					})
+				})
+			}
+			Object.setPrototypeOf(Application.router.current_view, prototype);
+		}
+		Application.router.current_view.load_comments_until(commentId, comment => {
+			comment.scrollIntoView({ behavior: 'smooth' });
+			window.addEventListener('scrollend', () => {
+				comment.classList.add('animated', 'flash');
+				setTimeout(() => {
+					comment.classList.remove('animated', 'flash');
+				}, 2e3)
+			}, { once: true, passive: true });
+		})
+	}
+
 	initLeaderboardEvent() {
-		const render_leaderboards = this.leaderboardEvent = Application.Views.TrackView.prototype._render_leaderboards;
+		const renderLeaderboards = Application.Views.TrackView.prototype._render_leaderboards;
+		this.nativeEvents.set('leaderboardEvent', renderLeaderboards);
 		Application.Views.TrackView.prototype._render_leaderboards = function(e) {
-			render_leaderboards.apply(this, arguments);
+			renderLeaderboards.apply(this, arguments);
 			e.result && (this.trigger('leaderboard.rendered', ...arguments),
-			Application.events.publish('leaderboard.rendered', ...arguments));
+			Application.events.publish('leaderboard.rendered', ...arguments))
 		}
 	}
 
-	notificationEvent = null;
 	initNotificationEvent() {
 		const prototype = Object.getPrototypeOf(Application.Helpers.AjaxHelper);
-		const check_event_notification = this.notificationEvent = prototype._check_event_notification;
+		const checkNotificationEvent = prototype._check_event_notification;
+		this.nativeEvents.set('notificationEvent', checkNotificationEvent);
 		prototype._check_event_notification = function(e) {
-			check_event_notification.apply(this, arguments);
+			checkNotificationEvent.apply(this, arguments);
 			e.result && Application.events.publish('notification.received', ...arguments);
 		}
-
 		Object.setPrototypeOf(Application.Helpers.AjaxHelper, prototype);
+	}
+
+	initPlayLater() {
+		let recentlyPlayedTab = document.querySelector('.tab-entry.recently-played-tab');
+		if (!recentlyPlayedTab || document.querySelector('.tab-entry.frhd-lite\\.play-later-tab')) return;
+		let playlist = this.fetchAndCachePlaylists('playlater');
+		if (playlist.size < 1) return;
+		let tab = recentlyPlayedTab.parentElement.appendChild(recentlyPlayedTab.cloneNode(true));
+		tab.classList.add('frhd-lite.play-later-tab');
+		tab.dataset.panel = '#frhd-lite\\.play-later';
+		tab.firstElementChild.lastChild.data = 'Play Later';
+		let recentlyPlayedPanel = document.querySelector('#profile_recently_played');
+		if (!recentlyPlayedPanel) return;
+		let panel = recentlyPlayedPanel.parentElement.appendChild(recentlyPlayedPanel.cloneNode(true));
+		panel.setAttribute('id', 'frhd-lite.play-later');
+		let list = panel.querySelector('.track-list');
+		list.replaceChildren(...Array.from(playlist && playlist.values()).map(entry => {
+			const authorUrl = 'https://' + location.host + '/u/' + entry.author;
+			const trackUrl = 'https://' + location.host + '/t/' + entry.slug;
+			return this.constructor.createElement('li', {
+				children: [
+					this.constructor.createElement('div', {
+						className: 'track-list-tile trackTile',
+						children: [
+							this.constructor.createElement('a', {
+								className: 'top',
+								href: trackUrl,
+								children: [
+									this.constructor.createElement('img', {
+										className: 'track-list-tile-thumb top-image',
+										src: entry.img
+									}),
+									this.constructor.createElement('img', {
+										alt: 'Track Preview',
+										className: 'track-list-tile-thumb',
+										src: 'https://cdn.' + location.host.split('.').slice(-2).join('.') + '/free_rider_hd/sprites/track_preview_250x150.png'
+									}),
+									this.constructor.createElement('span', {
+										className: 'bestTime',
+										innerText: ' ' + entry.averageTime + ' ',
+										title: 'Average Time'
+									})
+								]
+							}),
+							this.constructor.createElement('div', {
+								className: 'bottom',
+								children: [
+									this.constructor.createElement('a', {
+										className: 'name',
+										href: trackUrl,
+										innerText: entry.title
+									}),
+									this.constructor.createElement('div', {
+										className: 'profileGravatarIcon',
+										style: {
+											backgroundImage: 'url(' + authorUrl + '/pic?size=50)'
+										}
+									}),
+									this.constructor.createElement('a', {
+										className: 'author',
+										href: authorUrl + '/created',
+										innerHTML: '&ensp;' + entry.author
+									})
+								]
+							})
+						]
+					})
+				]
+			})
+		}));
+	}
+
+	initReportTracks() {
+		let confirm = document.querySelector('.track-flag ~ .track-confirm-flag > .yes');
+		if (!confirm || confirm.classList.contains('frhd-lite.track-report')) return;
+		confirm.classList.add('frhd-lite.track-report');
+		confirm.addEventListener('click', () => {
+			Application.Helpers.AjaxHelper.post('track_comments/post', {
+				t_id: this.currentTrackData.t_id,
+				msg: "@Calculus, @Totoca12, this track was reported for 'reason'"
+			}).then(r => alert(r.result ? "You have successfully reported this track." : r.msg))
+		}, { passive: true })
 	}
 
 	initRequestTrackData() {
 		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
 		if (deleteALlPersonalData) {
-			let requestTrackData = deleteALlPersonalData.parentElement.appendChild(document.createElement('button'));
-			requestTrackData.classList.add('blue-button', 'settings-header', 'new-button');
-			requestTrackData.style.setProperty('float', 'right');
-			requestTrackData.style.setProperty('font-size', '13px');
-			requestTrackData.style.setProperty('height', 'auto');
-			requestTrackData.style.setProperty('line-height', '23px');
-			requestTrackData.style.setProperty('margin-top', '6px');
-			requestTrackData.style.setProperty('margin-right', '14px');
-			requestTrackData.style.setProperty('padding', '0 1rem');
-			requestTrackData.innerText = 'Request All Data';
-			requestTrackData.addEventListener('click', () => {
-				this.constructor.downloadAllTracks();
-			});
+			let requestTrackData = deleteALlPersonalData.parentElement.appendChild(this.constructor.createElement('button', {
+				className: 'blue-button settings-header new-button',
+				innerText: 'Request All Data',
+				style: {
+					float: 'right',
+					fontSize: '13px',
+					height: 'auto',
+					lineHeight: '23px',
+					marginTop: '6px',
+					marginRight: '14px',
+					padding: '0 1rem'
+				}
+			}));
+			requestTrackData.addEventListener('click', () => this.constructor.downloadAllTracks(), { passive: true });
 		} else {
 			console.warn("Request track data failed to load! Personal data is not present.");
 		}
 	}
 
-	ghostUploadDialog = null;
 	initUploadGhosts() {
-		this.ghostUploadDialog ||= document.body.appendChild(this.constructor.createElement('dialog', {
+		this.dialogs.has('ghostUpload') || this.dialogs.set('ghostUpload', document.body.appendChild(this.constructor.createElement('dialog', {
 			children: [
 				this.constructor.createElement('div', {
 					children: [
 						this.constructor.createElement('span', {
 							className: 'editorDialog-close',
 							innerText: '×',
-							onclick: () => {
-								this.ghostUploadDialog.close();
-							}
+							onclick: event => event.target.closest('dialog').close('cancel')
 						}),
 						this.constructor.createElement('h1', {
 							className: 'editorDialog-content-title',
@@ -822,46 +1306,55 @@ window.lite = new class {
 					],
 					className: 'importDialog-codeContainer'
 				}),
-				this.constructor.createElement('div', {
+				this.constructor.createElement('form', {
 					children: [
 						this.constructor.createElement('button', {
 							className: 'primary-button primary-button-blue float-right margin-0-5',
-							innerText: 'Upload'
+							innerText: 'Upload',
+							value: 'default'
 						}),
 						this.constructor.createElement('button', {
 							className: 'primary-button primary-button-black float-right margin-0-5',
 							innerText: 'Cancel',
-							onclick: () => {
-								this.ghostUploadDialog.close()
-							}
+							value: 'cancel'
 						})
 					],
-					className: 'editorDialog-bottomBar clearfix'
+					className: 'editorDialog-bottomBar clearfix',
+					method: 'dialog'
 				})
 			],
-			className: 'editorDialog-content editorDialog-content_importDialog',
+			className: 'editorDialog-content editorDialog-content_importDialog frhd-lite.dialog',
 			style: {
 				margin: 'revert',
 				padding: 0,
 				position: 'revert',
 				top: 'revert'
+			},
+			onclose: event => {
+				switch(event.target.returnValue) {
+				case 'cancel':
+					return;
+				case 'default':
+					// upload ghost
+				}
 			}
-		}));
-
+		})));
 		this.constructor.waitForElm('#friends-leaderboard-challenge').then(challenge => {
-			if (!this.ghostUploadButton) {
-				this.ghostUploadButton = challenge.cloneNode(true);
-				this.ghostUploadButton.classList.add('button-type-1');
-				this.ghostUploadButton.classList.remove('button-type-2');
-				this.ghostUploadButton.style.setProperty('margin-top', 0);
-				this.ghostUploadButton.removeAttribute('id');
-				this.ghostUploadButton.innerText = 'Upload Ghost';
-				this.ghostUploadButton.addEventListener('click', () => {
-					this.ghostUploadDialog.showModal();
-				})
+			const dialog = this.dialogs.get('ghostUpload');
+			if (!dialog.button) {
+				// Switch to link button beside flag track
+				dialog.button = challenge.cloneNode(true);
+				dialog.button.classList.add('button-type-1');
+				dialog.button.classList.remove('button-type-2');
+				dialog.button.style.setProperty('margin-top', 0);
+				dialog.button.removeAttribute('id');
+				dialog.button.innerText = 'Upload Ghost';
+				dialog.button.addEventListener('click', () => {
+					dialog.showModal();
+				}, { passive: true })
 			}
 
-			challenge.after(this.ghostUploadButton);
+			challenge.after(dialog.button);
 		})
 	}
 
@@ -894,16 +1387,17 @@ window.lite = new class {
 		email.classList.remove('pm-user-id');
 		let property = email.querySelector('.pm-property');
 		property.innerText = "Email: ";
-		let input = document.createElement('input');
-		input.setAttribute('placeholder', "New email");
-		input.setAttribute('readonly', '');
-		input.setAttribute('type', 'text'); // email
+		let input = this.constructor.createElement('input', {
+			placeholder: 'New email',
+			readonly: '',
+			type: 'text' // email
+		});
 		property.nextElementSibling.replaceWith(input);
 		let edit = email.querySelector('#pm-ban-user');
 		edit.classList.remove('ban-user-button');
 		edit.innerText = "Edit";
 		edit.removeAttribute('id');
-		edit.addEventListener('click', onclick);
+		edit.addEventListener('click', onclick, { passive: true });
 		edit.addEventListener('save', event => {
 			return Application.Helpers.AjaxHelper.post("moderator/change_email", {
 				u_id: data.u_id,
@@ -919,7 +1413,7 @@ window.lite = new class {
 		input.setAttribute('type', 'text');
 		input.setAttribute('value', data.u_name);
 		edit = username.querySelector('a');
-		edit.addEventListener('click', onclick);
+		edit.addEventListener('click', onclick, { passive: true });
 		edit.addEventListener('save', event => {
 			return Application.Helpers.AjaxHelper.post("moderator/change_username", {
 				u_id: data.u_id,
@@ -929,14 +1423,15 @@ window.lite = new class {
 		let password = pm.appendChild(email.cloneNode());
 		property = password.appendChild(property.cloneNode());
 		property.innerText = "Password: ";
-		edit = password.appendChild(document.createElement('button'));
-		edit.classList.add('new-button', 'ban-user-button');
-		edit.innerText = 'Reset Password';
+		edit = password.appendChild(this.constructor.createElement('button', {
+			className: 'new-button ban-user-button',
+			innerText: 'Reset Password'
+		}));
 		edit.addEventListener('click', () => {
 			return Application.Helpers.AjaxHelper.post("auth/forgot_password", {
 				email: data.u_name
 			}).then(r => (alert(r.msg), r));
-		})
+		}, { passive: true })
 	}
 
 	initUserTrackAnalytics() {
@@ -947,142 +1442,183 @@ window.lite = new class {
 
 	initUserTrackModeration() {
 		for (let metadata of document.querySelectorAll("#created_tracks .bottom")) {
-			let label = metadata.appendChild(document.createElement('label'));
+			let label = metadata.appendChild(this.constructor.createElement('label', {
+				style: {
+					display: 'block'
+				}
+			}));
 			let avatar = metadata.querySelector('.profileGravatarIcon');
 			avatar && avatar.style.setProperty('margin-right', '4px');
 			label.appendChild(metadata.querySelector('.profileGravatarIcon'));
 			label.appendChild(metadata.querySelector('.author'));
-			label.style.setProperty('display', 'block')
-			let checkbox = label.appendChild(document.createElement('input'));
-			checkbox.setAttribute('type', 'checkbox');
-			checkbox.style.setProperty('float', 'right');
-			checkbox.style.setProperty('height', '1.5rem');
+			label.appendChild(this.constructor.createElement('input', {
+				type: 'checkbox',
+				style: {
+					float: 'right',
+					height: '1.5rem'
+				}
+			}));
 		}
-
 		let nav = document.querySelector("#content > div > div.profile-tabs > section > div.tab_buttons > div");
-		let action = nav.appendChild(document.createElement('select'));
-		action.style.setProperty('border-radius', '4px');
-		action.style.setProperty('float', 'right');
-		action.style.setProperty('font-family', 'system-ui,roboto_medium,Arial,Helvetica,sans-serif');
-		action.style.setProperty('letter-spacing', '-.02em');
-		action.style.setProperty('margin-right', '10px');
-		action.style.setProperty('margin-top', '8px');
-		let placeholder = action.appendChild(document.createElement('option'));
-		placeholder.setAttribute('value', 'default');
-		placeholder.disabled = true;
-		placeholder.innerText = 'Select an action';
-		let deleteSelected = action.appendChild(document.createElement('option'));
-		deleteSelected.setAttribute('value', 'hide');
-		deleteSelected.innerText = 'Delete selected';
-		let deselect = action.appendChild(document.createElement('option'));
-		deselect.setAttribute('value', 'deselect');
-		deselect.innerText = 'Deselect all';
-		let selectAll = action.appendChild(document.createElement('option'));
-		selectAll.setAttribute('value', 'select');
-		selectAll.innerText = 'Select all';
+		let action = nav.appendChild(this.constructor.createElement('select', {
+			style: {
+				borderRadius: '4px',
+				float: 'right',
+				fontFamily: 'system-ui,roboto_medium,Arial,Helvetica,sans-serif',
+				letterSpacing: '-.02em',
+				marginRight: '10px',
+				marginTop: '8px'
+			}
+		}));
+		action.appendChild(this.constructor.createElement('option', {
+			disabled: true,
+			innerText: 'Select an action',
+			value: 'default'
+		}));
+		action.appendChild(this.constructor.createElement('option', {
+			innerText: 'Delete selected',
+			value: 'hide'
+		}));
+		action.appendChild(this.constructor.createElement('option', {
+			innerText: 'Deselect all',
+			value: 'deselect'
+		}));
+		action.appendChild(this.constructor.createElement('option', {
+			innerText: 'Select all',
+			value: 'select'
+		}));
 		action.addEventListener('change', async event => {
 			event.target.disabled = true;
 			switch (event.target.value) {
-				case 'hide':
-					let tracks = document.querySelectorAll("#created_tracks li:has(.bottom > label > input[type='checkbox']:checked)");
-					if (tracks.length > 0) {
-						let dialog = document.body.appendChild(document.createElement('dialog'));
-						dialog.style.setProperty('border', 'none');
-						dialog.style.setProperty('box-shadow', '0 0 4px 0px hsl(190deg 25% 60%)');
-						dialog.style.setProperty('max-height', '75vh');
-						dialog.style.setProperty('max-width', '50vw');
-						dialog.style.setProperty('padding', 0);
-						dialog.style.setProperty('width', '120vmin');
-						let title = dialog.appendChild(document.createElement('p'));
-						title.style.setProperty('background-color', 'inherit');
-						title.style.setProperty('box-shadow', '0 0 4px 0 black');
-						title.style.setProperty('padding', '1rem');
-						title.style.setProperty('position', 'sticky');
-						title.style.setProperty('top', 0);
-						title.style.setProperty('z-index', 3);
-						title.innerText = 'Are you sure you would like to delete the following tracks?';
-						let close = title.appendChild(document.createElement('span'));
-						close.classList.add('core_icons', 'core_icons-icon_close');
-						close.style.setProperty('float', 'right');
-						close.addEventListener('click', () => dialog.remove());
-						let list = dialog.appendChild(document.createElement('ul'));
-						list.classList.add('track-list', 'clearfix');
-						list.style.setProperty('max-height', '50cqh');
-						list.style.setProperty('overflow-y', 'auto');
-						list.style.setProperty('padding', '1rem');
-						list.style.setProperty('text-align', 'center');
-						list.append(...Array.from(tracks).map(track => {
-							let clone = track.cloneNode(true);
-							clone.style.setProperty('width', 'min-content');
-							return clone;
+			case 'hide':
+				let tracks = document.querySelectorAll("#created_tracks li:has(.bottom > label > input[type='checkbox']:checked)");
+				if (tracks.length > 0) {
+					let dialog = document.body.appendChild(this.constructor.createElement('dialog', {
+						style: {
+							border: 'none',
+							boxShadow: '0 0 4px 0px hsl(190deg 25% 60%)',
+							maxHeight: '75vh',
+							maxWidth: '50vw',
+							padding: 0,
+							width: '120vmin'
+						}
+					}));
+					let title = dialog.appendChild(this.constructor.createElement('p', {
+						innerText: 'Are you sure you would like to delete the following tracks?',
+						style: {
+							backgroundColor: 'inherit',
+							boxShadow: '0 0 4px 0 black',
+							padding: '1rem',
+							position: 'sticky',
+							top: 0,
+							zIndex: 3
+						}
+					}));
+					let close = title.appendChild(this.constructor.createElement('span', {
+						className: 'core_icons core_icons-icon_close',
+						style: {
+							float: 'right'
+						}
+					}));
+					close.addEventListener('click', () => dialog.remove(), { passive: true });
+					let list = dialog.appendChild(this.constructor.createElement('ul', {
+						className: 'track-list clearfix',
+						style: {
+							maxHeight: '50cqh',
+							overflowY: 'auto',
+							padding: '1rem',
+							textAlight: 'center'
+						}
+					}));
+					list.append(...Array.from(tracks).map(track => {
+						let clone = track.cloneNode(true);
+						clone.style.setProperty('width', 'min-content');
+						return clone;
+					}));
+					let form = dialog.appendChild(this.constructor.createElement('form', {
+						method: 'dialog',
+						style: {
+							backgroundColor: 'inherit',
+							bottom: 0,
+							boxShadow: '0 0 4px 0 black',
+							display: 'flex',
+							gap: '.25em',
+							padding: '1rem',
+							position: 'sticky',
+							zIndex: 2
+						}
+					}));
+					form.appendChild(this.constructor.createElement('button', {
+						className: 'new-button button-type-1',
+						innerText: 'Cancel',
+						value: 'cancel'
+					}));
+					let confirm = form.appendChild(this.constructor.createElement('button', {
+						className: 'new-button button-type-2',
+						innerText: 'Confirm',
+						value: 'default'
+					}));
+					confirm.addEventListener('click', async event => {
+						event.preventDefault();
+						for (let button of form.querySelectorAll('button')) {
+							button.disabled = true;
+							button.style.setProperty('opacity', .5);
+							button.style.setProperty('pointer-events', 'none');
+						}
+
+						form.appendChild(this.constructor.createElement('span', {
+							className: 'loading-hourglass'
 						}));
-						let form = dialog.appendChild(document.createElement('form'));
-						form.setAttribute('method', 'dialog');
-						form.style.setProperty('background-color', 'inherit');
-						form.style.setProperty('bottom', 0);
-						form.style.setProperty('display', 'flex');
-						form.style.setProperty('gap', '.25em');
-						form.style.setProperty('box-shadow', '0 0 4px 0 black');
-						form.style.setProperty('padding', '1rem');
-						form.style.setProperty('position', 'sticky');
-						form.style.setProperty('z-index', 2);
-						let cancel = form.appendChild(document.createElement('button'));
-						cancel.classList.add('new-button', 'button-type-1');
-						cancel.setAttribute('value', 'cancel');
-						cancel.innerText = 'Cancel';
-						let confirm = form.appendChild(document.createElement('button'));
-						confirm.classList.add('new-button', 'button-type-2');
-						confirm.setAttribute('value', 'default');
-						confirm.innerText = 'Confirm';
-						confirm.addEventListener('click', async event => {
-							event.preventDefault();
-							for (let button of form.querySelectorAll('button')) {
-								button.disabled = true;
-								button.style.setProperty('opacity', .5);
-								button.style.setProperty('pointer-events', 'none');
-							}
+						let cache = [];
+						let tracks = list.querySelectorAll(".bottom:has(> label > input[type='checkbox']:checked)");
+						for (let metadata of tracks) {
+							let name = metadata.querySelector('.name');
+							let url = name.href;
+							let [tid] = url.match(/(?<=\/t\/)\d+/);
+							await fetch('/moderator/hide_track/' + tid);
+							cache.push(tid);
+							let container = metadata.closest('li');
+							container.remove();
+						}
 
-							let hourglass = form.appendChild(document.createElement('span'));
-							hourglass.classList.add('loading-hourglass');
-							let cache = [];
-							let tracks = list.querySelectorAll(".bottom:has(> label > input[type='checkbox']:checked)");
-							for (let metadata of tracks) {
-								let name = metadata.querySelector('.name');
-								let url = name.getAttribute('href');
-								let [tid] = url.match(/(?<=\/t\/)\d+/);
-								await fetch('/moderator/hide_track/' + tid);
-								cache.push(tid);
-								let container = metadata.closest('li');
-								container.remove();
-							}
-
-							// post message to extension?
-							let key = 'frhd-lite_recently-hidden-tracks';
-							let storage = Object.assign({}, JSON.parse(sessionStorage.getItem(key)));
-							storage[Date.now()] = cache;
-							sessionStorage.setItem(key, JSON.stringify(storage));
-							dialog.close(event.target.value);
-						});
-						dialog.addEventListener('close', event => {
-							action.disabled = false;
-							dialog.remove();
-						});
-						dialog.showModal();
-					}
-				case 'deselect':
-					for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:checked")) {
-						checkbox.checked = false;
-					}
-					break;
-				case 'select':
-					for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:not(:checked)")) {
-						checkbox.checked = true;
-					}
+						// post message to extension?
+						let key = 'frhd-lite_recently-hidden-tracks';
+						let storage = Object.assign({}, JSON.parse(sessionStorage.getItem(key)));
+						storage[Date.now()] = cache;
+						sessionStorage.setItem(key, JSON.stringify(storage));
+						dialog.close(event.target.value);
+					});
+					dialog.addEventListener('close', event => {
+						action.disabled = false;
+						dialog.remove();
+					});
+					dialog.showModal();
+				}
+			case 'deselect':
+				for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:checked")) {
+					checkbox.checked = false;
+				}
+				break;
+			case 'select':
+				for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:not(:checked)")) {
+					checkbox.checked = true;
+				}
 			}
 
 			event.target.value = 'default';
 			event.target.disabled = false;
+		}, { passive: true });
+	}
+
+	async modifyCommentNotifications() {
+		let notifications = await Application.Helpers.AjaxHelper.get('notifications').then(({ notification_days: d }) => {
+			return d && d.length > 0 && d.flatMap(({ notifications: n }) => n)
 		});
+		let commentNotifications = notifications.filter(({ t_uname_mention: t }) => t);
+		for (let { comment, track, ts } of commentNotifications) {
+			let notification = document.querySelector('.notification[data-ts="' + ts + '"] p > a[href$="' + track.url + '"]')
+			notification.href += '?c_id=' + comment.id;
+		}
 	}
 
 	refreshAchievements() {
@@ -1131,7 +1667,6 @@ window.lite = new class {
             	gap: '0.25rem'
 			}
 		});
-
 		return container;
 	}
 
@@ -1227,7 +1762,6 @@ window.lite = new class {
 				justifyContent: 'space-between'
 			}
 		});
-	
 		return container;
 	}
 
@@ -1246,7 +1780,8 @@ window.lite = new class {
 						element.append(...options[attribute]);
 					} else if (/^on/i.test(attribute)) {
 						for (const listener of options[attribute])
-							element.addEventListener(attribute.slice(2), listener);
+							// make listener passive if preventDefault() not found in stringified function
+							element.addEventListener(attribute.slice(2), listener, { passive: !/\.preventDefault\(\)/g.test(listener.toString()) });
 					}
 				} else if (/^style$/i.test(attribute))
 					Object.assign(element[attribute.toLowerCase()], options[attribute]);
@@ -1258,14 +1793,37 @@ window.lite = new class {
 		return typeof callback == 'function' && callback(element), element;
 	}
 
+	static downloadRace(tid, uid) {
+		return Application.Helpers.AjaxHelper.get("/track_api/load_races", {
+			t_id: tid,
+			u_ids: uid
+		}).done(({ data: [entry], result: r }) => {
+			if (!r) return;
+			let download = this.createElement('a', {
+				download: 'frhd_ghost_' + tid + '-' + uid,
+				href: URL.createObjectURL(
+					new Blob([JSON.stringify(Object.assign(entry.race, {
+						t_id: tid,
+						u_id: entry.user.u_id
+					}), '\t', 4)], {
+						type: 'application/json'
+					})
+				)
+			});
+			download.click();
+			URL.revokeObjectURL(download.href)
+		})
+	}
+
 	static downloadTrack(id) {
 		fetch('/track_api/load_track?id=' + id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json()).then(({ data, result }) => {
 			if (!result) return;
 			let { track } = data;
 			let blob = new Blob([track.code], { type: 'text/plain' });
-			let a = document.createElement('a');
-			a.href = URL.createObjectURL(blob);
-			a.download = track.title + '-' + track.id;
+			let a = this.createElement('a', {
+				download: track.title + '-' + track.id,
+				href: URL.createObjectURL(blob)
+			});
 			a.click();
 			URL.revokeObjectURL(a.href);
 		});
@@ -1278,12 +1836,54 @@ window.lite = new class {
 			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
 			for (let track of tracks)
 				zip.newFile(track.title + '-' + track.id + '.txt', track.code);
-			let a = document.createElement('a');
-			a.setAttribute('href', URL.createObjectURL(zip.blob()));
-			a.setAttribute('download', 'created-tracks');
+			let a = this.createElement('a', {
+				download: 'created-tracks',
+				href: URL.createObjectURL(zip.blob())
+			});
 			a.click();
-			URL.revokeObjectURL(a.getAttribute('href'));
+			URL.revokeObjectURL(a.href);
 		});
+	}
+
+	static users = [];
+	static async fetchUser(uid, { force } = {}) {
+		uid = String(uid);
+		let cache = this.users.find(({ user: { u_id, u_name }}) => u_id == uid || u_name === uid.toLowerCase());
+		if (cache && !force) {
+			return cache;
+		}
+
+		let entry = await Application.Helpers.AjaxHelper.get('u/' + uid);
+		this.users.push(entry);
+		return entry || null
+	}
+
+	static fetchComment(trackId, commentId) {
+		return Application.Helpers.AjaxHelper.post('track_comments/load_more/' + trackId + '/' + (commentId + 1)).then(r => r.result && r.data.track_comments[0]);
+	}
+
+	static async fetchCurrentUser({ force } = {}) {
+		const KEY = 'frhd-lite.current_user';
+		let cache = sessionStorage.getItem(KEY);
+		if (cache && !force) {
+			return JSON.parse(cache);
+		}
+
+		let data = await Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name);
+		sessionStorage.setItem(KEY, JSON.stringify(data));
+		return data
+	}
+
+	static async fetchFeaturedGhosts({ force } = {}) {
+		const KEY = 'frhd-lite.featured_ghosts';
+		let cache = sessionStorage.getItem(KEY);
+		if (cache && !force) {
+			return JSON.parse(cache);
+		}
+
+		let data = await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
+		sessionStorage.setItem(KEY, JSON.stringify(data));
+		return data
 	}
 
 	static waitForElm(selector) {

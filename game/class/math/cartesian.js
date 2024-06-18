@@ -20,7 +20,7 @@ export default class {
 		return new this.constructor(n, r)
 	}
 	lenSqr() {
-		return Math.pow(this.x, 2) + Math.pow(this.y, 2)
+		return this.dot(this)
 	}
 	len() {
 		return Math.sqrt(this.lenSqr())

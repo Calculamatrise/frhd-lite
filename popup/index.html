@@ -71,6 +71,10 @@
 					<span class="name">Snapshot Count (10)</span>
 					<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
 				</label>
+				<label class="ripple" title="Toggle developer mode">
+					<input type="checkbox" id="developerMode">
+					<span>Developer mode</span>
+				</label>
 				<details>
 					<summary class="tab ripple">Experiments</summary>
 					<label class="ripple" title="Remove duplicate powerups">
@@ -80,6 +84,10 @@
 					<label class="ripple" title="Don't render overlapping powerups">
 						<input type="checkbox" id="experiments.filterOverlappingPowerups">
 						<span class="name">Filter overlap</span>
+					</label>
+					<label class="ripple" title="Toggle track playlists">
+						<input type="checkbox" id="experiments.playlists">
+						<span>Playlists</span>
 					</label>
 					<label class="ripple" title="Display a progress bar for your race">
 						<input type="checkbox" id="experiments.raceProgress">

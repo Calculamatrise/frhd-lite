@@ -45,7 +45,7 @@ export default class {
 		this.loadingcircle = new LoadingCircle(this),
 		this.playerManager = new PlayerManager(this),
 		this.vehicleTimer = new VehicleTimer(this),
-		window.addEventListener('resize', () => this.redraw())
+		window.addEventListener('resize', () => this.redraw(), { passive: true })
 	}
 	get stateDirty() {
 		return this.isStateDirty()
