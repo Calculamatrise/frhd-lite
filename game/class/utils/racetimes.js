@@ -31,6 +31,7 @@ export default class extends GUI {
 			  , u = new Container({
 					alpha: this.raceOpacity,
 					color: '#'.padEnd(7, /^midnight$/i.test(window.lite?.storage.get('theme')) ? 'd' : /^dark(er)?$/i.test(window.lite?.storage.get('theme')) ? 'f' : '0'),
+					data: t,
 					inline: true,
 					textAlign: 'center',
 					textBaseline: 'middle'
@@ -50,6 +51,12 @@ export default class extends GUI {
 				x: 4,
 				y: 2
 			})),
+			u.addChild(new Component({
+				font: { size: 12 },
+				text: '0/' + i.track.targetCount,
+				x: 4,
+				y: 2
+			})),
 			this.raceCount++,
 			this.redraw()
 		}
@@ -65,7 +72,8 @@ export default class extends GUI {
 	}
 	clear() {
 		this.container.children.splice(0);
-		this.raceCount = 0
+		this.raceCount = 0,
+		this.redraw()
 	}
 	highlightRace(t) {
 		if (this.highlightedRace !== this.raceList[t]) {
@@ -84,8 +92,7 @@ export default class extends GUI {
 	update() {
 		if (this.raceCount > 0) {
 			let t = this.scene.camera;
-			t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace(),
-			this.scene.settings.mobile && this.centerContainer()
+			t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace()
 		}
 	}
 }

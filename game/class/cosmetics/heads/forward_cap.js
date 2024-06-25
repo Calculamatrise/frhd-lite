@@ -1,9 +1,9 @@
 export default class ForwardCap extends GameInventoryManager.HeadClass {
 	drawAngle = 0;
 	constructor(t) {
-		super();
-		this.colors = t;
-		this.createVersion();
+		super(),
+		this.colors = t,
+		this.createVersion()
 	}
 	cache(t) {
 		let e = this.versions[this.versionName]
@@ -44,24 +44,11 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		l.lineTo(103.5, 36.5),
 		l.stroke()
 	}
-	setDirty() {
-		this.versions[this.versionName].dirty = !0
-	}
-	getBaseWidth() {
-		return 115
-	}
-	getBaseHeight() {
-		return 112
-	}
-	getDrawOffsetX() {
-		return 2.2
-	}
-	getDrawOffsetY() {
-		return 1
-	}
-	getScale() {
-		return .17
-	}
+	getBaseWidth() { return 115 }
+	getBaseHeight() { return 112 }
+	getDrawOffsetX() { return 2.2 }
+	getDrawOffsetY() { return 1 }
+	getScale() { return .17 }
 }
 
 GameInventoryManager && GameInventoryManager.register('forward_cap', ForwardCap);

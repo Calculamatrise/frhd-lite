@@ -4,20 +4,19 @@ export default class {
 	pos = null;
 	old = null;
 	vel = null;
-	parent = null;
 	radius = 0;
 	friction = 0;
 	collide = !0;
 	contact = !1;
-	scene = null;
 	constructor(t, e) {
-		Object.defineProperty(this, 'scene', { enumerable: false });
+		Object.defineProperties(this, {
+			parent: { value: e, writable: true },
+			scene: { value: e.scene, writable: true }
+		});
 		this.pos = new s,
 		this.old = new s,
 		this.vel = new s(0,0),
 		this.radius = 10,
-		this.parent = e,
-		this.scene = e.scene,
 		this.pos.equ(t),
 		this.old.equ(t)
 	}

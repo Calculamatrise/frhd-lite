@@ -7,12 +7,12 @@ import P from "../utils/formatnumber.js";
 import o from "../utils/racetimes.js";
 
 async function digestMessage(message) {
-	const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
-	const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8); // hash the message
-	const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+	const msgUint8 = new TextEncoder().encode(message);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+	const hashArray = Array.from(new Uint8Array(hashBuffer));
 	const hashHex = hashArray
-	.map((b) => b.toString(16).padStart(2, "0"))
-	.join(""); // convert bytes to hex string
+	.map((b) => b.toString(16).padStart(2, '0'))
+	.join('');
 	return hashHex;
 }
 
@@ -73,34 +73,7 @@ export default class extends Scene {
 		this.hideControlPlanel())
 	}
 	buttonDown(t) {
-		if (!this.state.showDialog) {
-			let e = this.camera;
-			switch (t) {
-			case "change_camera":
-				e.focusOnNextPlayer();
-				break;
-			case "pause":
-				this.state.paused = !this.state.paused;
-				break;
-			case "settings":
-				this.openDialog("settings");
-				break;
-			case "exit_fullscreen":
-				this.exitFullscreen();
-				break;
-			case "change_vehicle":
-				this.toggleVehicle();
-				break;
-			case "zoom_increase":
-				e.increaseZoom();
-				break;
-			case "zoom_decrease":
-				e.decreaseZoom();
-				break;
-			case "fullscreen":
-				this.toggleFullscreen()
-			}
-		}
+		this.state.showDialog || super.buttonDown(t)
 	}
 	exitFullscreen() {
 		this.settings.fullscreenAvailable && (this.settings.fullscreen = !1,
@@ -135,6 +108,11 @@ export default class extends Scene {
 		this.settings.fullscreenAvailable && this.fullscreenControls.update()
 		this.settingsControls.update()
 	}
+	redrawControls() {
+		super.redrawControls(),
+		this.settings.fullscreenAvailable && this.fullscreenControls.redraw(),
+		this.settingsControls.redraw()
+	}
 	registerTools() {
 		let t = super.registerTools();
 		t.setTool("Camera")
@@ -168,7 +146,7 @@ export default class extends Scene {
 		this.raceTimes.update()
 	}
 	restart() {
-		this.settings.mobile ? this.message.show("Press Any Button To Start", 1, "#333333") : this.message.show("Press Any Key To Start", 1, "#333333", "#FFFFFF"),
+		this.message.show("Press Any Key To Start", 1, "#333333", "#FFFFFF"),
 		this.track.resetPowerups(),
 		this.restartTrack = !1,
 		this.state.paused = !1,
@@ -194,7 +172,7 @@ export default class extends Scene {
 		this.state.showControls !== !1 && (this.state.showControls = !1)
 	}
 	showControlPlanel(t) {
-		this.settings.isCampaign && !this.settings.mobile && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
+		this.settings.isCampaign && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
 		this.stateshowControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
 	}
 	resize() {
@@ -202,9 +180,6 @@ export default class extends Scene {
 		this.settings.fullscreenAvailable && this.fullscreenControls.resize(),
 		this.settingsControls.resize(),
 		super.resize()
-	}
-	updateState() {
-		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
 	setStateDefaults() {
 		let t = super.setStateDefaults();
@@ -214,18 +189,17 @@ export default class extends Scene {
 		t.showSkip = !1,
 		t
 	}
-	command() {
-		let t = Array.prototype.slice.call(arguments, 0)
-		  , e = t.shift();
-		switch (e) {
+	command(t, ...e) {
+		super.command(...arguments);
+		switch (t) {
 		case "clear race":
 			this.races.splice(0),
 			this.restartTrack = !0,
 			this.raceTimes.clear();
 			break;
 		case "add race":
-			let r = t[0]
-			  , o = t[1];
+			let r = e[0]
+			  , o = e[1];
 			this.addRaces(r),
 			o && (this.state.dialogOptions = {
 				races: this.races
@@ -233,7 +207,7 @@ export default class extends Scene {
 			this.command("dialog", "race_dialog"));
 			break;
 		case "change vehicle":
-			let a = t[0];
+			let a = e[0];
 			this.selectVehicle(a);
 			break;
 		case "restart":
@@ -249,12 +223,12 @@ export default class extends Scene {
 		case "exit_fullscreen":
 			this.exitFullscreen()
 		}
-		super.command(...arguments);
 	}
 	addRaces(t) {
 		this.mergeRaces(t),
 		this.sortRaces(),
 		this.formatRaces(),
+		this.game.emit('trackChallengeUpdate', this.races),
 		this.addRaceTimes(),
 		this.addPlayers(),
 		this.restartTrack = !0
@@ -286,29 +260,51 @@ export default class extends Scene {
 			t.addPlayer(h)
 		}
 	}
-	formatRaces() {
-		for (let { race: t } of this.races.filter(t => 'string' == typeof t.race.code)) {
-			let e = JSON.parse(t.code);
-			for (let i in e)
-				e[i] instanceof Array && (e[i] = e[i].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {}));
-			t.code = e
+	clearRaces() {
+		this.races.splice(0),
+		this.game.emit('trackChallengeUpdate', this.races),
+		this.raceTimes.clear(),
+		this.playerManager.clear()
+	}
+	formatRaces(t) {
+		t ||= this.races;
+		for (let { race: e } of t.filter(t => 'string' == typeof t.race.code)) {
+			let i = JSON.parse(e.code);
+			for (let s in i)
+				i[s] instanceof Array && (i[s] = i[s].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {}));
+			e.code = i
 		}
+		return t
 	}
 	removeDuplicateRaces() {
 		this.races = this.races.filter((race, index, races) => index === races.findIndex(dup => this.uniqesByUserIdIterator(dup) == this.uniqesByUserIdIterator(race)))
+	}
+	removeRaces(t) {
+		let e = this.races;
+		for (let i of t)
+			i = e.findIndex(({ user: t }) => t.u_id == i),
+			i > -1 && (i = e.splice(i, 1),
+			this.playerManager.removePlayer(t),
+			this.game.emit('trackRaceDelete', i[0]),
+			this.game.emit('trackRacesDelete', i));
+		this.game.emit('trackChallengeUpdate', this.races),
+		this.addRaceTimes(),
+		this.camera.focusOnMainPlayer()
 	}
 	uniqesByUserIdIterator(t) {
 		let e = t.user;
 		return e.u_id
 	}
 	sortRaces() {
-		this.races = this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b))
+		this.races.length > 1 ? this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b)) : this.sortByRunTicksIterator(this.races[0]),
+		this.game.emit('trackRacesSort', this.races)
 	}
 	mergeRaces(t) {
 		let e = this.races;
 		t && t.forEach(t => {
-			let i = e.find(e => e.user.u_id === t.user.u_id);
-			i ? Object.assign(i, t) : e.push(t)
+			let i = e.find(({ user: e }) => e.u_id === t.user.u_id);
+			i ? Object.assign(i, t) : (e.push(t),
+			this.game.emit('trackRaceCreate', t))
 		})
 	}
 	redraw() {
@@ -316,11 +312,9 @@ export default class extends Scene {
 		this.raceTimes.redraw()
 	}
 	sortByRunTicksIterator(t) {
-		let e = this.settings
-		  , i = parseInt(t.race.run_ticks)
-		  , s = P(i / e.drawFPS * 1e3);
-		return t.runTime = s,
-		i
+		let e = parseInt(t.race.run_ticks);
+		return t.runTime ||= P(e / this.settings.drawFPS * 1e3),
+		e
 	}
 	verifyComplete() {
 		let t = this.playerManager.firstPlayer

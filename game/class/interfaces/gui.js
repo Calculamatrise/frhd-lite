@@ -4,10 +4,8 @@ export default class {
 	cached = !1;
 	canvas = null;
 	container = new Container;
-	components = {};
-	scene = null;
 	constructor(t, e) {
-		this.scene = t,
+		Object.defineProperty(this, 'scene', { value: t, writable: true }),
 		Object.assign(this.container, e)
 	}
 	draw(t) {
@@ -18,6 +16,6 @@ export default class {
 	}
 	update() {
 		let t = this.container;
-		t.cached ||= t.children.findIndex(t => !t.cached) === -1
+		t.cached ||= -1 === t.children.findIndex(t => !t.cached)
 	}
 }

@@ -51,24 +51,21 @@ export default class extends bike {
 		this.frontSpring.dampConstant = .3
 	}
 	control() {
-		var t = this.gamepad
-		, e = t.isButtonDown("up")
-		, i = t.isButtonDown("down")
-		, s = (t.isButtonDown("back"),
-		t.isButtonDown("left"))
-		, n = t.isButtonDown("right")
-		, r = t.isButtonDown("z")
-		, o = e ? 1 : 0
-		, a = this.rearWheel;
-		a.motor += (o - a.motor) / 10,
+		let t = this.gamepad
+		  , e = t.isButtonDown("up")
+		  , i = t.isButtonDown("down")
+		  , s = t.isButtonDown("left")
+		  , n = t.isButtonDown("right")
+		  , r = t.isButtonDown("z")
+		  , a = this.rearWheel;
+		a.motor += (e - a.motor) / 10,
 		r && !this.swapped && (this.swap(),
 		this.swapped = !0),
 		r || (this.swapped = !1),
 		e && (this.pedala += this.rearWheel.speed / 5),
 		a.brake = i,
 		this.frontWheel.brake = this.dir > 0 && n && i ? !0 : this.dir < 0 && s && i ? !0 : !1;
-		var h = s ? 1 : 0;
-		h += n ? -1 : 0,
+		let h = s - n;
 		this.rearSpring.contract(5 * h * this.dir, 5),
 		this.frontSpring.contract(5 * -h * this.dir, 5),
 		this.chasse.rotate(h / 8),

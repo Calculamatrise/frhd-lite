@@ -2,7 +2,6 @@ import Vector from "../math/cartesian.js";
 
 export default class {
 	settings = null;
-	scene = null;
 	zoom = 1;
 	position = null;
 	desiredZoom = 1;
@@ -10,8 +9,8 @@ export default class {
 	focusIndex = 0;
 	playerFocus = null;
 	constructor(t) {
+		Object.defineProperty(this, 'scene', { value: t, writable: true });
 		this.settings = t.settings;
-		this.scene = t;
 		this.zoom = t.settings.cameraStartZoom * t.game.pixelRatio;
 		this.desiredZoom = t.settings.cameraStartZoom * t.game.pixelRatio;
 		this.zooming = !1;
@@ -33,20 +32,19 @@ export default class {
 				s.getDistanceBetweenPlayers(this.playerFocus) > 1500 && this.fastforward()
 			} else
 				this.fastforward()
+			this.scene.game.emit('cameraFocus', s)
 		}
-
-		window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.style.setProperty('display', this.focusIndex !== 0 ? 'block' : 'none'),
-		this.focusIndex !== 0 && (s = this.scene.races.find(({ user }) => user.u_id == s._user.u_id)) && (window.lite.replayGui.progress.max = s.race.run_ticks ?? 100));
 	}
 	focusOnMainPlayer() {
 		this.focusIndex === 0 && this.playerFocus || (this.focusIndex = 0, this.focusOnPlayer())
 	}
 	update() {
 		if (this.playerFocus) {
-			let t = this.playerFocus.getActiveVehicle(), s = 3;
-			Math.sqrt(Math.pow(t.focalPoint.pos.x - this.position.x, 2) + Math.pow(t.focalPoint.pos.y - this.position.y, 2)) > 1500 && (s = 1),
-			this.position.x += (t.focalPoint.pos.x - this.position.x) / s,
-			this.position.y += (t.focalPoint.pos.y - this.position.y) / s
+			let t = this.playerFocus.getActiveVehicle(), s = 3
+			  , e = t.focalPoint.pos.sub(this.position);
+			e.len() > 1500 && (s = 1);
+			this.position.x += e.x / s,
+			this.position.y += e.y / s // manually call scene.draw?
 		}
 	}
 	updateZoom() {
@@ -74,7 +72,7 @@ export default class {
 		this.zoomPoint = !1,
 		null === this.playerFocus && e && (this.zoomPoint = e),
 		this.zoomPercentage = this.getZoomAsPercentage(),
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	resetZoom() {
 		this.setZoom(this.settings.cameraStartZoom)
@@ -91,6 +89,7 @@ export default class {
 		this.desiredZoom < this.scene.settings.cameraZoomMin * window.devicePixelRatio && this.setZoom(this.scene.settings.cameraZoomMin)
 	}
 	unfocus() {
+		this.focusIndex = 0,
 		this.playerFocus = null,
 		this.scene.vehicleTimer.removePlayer()
 	}

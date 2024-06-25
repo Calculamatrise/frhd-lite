@@ -11,10 +11,10 @@ let l = {
 export default class extends Vehicle {
 	vehicleName = "Blob";
 	constructor(t, e) {
-		super(t);
-		this.createMasses(e);
-		this.createSprings();
-		this.stopSounds();
+		super(t),
+		this.createMasses(e),
+		this.createSprings(),
+		this.stopSounds()
 	}
 	createMasses(t) {
 		let e = [];

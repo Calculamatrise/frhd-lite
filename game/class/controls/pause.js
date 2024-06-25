@@ -17,23 +17,14 @@ export default class extends Controls {
 			height: 76
 		}
 	}
-	constructor(t) {
-		super(...arguments);
-		this.init(...arguments);
-	}
-	click(component = Object.values(this.controlData).find(this.isMouseOverComponent.bind(this))) {
-		for (const i in this.controlData) {
-			const component = this.controlData[i];
-			if (this.isMouseOverComponent(component)) {
-				this.scene.buttonDown(component.key);
-			}
-		}
+	constructor() {
+		super(...arguments),
+		this.init()
 	}
 	update() {
 		let t = this.scene.state.paused;
 		this.paused !== t && (t ? (this.controlData.pause.image = "play",
 		this.paused = !0) : (this.controlData.pause.image = "pause",
-		this.paused = !1));
-		super.update()
+		this.paused = !1))
 	}
 }

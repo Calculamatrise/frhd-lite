@@ -21,14 +21,16 @@ export default class extends Powerup {
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , r = t.pos.y - this.y
-		  , o = Math.pow(s, 2) + Math.pow(r, 2)
+		  , o = s ** 2 + r ** 2
 		  , a = e.masses
 		  , h = a.length;
 		if (1e3 > o && i.isAlive()) {
-			for (var u = h - 1; u >= 0; u--) {
-				var p = a[u].pos;
-				p.x += this.directionX * (1 + this.duplicates),
-				p.y += this.directionY * (1 + this.duplicates)
+			for (let n = 0; n < 1 + this.duplicates; n++) {
+				for (var u = h - 1; u >= 0; u--) {
+					var p = a[u].pos;
+					p.x += this.directionX,
+					p.y += this.directionY
+				}
 			}
 			i.isGhost() === !1 && (this.scene.sound.play('boost_sound'),
 			this.scene.message.show('Boost Engaged', 50, this.color))

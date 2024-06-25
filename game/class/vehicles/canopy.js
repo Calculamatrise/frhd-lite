@@ -2,10 +2,9 @@ import Mass from "./mass.js";
 import n from "../math/cartesian.js";
 
 export default class extends Mass {
-	wind = !1;
+	wind = !0;
 	constructor(t, e, i) {
 		super(new n(t, e), i);
-		this.wind = !0;
 	}
 	drive(t, e) {
 		this.pos.x += .05 * t * -t * (t * this.vel.x + e * this.vel.y),

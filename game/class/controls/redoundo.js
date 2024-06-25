@@ -24,15 +24,15 @@ export default class extends Controls {
 			height: 76
 		}
 	}
-	constructor(t) {
-		super(...arguments);
-		this.init(...arguments);
+	constructor() {
+		super(...arguments),
+		this.init()
 	}
-	click(component = Object.values(this.controlData).find(this.isMouseOverComponent.bind(this))) {
+	click() {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
 			if (this.isMouseOverComponent(component)) {
-				this.playerManager.firstPlayer._gamepad.setButtonsDown(component.keys);
+				this.controlDown(component.keys);
 			}
 		}
 	}
@@ -42,7 +42,6 @@ export default class extends Controls {
 		  , i = t.toolHandler;
 		t.controls && this.properties.visible !== e && (this.properties.visible = e),
 		this.controlData.undo.disabled = i.actionTimelinePointer === 0,
-		this.controlData.redo.disabled = i.actionTimelinePointer >= i.actionTimeline.length,
-		super.update();
+		this.controlData.redo.disabled = i.actionTimelinePointer >= i.actionTimeline.length
 	}
 }

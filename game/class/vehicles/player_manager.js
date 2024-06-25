@@ -5,19 +5,14 @@ export default class {
 	_playerLookup = {};
 	firstPlayer = null;
 	constructor(t) {
-		this.scene = t;
-		this.game = t.game;
-		this.settings = t.settings;
-		Object.defineProperties(this, {
-			scene: { enumerable: false },
-			game: { enumerable: false }
-		});
+		Object.defineProperty(this, 'scene', { value: t, writable: true }),
+		Object.defineProperty(this, 'game', { value: t.game, writable: true }),
+		this.settings = t.settings
 	}
 	fixedUpdate() {
 		if (!this.scene.camera.focusIndex)
 			for (let t = this._players.filter(player => !player.complete && !player.isGhost()), e = t.length, i = 0; e > i; i++)
 				t[i].fixedUpdate()
-
 		for (let t = this._players.filter(player => !player.complete && player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i]._replayIterator.next()
 	}
@@ -55,17 +50,24 @@ export default class {
 	getPlayerCount() {
 		return this._players.length
 	}
+	removePlayer(t) {
+		let e = this._players
+		  , i = this._playerLookup
+		  , s = e.find(s => t == s._user.u_id && s.isGhost());
+		e.splice(e.indexOf(s), 1);
+		delete i[s.id]
+	}
 	reset() {
 		for (let t = this._players, e = t.length, i = 0; e > i; i++)
 			t[i].reset()
-
 		for (let t = this._players.filter(player => player.isGhost()), e = t.length, i = 0; e > i; i++)
 			t[i]._replayIterator = t[i].createReplayIterator();
 	}
 	clear() {
 		this._players.splice(1),
 		this._playerLookup = {},
-		this._playerLookup[this.firstPlayer.id] = this.firstPlayer
+		this._playerLookup[this.firstPlayer.id] = this.firstPlayer,
+		this.scene.camera.focusIndex > 0 && this.scene.camera.unfocus()
 	}
 	_closePlayers() {
 		for (let t = this._players, e = t.length, i = 0; e > i; i++)

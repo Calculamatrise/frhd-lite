@@ -39,7 +39,7 @@ export default class extends Powerup {
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , o = t.pos.y - this.y
-		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(o, 2))
+		  , a = Math.sqrt(s ** 2 + o ** 2)
 		  , h = i._powerupsConsumed.targets
 		  , l = this.scene;
 		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
@@ -50,7 +50,15 @@ export default class extends Powerup {
 			this.sector.powerupCanvasDrawn = !1,
 			l.sound.play('goal_sound'),
 			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666')),
-			c >= u && (i.complete = !0)
+			c >= u && (i.complete = !0);
+			if (i.isGhost()) {
+				let raceTime = this.scene.raceTimes.container.children.find(({ data }) => data.user.u_id === i._user.u_id);
+				if (raceTime && raceTime.children.length > 0) {
+					let targets = raceTime.children[raceTime.children.length - 1];
+					targets.text = c + '/' + u;
+					this.scene.raceTimes.redraw()
+				}
+			}
 		}
 	}
 	draw(t, e, i, s) {

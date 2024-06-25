@@ -7,12 +7,8 @@ export default class {
 	springs = null;
 	slow = !1;
 	constructor(t) {
-		this.player = t,
-		this.scene = t._scene,
-		Object.defineProperties(this, {
-			player: { enumerable: false },
-			scene: { enumerable: false }
-		});
+		Object.defineProperty(this, 'player', { value: t, writable: true }),
+		Object.defineProperty(this, 'scene', { value: t._scene, writable: true }),
 		this.gamepad = t._gamepad,
 		this.settings = t._settings,
 		this.gravity = new Cartesian(0,.3),

@@ -89,9 +89,9 @@ export default class extends GUI {
 			x: 4,
 			y: 3
 		})),
-		this.update_state()
+		this.updateState()
 	}
-	update_state() {
+	updateState() {
 		switch (this.settings.campaignData.user.has_goal) {
 		case 1:
 		case "first":
@@ -113,7 +113,6 @@ export default class extends GUI {
 		e.y = 40
 	}
 	update() {
-		this.settings.mobile && this.centerContainer(),
-		this.update_state()
+		this.updateState()
 	}
 }

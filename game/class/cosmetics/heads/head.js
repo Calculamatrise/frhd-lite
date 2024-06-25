@@ -1,7 +1,7 @@
 import "../inventorymanager.js";
 
 export default GameInventoryManager.HeadClass = class {
-	versions = {}
+	versions = {};
 	createVersion() {
 		let t = this.colors
 		  , e = this.getVersions()

@@ -19,21 +19,26 @@ export default class {
 		x: 0,
 		y: 0
 	}
-	init(t) {
+	constructor(t) {
 		this.scene = t,
 		this.game = t.game,
 		this.assets = t.assets,
 		this.settings = t.settings,
 		this.mouse = t.mouse,
-		this.playerManager = t.playerManager,
+		this.playerManager = t.playerManager
+	}
+	init() {
 		this.createSprite(),
 		this.resize()
 	}
-	isMouseOverComponent(component) {
-		const { x, y } = this.mouse.touch.pos;
-		return Math.sqrt((x - component.x) ** 2 + (y - component.y) ** 2) < component.width / 2 * component.scaleX;
+	click() {
+		for (const i in this.controlData) {
+			const component = this.controlData[i];
+			if (this.isMouseOverComponent(component)) {
+				this.scene.buttonDown(component.key);
+			}
+		}
 	}
-	click() {}
 	createSprite() {
 		let t = this.scene.assets.getResult(this.name)
 		  , e = this.controlsSpriteSheetData;
@@ -42,7 +47,7 @@ export default class {
 	}
 	draw(t) {
 		if (!this.properties.visible) return;
-		t.save();
+		let globalAlpha = t.globalAlpha;
 		typeof this.properties.alpha == 'number' && (t.globalAlpha = this.properties.alpha);
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
@@ -52,7 +57,11 @@ export default class {
 			typeof component.alpha == 'number' && (t.globalAlpha = (typeof this.properties.alpha != 'number' || this.properties.alpha) * (component.alpha / (2 - !component.disabled))),
 			t.drawImage(this.controlsSpriteSheetData.images[0], ...ctrlData, this.game.width - component.right * this.properties.scaleX - width / 2, component.top * this.properties.scaleY - height / 2, width, height);
 		}
-		t.restore()
+		globalAlpha !== t.globalAlpha && (t.globalAlpha = globalAlpha)
+	}
+	isMouseOverComponent(component) {
+		const { x, y } = this.mouse.touch.pos;
+		return Math.sqrt((x - component.x) ** 2 + (y - component.y) ** 2) < component.width / 2 * component.scaleX;
 	}
 	isVisible() {
 		return this.properties.visible
@@ -74,44 +83,39 @@ export default class {
 	mouseOut(t) {
 		t && (t.alpha = .5),
 		this.mouse.enabled = !0,
-		this.game.canvas.style.removeProperty('cursor', 'default')
+		this.game.canvas.style.removeProperty('cursor')
 	}
 	controlDown(t) {
-		let e = this.playerManager.firstPlayer.getGamepad();
-		if (t.target.buttonDetails.key) {
-			e.setButtonDown(t.target.buttonDetails.key)
-		}
-		if (t.target.buttonDetails.keys)
-			for (var r = t.target.buttonDetails.keys, o = r.length, a = 0; o > a; a++) {
-				e.setButtonDown(r[a])
+		let e = t.target
+		  , i = e.buttonDetails
+		  , s = this.playerManager.firstPlayer.getGamepad();
+		i.key && s.setButtonDown(i.key);
+		if (i.keys)
+			for (let r = i.keys, o = 0; r.length > o; o++) {
+				s.setButtonDown(r[o])
 			}
-			t.target.buttonDetails.downCallback && t.target.buttonDetails.downCallback(t),
-		this.settings.mobile && (this.mouse.enabled = !1),
-		t.target.alpha = 1
+		i.downCallback && i.downCallback(t),
+		this.mouse.enabled = !1,
+		e.alpha = 1
 	}
 	controlUp(t) {
-		var e = t.target
-		, i = e.buttonDetails
-		, s = this.playerManager.firstPlayer.getGamepad();
-		if (i.key) {
-			var n = i.key;
-			s.setButtonUp(n)
-		}
+		let e = t.target
+		  , i = e.buttonDetails
+		  , s = this.playerManager.firstPlayer.getGamepad();
+		i.key && s.setButtonUp(i.key);
 		if (i.keys)
-			for (var r = i.keys, o = r.length, a = 0; o > a; a++) {
-				var n = r[a];
-				s.setButtonUp(n)
+			for (let r = i.keys, o = 0; r.length > o; o++) {
+				s.setButtonUp(r[o])
 			}
 		i.upCallback && i.upCallback(t),
-		this.settings.mobile ? (this.mouse.enabled = !0,
-		e.alpha = .5) : e.alpha = .8
+		this.mouse.enabled = !0,
+		e.alpha = .8
 	}
-	click() {}
 	close() {}
-	update() {
+	redraw() {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
-			if (this.isMouseOverComponent(component)) {
+			if (!component.disabled && this.isMouseOverComponent(component)) {
 				this.mouseOver(component)
 				component.hovering = true
 			} else if (component.hovering && !this.mouse.enabled) {
@@ -138,4 +142,5 @@ export default class {
 			component.top && (component.y = component.top * component.scaleY)
 		}
 	}
+	update() {}
 }

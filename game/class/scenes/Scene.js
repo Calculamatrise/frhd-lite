@@ -12,7 +12,6 @@ import Camera from "../view/camera.js";
 import Screen from "../view/screen.js";
 
 export default class {
-	game = null;
 	assets = null;
 	settings = null;
 	camera = null;
@@ -25,14 +24,10 @@ export default class {
 	vehicle = "Mtb";
 	importCode = !1;
 	pauseControls = null;
-	controls = null;
 	message = null;
 	analytics = null;
 	constructor(t) {
-		Object.defineProperties(this, {
-			game: { enumerable: false }
-		});
-		this.game = t,
+		Object.defineProperty(this, 'game', { value: t, writable: true });
 		this.assets = t.assets,
 		this.settings = t.settings,
 		this.sound = new SoundManager(this),
@@ -45,10 +40,46 @@ export default class {
 		this.loadingcircle = new LoadingCircle(this),
 		this.playerManager = new PlayerManager(this),
 		this.vehicleTimer = new VehicleTimer(this),
-		window.addEventListener('resize', () => this.redraw(), { passive: true })
+		Object.defineProperty(this, '_onresize', { value: this.redraw.bind(this), writable: true }),
+		window.addEventListener('resize', this._onresize, { passive: true })
 	}
-	get stateDirty() {
-		return this.isStateDirty()
+	buttonDown(t) {
+		let e = this.camera;
+		switch (t) {
+		case "change_camera":
+			e.focusOnNextPlayer();
+			break;
+		case "pause":
+			this.state.paused = !this.state.paused,
+			this.state.paused && Object.defineProperty(this, '_idleStateTimeout', {
+				value: setTimeout(() => this.state.idle = this.state.paused, 300),
+				writable: true
+			}) || (this._idleStateTimeout && clearTimeout(this._idleStateTimeout),
+			this.state.idle = false);
+			this.updateState();
+			break;
+		case "settings":
+			this.openDialog("settings");
+			break;
+		case "exit_fullscreen":
+			this.exitFullscreen();
+			break;
+		case "change_vehicle":
+			this.toggleVehicle(),
+			this.updateState();
+			break;
+		case "zoom_increase":
+			e.increaseZoom(),
+			this.updateState();
+			break;
+		case "zoom_decrease":
+			e.decreaseZoom(),
+			this.updateState();
+			break;
+		case "fullscreen":
+			this.toggleFullscreen(),
+			this.updateState()
+		}
 	}
 	createMainPlayer() {
 		let t = this.playerManager
@@ -66,41 +97,39 @@ export default class {
 		this.track = t;
 		return t
 	}
-	command() {
-		var t = Array.prototype.slice.call(arguments, 0)
-			, e = t.shift();
-		switch (e) {
+	command(t, ...e) {
+		switch (t) {
 		case "resize":
 			this.resize();
 			break;
 		case "dialog":
-			var i = t[0];
+			var i = e[0];
 			i === !1 ? this.listen() : this.unlisten(),
 			this.openDialog(i);
 			break;
 		case "focused":
-			let s = t[0];
+			let s = e[0];
 			s === !0 ? (this.state.inFocus = !0,
 			this.state.showDialog === !1 && this.listen()) : (this.state.inFocus = !1,
 			this.unlisten(),
 			this.state.playing = !1);
 			break;
 		case "add track":
-			this.importCode = t[0].code;
+			this.importCode = e[0].code
 		}
 	}
 	draw(ctx) {
-		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		/* !this.state.paused && */ /* !this.state.idle && */ (ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
+		this.game.emit('clearRect', 0, 0, ctx.canvas.width, ctx.canvas.height, true),
 		this.toolHandler.drawGrid(ctx),
-		this.track.draw(ctx),
+		this.track.draw(ctx)),
 		this.score.draw(ctx),
 		this.playerManager.draw(ctx),
 		this.vehicleTimer.player && this.vehicleTimer.player._tempVehicleTicks > 0 && this.vehicleTimer.draw(ctx),
-		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.draw(ctx),
+		this.toolHandler.draw(ctx),
 		this.loading && this.loadingcircle.draw(ctx),
 		this.message.draw(ctx),
-		this.pauseControls.draw(ctx),
-		this.controls && this.controls.draw(ctx)
+		this.pauseControls.draw(ctx)
 	}
 	fixedUpdate() {
 		this.screen.update(),
@@ -126,7 +155,6 @@ export default class {
 	}
 	hideControlPlanel() {}
 	interactWithControls() {
-		this.controls && this.controls.click(),
 		this.pauseControls.click()
 	}
 	isStateDirty() {
@@ -142,6 +170,9 @@ export default class {
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()
 	}
+	redrawControls() {
+		this.pauseControls.redraw()
+	}
 	registerTools() {
 		let t = new ToolHandler(this);
 		this.toolHandler = t,
@@ -149,11 +180,17 @@ export default class {
 		return t
 	}
 	resize() {
-		this.controls && this.controls.resize();
+		this.redrawControls()
 	}
 	showControlPlanel() {}
-	stateChanged() {
-		this.updateState()
+	updateState() {
+		let t = this.state
+		  , e = structuredClone(this.state);
+		t.zoomPercentage = this.camera.zoomPercentage,
+		t.vehicle = this.vehicle,
+		this.game.emit('stateChange', this.state),
+		this.game.emit('stateUpdate', e, structuredClone(this.state)),
+		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
 	toggleVehicle() {
 		let t = this.track.allowedVehicles
@@ -164,19 +201,10 @@ export default class {
 		this.selectVehicle(i)
 	}
 	updateControls() {
-		if (this.controls) {
-			let t = this.state.paused;
-			this.controls.isVisible() === t && (t || (this.state.playing = !1,
-			this.camera.focusOnMainPlayer(),
-			this.toolHandler.setTool("camera")),
-			this.controls.setVisibility(!t),
-			this.updateState()),
-			this.controls.update()
-		}
 		this.pauseControls.update()
 	}
 	updateToolHandler() {
-		this.controls && this.controls.isVisible() !== !1 || this.toolHandler.update()
+		this.toolHandler.update()
 	}
 	selectVehicle(t) {
 		let e = this.track.allowedVehicles
@@ -226,6 +254,8 @@ export default class {
 		}
 	}
 	close() {
+		window.removeEventListener('resize', this._onresize),
+		this._onresize = null,
 		this.pauseControls = null,
 		this.score = null,
 		this.mouse.close(),

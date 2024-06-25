@@ -50,9 +50,9 @@ window.lite = new class {
 	constructor() {
 		let searchParams = new URLSearchParams(location.search);
 		if (searchParams.has('ajax')) return;
-		window.Application && Application.events.subscribe('mainview.loaded', this.childLoad.bind(this));
+		window.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this));
 		window.ModManager && (ModManager.hook(this, { name: 'lite' }),
-		ModManager.on('ready', this.load.bind(this)),
+		ModManager.on('ready', this._load.bind(this)),
 		ModManager.on('stateChange', this.refresh.bind(this)));
 		this.#createCustomStyleSheet();
 		addEventListener('message', ({ data }) => {
@@ -60,7 +60,7 @@ window.lite = new class {
 			switch (data.action) {
 			case 'setStorage':
 				this.storage = new Map(Object.entries(data.storage));
-				this.childLoad();
+				this._childLoad();
 				break;
 			case 'updateStorage':
 				let oldStorage = new Map(this.storage);
@@ -85,6 +85,77 @@ window.lite = new class {
 	#createCustomStyleSheet() {
 		this.#customStyleSheet = document.head.appendChild(document.createElement('style'));
 		this.#customStyleSheet.setAttribute('id', 'frhd-lite-style');
+	}
+
+	_childLoad() {
+		this.attachContextMenu();
+		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
+		this.storage.get('accountManager') && this.initAccountManager();
+		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
+		this.cacheTrackData(),
+		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay(),
+		this.initBestDate(),
+		this.initDownloadGhosts(),
+		this.initGhostMetadata(),
+		this.initReportTracks(),
+		location.search.includes('c_id=') && this.initJumpToComment(),
+		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
+		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
+		this.initGhostPlayer(),
+		this.storage.get('uploadGhosts') && this.initUploadGhosts());
+		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('experiments').playlists && this.initPlayLater(),
+		this.initUserTrackAnalytics()) : this.initFriendsLastPlayed(),
+		Application.settings.user.moderator && (this.initUserModeration(),
+		this.initUserTrackModeration()));
+		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData()
+	}
+
+	_load(game) {
+		game.on('cameraFocus', playerFocus => {
+			this.replayGui && (this.replayGui.style.setProperty('display', this.scene.camera.focusIndex !== 0 ? 'block' : 'none'),
+			this.scene.camera.focusIndex !== 0 && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id)) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
+		}),
+		game.on('draw', this.draw.bind(this)),
+		game.on('trackChallengeUpdate', races => {
+			let challengeLeaderboard = this.fetchChallengeLeaderboard({ createIfNotExists: true });
+			challengeLeaderboard.replaceChildren(...races.map((data, index) => {
+				let row = this.constructor.fetchRaceRow(data, { parent: challengeLeaderboard, placement: 1 + index });
+				let actionRow = row.querySelector('.track-leaderboard-action');
+				actionRow.querySelector('span.btn.new-button.button-type-1') || actionRow.appendChild(this.constructor.createElement('span.btn.new-button.button-type-1', {
+					innerText: 'X',
+					title: 'Remove Race',
+					style: {
+						aspectRatio: 1,
+						backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)',
+						fontSize: '12px',
+						height: '24px',
+						lineHeight: '2em',
+						marginRight: '6px',
+						textAlign: 'center'
+					},
+					onclick() {
+						let row = this.closest('.track-leaderboard-race-row');
+						lite.scene.removeRaces([row.dataset.u_id]);
+					}
+				}));
+				return row
+			}));
+			challengeLeaderboard.children.length < 1 && challengeLeaderboard.closest('.track-leaderboard').style.setProperty('display', 'none');
+			let tasRaces = races.filter(({ race }) => race.code.tas);
+			tasRaces.length > 0 && this.updateTASLeaderboard(tasRaces);
+		}),
+		game.on('trackRaceCreate', data => {
+			GameSettings.raceData ||= [];
+			GameSettings.raceData.push(data),
+			GameSettings.raceUids.push(data.user.u_id)
+		});
+		game.on('trackRaceDelete', data => {
+			GameSettings.raceData && (GameSettings.raceData.splice(GameSettings.raceData.indexOf(data), 1),
+			GameSettings.raceData.length < 1 && (GameSettings.raceData = !1)),
+			GameSettings.raceUids.splice(GameSettings.raceUids.indexOf(data.user.u_id), 1)
+		});
+		this.snapshots.splice(0, this.snapshots.length),
+		this._updateFromSettings(this.storage)
 	}
 
 	_updateCustomStyleSheet(data) {
@@ -173,7 +244,7 @@ window.lite = new class {
 			}
 		}
 
-		childLoad && this.childLoad(),
+		childLoad && this._childLoad(),
 		redraw && this.scene.redraw(),
 		this.refresh()
 	}
@@ -182,6 +253,7 @@ window.lite = new class {
 		if (!this._oncontextmenu) {
 			Object.defineProperty(this, '_oncontextmenu', {
 				value: async event => {
+					this.currentTrackData === null && this.cacheTrackData();
 					// track-list-tile
 					let race = event.target.closest('.track-leaderboard-race-row');
 					if (null !== race) {
@@ -204,31 +276,61 @@ window.lite = new class {
 								u_ids: race.dataset.u_id
 							}).then(r => r.result && navigator.clipboard.writeText(JSON.stringify(r.data, '\t', 4)).catch(err => alert(err.message)))
 						}, {
+							name: race.dataset.legitimacy || 'Test Legitimacy',
+							styles: race.dataset.legitimacy && ['disabled'],
+							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
+								t_id: this.currentTrackData.t_id,
+								u_ids: race.dataset.u_id
+							}).then(({ data, result: r }) => {
+								if (!r) return alert('Race not found.');
+								let [entry] = this.scene.formatRaces(data);
+								let isTas = 'tas' in entry.race.code;
+								race.dataset.legitimacy = isTas ? 'Illegitimate (TAS)' : 'Legit';
+								isTas && this.updateTASLeaderboard([entry]);
+							})
+						}, {
 							name: 'Report',
-							styles: ['danger'],
-							click: () => window.open('https://community.freeriderhd.com/threads/report-a-ghost.11854/#twitter-widget-0', 'blank')
+							styles: ['danger', race.dataset.reported && 'disabled'],
+							click: () => this.constructor.report('Race \'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'race' }).then(() => {
+								race.dataset.reported = true
+							})
 						}];
-						Application.settings.user.u_id == race.dataset.u_id && options.splice(2, 0, {
+						Application.settings.user.u_id == race.dataset.u_id && options.splice(options.length - 1, 0, {
+							name: race.title || 'Check Date',
+							styles: race.title && ['disabled'],
+							click: () => this.constructor.fetchRaceBestDate().then(date => race.setAttribute('title', date))
+						}, {
 							name: 'Download',
 							click: () => this.constructor.downloadRace(this.currentTrackData.t_id, race.dataset.u_id)
-						})
-						Application.settings.user.moderator && options.splice(options.length - 1, 0, {
-							name: 'Delete',
-							styles: ['danger'],
-							click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
-								t_id: this.currentTrackData.t_id,
-								u_id: race.dataset.u_id
-							}).then(r => r.result && race.remove()).catch(err => alert('Something went wrong! ' + err.message))
-						}, {
-							name: 'Delete & Ban', // only show if mod
-							styles: ['danger'],
-							click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
-								t_id: this.currentTrackData.t_id,
-								u_id: race.dataset.u_id
-							}).then(r => r.result && (race.remove(), Application.Helpers.AjaxHelper.post('moderator/ban_user', {
-								u_id: race.dataset.u_id
-							}))).catch(err => alert('Something went wrong! ' + err.message))
 						});
+						if (Application.settings.user.moderator) {
+							let targetUser = await this.constructor.fetchUser(race.dataset.d_name);
+							options.splice(options.length - 1, 0, {
+								name: 'Feature',
+								click: () =>  navigator.clipboard.writeText('"frhd.co/t/' + this.currentTrackData.t_id + '/r/' + race.dataset.d_name.toLowerCase() + '": ""').then(() => {
+									window.open('https://github.com/Calculamatrise/frhd-featured-ghosts/edit/master/data.json', 'blank')
+								})
+							}, {
+								name: 'Delete',
+								styles: ['danger'],
+								click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
+									t_id: this.currentTrackData.t_id,
+									u_id: race.dataset.u_id
+								}).then(r => r.result && (race.remove(),
+								Application.router.current_view.refresh_leaderboard())).catch(err => alert('Something went wrong! ' + err.message))
+							}, {
+								name: 'Delete & Ban', // only show if mod
+								styles: ['danger', targetUser.user.banned && 'disabled'],
+								click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
+									t_id: this.currentTrackData.t_id,
+									u_id: race.dataset.u_id
+								}).then(r => r.result && (race.remove(),
+								Application.router.current_view.refresh_leaderboard(),
+								Application.Helpers.AjaxHelper.post('moderator/ban_user', {
+									u_id: race.dataset.u_id
+								}))).catch(err => alert('Something went wrong! ' + err.message))
+							});
+						}
 						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
 							name: 'Copy Racer Id',
 							click: () => navigator.clipboard.writeText(race.dataset.u_id)
@@ -250,7 +352,12 @@ window.lite = new class {
 						Application.settings.user.moderator && options.splice(options.length, 0, {
 							name: 'Delete All',
 							styles: ['danger', 'disabled'],
-							click: () => confirm('Are you sure you want to delete ALL races on this leaderboard? This cannot be undone.') && ''
+							click: () => confirm('Are you sure you want to delete ALL races on this leaderboard? This cannot be undone.') && Promise.all(Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => {
+								return Application.Helpers.AjaxHelper.post('moderator/remove_race', {
+									t_id: this.currentTrackData.t_id,
+									u_id: row.dataset.u_id
+								})
+							}))
 						})
 						ContextMenu.create(options, event);
 						return;
@@ -264,6 +371,7 @@ window.lite = new class {
 							return;
 						}
 
+						let confirmFlag = comment.querySelector('.track-comment-confirm-flag > .yes');
 						const options = [{
 							name: 'Reply',
 							click: () => {
@@ -276,8 +384,8 @@ window.lite = new class {
 							click: () => navigator.clipboard.writeText(comment.querySelector('.track-comment-msg').innerText)
 						}, {
 							name: 'Report',
-							styles: ['danger'],
-							click: () => comment.querySelector('.track-comment-confirm-flag > .yes').click()
+							styles: ['danger', confirmFlag || 'disabled'],
+							click: () => confirmFlag.click()
 						}];
 						Application.settings.user.d_name == comment.dataset.d_name && options.splice(options.length - 1, 0, {
 							name: 'Delete',
@@ -303,12 +411,20 @@ window.lite = new class {
 					if (null !== track) {
 						event.preventDefault();
 						if (event.target.closest('.track-about-author-img, a.bold')) {
-							ContextMenu.create(await this.buildUserContextMenu(track), event);
+							const options = await this.buildUserContextMenu(track);
+							let subscribe = document.querySelector('#subscribe_to_author');
+							options.splice(options.length - 3, 0, {
+								name: subscribe.innerText,
+								styles: /^un/i.test(subscribe.innerText) && ['danger'],
+								click: () => subscribe.click()
+							});
+							ContextMenu.create(options, event);
 							return;
 						}
 
 						let playlist = this.storage.get('experiments').playlists && this.fetchAndCachePlaylists('playlater');
 						let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+						let confirmFlag = document.querySelector('.track-flag ~ .track-confirm-flag > .yes');
 						const options = [{
 							name: 'Copy Title',
 							click: () => navigator.clipboard.writeText(track.querySelector('h1.bold').innerText)
@@ -332,13 +448,22 @@ window.lite = new class {
 								playlist.size > 0 ? localStorage.setItem('frhd-lite.playlists.playlater', JSON.stringify(Array.from(playlist.values()))) : localStorage.removeItem('frhd-lite.playlists.playlater');
 							})
 						}, {
+							name: track.dataset.last_played_date || 'Check Last Played',
+							styles: track.dataset.last_played_date && ['disabled'],
+							click: () => this.constructor.fetchTrackLastPlayedDate().then(date => track.dataset.last_played_date = date)
+						}, {
 							name: 'Report',
-							styles: ['danger'],
-							click: () => document.querySelector('.track-flag ~ .track-confirm-flag > .yes').click()
+							styles: ['danger', confirmFlag || 'disabled'],
+							click: () => (confirmFlag.click(),
+							confirmFlag.parentElement.remove(),
+							document.querySelector('.track-flag')?.remove())
 						}];
-						Application.settings.user.u_id == this.currentTrackData.author_id && options.splice(3, 0, {
+						Application.settings.user.u_id == this.currentTrackData.author_id && options.splice(options.length - 1, 0, {
 							name: 'Download',
 							click: () => this.constructor.downloadTrack(this.currentTrackData.t_id)
+						}, {
+							name: 'Download All',
+							click: () => this.constructor.downloadAllTracks(Application.settings.user.u_name)
 						});
 						Application.settings.user.moderator && options.splice(options.length - 1, 0, {
 							name: 'Add to Track of the Day',
@@ -417,7 +542,7 @@ window.lite = new class {
 		let isFriend = currentUser.friends.friends_data.find(({ u_id }) => u_id == data.u_id);
 		const options = [{
 			name: 'Profile',
-			click: () => Application.router.do_route('u/' + data.d_name)
+			click: () => Application.router.do_route('u/' + (data.u_name || data.d_name.toLowerCase()))
 		}, {
 			name: 'Copy Username',
 			click: () => navigator.clipboard.writeText(comment.dataset.d_name)
@@ -430,10 +555,7 @@ window.lite = new class {
 		}, {
 			name: 'Report',
 			styles: ['danger'],
-			click: () => Application.Helpers.AjaxHelper.post('track_comments/post', {
-				t_id: this.currentTrackData.t_id,
-				msg: '@Calculus, @Totoca12, race, ' + data.u_id + ', by @' + data.d_name + ' has been reported.'
-			})
+			click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' })
 		}];
 		request && options.splice(3, 0, {
 			name: 'Accept Friend Request',
@@ -504,28 +626,38 @@ window.lite = new class {
 		this.currentTrackData = trackData ? Object.assign({}, trackData.dataset, window.hasOwnProperty('GameSettings') && { track: GameSettings.track }) : null
 	}
 
-	childLoad() {
-		this.attachContextMenu();
-		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
-		this.storage.get('accountManager') && this.initAccountManager();
-		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay();
-		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
-		this.cacheTrackData(),
-		this.initBestDate(),
-		this.initDownloadGhosts(),
-		this.initGhostMetadata(),
-		this.initReportTracks(),
-		location.search.includes('c_id=') && this.initJumpToComment(),
-		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
-		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
-		this.initGhostPlayer(),
-		this.storage.get('uploadGhosts') && this.initUploadGhosts());
-		location.pathname.match(/^\/u\//i) && (this.initFriendsLastPlayed(),
-		location.pathname.match(new RegExp('^\/u\/' + Application.settings.user.u_name + '\/?', 'i')) && (this.storage.get('experiments').playlists && this.initPlayLater(),
-		this.initUserTrackAnalytics()),
-		Application.settings.user.moderator && (this.initUserModeration(),
-		this.initUserTrackModeration()));
-		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData();
+	fetchChallengeLeaderboard({ createIfNotExists } = {}) {
+		let leaderboard = document.querySelector('#race_leaderboard > table > tbody');
+		if (!leaderboard && createIfNotExists) {
+			let globalLeaderboard = document.querySelector('#track_leaderboard');
+			if (!globalLeaderboard) return;
+			let fragmentFromString = str => new DOMParser().parseFromString(str, 'text/html').body.childNodes[0];
+			leaderboard = fragmentFromString(Application.Helpers.TemplateHelper.render(Application.router.current_view.templates['track/track_race_leaderboard'], {}, {
+				race_leaderboard: [] // GameManager.game.currentScene.races
+			}));
+			globalLeaderboard.parentElement.prepend(leaderboard);
+			leaderboard = leaderboard.querySelector('table');
+			leaderboard = leaderboard.querySelector('tbody') || leaderboard.appendChild(document.createElement('tbody'));
+		}
+		leaderboard.closest('.track-leaderboard').style.removeProperty('display');
+		return leaderboard || null
+	}
+
+	fetchTASLeaderboard({ createIfNotExists } = {}) {
+		let leaderboard = document.querySelector('#frhd-lite\\.tas-leaderboard > table > tbody');
+		if (!leaderboard && createIfNotExists) {
+			let globalLeaderboard = document.querySelector('#track_leaderboard');
+			if (!globalLeaderboard) return;
+			leaderboard = globalLeaderboard.cloneNode(true);
+			leaderboard.setAttribute('id', 'frhd-lite.tas-leaderboard');
+			let title = leaderboard.querySelector('h3:first-child');
+			title.setAttribute('title', 'Tool-assisted speedruns');
+			title.innerText = 'TAS BEST TIMES';
+			globalLeaderboard.after(leaderboard);
+			leaderboard = leaderboard.querySelector('table > tbody');
+			leaderboard.replaceChildren();
+		}
+		return leaderboard || null
 	}
 
 	fetchAndCachePlaylists(name) {
@@ -542,12 +674,6 @@ window.lite = new class {
 		return name ? this.playlists.get(name) || null : this.playlists
 	}
 
-	load(game) {
-		game.on('draw', this.draw.bind(this)),
-		this.snapshots.splice(0, this.snapshots.length),
-		this._updateFromSettings(this.storage)
-	}
-
 	refresh() {
 		let keymap = this.storage.get('keymap');
 		for (let key in keymap)
@@ -556,8 +682,26 @@ window.lite = new class {
 			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || GameSettings.physicsLineColor
 	}
 
+	updateTASLeaderboard(races) {
+		let leaderboard = this.fetchTASLeaderboard({ createIfNotExists: true });
+		for (let data of races) {
+			let row = leaderboard.appendChild(this.constructor.fetchRaceRow(data, { parent: leaderboard, placement: 1 + races.indexOf(data) }))
+			let stats = Object.fromEntries(Object.keys(data.race.code.tas).slice(1).map(value => value.split(/:\s*/).map(value => isFinite(value) ? parseFloat(value) : value.replace(/\s+/g, '_'))));
+			let time = row.querySelector(':nth-child(4)');
+			time.innerText = this.constructor.formatRaceTime(stats.run_ticks / GameSettings.drawFPS * 1e3);
+			let actionRow = row.querySelector('.track-leaderboard-action');
+			actionRow.querySelector('span.core_icons.core_icons-btn_add_race.track-leaderboard-race') || actionRow.appendChild(this.constructor.createElement('span.core_icons.core_icons-btn_add_race.track-leaderboard-race', {
+				title: 'Race ' + data.user.d_name,
+				onclick() {
+					let row = this.closest('.track-leaderboard-race-row');
+					lite.scene.removeRaces([row.dataset.u_id]);
+				}
+			}));
+		}
+	}
+
 	draw(ctx) {
-		this.storage.get('inputDisplay') && this.drawInputDisplay(ctx || GameManager.game.canvas.getContext('2d'));
+		this.storage.get('inputDisplay') && this.drawInputDisplay(ctx)
 	}
 
 	drawInputDisplay(ctx) {
@@ -628,9 +772,7 @@ window.lite = new class {
 		logout.removeAttribute('id');
 		logout.innerText = "Switch";
 		logout.addEventListener('click', () => {
-			let overlay = this.constructor.createElement("div", {
-				className: "simplemodal-overlay",
-				id: "simplemodal-overlay",
+			let overlay = this.constructor.createElement("div.simplemodal-overlay#simplemodal-overlay", {
 				style: {
 					inset: 0,
 					opacity: 0.5,
@@ -638,27 +780,23 @@ window.lite = new class {
 					zIndex: 1001
 				}
 			});
-
-			let container = this.constructor.createElement("div", {
+			let container = this.constructor.createElement("div.simplemodal-container#signup_login_container", {
 				children: [
-					this.constructor.createElement("span", {
-						className: "core_icons core_icons-icon_close signup-login-modal-close",
+					this.constructor.createElement("span.core_icons.core_icons-icon_close.signup-login-modal-close", {
 						onclick() {
-							overlay.remove();
-							container.remove();
+							overlay.remove(),
+							container.remove()
 						}
 					}),
-					this.constructor.createElement("div", {
+					this.constructor.createElement("div#frhd-lite\\.accounts-container", {
 						children: (JSON.parse(localStorage.getItem("switcher-accounts")) ?? []).map(account => this.constructor.createAccountContainer(account)),
-						id: "accounts-container",
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
 							gap: '0.4rem'
 						}
 					}),
-					this.constructor.createElement("button", {
-						className: "new-button button-type-2",
+					this.constructor.createElement("button.new-button.button-type-2", {
 						innerText: "Add account",
 						onclick() {
 							if (document.querySelector("div#login-container")) {
@@ -668,28 +806,19 @@ window.lite = new class {
 								return;
 							}
 
-							this.before(lite.constructor.createElement("div", {
+							this.before(lite.constructor.createElement("div#login-container", {
 								children: [
-									lite.constructor.createElement("input", {
-										className: "field auth-field",
-										id: "save-account-login",
+									lite.constructor.createElement("input.field.auth-field#save-account-login", {
 										placeholder: "Username or Email",
-										style: {
-											borderRadius: "2rem"
-										},
+										style: { borderRadius: "2rem" },
 										type: "text"
 									}),
-									lite.constructor.createElement("input", {
-										className: "field auth-field",
-										id: "save-account-password",
+									lite.constructor.createElement("input.field.auth-field#save-account-password", {
 										placeholder: "Password",
-										style: {
-											borderRadius: "2rem"
-										},
+										style: { borderRadius: "2rem" },
 										type: "password"
 									}),
-									lite.constructor.createElement("button", {
-										className: "new-button button-type-1",
+									lite.constructor.createElement("button.new-button.button-type-1", {
 										innerText: "Save account",
 										onclick() {
 											Application.Helpers.AjaxHelper.post("/auth/standard_login", {
@@ -707,7 +836,7 @@ window.lite = new class {
 														password: document.querySelector("#save-account-password")?.value
 													});
 
-													document.querySelector("#accounts-container")?.append(lite.constructor.createAccountContainer(accounts[accounts.length - 1]));
+													document.querySelector("#frhd-lite\\.accounts-container")?.append(lite.constructor.createAccountContainer(accounts[accounts.length - 1]));
 													localStorage.setItem("switcher-accounts", JSON.stringify(accounts));
 													this.parentElement.remove();
 												}
@@ -715,7 +844,6 @@ window.lite = new class {
 										}
 									})
 								],
-								id: 'login-container',
 								style: {
 									display: 'flex',
 									flexDirection: 'column',
@@ -728,8 +856,6 @@ window.lite = new class {
 						}
 					})
 				],
-				className: "simplemodal-container",
-				id: "signup_login_container",
 				style: {
 					display: 'flex',
 					flexDirection: 'column',
@@ -750,12 +876,9 @@ window.lite = new class {
 
 			if (Application.User.logged_in) {
 				container.appendChild(
-					this.constructor.createElement("button", {
-						className: "new-button",
+					this.constructor.createElement("button.new-button", {
 						innerText: "Logout",
-						style: {
-							backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)'
-						},
+						style: { backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)' },
 						onclick() {
 							Application.Helpers.AjaxHelper.post('/auth/logout').done(res => {
 								if (res.result) {
@@ -774,11 +897,9 @@ window.lite = new class {
 			}
 
 			document.body.append(overlay, container);
-		}, { passive: true });
+		}, { passive: true })
 	}
 
-	achievements = null;
-	achievementsContainer = null;
 	initAchievementsDisplay() {
 		this.nativeEvents.has('notificationEvent') || this.initNotificationEvent();
 		if (!this.achievementsContainer) {
@@ -788,56 +909,56 @@ window.lite = new class {
 					this.refreshAchievements() // only update percentages // this.updateAchievements?
 				}
 			});
-
-			this.achievementsContainer ||= this.constructor.createElement('div', {
-				children: [
-					this.constructor.createElement('a', {
-						children: [
-							this.constructor.createElement('span', {
-								innerText: 'Daily Achievements',
-								style: {
-									float: 'left'
-								}
-							}),
-							this.countdown = this.constructor.createElement('span', {
-								className: 'time-remaining',
-								innerText: '00:00:00',
-								style: {
-									float: 'right'
-								}
-							})
-						],
-						href: '/achievements',
-						style: {
-							borderBottom: '1px solid hsl(190deg 25% 60%)',
-							color: 'black',
-							fontFamily: 'helsinki',
-							paddingBottom: '5px'
-						}
-					}),
-					this.achievements = this.constructor.createElement('div', {
-						id: 'achievements-container',
-						style: {
-							display: 'flex',
-							flexDirection: 'column',
-							fontFamily: 'riffic',
-							gap: '0.4rem'
-						}
-					})
-				],
-				style: {
-					backgroundColor: 'hsl(190 25% 95% / 1)',
-					// backgroundImage: 'linear-gradient(transparent, hsl(191 25% 90% / 1))',
-					border: '1px solid hsl(190deg 25% 60%)',
-					borderRadius: '1rem',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: '0.6rem',
-					margin: '0 0.6rem',
-					padding: '1.5rem',
-					width: '-webkit-fill-available'
-				}
+			Object.defineProperty(this, 'achievements', {
+				value: this.constructor.createElement('div#achievements-container', {
+					style: {
+						display: 'flex',
+						flexDirection: 'column',
+						fontFamily: 'riffic',
+						gap: '0.4rem'
+					}
+				}),
+				writable: true
 			});
+			Object.defineProperty(this, 'achievementsContainer', {
+				value: this.constructor.createElement('div', {
+					children: [
+						this.constructor.createElement('a', {
+							children: [
+								this.constructor.createElement('span', {
+									innerText: 'Daily Achievements',
+									style: { float: 'left' }
+								}),
+								this.countdown = this.constructor.createElement('span.time-remaining', {
+									innerText: '00:00:00',
+									style: { float: 'right' }
+								})
+							],
+							href: '/achievements',
+							style: {
+								borderBottom: '1px solid hsl(190deg 25% 60%)',
+								color: 'black',
+								fontFamily: 'helsinki',
+								paddingBottom: '5px'
+							}
+						}),
+						this.achievements
+					],
+					style: {
+						backgroundColor: 'hsl(190 25% 95% / 1)',
+						// backgroundImage: 'linear-gradient(transparent, hsl(191 25% 90% / 1))',
+						border: '1px solid hsl(190deg 25% 60%)',
+						borderRadius: '1rem',
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '0.6rem',
+						margin: '0 0.6rem',
+						padding: '1.5rem',
+						width: '-webkit-fill-available'
+					}
+				}),
+				writable: true
+			})
 		}
 
 		this.refreshAchievements().then(response => {
@@ -857,8 +978,7 @@ window.lite = new class {
 				lastTime[2]--;
 				lastTime.reduce((sum, remainingTime) => sum += remainingTime, 0) === 0 && clearInterval(this.countdownTimer);
 				this.countdown.innerText = lastTime.map(e => String(e).padStart(2, '0')).join(':');
-			}, 1e3)
-
+			}, 1e3);
 			const rightContent = document.querySelector('#right_content');
 			rightContent.prepend(this.achievementsContainer);
 		});
@@ -869,12 +989,7 @@ window.lite = new class {
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
 				race.setAttribute('title', 'Loading...');
-				race.addEventListener('pointerover', () => {
-					fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { best_date } = {}} = {}) => {
-						race.setAttribute('title', best_date ?? 'Failed to load');
-						// save result in sessionStorage
-					})
-				}, { once: true, passive: true })
+				race.addEventListener('pointerover', () => this.constructor.fetchRaceBestDate().then(date => race.setAttribute('title', date)), { once: true, passive: true })
 			})
 		})
 	}
@@ -885,21 +1000,24 @@ window.lite = new class {
 		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action:not(:has(> #frhd-lite\\.download-race))')) {
-				let download = this.constructor.createElement('span', {
-					className: 'core_icons core_icons-btn_add_race',
-					id: 'frhd-lite.download-race',
+				let download = this.constructor.createElement('span.btn.new-button.button-type-1#frhd-lite\\.download-race', {
+					innerText: '⭳',
 					title: 'Download Race',
 					style: {
-						backgroundImage: 'linear-gradient(hsl(200 81% 65% / 1), hsl(200 60% 40% / 1))',
-						clipPath: 'polygon(30% 5%, 30% 45%, 10% 45%, 50% 95%, 90% 45%, 70% 45%, 70% 5%)'
+						aspectRatio: 1,
+						fontSize: '15px',
+						height: '22px',
+						lineHeight: '1.5em',
+						marginRight: '8px',
+						textAlign: 'center'
 					}
 				});
 				download.addEventListener('click', () => this.constructor.downloadRace(GameSettings.track.id, download.parentElement.parentElement.dataset.u_id), { passive: true });
 				actionRow.style.setProperty('width', '20%');
 				actionRow.prepend(download);
-				actionRow.textContent.length > 0 && actionRow.replaceChildren(...actionRow.children);
+				actionRow.textContent.length > 0 && actionRow.replaceChildren(...actionRow.children)
 			}
-		});
+		})
 	}
 
 	initDownloadTracks() {
@@ -947,12 +1065,11 @@ window.lite = new class {
 	initFriendsLastPlayed() {
 		fetch(location.pathname + '?ajax').then(r => r.json()).then(({ friends, is_profile_owner }) => {
 			is_profile_owner || document.querySelectorAll('.friend-list-item-name').forEach(item => {
-				item.after(this.constructor.createElement('div', {
-					className: "friend-list-item-date",
+				item.after(this.constructor.createElement('div.friend-list-item-date', {
 					innerText: "Last Played " + friends.friends_data.find(({ d_name }) => d_name == item.innerText).activity_time_ago
-				}));
-			});
-		});
+				}))
+			})
+		})
 	}
 
 	initGhostMetadata() {
@@ -984,70 +1101,64 @@ window.lite = new class {
 	}
 
 	initGhostPlayer() {
-		this.replayGui ||= this.constructor.createElement('div', {
-			style: {
-				display: 'none',
-				inset: 0,
-				pointerEvents: 'none',
-				position: 'absolute'
-			}
-		});
-		this.replayGui.progress ||= this.replayGui.appendChild(this.constructor.createElement('progress', {
-			className: 'ghost-player-progress',
-			id: 'replay-seeker',
-			max: 100,
-			min: 0,
-			value: 0,
-			style: {
-				border: 'none',
-				bottom: 0,
-				height: '4px',
-				pointerEvents: 'all',
-				position: 'absolute',
-				transition: 'height 100ms',
-				width: '100%'
-			},
-			type: 'range',
-			onchange(event) {
-				GameManager.game.currentScene.state.playing = false;
-				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
-				if (player.isGhost()) {
-					// let race = GameManager.game.currentScene.races.find(({ user }) => user.u_id == player._user.u_id);
-					// let runTicks = race && race.race.run_ticks;
-					// if (runTicks > 0) {
-					// 	player._replayIterator.next(runTicks / this.value);
-					// }
-
-					// console.log(this.value)
-					player._replayIterator.next(this.value);
+		this.replayGui || Object.defineProperty(this, 'replayGui', {
+			value: this.constructor.createElement('div', {
+				style: {
+					display: 'none',
+					inset: 0,
+					pointerEvents: 'none',
+					position: 'absolute'
 				}
-			},
-			onpointerdown(event) {
-				this.setPointerCapture(event.pointerId);
-				this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max);
-				this.dispatchEvent(new InputEvent('change'));
-				this.wasPlaying = GameManager.game.currentScene.state.playing;
-			},
-			onpointermove(event) {
-				event.buttons & 1 == 1 && (this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max),
-				this.dispatchEvent(new InputEvent('change')));
-			},
-			onpointerup(event) {
-				this.releasePointerCapture(event.pointerId);
-				GameManager.game.currentScene.state.playing = this.wasPlaying;
-			}
-		}));
-		this.styleSheet.set('.ghost-player-progress::-webkit-progress-value', {
+			}),
+			writable: true
+		});
+		this.replayGui.progress || Object.defineProperty(this.replayGui, 'progress', {
+			value: this.replayGui.appendChild(this.constructor.createElement('progress.frhd-lite\\.race-player-progress#replay-seeker', {
+				max: 100,
+				min: 0,
+				value: 0,
+				style: {
+					border: 'none',
+					bottom: 0,
+					height: '4px',
+					pointerEvents: 'all',
+					position: 'absolute',
+					transition: 'height 100ms',
+					width: '100%'
+				},
+				type: 'range',
+				onchange(event) {
+					GameManager.game.currentScene.state.playing = false;
+					let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
+					player.isGhost() && player._replayIterator.next(this.value)
+				},
+				onpointerdown(event) {
+					this.setPointerCapture(event.pointerId);
+					this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max);
+					this.dispatchEvent(new InputEvent('change'));
+					this.wasPlaying = GameManager.game.currentScene.state.playing
+				},
+				onpointermove(event) {
+					event.buttons & 1 == 1 && (this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max),
+					this.dispatchEvent(new InputEvent('change')));
+				},
+				onpointerup(event) {
+					this.releasePointerCapture(event.pointerId);
+					GameManager.game.currentScene.state.playing = this.wasPlaying
+				}
+			})),
+			writable: true
+		});
+		this.styleSheet.set('.frhd-lite\\.race-player-progress::-webkit-progress-value', {
 			backgroundColor: 'hsl(195deg 57% 25%)'
-		}).set('.ghost-player-progress:hover', {
+		}).set('.frhd-lite\\.race-player-progress:hover', {
 			cursor: 'pointer',
 			filter: 'brightness(1.25)',
 			height: '6px !important'
 		});
-		// create progress element
 		this.constructor.waitForElm('#game-container').then(container => {
-			container.appendChild(this.replayGui);
-		});
+			container.appendChild(this.replayGui)
+		})
 	}
 
 	initJumpToComment() {
@@ -1132,45 +1243,34 @@ window.lite = new class {
 			const trackUrl = 'https://' + location.host + '/t/' + entry.slug;
 			return this.constructor.createElement('li', {
 				children: [
-					this.constructor.createElement('div', {
-						className: 'track-list-tile trackTile',
+					this.constructor.createElement('div.track-list-tile.trackTile', {
 						children: [
-							this.constructor.createElement('a', {
-								className: 'top',
+							this.constructor.createElement('a.top', {
 								href: trackUrl,
 								children: [
-									this.constructor.createElement('img', {
-										className: 'track-list-tile-thumb top-image',
+									this.constructor.createElement('img.track-list-tile-thumb.top-image', {
 										src: entry.img
 									}),
-									this.constructor.createElement('img', {
+									this.constructor.createElement('img.track-list-tile-thumb', {
 										alt: 'Track Preview',
-										className: 'track-list-tile-thumb',
 										src: 'https://cdn.' + location.host.split('.').slice(-2).join('.') + '/free_rider_hd/sprites/track_preview_250x150.png'
 									}),
-									this.constructor.createElement('span', {
-										className: 'bestTime',
+									this.constructor.createElement('span.bestTime', {
 										innerText: ' ' + entry.averageTime + ' ',
 										title: 'Average Time'
 									})
 								]
 							}),
-							this.constructor.createElement('div', {
-								className: 'bottom',
+							this.constructor.createElement('div.bottom', {
 								children: [
-									this.constructor.createElement('a', {
-										className: 'name',
+									this.constructor.createElement('a.name', {
 										href: trackUrl,
 										innerText: entry.title
 									}),
-									this.constructor.createElement('div', {
-										className: 'profileGravatarIcon',
-										style: {
-											backgroundImage: 'url(' + authorUrl + '/pic?size=50)'
-										}
+									this.constructor.createElement('div.profileGravatarIcon', {
+										style: { backgroundImage: 'url(' + authorUrl + '/pic?size=50)' }
 									}),
-									this.constructor.createElement('a', {
-										className: 'author',
+									this.constructor.createElement('a.author', {
 										href: authorUrl + '/created',
 										innerHTML: '&ensp;' + entry.author
 									})
@@ -1188,18 +1288,14 @@ window.lite = new class {
 		if (!confirm || confirm.classList.contains('frhd-lite.track-report')) return;
 		confirm.classList.add('frhd-lite.track-report');
 		confirm.addEventListener('click', () => {
-			Application.Helpers.AjaxHelper.post('track_comments/post', {
-				t_id: this.currentTrackData.t_id,
-				msg: "@Calculus, @Totoca12, this track was reported for 'reason'"
-			}).then(r => alert(r.result ? "You have successfully reported this track." : r.msg))
+			this.constructor.report('This track', {}, { type: 'track' }).then(r => alert(r.result ? "You have successfully reported this track." : r.msg))
 		}, { passive: true })
 	}
 
 	initRequestTrackData() {
 		let deleteALlPersonalData = document.querySelector('#delete-all-personal-data');
 		if (deleteALlPersonalData) {
-			let requestTrackData = deleteALlPersonalData.parentElement.appendChild(this.constructor.createElement('button', {
-				className: 'blue-button settings-header new-button',
+			let requestTrackData = deleteALlPersonalData.parentElement.appendChild(this.constructor.createElement('button.blue-button.settings-header.new-button', {
 				innerText: 'Request All Data',
 				style: {
 					float: 'right',
@@ -1211,38 +1307,34 @@ window.lite = new class {
 					padding: '0 1rem'
 				}
 			}));
-			requestTrackData.addEventListener('click', () => this.constructor.downloadAllTracks(), { passive: true });
+			requestTrackData.addEventListener('click', () => this.constructor.downloadAllTracks(Application.settings.user.u_name), { passive: true });
 		} else {
 			console.warn("Request track data failed to load! Personal data is not present.");
 		}
 	}
 
 	initUploadGhosts() {
-		this.dialogs.has('ghostUpload') || this.dialogs.set('ghostUpload', document.body.appendChild(this.constructor.createElement('dialog', {
+		this.dialogs.has('ghostUpload') || this.dialogs.set('ghostUpload', document.body.appendChild(this.constructor.createElement('dialog.editorDialog-content.editorDialog-content_importDialog.frhd-lite\\.dialog', {
 			children: [
-				this.constructor.createElement('div', {
+				this.constructor.createElement('div.editorDialog-titleBar', {
 					children: [
-						this.constructor.createElement('span', {
-							className: 'editorDialog-close',
+						this.constructor.createElement('span.editorDialog-close', {
 							innerText: '×',
 							onclick: event => event.target.closest('dialog').close('cancel')
 						}),
-						this.constructor.createElement('h1', {
-							className: 'editorDialog-content-title',
+						this.constructor.createElement('h1.editorDialog-content-title', {
 							innerText: 'UPLOAD GHOST'
 						})
-					],
-					className: 'editorDialog-titleBar'
+					]
 				}),
-				this.constructor.createElement('div', {
+				this.constructor.createElement('div.importDialog-codeContainer', {
 					children: [
-						this.constructor.createElement('span', {
+						this.constructor.createElement('span.importDialog-placeholder', {
 							children: [
 								this.constructor.createElement('span', {
 									innerText: 'Paste ghost data, drag and drop text files here, or '
 								}),
-								this.constructor.createElement('span', {
-									className: 'link',
+								this.constructor.createElement('span.link', {
 									innerText: 'select a file',
 									onclick: () => {
 										this.ghostUploadPicker.click();
@@ -1254,9 +1346,7 @@ window.lite = new class {
 								this.ghostUploadPicker ||= this.constructor.createElement('input', {
 									accept: 'application/json',
 									type: 'file',
-									style: {
-										display: 'none'
-									},
+									style: { display: 'none' },
 									oninput: async event => {
 										let [file] = event.target.files;
 										let race = JSON.parse(await file.text());
@@ -1295,35 +1385,28 @@ window.lite = new class {
 										});
 									}
 								})
-							],
-							className: 'importDialog-placeholder'
+							]
 						}),
-						this.constructor.createElement('textarea', {
+						this.constructor.createElement('textarea.importDialog-code', {
 							autocomplete: false,
-							className: 'importDialog-code',
 							spellcheck: false
 						})
-					],
-					className: 'importDialog-codeContainer'
+					]
 				}),
-				this.constructor.createElement('form', {
+				this.constructor.createElement('form.editorDialog-bottomBar.clearfix', {
 					children: [
-						this.constructor.createElement('button', {
-							className: 'primary-button primary-button-blue float-right margin-0-5',
+						this.constructor.createElement('button.primary-button.primary-button-blue.float-right.margin-0-5', {
 							innerText: 'Upload',
 							value: 'default'
 						}),
-						this.constructor.createElement('button', {
-							className: 'primary-button primary-button-black float-right margin-0-5',
+						this.constructor.createElement('button.primary-button.primary-button-black.float-right.margin-0-5', {
 							innerText: 'Cancel',
 							value: 'cancel'
 						})
 					],
-					className: 'editorDialog-bottomBar clearfix',
 					method: 'dialog'
 				})
 			],
-			className: 'editorDialog-content editorDialog-content_importDialog frhd-lite.dialog',
 			style: {
 				margin: 'revert',
 				padding: 0,
@@ -1423,8 +1506,7 @@ window.lite = new class {
 		let password = pm.appendChild(email.cloneNode());
 		property = password.appendChild(property.cloneNode());
 		property.innerText = "Password: ";
-		edit = password.appendChild(this.constructor.createElement('button', {
-			className: 'new-button ban-user-button',
+		edit = password.appendChild(this.constructor.createElement('button.new-button.ban-user-button', {
 			innerText: 'Reset Password'
 		}));
 		edit.addEventListener('click', () => {
@@ -1443,9 +1525,7 @@ window.lite = new class {
 	initUserTrackModeration() {
 		for (let metadata of document.querySelectorAll("#created_tracks .bottom")) {
 			let label = metadata.appendChild(this.constructor.createElement('label', {
-				style: {
-					display: 'block'
-				}
+				style: { display: 'block' }
 			}));
 			let avatar = metadata.querySelector('.profileGravatarIcon');
 			avatar && avatar.style.setProperty('margin-right', '4px');
@@ -1514,20 +1594,16 @@ window.lite = new class {
 							zIndex: 3
 						}
 					}));
-					let close = title.appendChild(this.constructor.createElement('span', {
-						className: 'core_icons core_icons-icon_close',
-						style: {
-							float: 'right'
-						}
+					let close = title.appendChild(this.constructor.createElement('span.core_icons.core_icons-icon_close', {
+						style: { float: 'right' }
 					}));
 					close.addEventListener('click', () => dialog.remove(), { passive: true });
-					let list = dialog.appendChild(this.constructor.createElement('ul', {
-						className: 'track-list clearfix',
+					let list = dialog.appendChild(this.constructor.createElement('ul.track-list.clearfix', {
 						style: {
 							maxHeight: '50cqh',
 							overflowY: 'auto',
 							padding: '1rem',
-							textAlight: 'center'
+							textAlign: 'center'
 						}
 					}));
 					list.append(...Array.from(tracks).map(track => {
@@ -1548,13 +1624,11 @@ window.lite = new class {
 							zIndex: 2
 						}
 					}));
-					form.appendChild(this.constructor.createElement('button', {
-						className: 'new-button button-type-1',
+					form.appendChild(this.constructor.createElement('button.new-button.button-type-1', {
 						innerText: 'Cancel',
 						value: 'cancel'
 					}));
-					let confirm = form.appendChild(this.constructor.createElement('button', {
-						className: 'new-button button-type-2',
+					let confirm = form.appendChild(this.constructor.createElement('button.new-button.button-type-2', {
 						innerText: 'Confirm',
 						value: 'default'
 					}));
@@ -1566,9 +1640,7 @@ window.lite = new class {
 							button.style.setProperty('pointer-events', 'none');
 						}
 
-						form.appendChild(this.constructor.createElement('span', {
-							className: 'loading-hourglass'
-						}));
+						form.appendChild(this.constructor.createElement('span.loading-hourglass'));
 						let cache = [];
 						let tracks = list.querySelectorAll(".bottom:has(> label > input[type='checkbox']:checked)");
 						for (let metadata of tracks) {
@@ -1632,12 +1704,9 @@ window.lite = new class {
 	static createAccountContainer({ login, password }) {
 		let container = this.createElement("div", {
 			children: [
-				this.createElement("button", {
-					className: "new-button button-type-1",
+				this.createElement("button.new-button.button-type-1", {
 					innerText: login,
-					style: {
-						width: '-webkit-fill-available'
-					},
+					style: { width: '-webkit-fill-available' },
 					onclick() {
 						document.querySelector("#simplemodal-overlay")?.remove();
 						document.querySelector("#signup_login_container")?.remove();
@@ -1646,8 +1715,7 @@ window.lite = new class {
 						});
 					}
 				}),
-				this.createElement("button", {
-					className: "new-button",
+				this.createElement("button.new-button", {
 					innerText: "X",
 					style: {
 						aspectRatio: 1,
@@ -1667,16 +1735,15 @@ window.lite = new class {
             	gap: '0.25rem'
 			}
 		});
-		return container;
+		return container
 	}
 
 	static async createProgressElement(achievement) {
-		let container = this.createElement('div', {
+		let container = this.createElement('div.achievement-info', {
 			children: [
 				this.createElement('div', {
 					children: [
-						this.createElement('span', {
-							className: 'achievements-coin store_icons store_icons-coin_icon_lg achievement-coin-value',
+						this.createElement('span.achievements-coin.store_icons.store_icons-coin_icon_lg.achievement-coin-value', {
 							innerText: achievement.coins,
 							style: {
 								color: 'white',
@@ -1685,10 +1752,9 @@ window.lite = new class {
 								textShadow: '0 -1px 1px #9E8500'
 							}
 						}),
-						this.createElement('div', {
+						this.createElement('div.achievement-info', {
 							children: [
-								this.createElement('a', {
-									className: 'title',
+								this.createElement('a.title', {
 									children: [
 										this.createElement('b', {
 											innerText: achievement.title
@@ -1700,7 +1766,7 @@ window.lite = new class {
 											return 'store/gear';
 										case 'Complete 1 friend race':
 										case 'Win 5 friend(s) race':
-											return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(async ({ friends }) => {
+											return this.fetchCurrentUser().then(async ({ friends }) => {
 												if (friends.friend_cnt > 0) {
 													let track;
 													for (let friend of friends.friends_data) {
@@ -1715,7 +1781,7 @@ window.lite = new class {
 											});
 										case 'Improve 5 best times':
 										case 'Send 5 friend race challenges':
-											return fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json()).then(({ recently_ghosted_tracks: { tracks }}) => {
+											return this.fetchCurrentUser().then(({ recently_ghosted_tracks: { tracks }}) => {
 												let track = tracks[Math.floor(Math.random() * tracks.length)];
 												return track ? track.slug : 'random/track';
 											});
@@ -1723,12 +1789,9 @@ window.lite = new class {
 											return 'random/track';
 										}
 									})(achievement.desc),
-									style: {
-										width: '-webkit-fill-available'
-									}
+									style: { width: '-webkit-fill-available' }
 								}),
-								this.createElement('h6', {
-									className: 'achievement-info-desc condensed',
+								this.createElement('h6.achievement-info-desc.condensed', {
 									innerText: achievement.desc,
 									style: {
 										color: 'hsl(190deg 25% 60%)',
@@ -1736,8 +1799,7 @@ window.lite = new class {
 										margin: 0
 									}
 								})
-							],
-							className: 'achievement-info'
+							]
 						})
 					],
 					style: {
@@ -1749,13 +1811,9 @@ window.lite = new class {
 				// achievement.coins
 				this.createElement('span', {
 					innerText: achievement.progress, // achievement.current, // achievement.progress // achievement.current + '/' + achievement.max
-					style: {
-						// fontFamily: 'helsinki',
-						fontSize: '1.25rem'
-					}
+					style: { fontSize: '1.25rem' }
 				})
 			],
-			className: 'achievement-info',
 			style: {
 				alignItems: 'center',
 				display: 'flex',
@@ -1767,7 +1825,11 @@ window.lite = new class {
 
 	static createElement(type, options = {}) {
 		const callback = arguments[arguments.length - 1];
-		const element = document.createElement(type);
+		const element = document.createElement(type.replace(/[\.#].+/g, ''));
+		const classList = type.match(/(?<=\.)([^\.#]+((?<=\\)\.)?)+/g);
+		null !== classList && element.classList.add(...classList.map(name => name.replace(/\\/g, '')));
+		const matchId = type.match(/(?<=#)([^\.]+((?<=\\)\.)?)+/);
+		null !== matchId && element.setAttribute('id', matchId[0].replace(/\\/g, ''));
 		if ('innerText' in options) {
 			element.innerText = options.innerText;
 			delete options.innerText;
@@ -1778,14 +1840,16 @@ window.lite = new class {
 				if (options[attribute] instanceof Array) {
 					if (/^children$/i.test(attribute)) {
 						element.append(...options[attribute]);
+					} else if (/^classlist$/i.test(attribute)) {
+						element.classList.add(...options[attribute]);
 					} else if (/^on/i.test(attribute)) {
 						for (const listener of options[attribute])
 							// make listener passive if preventDefault() not found in stringified function
 							element.addEventListener(attribute.slice(2), listener, { passive: !/\.preventDefault\(\)/g.test(listener.toString()) });
 					}
-				} else if (/^style$/i.test(attribute))
+				} else if (/^(dataset|style)$/i.test(attribute))
 					Object.assign(element[attribute.toLowerCase()], options[attribute]);
-				delete options[attribute];
+				delete options[attribute]
 			}
 		}
 
@@ -1793,73 +1857,70 @@ window.lite = new class {
 		return typeof callback == 'function' && callback(element), element;
 	}
 
+	static async downloadFile(name, contents, { desc } = {}) {
+		let mimeType = 'text/plain';
+		if (!(contents instanceof Blob)) {
+			typeof contents == 'object' && (mimeType = 'application/json',
+			contents = JSON.stringify(contents, '\t', 4));
+			if ('showSaveFilePicker' in window) {
+				return showSaveFilePicker({
+					excludeAcceptAllOption: true,
+					startIn: 'downloads',
+					suggestedName: name ?? '',
+					types: [{
+						description: 'Free Rider HD ' + desc,
+						accept: { [mimeType]: ['.' + (mimeType == 'application/zip' ? 'zip' : mimeType == 'application/json' ? 'json' : 'txt')] }
+					}]
+				}).then(async fileHandle => {
+					let writable = fileHandle.createWritable();
+					await writable.write(contents);
+					await writable.close();
+				}).catch(err => {
+					console.log('Download operation cancelled.')
+				})
+			}
+		}
+
+		let download = this.createElement('a', {
+			download: name || ('frhd-lite_download-' + Date.now()),
+			href: URL.createObjectURL(
+				contents instanceof Blob ? contents : new Blob([contents], {
+					type: mimeType
+				})
+			)
+		});
+		download.click();
+		URL.revokeObjectURL(download.href)
+	}
+
 	static downloadRace(tid, uid) {
 		return Application.Helpers.AjaxHelper.get("/track_api/load_races", {
 			t_id: tid,
 			u_ids: uid
 		}).done(({ data: [entry], result: r }) => {
-			if (!r) return;
-			let download = this.createElement('a', {
-				download: 'frhd_ghost_' + tid + '-' + uid,
-				href: URL.createObjectURL(
-					new Blob([JSON.stringify(Object.assign(entry.race, {
-						t_id: tid,
-						u_id: entry.user.u_id
-					}), '\t', 4)], {
-						type: 'application/json'
-					})
-				)
-			});
-			download.click();
-			URL.revokeObjectURL(download.href)
+			r && this.downloadFile('frhd_ghost_' + tid + '-' + uid, Object.assign(entry.race, {
+				t_id: tid,
+				u_id: entry.user.u_id
+			}), { desc: 'Race' })
 		})
 	}
 
 	static downloadTrack(id) {
-		fetch('/track_api/load_track?id=' + id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json()).then(({ data, result }) => {
+		return fetch('/track_api/load_track?id=' + id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json()).then(({ data: { track } = {}, result }) => {
 			if (!result) return;
-			let { track } = data;
-			let blob = new Blob([track.code], { type: 'text/plain' });
-			let a = this.createElement('a', {
-				download: track.title + '-' + track.id,
-				href: URL.createObjectURL(blob)
-			});
-			a.click();
-			URL.revokeObjectURL(a.href);
-		});
+			this.downloadFile(track.title + '-' + track.id, track.code, { desc: 'Track' })
+		})
 	}
 
-	static async downloadAllTracks() {
-		fetch('/u/' + Application.settings.user.u_name + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
+	static async downloadAllTracks(username) {
+		return fetch('/u/' + username + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
 			let zip = new Zip();
 			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
 			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
 			for (let track of tracks)
 				zip.newFile(track.title + '-' + track.id + '.txt', track.code);
-			let a = this.createElement('a', {
-				download: 'created-tracks',
-				href: URL.createObjectURL(zip.blob())
-			});
-			a.click();
-			URL.revokeObjectURL(a.href);
-		});
-	}
-
-	static users = [];
-	static async fetchUser(uid, { force } = {}) {
-		uid = String(uid);
-		let cache = this.users.find(({ user: { u_id, u_name }}) => u_id == uid || u_name === uid.toLowerCase());
-		if (cache && !force) {
-			return cache;
-		}
-
-		let entry = await Application.Helpers.AjaxHelper.get('u/' + uid);
-		this.users.push(entry);
-		return entry || null
-	}
-
-	static fetchComment(trackId, commentId) {
-		return Application.Helpers.AjaxHelper.post('track_comments/load_more/' + trackId + '/' + (commentId + 1)).then(r => r.result && r.data.track_comments[0]);
+			this.downloadFile('created-tracks', zip.blob(), { desc: 'Created' })
+		})
 	}
 
 	static async fetchCurrentUser({ force } = {}) {
@@ -1874,6 +1935,24 @@ window.lite = new class {
 		return data
 	}
 
+	static users = [];
+	static async fetchUser(uid, { force } = {}) {
+		uid = String(uid).toLowerCase();
+		if (uid == Application.settings.user.u_id || uid == Application.settings.user.u_name) return this.fetchCurrentUser();
+		let cache = this.users.find(({ user: { u_id, u_name }}) => u_id == uid || u_name === uid.toLowerCase());
+		if (cache && !force) {
+			return cache;
+		}
+
+		let entry = await Application.Helpers.AjaxHelper.get('u/' + uid);
+		this.users.push(entry);
+		return entry || null
+	}
+
+	static fetchComment(trackId, commentId) {
+		return Application.Helpers.AjaxHelper.post('track_comments/load_more/' + trackId + '/' + (commentId + 1)).then(r => r.result && r.data.track_comments[0]);
+	}
+
 	static async fetchFeaturedGhosts({ force } = {}) {
 		const KEY = 'frhd-lite.featured_ghosts';
 		let cache = sessionStorage.getItem(KEY);
@@ -1886,15 +1965,113 @@ window.lite = new class {
 		return data
 	}
 
+	static async fetchRaceBestDate({ force } = {}) {
+		const KEY = 'frhd-lite.race_best_dates';
+		let cache = JSON.parse(sessionStorage.getItem(KEY)) || {}
+		  , t = GameSettings.track.id;
+		if (!force && cache[t]) {
+			return cache[t]
+		}
+		let date = await fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { best_date } = {}} = {}) => best_date);
+		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(cache, { [t]: date })));
+		return date;
+	}
+
+	static async fetchTrackLastPlayedDate({ force } = {}) {
+		const KEY = 'frhd-lite.track_last_played_dates';
+		let cache = JSON.parse(sessionStorage.getItem(KEY)) || {}
+		  , t = GameSettings.track.id;
+		if (!force && cache[t]) {
+			return cache[t]
+		}
+		let date = await fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { last_played_date } = {}} = {}) => last_played_date);
+		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(cache, { [t]: date })));
+		return date;
+	}
+
+	static fetchRaceRow(data, { parent, placement }) {
+		const racerProfile = 'https://' + location.host + '/u/' + data.user.d_name.toLowerCase();
+		const racerAvatar = racerProfile + '/pic?sz=50';
+		return parent.querySelector('tr.track-leaderboard-race-' + data.user.u_id) || this.createElement('tr', {
+			className: 'track-leaderboard-race-' + data.user.u_id + ' track-leaderboard-race-row',
+			dataset: {
+				u_id: data.user.u_id,
+				d_name: data.user.d_name,
+				run_time: data.runTime,
+				type: 'tas'
+			},
+			children: [
+				this.createElement('td.num', { innerText: placement + '.' }),
+				this.createElement('td.name', {
+					children: [
+						this.createElement('a.profile-icon', {
+							href: racerProfile,
+							title: 'View Profile',
+							children: [
+								this.createElement('div.circular', {
+									style: {
+										background: 'url(' + racerAvatar + ') no-repeat center center',
+										backgroundSize: '100%'
+									},
+									children: [
+										this.createElement('img', {
+											src: racerAvatar,
+											width: 35,
+											height: 35,
+											alt: data.user.d_name
+										})
+									]
+								})
+							]
+						}),
+						this.createElement('span.track-leaderboard-race', {
+							innerText: data.user.d_name,
+							title: 'Race ' + data.user.d_name
+						})
+					]
+				}),
+				document.createElement('td'),
+				this.createElement('td', {
+					innerText: data.runTime,
+					style: { textAlign: 'left' }
+				}),
+				this.createElement('td.track-leaderboard-action', {
+					style: { width: '20%' }
+				})
+			]
+		})
+	}
+
+	static formatRaceTime(t) {
+		t = parseInt(t, 10);
+		let e = t % 6e4 / 1e3;
+		return Math.floor(t / 6e4) + ":" + e.toFixed(2).padStart(5, 0)
+	}
+
+	static report(message, data = {}, { type } = {}) {
+		if (!Application.settings.user) return alert('You must be logged in to perform this action.');
+		data = Object.assign({}, data, { t_id: GameSettings.track.id });
+		window.postMessage({
+			action: 'report',
+			data,
+			reporter: Application.settings.user,
+			type
+		});
+		return Application.Helpers.AjaxHelper.post('track_comments/post', {
+			t_id: data.t_id,
+			msg: message.replace(/{data-(\w+)}/g, (_, key) => data[key]) + ' was reported with frhd-lite. (@Calculus/@Totoca12)'
+		})
+	}
+
 	static waitForElm(selector) {
 		return new Promise(resolve => {
-			if (document.querySelector(selector))
-				return resolve(document.querySelector(selector));
+			let element = document.querySelector(selector);
+			if (element)
+				return resolve(element);
 			const observer = new MutationObserver(mutations => {
-				if (document.querySelector(selector)) {
-					resolve(document.querySelector(selector));
-					observer.disconnect();
-				}
+				element = document.querySelector(selector);
+				element && (resolve(element),
+				observer.disconnect())
 			});
 			observer.observe(document.body, {
 				childList: true,

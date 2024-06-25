@@ -1,5 +1,4 @@
 export default class {
-	scene = null;
 	settings = null;
 	container = {
 		borderRadius: 25,
@@ -13,7 +12,7 @@ export default class {
 		y: 30
 	}
 	constructor(t) {
-		this.scene = t,
+		Object.defineProperty(this, 'scene', { value: t, writable: true }),
 		this.settings = t.settings,
 		this.removePlayer(),
 		this.createPulseTween()
@@ -53,16 +52,14 @@ export default class {
 		t.textAlign = "center";
 		t.textBaseline = "middle";
 		t.fillText(this.container.text, this.container.x + this.container.width / 2 * this.container.scaleX, this.container.y + this.container.height / 2 * this.container.scaleY);
-		t.restore();
+		t.restore()
 	}
 	fixedUpdate() {
 		if (this.tweenRemaining > 0) {
 			this.tweenRemaining = Math.max(this.tweenRemaining - 1000 / this.scene.game.settings.drawFPS)
 			let t = this.container
 			t.scaleX = t.scaleY = t.scaleX * (1 - this.tweenRemaining / 100) + this.tweenScale * (this.tweenRemaining / 100)
-			if (t.scaleX == this.tweenScale) {
-				this.tweenScale = this.tweenStart
-			}
+			t.scaleX == this.tweenScale && (this.tweenScale = this.tweenStart)
 		}
 
 		this.player && this.player._tempVehicleTicks > 0 ? (this.center_container(),

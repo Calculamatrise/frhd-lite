@@ -14,6 +14,7 @@ export default class ContextMenu extends HTMLElement {
 			if (null !== event.target.closest('context-menu')) return window.addEventListener('pointerdown', this.#pointerdownListener, { passive: true, once: true });
 			this.remove();
 		}, { passive: true, once: true });
+		window.navigation && navigation.addEventListener('navigatesuccess', this._removeListener, { once: true, passive: true });
 	}
 
 	/**
@@ -67,6 +68,7 @@ export default class ContextMenu extends HTMLElement {
 		window.removeEventListener('blur', this._removeListener);
 		window.removeEventListener('scroll', this._removeListener);
 		window.removeEventListener('pointerdown', this.#pointerdownListener);
+		window.navigation && navigation.removeEventListener('navigatesuccess', this._removeListener);
 		super.remove();
 		this.constructor.contextMenu = null;
 		this.dispatchEvent(new CustomEvent('close', {

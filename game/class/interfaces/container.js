@@ -14,13 +14,13 @@ export default class extends Component {
 		super(options, container),
 		Object.assign(this, options);
 		for (let i of this.children)
-			i.container = this
+			Object.defineProperty(i, 'container', { value: this, writable: true })
 	}
 	addChild() {
 		let t = arguments
 		  , e = this.children;
 		for (let e of t)
-			e.container = this;
+			Object.defineProperty(e, 'container', { value: this, writable: true });
 		e.push(...Array.prototype.filter.call(t, t => e.indexOf(t) === -1));
 		return t
 	}

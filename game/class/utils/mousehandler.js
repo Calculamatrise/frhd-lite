@@ -20,11 +20,6 @@ export default class extends EventEmitter {
 		this.initAnalytics();
 		this.bindToMouseEvents();
 	}
-	contextMenuHandler(t) {
-		return t.stopPropagation(),
-		t.preventDefault(),
-		!1
-	}
 	initAnalytics() {
 		this.analytics = {
 			clicks: 0
@@ -59,24 +54,49 @@ export default class extends EventEmitter {
 		e.addEventListener("wheel", o),
 		Object.defineProperty(this, '_wheelListener', { value: o, writable: true })
 	}
-	onMouseDown(t) {
-		this.scene.game.canvas.setPointerCapture(t.pointerId),
-		this.analytics.clicks++,
-		2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
-		this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
-		this.scene.interactWithControls(),
-		this.touch.down = !0)
+	contextMenuHandler(t) {
+		return t.stopPropagation(),
+		t.preventDefault(),
+		!1
 	}
 	disableContextMenu() {
 		this.scene.game.canvas.oncontextmenu = function() {
 			return !1
 		}
 	}
+	onMouseDown(t) {
+		this.scene.game.canvas.setPointerCapture(t.pointerId),
+		this.analytics.clicks++,
+		2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
+		this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
+		this.touch.down = !0,
+		this.scene.redrawControls())
+	}
+	onMouseMove(t) {
+		this.updatePosition(t, this.touch),
+		this.scene.redrawControls(),
+		this.updatePosition(t, this.secondaryTouch)
+	}
 	onMouseUp(t) {
 		this.scene.game.canvas.releasePointerCapture(t.pointerId),
 		2 === t.button ? this.secondaryTouch.down === !0 && (this.updatePosition(t, this.secondaryTouch),
 		this.secondaryTouch.down = !1) : this.touch.down === !0 && (this.updatePosition(t, this.touch),
-		this.touch.down = !1)
+		this.scene.interactWithControls(),
+		this.touch.down = !1,
+		this.scene.redrawControls())
+	}
+	onMouseWheel(t) {
+		t.preventDefault(),
+		t.stopPropagation();
+		let e = Math.max(-1, Math.min(1, -t.deltaY || -t.detail));
+		return 0 == e && (e = Math.max(-1, Math.min(1, t.deltaX || -t.detail))),
+		this.wheel = e,
+		!1
+	}
+	update() {
+		this.enabled && (this.updateTouch(this.touch),
+		this.updateTouch(this.secondaryTouch),
+		this.updateWheel())
 	}
 	updatePosition(t, e) {
 		e.id = t.pointerId,
@@ -107,23 +127,6 @@ export default class extends EventEmitter {
 			}
 		}
 		this.updateCallback = !0
-	}
-	onMouseWheel(t) {
-		t.preventDefault(),
-		t.stopPropagation();
-		let e = Math.max(-1, Math.min(1, -t.deltaY || -t.detail));
-		return 0 == e && (e = Math.max(-1, Math.min(1, t.deltaX || -t.detail))),
-		this.wheel = e,
-		!1
-	}
-	onMouseMove(t) {
-		this.updatePosition(t, this.touch),
-		this.updatePosition(t, this.secondaryTouch);
-	}
-	update() {
-		this.enabled && (this.updateTouch(this.touch),
-		this.updateTouch(this.secondaryTouch),
-		this.updateWheel())
 	}
 	updateTouch(t) {
 		t.old.pos.x = t.pos.x,

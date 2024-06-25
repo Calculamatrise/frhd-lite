@@ -66,14 +66,12 @@ export default class {
 	blurred = false;
 	previousDownButtons = {};
 	handleBlur() {
-		this.blurred = true;
-		this.previousDownButtons = Object.assign({}, this.tickDownButtons);
+		this.blurred = true,
+		this.previousDownButtons = Object.assign({}, this.tickDownButtons)
 	}
 	handleFocus() {
-		if (this.blurred) {
-			this.tickDownButtons = Object.assign({}, this.previousDownButtons);
-			this.downButtons = Object.fromEntries(Object.keys(this.tickDownButtons).map(key => [key, false]));
-		}
+		this.blurred && (this.tickDownButtons = Object.assign({}, this.previousDownButtons),
+		this.downButtons = Object.fromEntries(Object.keys(this.tickDownButtons).map(key => [key, false])))
 	}
 	getInternalCode(t) {
 		return this.keymap[t] || t

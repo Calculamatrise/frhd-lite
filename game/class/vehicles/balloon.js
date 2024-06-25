@@ -14,11 +14,11 @@ export default class extends Vehicle {
 	outline = "#999";
 	vehicleName = "BALLOON";
 	constructor(t, e) {
-		super(t);
-		this.createMasses(e);
-		this.createSprings();
-		this.stopSounds();
-		this.focalPoint = this.head;
+		super(t),
+		this.createMasses(e),
+		this.createSprings(),
+		this.stopSounds(),
+		this.focalPoint = this.head
 	}
 	createMasses(t) {
 		this.masses = [];

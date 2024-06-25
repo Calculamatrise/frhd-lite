@@ -55,6 +55,10 @@ export default class extends Scene {
 		this.redoundoControls = new T(this),
 		this.pauseControls = new b(this)
 	}
+	redrawControls() {
+		super.redrawControls(),
+		this.redoundoControls.redraw()
+	}
 	registerTools() {
 		let t = super.registerTools();
 		t.enableGridUse(),
@@ -104,6 +108,7 @@ export default class extends Scene {
 		this.score.update()
 	}
 	buttonDown(t) {
+		super.buttonDown(t);
 		let e = this.camera;
 		this.state.playing = !0;
 		switch (t) {
@@ -111,32 +116,7 @@ export default class extends Scene {
 		case "down":
 		case "left":
 		case "right":
-			e.focusOnMainPlayer();
-			break;
-		case "change_camera":
-			e.focusOnNextPlayer();
-			break;
-		case "pause":
-			this.state.paused = !this.state.paused;
-			break;
-		case "settings":
-			this.command("dialog", "settings");
-			break;
-		case "change_vehicle":
-			this.toggleVehicle(),
-			this.stateChanged();
-			break;
-		case "zoom_increase":
-			e.increaseZoom(),
-			this.stateChanged();
-			break;
-		case "zoom_decrease":
-			e.decreaseZoom(),
-			this.stateChanged();
-			break;
-		case "fullscreen":
-			this.toggleFullscreen(),
-			this.stateChanged()
+			e.focusOnMainPlayer()
 		}
 	}
 	resize() {
@@ -145,20 +125,16 @@ export default class extends Scene {
 		super.resize()
 	}
 	updateState() {
-		if (null !== this.game.onStateChange) {
-			let t = this.state;
-			t.tool = this.toolHandler.currentTool,
-			t.toolOptions = this.toolHandler.getToolOptions(),
-			t.grid = this.toolHandler.options.grid,
-			t.cameraLocked = this.toolHandler.options.cameraLocked,
-			t.zoomPercentage = this.camera.zoomPercentage,
-			t.vehicle = this.vehicle,
-			this.game.onStateChange(this.state)
-		}
+		let t = this.state;
+		t && (t.tool = this.toolHandler.currentTool,
+		t.toolOptions = this.toolHandler.getToolOptions(),
+		t.grid = this.toolHandler.options.grid,
+		t.cameraLocked = this.toolHandler.options.cameraLocked,
+		super.updateState())
 	}
 	setStateDefaults() {
 		let t = super.setStateDefaults();
-		return t.paused = this.settings.mobile ? !0 : this.settings.startPaused,
+		return t.paused = this.settings.startPaused,
 		t.loading = !1,
 		t.playing = this.settings.waitForKeyPress,
 		t.preloading = !1,
@@ -207,18 +183,17 @@ export default class extends Scene {
 	}
 	hideControlPlanel() {}
 	showControlPlanel() {}
-	command() {
-		let t = Array.prototype.slice.call(arguments, 0)
-		  , e = t.shift();
-		switch (e) {
+	command(t, ...e) {
+		super.command(...arguments);
+		switch (t) {
 		case "change tool":
-			let i = t[0];
+			let i = e[0];
 			this.toolHandler.setTool(i);
 			break;
 		case "change tool option":
-			let s = t[0]
-			  , n = t[1];
-			"undefined" != typeof t[2] ? this.toolHandler.setToolOption(s, n, t[2]) : this.toolHandler.setToolOption(s, n);
+			let s = e[0]
+			  , n = e[1];
+			"undefined" != typeof e[2] ? this.toolHandler.setToolOption(s, n, e[2]) : this.toolHandler.setToolOption(s, n);
 			break;
 		case "snap":
 			this.toolHandler.toggleSnap();
@@ -237,7 +212,7 @@ export default class extends Scene {
 			break;
 		case "toggle vehicle":
 			this.toggleVehicle(),
-			this.stateChanged();
+			this.updateState();
 			break;
 		case "reset zoom":
 			this.camera.resetZoom();
@@ -249,22 +224,21 @@ export default class extends Scene {
 			this.camera.decreaseZoom();
 			break;
 		case "change lineType":
-			let r = t[0];
+			let r = e[0];
 			this.toolHandler.options.lineType = r,
-			this.stateChanged();
+			this.updateState();
 			break;
 		case "clear track":
 			this.trackAction("editor-action", "clear"),
 			this.clear = !0;
 			break;
 		case "import":
-			let h = t[0];
+			let h = e[0];
 			h.length <= 0 && (h = !1),
 			this.importCode = h,
-			this.clear = t[1],
+			this.clear = e[1],
 			this.command("dialog", !1)
 		}
-		super.command(...arguments);
 	}
 	close() {
 		this.trackAction("editor-exit", "exit"),

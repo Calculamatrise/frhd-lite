@@ -6,7 +6,6 @@ export default {
 	experiments: {
 		brightness: 100,
 		filterDuplicatePowerups: false,
-		filterOverlappingPowerups: false,
 		playlists: false,
 		raceProgress: false
 	},

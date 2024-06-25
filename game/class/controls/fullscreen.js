@@ -18,23 +18,12 @@ export default class extends Controls {
 		}
 	}
 	constructor() {
-		super(...arguments);
-		this.init(...arguments);
-	}
-	click(component = Object.values(this.controlData).find(this.isMouseOverComponent.bind(this))) {
-		// let t = this.scene.settings.fullscreen;
-		// this.scene.buttonDown(t ? "exit_fullscreen" : "fullscreen");
-		for (const i in this.controlData) {
-			const component = this.controlData[i];
-			if (this.isMouseOverComponent(component)) {
-				this.scene.buttonDown(component.key);
-			}
-		}
+		super(...arguments),
+		this.init()
 	}
 	update() {
 		let t = this.scene.settings.fullscreen;
 		this.fullscreen !== t && (this.controlData.fullscreen.image = t ? "exit_fullscreen" : "fullscreen",
 		this.fullscreen = t)
-		super.update()
 	}
 }

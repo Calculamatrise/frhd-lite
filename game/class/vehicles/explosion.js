@@ -3,16 +3,14 @@ import n from "./debris.js";
 
 export default class {
 	complete = !1;
-	time = 0;
+	gravity = new s(0, .3)
 	powerupsEnabled = !1;
+	time = 20;
 	constructor(t, e) {
-		this.time = 20;
-		this.gravity = new s(0, .3);
-		this.scene = e;
-		Object.defineProperty(this, 'scene', { enumerable: false });
-		this.createMasses(t);
-		this.positionX = t.x;
-		this.positionY = t.y;
+		Object.defineProperty(this, 'scene', { value: e, writable: true }),
+		this.positionX = t.x,
+		this.positionY = t.y,
+		this.createMasses(t)
 	}
 	draw(l, t) {
 		let e = this.time

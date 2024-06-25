@@ -158,7 +158,6 @@ export default class extends Vehicle {
 		this.settings.developerMode)
 			for (var e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
 				e[s].draw(ctx);
-
 		this.drawBikeFrame(ctx)
 	}
 	updateDrawHeadAngle() {

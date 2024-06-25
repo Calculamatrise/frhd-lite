@@ -73,8 +73,8 @@ window.Game = class extends EventEmitter {
 	progress = 0
 	update(time) {
 		this.updateCallback = requestAnimationFrame(this.update.bind(this));
-		let delta = time - this.lastTime;
-		let max = 1e3 / this.ups;
+		let delta = time - this.lastTime
+		  , max = 1e3 / this.ups;
 		// if (delta >= max) {
 		// 	console.log(this.updates, this.lastTime, time, time + max)
 		// 	this.lastTime = time + max;
@@ -86,9 +86,8 @@ window.Game = class extends EventEmitter {
 			delta = max;
 		}
 
-		this.progress += delta / max;
+		this.progress += delta / max,
 		this.lastTime = time;
-
 		while (this.progress >= 1) {
 			this.currentScene.fixedUpdate(),
 			this.emit('tick', ++this._updates),
@@ -97,8 +96,7 @@ window.Game = class extends EventEmitter {
 
 		this.currentScene.draw(this.ctx),
 		this.emit('draw', this.ctx),
-		this._frames++
-
+		this._frames++;
 		if (time - this.timer > 1e3) {
 			this.timer = time;
 			this.updates = this._updates;

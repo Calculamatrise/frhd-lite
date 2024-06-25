@@ -66,7 +66,7 @@ export default class {
 		this.y = t.y
 	}
 	normalize() {
-		let t = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+		let t = Math.sqrt(this.x ** 2 + this.y ** 2);
 		return new this.constructor(this.x / t, this.y / t)
 	}
 	getAngleInDegrees(t) {

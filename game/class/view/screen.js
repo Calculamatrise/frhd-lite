@@ -1,15 +1,15 @@
 import Vector from "../math/cartesian.js";
 
 export default class {
-	game = null;
-	scene = null;
 	size = null;
 	center = null;
 	width = 0;
 	height = 0;
 	constructor(t) {
-		this.scene = t;
-		this.game = t.game;
+		Object.defineProperties(this, {
+			scene: { value: t, writable: true },
+			game: { value: t.game, writable: true }
+		});
 		this.size = new Vector(0, 0);
 		this.center = new Vector(0, 0);
 		this.setScreen()

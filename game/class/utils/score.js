@@ -107,14 +107,14 @@ export default class extends GUI {
 				u += d / 100;
 				t.roundRect(s, n, Math.max(0, Math.min(i, i * u)), r, o),
 				t.fillStyle = '#FAE335',
-				t.fill();
+				t.fill()
 			}
 		}
 	}
 	update() {
 		let t = this.scene
 		  , e = t.state.paused
-		  , i = format(1e3 * ((t.camera.focusIndex > 0 ? t.playerManager.getPlayerByIndex(t.camera.focusIndex)._gamepad.playbackTicks : null) ?? t.ticks) / t.settings.drawFPS)
+		  , i = format(1e3 * ((null !== t.camera.playerFocus && t.camera.playerFocus._gamepad.playbackTicks || null) ?? t.ticks) / t.settings.drawFPS)
 		  , s = t.playerManager.firstPlayer.getTargetsHit() + '/' + t.track.targetCount
 		  , n = t.settings.isCampaign && t.settings.campaignData.user.best_time || t.settings.userTrackStats && t.settings.userTrackStats.best_time;
 		this.paused !== e && (this.timer_sprite.image.y = e ? 62 : 2,

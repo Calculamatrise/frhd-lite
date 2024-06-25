@@ -24,7 +24,7 @@ export default class {
 	collide(t) {
 		let e = t.pos.x - this.x
 		  , i = t.pos.y - this.y
-		  , r = Math.sqrt(Math.pow(e, 2) + Math.pow(i, 2));
+		  , r = Math.sqrt(e ** 2 + i ** 2);
 		!this.hit && 26 > r && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1)
 	}

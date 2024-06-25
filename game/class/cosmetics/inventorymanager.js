@@ -1,7 +1,7 @@
 class InventoryManager {
-	cache = {}
-	inventory = {}
-	loaded = new Set()
+	cache = {};
+	inventory = {};
+	loaded = new Set();
 	constructor() {
 		Object.defineProperty(this, 'cache', { enumerable: false });
 	}
@@ -11,9 +11,7 @@ class InventoryManager {
 		  , o = t.options
 		  , a = t.type;
 		this.inventory[e] || ('1' === a && (e = 'forward_cap',
-		o = {
-			back: 'white'
-		}),
+		o = { back: 'white' }),
 		this.loaded.has(i) || (this.loaded.add(i),
 		GameManager.loadFile(i)));
 		let h = this.generateID(a, e, o);
@@ -35,8 +33,8 @@ class InventoryManager {
 		this.inventory[t] = e
 	}
 	clear() {
-		this.cache = {}
-		this.inventory = {}
+		this.cache = {},
+		this.inventory = {},
 		this.loaded.clear()
 	}
 }

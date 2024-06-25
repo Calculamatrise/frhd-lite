@@ -81,10 +81,9 @@ export default class {
 		if (this._crashed = !0,
 			this._ghost === !1) {
 			let t = this._scene
-			  , e = t.settings
 			  , i = t.message;
 			t.state.playerAlive = this.isAlive(),
-			this._checkpoints.length > 0 ? e.mobile ? i.show("Tap to go to checkpoint!", !1, "#000", "#FFF") : i.show("Press Enter For Checkpoint", !1, "#000", "#FFF") : e.mobile ? i.show("Tap to Restart!", !1, "#000", "#FFF") : i.show("Press Enter To Restart", !1, "#000", "#FFF")
+			i.show(this._checkpoints.length > 0 ? "Press Enter For Checkpoint" : "Press Enter To Restart!", !1, "#000", "#FFF")
 		}
 	}
 	setAsGhost() {
@@ -261,10 +260,8 @@ export default class {
 	}
 	getDistanceBetweenPlayers(t) {
 		let e = t.getActiveVehicle()
-		  , i = this.getActiveVehicle()
-		  , s = e.focalPoint.pos.x - i.focalPoint.pos.x
-		  , n = e.focalPoint.pos.y - i.focalPoint.pos.y;
-		return Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2))
+		  , i = this.getActiveVehicle();
+		return e.focalPoint.pos.sub(i.focalPoint.pos).len()
 	}
 	getActiveVehicle() {
 		return this._tempVehicleTicks > 0 ? this._tempVehicle : this._baseVehicle
@@ -339,7 +336,7 @@ export default class {
 				e === !1) {
 				let o = i.settings;
 				i.state.playerAlive = this.isAlive(),
-				i.settings.mobile ? i.message.show("Tap to resume", 5, "#826cdc", "#FFFFFF") : i.message.show("Press Backspace To Go Back Further", 5, "#826cdc", "#FFFFFF"),
+				i.message.show("Press Backspace To Go Back Further", 5, "#826cdc", "#FFFFFF"),
 				i.track.updatePowerupState(this),
 				o.waitAtCheckpoints && (i.state.playing = !1),
 				i.camera.focusOnMainPlayer()

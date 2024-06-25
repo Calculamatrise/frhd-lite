@@ -32,7 +32,7 @@ export default class {
 				i.font = s;
 				let n = i.measureText(this.text);
 				e.width = Math.ceil(Math.max(n.width, n.actualBoundingBoxLeft + n.actualBoundingBoxRight)),
-				e.height = Math.abs(n.actualBoundingBoxAscent) + Math.abs(n.actualBoundingBoxDescent), // bad
+				e.height = Math.ceil(Math.abs(n.actualBoundingBoxAscent) + Math.abs(n.actualBoundingBoxDescent)), // bad
 				this.radius && (n = this.radius,
 				e.width = Math.max(e.width, 2 * this.scale.x * n),
 				e.height = Math.max(e.height, 2 * this.scale.y * n)),

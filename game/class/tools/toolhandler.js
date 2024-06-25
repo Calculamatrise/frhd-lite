@@ -8,7 +8,7 @@ export default class {
 	scene = null;
 	camera = null;
 	mouse = null;
-	tools = {}
+	tools = {};
 	gamepad = null;
 	gridCache = !1;
 	gridCacheAlpha = 1;
@@ -43,7 +43,7 @@ export default class {
 	}
 	setToolOption(t, e, i) {
 		"undefined" != typeof i && "undefined" != typeof this.tools[i] ? this.tools[i].setOption(t, e) : this.tools[this.currentTool].setOption(t, e),
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	registerTool(t) {
 		t = new t(this);
@@ -54,7 +54,7 @@ export default class {
 		t = t.toLowerCase();
 		this.currentTool !== t && (this.resetTool(),
 		this.currentTool = t,
-		this.scene.stateChanged(),
+		this.scene.updateState(),
 		this.analytics.actions++)
 	}
 	addActionToTimeline(t) {
@@ -190,26 +190,26 @@ export default class {
 	toggleLineType() {
 		let t = this.options.lineType;
 		this.options.lineType = "physics" === t ? "scenery" : "physics",
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	toggleGrid() {
 		this.options.grid = this.scene.state.grid = !this.options.grid,
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	toggleSnap() {
 		this.options.snap = !this.options.snap,
 		this.options.snapLocked = !this.options.snapLocked,
 		this.resetTool(),
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	toggleQuickSnap() {
 		this.options.snapLocked || (this.options.snap = !this.options.snap,
 		this.resetTool(),
-		this.scene.stateChanged())
+		this.scene.updateState())
 	}
 	toggleCameraLock() {
 		this.options.cameraLocked = !this.options.cameraLocked,
-		this.scene.stateChanged()
+		this.scene.updateState()
 	}
 	draw(ctx) {
 		this.mouse.enabled && this.tools[this.currentTool].draw(ctx)

@@ -3,7 +3,11 @@ import Mass from "./mass.js";
 let l = [1, .7, .8, .9, .5, 1, .7, 1];
 
 export default class extends Mass {
+	angle = 6.2 * Math.random();
 	color = "black";
+	friction = .05;
+	radius = 2 * Math.random() * 5;
+	speed = 1 * Math.random() - 1 * Math.random();
 	constructor(t, e, i) {
 		super(t, e);
 		this.color = i;
@@ -13,10 +17,6 @@ export default class extends Mass {
 		this.old.y = this.pos.y;
 		this.vel.y = 11 * (Math.random() - Math.random());
 		this.vel.x = 11 * (Math.random() - Math.random());
-		this.radius = 2 * Math.random() * 5;
-		this.angle = 6.2 * Math.random();
-		this.speed = 1 * Math.random() - 1 * Math.random();
-		this.friction = .05;
 	}
 	drive(t, e) {
 		let i = this.vel
