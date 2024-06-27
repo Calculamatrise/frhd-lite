@@ -180,9 +180,11 @@ export default class {
 		for (let n = physicsLines.length - 1; n >= 0; n--)
 			physicsLines[n].remove ? this.physicsLines.splice(this.physicsLines.indexOf(physicsLines[n]), 1) : physicsLines[n].collide(t)
 		if (t.parent.powerupsEnabled) {
-			let allPowerups = this.powerups.all.filter(item => !item.hit);
-			for (let h = allPowerups.length - 1; h >= 0; h--)
-				allPowerups[h].remove ? this.powerups.all.splice(this.powerups.all.indexOf(allPowerups[h]), 1) : allPowerups[h].collide(t)
+			let i = t.parent.player
+			  , s = this.powerups.all.filter(item => -1 === i._powerupsConsumed.misc.indexOf(item.id));
+			!i.isGhost() && (s = s.filter(item => !item.hit));
+			for (let h = s.length - 1; h >= 0; h--)
+				s[h].remove ? this.powerups.all.splice(this.powerups.all.indexOf(s[h]), 1) : s[h].collide(t)
 		}
 	}
 	drawLines(t, e, i) {

@@ -18,7 +18,7 @@ export default class extends Powerup {
 		if (-1 === s.indexOf(this.id)) {
 			let n = t.pos.x - this.x
 			  , o = t.pos.y - this.y
-			  , a = Math.pow(n, 2) + Math.pow(o, 2);
+			  , a = n ** 2 + o ** 2;
 			1e3 > a && i.isAlive() && (s.push(this.id),
 			s.push(this.otherPortal.id),
 			e.moveVehicle(this.otherPortal.x - this.x, this.otherPortal.y - this.y),

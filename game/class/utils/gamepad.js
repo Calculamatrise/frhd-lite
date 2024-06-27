@@ -120,11 +120,8 @@ export default class {
 	}
 	update() {
 		this.replaying && this.updatePlayback()
-		if (!this.blurred) {
-			this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
-			this.tickDownButtons = Object.assign({}, this.downButtons)
-		}
-
+		!this.blurred && (this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
+		this.tickDownButtons = Object.assign({}, this.downButtons));
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
 		this.recording && this.updateRecording()
 	}
