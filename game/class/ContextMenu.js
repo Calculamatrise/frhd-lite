@@ -6,7 +6,7 @@ export default class ContextMenu extends HTMLElement {
 		this.constructor.contextMenu = this;
 		this.addEventListener('contextmenu', event => event.preventDefault());
 		this.addEventListener('click', this.remove, { once: true, passive: true });
-		this.addEventListener('mousewheel', event => event.preventDefault());
+		this.addEventListener('mousewheel', event => this.clientHeight >= this.scrollHeight && event.preventDefault());
 		Object.defineProperty(this, '_removeListener', { value: this.remove.bind(this), writable: true });
 		window.addEventListener('blur', this._removeListener, { once: true, passive: true });
 		window.addEventListener('scroll', this._removeListener, { once: true, passive: true });

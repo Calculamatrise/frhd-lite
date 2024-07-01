@@ -34,7 +34,7 @@ window.Game = class extends EventEmitter {
 		this.switchScene(t),
 		this.setSize(),
 		(window.createjs ||= {}).Ticker ||= this,
-		this.updateCallback = requestAnimationFrame(this.update.bind(this)),
+		Object.defineProperty(this, 'updateCallback', { value: requestAnimationFrame(this.update.bind(this)), writable: true }),
 		this.emit('ready', this)
 	}
 	initCanvas() {
@@ -98,11 +98,11 @@ window.Game = class extends EventEmitter {
 		this.emit('draw', this.ctx),
 		this._frames++;
 		if (time - this.timer > 1e3) {
-			this.timer = time;
-			this.updates = this._updates;
-			this._updates = 0;
-			this.frames = this._frames;
-			this._frames = 0;
+			this.timer = time,
+			this.updates = this._updates,
+			this._updates = 0,
+			this.frames = this._frames,
+			this._frames = 0
 		}
 	}
 
@@ -117,6 +117,7 @@ window.Game = class extends EventEmitter {
 
 	close() {
 		cancelAnimationFrame(this.updateCallback),
+		this.updateCallback = null,
 		this.currentScene.close(),
 		this.currentScene = null,
 		this.assets = null,

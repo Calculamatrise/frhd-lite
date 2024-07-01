@@ -186,6 +186,7 @@ export default class {
 		return s
 	}
 	getReplayString() {
+		window.hasOwnProperty('lite') && Object.assign(this.records, lite._appendRecords());
 		return JSON.stringify(this.records)
 	}
 	encodeReplayString(t) {

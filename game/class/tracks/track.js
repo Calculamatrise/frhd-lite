@@ -78,17 +78,12 @@ export default class {
 	}
 	read(t) {
 		var e = t.split("#")
-			, i = e[0].split(",")
-			, s = []
-			, n = [];
-		if (e.length > 2)
-			var s = e[1].split(",")
-				, n = e[2].split(",");
-		else if (e.length > 1)
-			var n = e[1].split(",");
-		this.addLines(i, this.addPhysicsLine),
-		this.addLines(s, this.addSceneryLine),
-		this.addPowerups(n)
+		  , i = e.length > 0 && e[0].split(",")
+		  , s = e.length > 1 && e[1].split(",")
+		  , n = e.length > 2 && e[2].split(",");
+		i && i.length > 0 && this.addLines(i, this.addPhysicsLine),
+		s && s.length > 0 && this.addLines(s, this.addSceneryLine),
+		n && n.length > 0 && this.addPowerups(n)
 	}
 	move(x = 0, y = 0) {
 		for (const t in this.physicsLines)
@@ -198,7 +193,7 @@ export default class {
 	}
 	maxDuplicatePowerups = 0;
 	addPowerup(t) {
-		if (window.hasOwnProperty('lite') && lite.storage.get('experiments').filterDuplicatePowerups) {
+		if (window.hasOwnProperty('lite') && lite.storage.get('filterDuplicatePowerups')) {
 			let e = this.powerups.filter(e => e.name === t.name && e.x == t.x && e.y == t.y);
 			if (e.length > this.maxDuplicatePowerups) {
 				switch(t.prefix) {
@@ -305,7 +300,7 @@ export default class {
 		for (let i of t.filter(t => t.remove))
 			t.splice(t.indexOf(i), 1);
 		for (let i of e.filter(t => t.remove))
-			e.splice(e.indexOf(i), 1);
+			e.splice(e.indexOf(i), 1)
 	}
 	cleanPowerups() {
 		let t = this.powerups
@@ -317,7 +312,7 @@ export default class {
 		this.targetCount = this.targets.length
 	}
 	updatePowerupState(t) {
-		this.resetPowerups();
+		this.resetPowerups(),
 		this.setPowerupStates(t._powerupsConsumed.targets),
 		this.setPowerupStates(t._powerupsConsumed.checkpoints),
 		this.setPowerupStates(t._powerupsConsumed.misc)

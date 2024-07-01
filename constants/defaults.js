@@ -1,21 +1,20 @@
 export default {
 	accountManager: false,
+	achievementMonitor: true,
 	bikeFrameColor: null,
-	dailyAchievementsDisplay: true,
+	bikeTireColor: null,
+	brightness: 100,
 	developerMode: false,
-	experiments: {
-		brightness: 100,
-		filterDuplicatePowerups: false,
-		playlists: false,
-		raceProgress: false
-	},
 	featuredGhostsDisplay: true,
+	filterDuplicatePowerups: false,
 	inputDisplay: true,
 	inputDisplayOpacity: 1,
 	inputDisplaySize: 5,
 	isometricGrid: false,
 	keymap: {},
 	playerTrail: false,
+	playlists: false,
+	raceProgress: false,
 	snapshots: 10,
 	theme: 'light'
 }

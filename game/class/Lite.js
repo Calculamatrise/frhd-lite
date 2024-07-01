@@ -15,36 +15,44 @@ window.lite = new class {
 		}
 	}
 	storage = new Map();
-	styleSheet = new Proxy(new Map(), {
+	styleSheet = new Proxy(Object.defineProperty(new Map(), 'update', {
+		value(key, value) {
+			let newValue = Object.assign(this.get(key) || {}, value);
+			this.set(key, newValue);
+			return newValue
+		},
+		writable: true
+	}), {
 		get: (...args) => {
 			let [target, property, receiver] = args;
 			let returnValue = Reflect.get(...args);
 			if (typeof returnValue == 'function') {
-				return (...args) => {
-					switch (property) {
-					case 'delete':
+				switch (property) {
+				case 'delete':
+					return (...args) => {
 						returnValue = returnValue.apply(target, args);
 						this._updateCustomStyleSheet(this.styleSheet.entries());
-						break;
-					case 'set':
+						return returnValue
+					}
+				case 'set':
+				case 'update':
+					return (...args) => {
 						let [key, value] = args;
-						returnValue.call(target, key, new Proxy(value, {
+						returnValue = returnValue.call(target, key, new Proxy(value, {
 							set: (...args) => {
 								let returnValue = Reflect.set(...args);
 								this._updateCustomStyleSheet(this.styleSheet.entries());
 								return returnValue;
 							}
 						}));
-						returnValue = receiver;
 						this._updateCustomStyleSheet(this.styleSheet.entries());
-						break;
-					default:
-						returnValue = returnValue.apply(target, args);
+						return returnValue
 					}
-					return returnValue;
+				default:
+					returnValue = returnValue.bind(target)
 				}
 			}
-			return returnValue;
+			return returnValue
 		}
 	});
 	constructor() {
@@ -84,7 +92,16 @@ window.lite = new class {
 
 	#createCustomStyleSheet() {
 		this.#customStyleSheet = document.head.appendChild(document.createElement('style'));
-		this.#customStyleSheet.setAttribute('id', 'frhd-lite-style');
+		this.#customStyleSheet.setAttribute('id', 'frhd-lite.style');
+	}
+
+	_appendRecords() {
+		let record = []
+		  , bikeFrameColor = this.storage.get('bikeFrameColor')
+		  , bikeTireColor = this.storage.get('bikeTireColor');
+		null !== bikeFrameColor && record.push('bikeFrameColor', bikeFrameColor);
+		null !== bikeTireColor && record.push('bikeTireColor', bikeTireColor);
+		return record.length > 0 && { 'lite': record } || null
 	}
 
 	_childLoad() {
@@ -93,7 +110,7 @@ window.lite = new class {
 		this.storage.get('accountManager') && this.initAccountManager();
 		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
 		this.cacheTrackData(),
-		this.storage.get('dailyAchievementsDisplay') && this.initAchievementsDisplay(),
+		this.storage.get('achievementMonitor') && this.initAchievementsDisplay(),
 		this.initBestDate(),
 		this.initDownloadGhosts(),
 		this.initGhostMetadata(),
@@ -103,7 +120,7 @@ window.lite = new class {
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
 		this.initGhostPlayer(),
 		this.storage.get('uploadGhosts') && this.initUploadGhosts());
-		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('experiments').playlists && this.initPlayLater(),
+		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('playlists') && this.initPlayLater(),
 		this.initUserTrackAnalytics()) : this.initFriendsLastPlayed(),
 		Application.settings.user.moderator && (this.initUserModeration(),
 		this.initUserTrackModeration()));
@@ -111,11 +128,13 @@ window.lite = new class {
 	}
 
 	_load(game) {
+		game.on('baseVehicleCreate', baseVehicle => this._updateBaseVehicle(baseVehicle)),
 		game.on('cameraFocus', playerFocus => {
 			this.replayGui && (this.replayGui.style.setProperty('display', this.scene.camera.focusIndex !== 0 ? 'block' : 'none'),
 			this.scene.camera.focusIndex !== 0 && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id)) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
 		}),
 		game.on('draw', this.draw.bind(this)),
+		game.on('replayTick', ticks => this.replayGui && (this.replayGui.progress.value = ticks)),
 		game.on('trackChallengeUpdate', races => {
 			let challengeLeaderboard = this.fetchChallengeLeaderboard({ createIfNotExists: true });
 			challengeLeaderboard.replaceChildren(...races.map((data, index) => {
@@ -157,7 +176,9 @@ window.lite = new class {
 			GameSettings.raceUids.splice(GameSettings.raceUids.indexOf(data.user.u_id), 1)
 		});
 		this.snapshots.splice(0, this.snapshots.length),
-		this._updateFromSettings(this.storage)
+		this._updateFromSettings(this.storage);
+		for (let player of game.currentScene.playerManager._players)
+			player._baseVehicle && this._updateBaseVehicle(player._baseVehicle)
 	}
 
 	_updateCustomStyleSheet(data) {
@@ -180,22 +201,25 @@ window.lite = new class {
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
 			case 'accountManager':
-			case 'dailyAchievementsDisplay':
+			case 'achievementMonitor':
 			case 'featuredGhosts':
+			case 'playlists':
 				childLoad = true;
 				break;
-			case 'experiments':
-				for (const experiment in value) {
-					switch(experiment) {
-					case 'brightness':
-						this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
-							filter: 'brightness(' + value[experiment] / 100 + ')'
-						}));
-						break;
-					case 'playlists':
-						childLoad = true
-					}
-				}
+			case 'bikeFrameColor':
+				var firstPlayer = this.scene.playerManager.firstPlayer;
+				firstPlayer._baseVehicle.color = value,
+				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = firstPlayer);
+				break;
+			case 'bikeTireColor':
+				var baseVehicle = this.scene.playerManager.firstPlayer._baseVehicle;
+				baseVehicle && (baseVehicle.frontWheel.color = value,
+				baseVehicle.rearWheel.color = value);
+				break;
+			case 'brightness':
+				this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
+					filter: 'brightness(' + value / 100 + ')'
+				}));
 				break;
 			case 'keymap':
 				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
@@ -219,8 +243,8 @@ window.lite = new class {
 				if (this.scene.hasOwnProperty('campaignScore')) {
 					this.scene.campaignScore.container.children.forEach(medal => {
 						medal.children.forEach(element => {
-							element.color = color;
-						});
+							element.color = color
+						})
 					});
 				}
 
@@ -228,8 +252,8 @@ window.lite = new class {
 					this.scene.raceTimes.container.color = color;
 					this.scene.raceTimes.raceList.forEach(race => {
 						race.children.forEach(element => {
-							element.color = color;
-						});
+							element.color = color
+						})
 					});
 				}
 
@@ -238,17 +262,31 @@ window.lite = new class {
 				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, value == 'midnight' ? '20282e' : value == 'dark' ? '25' : 'e');
 				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, value == 'midnight' ? '161b20' : value == 'dark' ? '3e' : 'c');
 				this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
-				for (const player of this.scene.playerManager._players)
-					player._baseVehicle.color = GameSettings.physicsLineColor,
-					player._tempVehicle && (player._tempVehicle.color = GameSettings.physicsLineColor)
 			case 'isometricGrid':
-				redraw = true;
+				redraw = true
 			}
 		}
 
 		childLoad && this._childLoad(),
 		redraw && this.scene.redraw(),
 		this.refresh()
+	}
+
+	_updateBaseVehicle(baseVehicle) {
+		if (!baseVehicle) return;
+		let frameColor, tireColor;
+		if (baseVehicle.player !== this.scene.playerManager.firstPlayer) {
+			let playback = baseVehicle.player._gamepad.playback;
+			if (!playback || !playback.hasOwnProperty('lite')) return;
+			playback.lite.has('bikeFrameColor') && (frameColor = playback.lite.get('bikeFrameColor')),
+			playback.lite.has('bikeTireColor') && (tireColor = playback.lite.get('bikeTireColor'));
+		} else
+			frameColor = this.storage.get('bikeFrameColor'),
+			tireColor = this.storage.get('bikeTireColor');
+		let colorMatch = /^#([a-f0-9]{3}){1,2}$/i;
+		colorMatch.test(frameColor) && (baseVehicle.color = frameColor),
+		colorMatch.test(tireColor) && (baseVehicle.frontWheel.color = tireColor,
+		baseVehicle.rearWheel.color = tireColor)
 	}
 
 	attachContextMenu() {
@@ -290,13 +328,34 @@ window.lite = new class {
 								race.dataset.legitimacy = isTas ? 'Illegitimate (TAS)' : 'Legit';
 								isTas && this.updateTASLeaderboard([entry]);
 							})
-						}, {
+						}, Application.settings.user.u_id == race.dataset.u_id ? {
+							name: 'Request Deletion',
+							styles: ['danger', 'disabled']
+						} : {
 							name: 'Report',
 							styles: ['danger', race.dataset.reported && 'disabled'],
 							click: () => this.constructor.report('Race \'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'race' }).then(() => {
 								race.dataset.reported = true
 							})
 						}];
+						if (Application.settings.user.u_id != race.dataset.u_id) {
+							const raceData = GameManager.game.currentScene.races.find(({ user: u }) => u.u_id == race.dataset.u_id);
+							if (raceData) {
+								const cosmetics = await this.constructor.fetchCurrentUserCosmetics();
+								const item = raceData.user.cosmetics.head;
+								const hasItem = cosmetics.gear.head_gear.length > 0 && cosmetics.gear.head_gear.find(({ id }) => id == item.id);
+								options.splice(options.length - 2, 0, {
+									name: (hasItem ? 'Equip' : 'Preview') + ' Head',
+									styles: GameManager.game.currentScene.playerManager.firstPlayer._user.cosmetics.head.id == item.id && ['disabled'],
+									click: () => {
+										for (let player of GameManager.game.currentScene.playerManager._players.filter(({ _user: u }) => u.u_id == Application.settings.user.u_id)) {
+											player._user.cosmetics.head = item
+										}
+										return hasItem && Application.Helpers.AjaxHelper.post('store/equip', { item_id: item.id })
+									}
+								});
+							}
+						}
 						Application.settings.user.u_id == race.dataset.u_id && options.splice(options.length - 1, 0, {
 							name: race.title || 'Check Date',
 							styles: race.title && ['disabled'],
@@ -369,7 +428,12 @@ window.lite = new class {
 					if (null !== comment) {
 						event.preventDefault();
 						if (event.target.closest('.track-comment-img, a.bold')) {
-							ContextMenu.create(await this.buildUserContextMenu(comment), event);
+							ContextMenu.create(await this.buildUserContextMenu(comment.dataset), event);
+							return;
+						} else if (event.target.tagName === 'A') {
+							let href = event.target.href;
+							let user = await this.constructor.fetchUser(href.replace(/.+\//, '')).then(r => r.user);
+							ContextMenu.create(await this.buildUserContextMenu(user), event);
 							return;
 						}
 
@@ -384,17 +448,16 @@ window.lite = new class {
 						}, {
 							name: 'Copy Text',
 							click: () => navigator.clipboard.writeText(comment.querySelector('.track-comment-msg').innerText)
-						}, {
+						}, Application.settings.user.d_name == comment.dataset.d_name ? {
+							name: 'Delete',
+							styles: ['danger'],
+							click: () => Application.router.current_view._delete_comment(this.currentTrackData.t_id, comment.dataset.c_id, r => r.result && comment.remove())
+						} : {
 							name: 'Report',
 							styles: ['danger', confirmFlag || 'disabled'],
 							click: () => confirmFlag.click()
 						}];
-						Application.settings.user.d_name == comment.dataset.d_name && options.splice(options.length - 1, 0, {
-							name: 'Delete',
-							styles: ['danger'],
-							click: () => Application.router.current_view._delete_comment(this.currentTrackData.t_id, comment.dataset.c_id, r => r.result && comment.remove())
-						});
-						Application.settings.user.admin && options.splice(options.length - 1, 0, {
+						Application.settings.user.admin && options.push({ type: 'hr' }, {
 							name: 'Set Messaging Ban',
 							styles: ['danger'],
 							click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
@@ -413,9 +476,9 @@ window.lite = new class {
 					if (null !== track) {
 						event.preventDefault();
 						if (event.target.closest('.track-about-author-img, a.bold')) {
-							const options = await this.buildUserContextMenu(track);
+							const options = await this.buildUserContextMenu(this.currentTrackData.author);
 							let subscribe = document.querySelector('#subscribe_to_author');
-							options.splice(options.length - 3, 0, {
+							Application.settings.user.u_id != this.currentTrackData.author_id && options.splice(3, 0, {
 								name: subscribe.innerText,
 								styles: /^un/i.test(subscribe.innerText) && ['danger'],
 								click: () => subscribe.click()
@@ -424,8 +487,6 @@ window.lite = new class {
 							return;
 						}
 
-						let playlist = this.storage.get('experiments').playlists && this.fetchAndCachePlaylists('playlater');
-						let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
 						let confirmFlag = document.querySelector('.track-flag ~ .track-confirm-flag > .yes');
 						const options = [{
 							name: 'Copy Title',
@@ -434,62 +495,88 @@ window.lite = new class {
 							name: 'Copy Description',
 							click: () => navigator.clipboard.writeText(track.querySelector('.description').innerText)
 						}, {
-							name: (savedToPlaylater ? 'Remove from' : 'Add to') + ' Playlist',
-							styles: [savedToPlaylater && 'danger', this.storage.get('experiments').playlists || 'disabled'],
-							click: () => Application.Helpers.AjaxHelper.get('t/' + this.currentTrackData.t_id).then(({ track, user_track_stats }) => {
-								const playlist = this.fetchAndCachePlaylists('playlater');
-								playlist[savedToPlaylater ? 'delete' : 'set'](this.currentTrackData.t_id, {
-									author: track.author,
-									averageTime: user_track_stats.avg_time,
-									featured: track.featured,
-									id: this.currentTrackData.t_id,
-									img: track.img,
-									slug: track.slug,
-									title: track.title
-								});
-								playlist.size > 0 ? localStorage.setItem('frhd-lite.playlists.playlater', JSON.stringify(Array.from(playlist.values()))) : localStorage.removeItem('frhd-lite.playlists.playlater');
-							})
-						}, {
 							name: track.dataset.last_played_date || 'Check Last Played',
 							styles: track.dataset.last_played_date && ['disabled'],
 							click: () => this.constructor.fetchTrackLastPlayedDate().then(date => track.dataset.last_played_date = date)
+						}];
+						let playlist = this.fetchAndCachePlaylists('playlater');
+						let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+						let showPlaylistButton = savedToPlaylater || this.storage.get('playlists');
+						if (showPlaylistButton) {
+						// if (this.storage.get('playlists')) {
+							// let playlist = this.fetchAndCachePlaylists('playlater');
+							// let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+							// let showPlaylistButton = savedToPlaylater || this.storage.get('playlists');
+							showPlaylistButton && options.splice(2, 0, {
+								name: (savedToPlaylater ? 'Remove from' : 'Add to') + ' Playlist',
+								styles: [savedToPlaylater && 'danger', savedToPlaylater && !this.storage.get('playlists') && 'disabled'],
+								click: () => Application.Helpers.AjaxHelper.get('t/' + this.currentTrackData.t_id).then(({ track, user_track_stats }) => {
+									const playlist = this.fetchAndCachePlaylists('playlater');
+									playlist[savedToPlaylater ? 'delete' : 'set'](this.currentTrackData.t_id, {
+										author: track.author,
+										averageTime: user_track_stats.avg_time,
+										featured: track.featured,
+										id: this.currentTrackData.t_id,
+										img: track.img,
+										slug: track.slug,
+										title: track.title
+									});
+									playlist.size > 0 ? localStorage.setItem('frhd-lite.playlists.playlater', JSON.stringify(Array.from(playlist.values()))) : localStorage.removeItem('frhd-lite.playlists.playlater');
+								})
+							});
+						}
+						Application.settings.user.u_id == this.currentTrackData.author_id ? (options.push({
+							name: 'Download',
+							click: () => this.constructor.downloadTrack(this.currentTrackData.t_id)
 						}, {
+							name: 'Request Deletion',
+							styles: ['danger', 'disabled']
+						}, { type: 'hr' }, {
+							name: 'Download All',
+							click: () => this.constructor.downloadAllTracks(Application.settings.user.u_name)
+						})) : options.push({
 							name: 'Report',
 							styles: ['danger', confirmFlag || 'disabled'],
 							click: () => (confirmFlag.click(),
 							confirmFlag.parentElement.remove(),
 							document.querySelector('.track-flag')?.remove())
-						}];
-						Application.settings.user.u_id == this.currentTrackData.author_id && options.splice(options.length - 1, 0, {
-							name: 'Download',
-							click: () => this.constructor.downloadTrack(this.currentTrackData.t_id)
-						}, {
-							name: 'Download All',
-							click: () => this.constructor.downloadAllTracks(Application.settings.user.u_name)
 						});
-						Application.settings.user.moderator && options.splice(options.length - 1, 0, {
+						Application.settings.user.moderator && options.push({ type: 'hr' }, {
 							name: 'Add to Track of the Day',
 							styles: ['disabled']
 						}, {
 							name: (GameSettings.track.featured ? 'Unf' : 'F') + 'eature',
 							styles: GameSettings.track.featured && ['danger'],
 							click: () => Application.Helpers.AjaxHelper.post('track_api/feature_track/' + this.currentTrackData.t_id + '/' + (1 - GameSettings.track.featured)).then(r => {
-								r.result && (this.currentTrackData.track.featured = !this.currentTrackData.track.featured,
-								GameSettings.track.featured = this.currentTrackData.track.featured)
+								r.result && (this.currentTrackData.featured = !this.currentTrackData.featured,
+								GameSettings.track.featured = this.currentTrackData.featured)
 							})
 						}, {
-							name: (this.currentTrackData.track.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
+							name: (this.currentTrackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
 							styles: ['danger'],
 							click: () => Application.Helpers.AjaxHelper.get('moderator/hide_track/' + this.currentTrackData.t_id).then(r => {
-								r.result && (this.currentTrackData.track.hide = 1 - this.currentTrackData.track.hide,
-								GameSettings.track.hide = this.currentTrackData.track.hide)
+								r.result && (this.currentTrackData.hide = 1 - this.currentTrackData.hide,
+								GameSettings.track.hide = this.currentTrackData.hide)
 							})
 						});
-						Application.settings.user.admin && options.splice(options.length - 1, 0, {
+						Application.settings.user.admin && options.push({ type: 'hr' }, {
 							name: 'Remove Track of the Day',
 							styles: ['danger'],
 							click: () => Application.Helpers.AjaxHelper.post('admin/removeTrackOfTheDay', {
 								t_id: this.currentTrackData.t_id
+							})
+						}, {
+							name: (this.currentTrackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('admin/' + (this.currentTrackData.hide ? 'un' : '') + 'hide_track', { track_id: this.currentTrackData.t_id }).then(r => {
+								r.result && (this.currentTrackData.hide = 1 - this.currentTrackData.hide,
+								GameSettings.track.hide = this.currentTrackData.hide)
+							})
+						}, {
+							name: 'Set Uploading Ban',
+							styles: ['danger'],
+							click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_uploading', {
+								uploading_ban_uname: this.currentTrackData.author.u_name
 							})
 						});
 						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
@@ -510,7 +597,8 @@ window.lite = new class {
 				display: 'flex',
 				flexDirection: 'column',
 				fontSize: 'clamp(9px, .75rem, 13px)',
-				overflow: 'hidden',
+				maxHeight: '50vh',
+				overflow: 'hidden auto',
 				padding: '.275em',
 				position: 'absolute',
 				zIndex: 1002
@@ -528,72 +616,111 @@ window.lite = new class {
 				backgroundColor: 'hsl(200deg 20% 25% / 60%)',
 				border: 'none',
 				height: '1px',
-				color: 'hsl(200deg 30% 20% / 50%)',
 				width: '90%'
 			});
 			this.styleSheet.set('button.danger', { color: 'hsl(0deg, 75%, 55%)' });
 			this.styleSheet.set('button.danger:disabled', { color: 'hsl(0deg 75% 55% / 50%)' });
+			this.styleSheet.set('context-menu::-webkit-scrollbar', { width: '.5em' });
+			this.styleSheet.set('context-menu::-webkit-scrollbar, context-menu::-webkit-scrollbar-track', { backgroundColor: 'hsl(0deg 0% 0% / 4%)' });
+			this.styleSheet.set('context-menu::-webkit-scrollbar-thumb', { backgroundColor: 'hsl(200deg 25% 20% / 50%)' });
 		}
 		document.removeEventListener('contextmenu', this._oncontextmenu);
 		document.addEventListener('contextmenu', this._oncontextmenu)
 	}
 
 	async buildUserContextMenu(data) {
-		let currentUser = await this.constructor.fetchCurrentUser();
-		let request = currentUser.friend_requests.request_data.find(({ u_id }) => u_id == data.u_id);
-		let isFriend = currentUser.friends.friends_data.find(({ u_id }) => u_id == data.u_id);
+		data = Object.assign({}, data);
+		!data.u_name && data.d_name && (data.u_name = data.d_name.toLowerCase());
+		let isCurrentUser = Application.settings.user.u_id == data.u_id || Application.settings.user.u_name == data.u_name;
 		const options = [{
 			name: 'Profile',
 			click: () => Application.router.do_route('u/' + (data.u_name || data.d_name.toLowerCase()))
 		}, {
 			name: 'Copy Username',
 			click: () => navigator.clipboard.writeText(comment.dataset.d_name)
-		}, {
-			name: (isFriend ? 'Remove' : 'Add') + ' Friend', // accept, deny, remove, send/add
-			styles: [isFriend && 'danger', currentUser.friends.friend_cnt >= 30 && 'disabled'],
-			click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), {
-				u_name: data.d_name
-			})
-		}, {
-			name: 'Report',
-			styles: ['danger'],
-			click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' })
 		}];
-		request && options.splice(3, 0, {
-			name: 'Accept Friend Request',
-			styles: !data.u_id && ['disabled'],
-			click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
-				u_id: data.u_id,
-				action: 'accept'
-			})
-		}, {
-			name: 'Reject Friend Request',
-			styles: ['danger', !data.u_id && 'disabled'],
-			click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
-				u_id: data.u_id,
-				action: 'decline'
-			})
-		});
+		if (!isCurrentUser) {
+			let currentUser = await this.constructor.fetchCurrentUser();
+			let isFriend = currentUser.friends.friends_data.find(this.constructor.compareUsers.bind(this, data));
+			let request = currentUser.friend_requests.request_data.find(this.constructor.compareUsers.bind(this, data));
+			options.splice(2, 0, {
+				name: (isFriend ? 'Remove' : 'Add') + ' Friend', // accept, deny, remove, send/add
+				styles: [isFriend && 'danger', !isFriend && currentUser.friends.friend_cnt >= 30 && 'disabled'],
+				click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), { u_name: data.d_name })
+			}, {
+				name: 'Report',
+				styles: ['danger'],
+				click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' })
+			});
+			request && options.splice(3, 0, {
+				name: 'Accept Friend Request',
+				styles: !data.u_id && ['disabled'],
+				click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
+					u_id: data.u_id,
+					action: 'accept'
+				})
+			}, {
+				name: 'Reject Friend Request',
+				styles: ['danger', !data.u_id && 'disabled'],
+				click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
+					u_id: data.u_id,
+					action: 'decline'
+				})
+			});
+		}
 		if (Application.settings.user.moderator) {
 			let targetUser = await this.constructor.fetchUser(data.d_name || data.u_name || data.u_id);
-			options.splice(options.length - 1, 0, {
+			options.push({ type: 'hr' }, {
+				name: 'Change Email',
+				click: () => (email => email && email.includes('@') && Application.Helpers.AjaxHelper.post('moderator/change_email', {
+					u_id: data.u_id,
+					email
+				}))(prompt('Enter the new email address:'))
+			}, {
+				name: 'Change Username',
+				click: () => (username => username && Application.Helpers.AjaxHelper.post('moderator/change_username', {
+					u_id: data.u_id,
+					username
+				}))(prompt('Enter the new username:'))
+			}, {
 				name: (targetUser.user.classic ? 'Remove' : 'Set') + ' Official Author',
-				styles: targetUser.user.classic && ['danger']
+				styles: targetUser.user.classic && ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('moderator/toggle_official_author/' + data.u_id)
 			}, {
 				name: (targetUser.user.banned ? 'Unb' : 'B') + 'an',
-				styles: ['danger']
+				styles: ['danger'],
+				click: () => Application.Helpers.AjaxHelper.post('moderator/ban_user', {
+					u_id: data.u_id
+				})
 			});
 		}
 		if (Application.settings.user.admin) {
 			const username = data.u_name || data.d_name.toLowerCase();
-			options.splice(options.length - 1, 0, {
+			options.push({ type: 'hr' }, {
+				name: 'Change Email',
+				click: () => (email => email && Application.Helpers.AjaxHelper.post('admin/change_user_email', {
+					username: username,
+					email
+				}))(prompt('Enter the new email address:'))
+			}, {
+				name: 'Change Username',
+				click: () => (uname => uname && Application.Helpers.AjaxHelper.post('admin/change_username', {
+					change_username_current: username,
+					change_username_new: uname
+				}))(prompt('Enter the new username:'))
+			}, {
+				name: 'Toggle Classic User',
+				click: () => Application.Helpers.AjaxHelper.post('admin/toggle_classic_user', {
+					toggle_classic_uname: username
+				})
+			}, {
 				name: 'Set Admin Ban',
 				styles: ['danger'],
-				click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
-					ban_secs: prompt('How long should this ban last? (in seconds)'),
+				click: () => ((ban_secs, delete_race_stats) => ban_secs !== null && delete_race_stats !== null && Application.Helpers.AjaxHelper.post('admin/user_ban_messaging', {
+					ban_secs,
 					username,
-					delete_race_stats: confirm('Would you like to delete race stats?')
-				})
+					delete_race_stats
+				}))(prompt('How long should this ban last? (in seconds)'), confirm('Would you like to delete race stats?'))
 			}, {
 				name: 'Set Messaging Ban',
 				styles: ['danger'],
@@ -625,24 +752,35 @@ window.lite = new class {
 
 	cacheTrackData() {
 		let trackData = document.querySelector('#track-data');
-		this.currentTrackData = trackData ? Object.assign({}, trackData.dataset, window.hasOwnProperty('GameSettings') && { track: GameSettings.track }) : null
+		let combined = Object.assign({}, trackData && trackData.dataset, window.hasOwnProperty('GameSettings') && GameSettings.track);
+		this.currentTrackData = Object.keys(combined).length > 0 ? Object.assign(combined, {
+			author: {
+				d_name: combined.author,
+				u_id: parseInt(combined.author_id || combined.u_id),
+				u_name: combined.u_url || combined.author.toLowerCase()
+			}
+		}) : null
 	}
 
 	fetchChallengeLeaderboard({ createIfNotExists } = {}) {
-		let leaderboard = document.querySelector('#race_leaderboard > table > tbody');
+		let leaderboard = document.querySelector('#race_leaderboard');
 		if (!leaderboard && createIfNotExists) {
-			let globalLeaderboard = document.querySelector('#track_leaderboard');
-			if (!globalLeaderboard) return;
+			let container = document.querySelector('#track_best_times');
+			if (!container) return;
 			let fragmentFromString = str => new DOMParser().parseFromString(str, 'text/html').body.childNodes[0];
 			leaderboard = fragmentFromString(Application.Helpers.TemplateHelper.render(Application.router.current_view.templates['track/track_race_leaderboard'], {}, {
 				race_leaderboard: [] // GameManager.game.currentScene.races
 			}));
-			globalLeaderboard.parentElement.prepend(leaderboard);
-			leaderboard = leaderboard.querySelector('table');
-			leaderboard = leaderboard.querySelector('tbody') || leaderboard.appendChild(document.createElement('tbody'));
+			container.prepend(leaderboard);
 		}
-		leaderboard.closest('.track-leaderboard').style.removeProperty('display');
-		return leaderboard || null
+
+		let tbody = leaderboard.querySelector('table > tbody');
+		if (!tbody && createIfNotExists) {
+			let table = leaderboard.querySelector('table');
+			tbody = table.appendChild(document.createElement('tbody'));
+		}
+		leaderboard.style.removeProperty('display');
+		return tbody || null
 	}
 
 	fetchTASLeaderboard({ createIfNotExists } = {}) {
@@ -680,8 +818,6 @@ window.lite = new class {
 		let keymap = this.storage.get('keymap');
 		for (let key in keymap)
 			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
-		for (const player of this.scene.playerManager._players.filter(player => player._user.u_id == this.scene.playerManager.firstPlayer._user.u_id))
-			player._baseVehicle.color = this.storage.get('bikeFrameColor') != '#000000' && this.storage.get('bikeFrameColor') || GameSettings.physicsLineColor
 	}
 
 	updateTASLeaderboard(races) {
@@ -1702,6 +1838,10 @@ window.lite = new class {
 		})
 	}
 
+	static compareUsers(a, b) {
+		return a.u_id == b.u_id || a.u_name == b.u_name || a.d_name == b.d_name
+	}
+
 	static createAccountContainer({ login, password }) {
 		let container = this.createElement("div", {
 			children: [
@@ -1894,7 +2034,7 @@ window.lite = new class {
 	}
 
 	static downloadRace(tid, uid) {
-		return Application.Helpers.AjaxHelper.get("/track_api/load_races", {
+		return Application.Helpers.AjaxHelper.post("/track_api/load_races", {
 			t_id: tid,
 			u_ids: uid
 		}).done(({ data: [entry], result: r }) => {
@@ -1930,7 +2070,19 @@ window.lite = new class {
 			return JSON.parse(cache);
 		}
 
-		let data = await Application.Helpers.AjaxHelper.get('u/' + Application.settings.user.u_name);
+		let data = await fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json());
+		sessionStorage.setItem(KEY, JSON.stringify(data));
+		return data
+	}
+
+	static async fetchCurrentUserCosmetics({ force } = {}) {
+		const KEY = 'frhd-lite.current_user.cosmetics';
+		let cache = sessionStorage.getItem(KEY);
+		if (cache && !force) {
+			return JSON.parse(cache);
+		}
+
+		let data = await fetch('/store/gear?ajax').then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(data));
 		return data
 	}
@@ -1944,7 +2096,7 @@ window.lite = new class {
 			return cache;
 		}
 
-		let entry = await Application.Helpers.AjaxHelper.get('u/' + uid);
+		let entry = await fetch('/u/' + uid + '?ajax').then(r => r.json());
 		this.users.push(entry);
 		return entry || null
 	}

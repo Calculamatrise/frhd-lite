@@ -85,13 +85,14 @@ export default class extends bike {
 		  , c = t.camera.zoom
 		  , q = t.settings.physicsLineColor;
 		u.globalAlpha = r,
-		u.strokeStyle = q,
+		u.strokeStyle = this.frontWheel.color || q,
 		u.lineWidth = 3 * c,
 		u.beginPath(),
 		u.fillStyle = t.settings.sceneryLineColor.padEnd(7, t.settings.sceneryLineColor.slice(1, 4)) + '33', // "rgba(200,200,200,0.2)",
 		u.arc(i.x, i.y, 10.5 * c, 0, 2 * Math.PI, !1),
 		u.fill(),
 		u.stroke(),
+		this.rearWheel.color && (u.strokeStyle = this.rearWheel.color),
 		u.beginPath(),
 		u.arc(e.x, e.y, 10.5 * c, 0, 2 * Math.PI, !1),
 		u.fill(),

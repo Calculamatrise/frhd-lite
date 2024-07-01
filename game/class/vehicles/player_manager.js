@@ -31,7 +31,8 @@ export default class {
 	}
 	addPlayer(t) {
 		this._players.push(t),
-		this._playerLookup[t.id] = t
+		this._playerLookup[t.id] = t,
+		this.game.emit('playerAdd', t)
 	}
 	checkKeys() {
 		for (let t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
@@ -55,7 +56,8 @@ export default class {
 		  , i = this._playerLookup
 		  , s = e.find(s => t == s._user.u_id && s.isGhost());
 		e.splice(e.indexOf(s), 1);
-		delete i[s.id]
+		delete i[s.id],
+		this.game.emit('playerRemove', s)
 	}
 	reset() {
 		for (let t = this._players, e = t.length, i = 0; e > i; i++)

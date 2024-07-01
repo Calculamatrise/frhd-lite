@@ -1,13 +1,9 @@
 @keyframes rotate {
-	to {
-		rotate: 360deg;
-	}
+	to { rotate: 360deg; }
 }
 
 @keyframes slide {
-	to {
-		left: 0;
-	}
+	to { left: 0; }
 }
 
 :root {
@@ -18,19 +14,13 @@
 	color-scheme: dark;
 }
 
-::placeholder {
-	color: hsl(200deg 10% 50% / 50%);
-}
-
+::placeholder { color: hsl(200deg 10% 50% / 50%); }
 ::-webkit-scrollbar {
 	height: 8px;
 	width: 8px;
 }
 
-::-webkit-scrollbar-corner {
-	display: none;
-}
-
+::-webkit-scrollbar-corner { display: none; }
 ::-webkit-scrollbar-track {
 	background-color: #0e111499;
 	border-radius: 30px;
@@ -41,13 +31,8 @@
 	border-radius: 30px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-	background-color: #303b44;
-}
-
-::-webkit-scrollbar-thumb:active {
-	background-color: #3d4953;
-}
+::-webkit-scrollbar-thumb:hover { background-color: #303b44; }
+::-webkit-scrollbar-thumb:active { background-color: #3d4953; }
 
 html {
 	background-color: var(--background-color);
@@ -72,9 +57,7 @@ body:has(> div.alt.view) {
 	gap: 1.25rem;
 }
 
-body:has(> div.alt.view > input:checked) {
-	translate: -100vw;
-}
+body:has(> div.alt.view > input:checked) { translate: -100vw; }
 
 /* body:has(> div.alt.view > input:checked) > :not(div.alt.view) {
 	display: none !important;
@@ -91,56 +74,7 @@ body:has(> div.alt.view > input:checked) {
 	width: 100%;
 } */
 
-#state, .danger, .safe {
-	color: hsl(0deg 0% 100% / 50%);
-	transition: all 200ms;
-}
-
-#state:hover {
-	cursor: pointer;
-}
-
-#state::before {
-	content: "Disabled";
-}
-
-#state:hover::before {
-	content: "Click to enable";
-}
-
-#state, .danger {
-	background-color: rgb(218, 34, 34, .2) !important;
-}
-
-.danger-border, .danger.hover-border:hover {
-	box-shadow: inset 0px 0px 1px 1px hsl(0 60% 20% / 1);
-}
-
-#state.enabled, .safe {
-	background-color: rgb(0, 167, 8, .2) !important;
-}
-
-#state.enabled::before {
-	content: "Enabled";
-}
-
-#state.enabled:hover::before {
-	content: "Click to disable";
-}
-
-#state.update-available::before {
-	content: "Update";
-}
-
-#state.update-available:hover::before {
-	content: "Click to update";
-}
-
-#state:hover:active, .danger:hover:active, .safe:hover:active {
-	backdrop-filter: brightness(0.5);
-}
-
-body > .view > nav {
+.view > nav {
 	border-bottom: 1px solid var(--border-color);
 	display: grid;
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
@@ -148,9 +82,24 @@ body > .view > nav {
 	margin-bottom: 0.5rem;
 }
 
-body > .view > nav:has(> :nth-child(4)) {
-	grid-template-columns: repeat(2, 1fr);
+.view > nav:has(> :nth-child(4)) { grid-template-columns: repeat(2, 1fr); }
+
+#state, .danger, .safe {
+	color: hsl(0deg 0% 100% / 50%);
+	transition: all 200ms;
 }
+
+#state:hover { cursor: pointer; }
+#state::before { content: "Disabled"; }
+#state:hover::before { content: "Click to enable"; }
+#state, .danger { background-color: rgb(218, 34, 34, .2) !important; }
+#state.enabled, .safe { background-color: rgb(0, 167, 8, .2) !important; }
+#state.enabled::before { content: "Enabled"; }
+#state.enabled:hover::before { content: "Click to disable"; }
+#state.update-available::before { content: "Update"; }
+#state.update-available:hover::before { content: "Click to update"; }
+#state:hover:active, .danger:hover:active, .safe:hover:active { backdrop-filter: brightness(0.5); }
+.danger.hover-border:hover, .danger-border { box-shadow: inset 0px 0px 1px 1px hsl(0 60% 20% / 1); }
 
 a.button, button, details > summary, label {
 	-webkit-user-select: none;
@@ -177,9 +126,7 @@ a.tab, button.tab, details.tab > summary, details > summary.tab, label.tab {
 	width: -webkit-fill-available;
 }
 
-details.tab > summary {
-	list-style: none;
-}
+details.tab > summary { list-style: none; }
 
 a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hover, details > summary.tab:hover, .keybind:hover {
 	backdrop-filter: brightness(0.8);
@@ -187,10 +134,7 @@ a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hove
 	cursor: pointer;
 }
 
-.notification {
-	padding-right: 2rem;
-}
-
+.notification { padding-right: 2rem; }
 .notification::after {
 	background-color: crimson;
 	border-radius: 0.25rem;
@@ -217,13 +161,8 @@ div.details {
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
 }
 
-div.details > input:is([type="checkbox"], [type="radio"]) {
-	display: none;
-}
-
-div.details:has(> input:is([type="checkbox"], [type="radio"]):checked) {
-	display: block !important;
-}
+div.details > input:is([type="checkbox"], [type="radio"]) { display: none; }
+div.details:has(> input:is([type="checkbox"], [type="radio"]):checked) { display: block !important; }
 
 .disabled {
 	-webkit-user-select: none;
@@ -232,10 +171,7 @@ div.details:has(> input:is([type="checkbox"], [type="radio"]):checked) {
 	user-select: none;
 }
 
-label > * {
-	vertical-align: middle;
-}
-
+label > * { vertical-align: middle; }
 label input:is([type="checkbox"], [type="color"], [type="radio"]):first-child {
 	margin: 0;
 	margin-right: 0.5rem;
@@ -278,13 +214,8 @@ label input[type="color"] {
 	width: 13px;
 }
 
-label input[type="color"]::-webkit-color-swatch-wrapper {
-	padding: 0;
-}
-
-label input[type="color"]::-webkit-color-swatch {
-	border: none;
-}
+label input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+label input[type="color"]::-webkit-color-swatch { border: none; }
 
 input:is([type="date"], [type="email"], [type="number"], [type="password"], [type="text"]),
 textarea {
@@ -308,17 +239,9 @@ textarea:focus {
 	box-shadow: inset 0 0 0 1px hsl(206, 23%, 18%);
 }
 
-input[type="email"]:focus {
-	outline-style: auto !important;
-}
-
-input[type="email"]:focus:invalid {
-	outline: red;
-}
-
-input[type="email"]:focus:valid {
-	outline: green;
-}
+input[type="email"]:focus { outline-style: auto !important; }
+input[type="email"]:focus:invalid { outline: red; }
+input[type="email"]:focus:valid { outline: green; }
 
 select {
 	background-color: hsl(206, 23%, 18%);
@@ -331,13 +254,8 @@ select {
 	padding: 0.25rem;
 }
 
-select > * {
-	background-color: inherit;
-}
-
-select > option:empty {
-	text-transform: capitalize;
-}
+select > * { background-color: inherit; }
+select > option:empty { text-transform: capitalize; }
 
 #keybind-entries {
 	display: flex;
@@ -356,10 +274,7 @@ select > option:empty {
 	gap: 0.25rem;
 }
 
-.keybind-wrapper > select {
-	font-size: inherit;
-}
-
+.keybind-wrapper > select { font-size: inherit; }
 .keybind-wrapper > input {
 	font-size: smaller;
 	font-size: 2cqh;
@@ -368,10 +283,7 @@ select > option:empty {
 	text-align: center;
 }
 
-table tr > * {
-	padding: 0.25rem;
-}
-
+table tr > * { padding: 0.25rem; }
 table tbody tr td {
 	border-radius: 0.36rem;
 	text-transform: capitalize;
@@ -390,13 +302,9 @@ table tbody tr td {
 	position: absolute;
 }
 
-.keybind:empty::before {
-	content: "Not set";
-}
+.keybind:empty::before { content: "Not set"; }
 
-div.details:has(> #keybinds) table tbody tr td:nth-child(1) {
-	color: #808080dd;
-}
+div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: #808080dd; }
 
 :is([data-shift-key] .keybind, div.details:has(> #keybinds) table tbody tr td:nth-child(1)):hover {
 	background-color: rgb(218, 34, 34, .2);
@@ -419,10 +327,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) {
 	transition: all 10s;
 }
 
-.dropdown:empty {
-	display: none;
-}
-
+.dropdown:empty { display: none; }
 .dropdown > main {
 	background-color: var(--accent-color);
 	box-shadow: 0 0 20px -10px var(--border-color);
@@ -441,10 +346,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) {
 	transition: max-height .25s ease-in;
 }
 
-.dropdown:is(:hover, :focus-within) > * {
-	outline: none;
-}
-
+.dropdown:is(:hover, :focus-within) > * { outline: none; }
 .dropdown > main > * {
 	border-radius: 0.4rem;
 	margin: 0.25rem;
@@ -471,9 +373,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) {
 	width: 2rem;
 }
 
-button.loading {
-	box-shadow: inset 0 0 1px 2px rgba(0, 0, 0, .2) !important;
-}
+button.loading { box-shadow: inset 0 0 1px 2px rgba(0, 0, 0, .2) !important; }
 
 .loading {
 	-webkit-user-select: none;
@@ -485,10 +385,7 @@ button.loading {
 	user-select: none;
 }
 
-.loading * {
-	visibility: hidden;
-}
-
+.loading * { visibility: hidden; }
 .loading::after {
 	animation: rotate 800ms cubic-bezier(.5, .5, .5, .5) infinite;
 	background-color: transparent;
@@ -505,10 +402,7 @@ button.loading {
 	width: 0;
 }
 
-.ripple {
-	overflow: hidden;
-}
-
+.ripple { overflow: hidden; }
 .ripple::before {
 	background-color: black;
 	border-radius: 50%;

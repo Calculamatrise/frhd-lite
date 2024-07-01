@@ -103,12 +103,13 @@ export default class {
 		return this._gamepad
 	}
 	setBaseVehicle(t) {
-		this._baseVehicleType = t,
-		this.reset()
+		this._baseVehicleType !== t && (this._baseVehicleType = t,
+		this.reset())
 	}
 	createBaseVehicle(t, e, i) {
 		this._tempVehicle && this._tempVehicle.stopSounds(),
-		this._baseVehicle = new v[this._baseVehicleType](this, t, e, i),
+		this._baseVehicle = new v[this._baseVehicleType](this, t, e, i);
+		this._game.emit('baseVehicleCreate', this._baseVehicle),
 		this._tempVehicle = !1,
 		this._tempVehicleType = !1,
 		this._tempVehicleTicks = 0
@@ -136,6 +137,7 @@ export default class {
 		this._effectTicks = 45,
 		this._tempVehicleType = t,
 		this._tempVehicle = new v[t](this, i, s),
+		this._game.emit('tempVehicleCreate', this._tempVehicle),
 		this._tempVehicleTicks = e)
 	}
 	fixedUpdate() {
@@ -187,11 +189,9 @@ export default class {
 
 			this._gamepad.update(),
 			this.checkKeys(),
-			this.fixedUpdate();
-			this._gamepad.playbackTicks += 1 / (this._game.ups / 30) // this._gamepad.playbackTicks++;
-			// experiment start
-			this.isInFocus() && window.hasOwnProperty('lite') && window.lite.replayGui && (window.lite.replayGui.progress.value = this._gamepad.playbackTicks);
-			// experiment end
+			this.fixedUpdate(),
+			!this.complete && (this._gamepad.playbackTicks += 1 / (this._game.ups / 30)), /* this._gamepad.playbackTicks++; */
+			this.isInFocus() && this._game.emit('replayTick', this._gamepad.playbackTicks)
 		}
 
 		// this.loop = true;
