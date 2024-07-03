@@ -2,7 +2,7 @@ import "../utils/Storage.js";
 import defaults from "../constants/defaults.js";
 
 const state = document.querySelector('#state');
-state.addEventListener('click', () => {
+state.addEventListener('click', function() {
 	if (this.classList.contains('update-available')) {
 		return chrome.runtime.reload();
 	}
@@ -98,7 +98,7 @@ for (const item in defaults) {
 		break;
 	case 'theme':
 		for (const theme of document.querySelectorAll("input[name='theme']"))
-			theme.addEventListener('input', () => {
+			theme.addEventListener('input', function() {
 				chrome.storage.proxy.local.settings.set(item, this.id)
 			}, { passive: true });
 		break;
