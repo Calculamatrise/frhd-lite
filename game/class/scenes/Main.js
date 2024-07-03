@@ -270,7 +270,8 @@ export default class extends Scene {
 		t ||= this.races;
 		for (let { race: e } of t.filter(t => 'string' == typeof t.race.code)) {
 			let i = JSON.parse(e.code);
-			window.hasOwnProperty('lite') && i.hasOwnProperty('lite') && (i.lite = i.lite.reduce((s, n, a, q) => a % 2 == 0 ? s.set(n, q[a + 1]) : s, new Map()));
+			this.game.emit('parseRaceData', i);
+			i.hasOwnProperty('bike_options') && (i.bike_options = new Map(i.bike_options.map(s => s.split(/\s*:\s*/))));
 			for (let s in i)
 				i[s] instanceof Array && (i[s] = i[s].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {}));
 			e.code = i

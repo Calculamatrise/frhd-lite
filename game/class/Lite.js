@@ -99,9 +99,9 @@ window.lite = new class {
 		let record = []
 		  , bikeFrameColor = this.storage.get('bikeFrameColor')
 		  , bikeTireColor = this.storage.get('bikeTireColor');
-		null !== bikeFrameColor && record.push('bikeFrameColor', bikeFrameColor);
-		null !== bikeTireColor && record.push('bikeTireColor', bikeTireColor);
-		return record.length > 0 && { 'lite': record } || null
+		null !== bikeFrameColor && record.push(['frameColor', bikeFrameColor]);
+		null !== bikeTireColor && record.push(['tireColor', bikeTireColor]);
+		return record.length > 0 && { 'bike_options': record.map(t => t.join(': ')) } || null
 	}
 
 	_childLoad() {
@@ -277,9 +277,9 @@ window.lite = new class {
 		let frameColor, tireColor;
 		if (baseVehicle.player !== this.scene.playerManager.firstPlayer) {
 			let playback = baseVehicle.player._gamepad.playback;
-			if (!playback || !playback.hasOwnProperty('lite')) return;
-			playback.lite.has('bikeFrameColor') && (frameColor = playback.lite.get('bikeFrameColor')),
-			playback.lite.has('bikeTireColor') && (tireColor = playback.lite.get('bikeTireColor'));
+			if (!playback || !playback.hasOwnProperty('bike_options')) return;
+			playback.bike_options.has('frameColor') && (frameColor = playback.bike_options.get('frameColor')),
+			playback.bike_options.has('tireColor') && (tireColor = playback.bike_options.get('tireColor'));
 		} else
 			frameColor = this.storage.get('bikeFrameColor'),
 			tireColor = this.storage.get('bikeTireColor');

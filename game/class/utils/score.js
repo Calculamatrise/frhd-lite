@@ -78,7 +78,7 @@ export default class extends GUI {
 	}
 	draw(t) {
 		super.draw(t);
-		if (window.hasOwnProperty('lite') && lite.storage.get('experiments').raceProgress) {
+		if (window.hasOwnProperty('lite') && lite.storage.get('raceProgress')) {
 			let e = this.scene.camera.playerFocus;
 			if (e && this.scene.state.inFocus) {
 				t.beginPath();
