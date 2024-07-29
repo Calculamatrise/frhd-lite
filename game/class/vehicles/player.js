@@ -97,7 +97,8 @@ export default class {
 		return !this._crashed
 	}
 	getTargetsHit() {
-		return this._powerupsConsumed.targets.length
+		return this._scene.track.targets.filter(t => this._powerupsConsumed.targets.includes(t.id)).reduce((sum, t) => sum += t.multiplier, 0)
+		// return this._powerupsConsumed.targets.length
 	}
 	getGamepad() {
 		return this._gamepad

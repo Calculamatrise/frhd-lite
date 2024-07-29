@@ -284,7 +284,7 @@ export default class extends Vehicle {
 		var p = new s(this.mass2.pos.x, this.mass2.pos.y).toScreen(o)
 		  , d = new s(this.mass3.pos.x, this.mass3.pos.y).toScreen(o);
 		t.lineWidth = 3 * a,
-		t.strokeStyle = '#'.padEnd(7, window.lite.storage.get('theme') === "midnight" ? '8' : window.lite.storage.get('theme') === 'dark' ? '9' : '6'),
+		t.strokeStyle = '#'.padEnd(7, /^(darker|midnight)$/.test(window.lite.storage.get('theme')) ? '8' : window.lite.storage.get('theme') === 'dark' ? '9' : '6'),
 		t.beginPath(),
 		t.moveTo(p.x - .2 * h.x, p.y - .2 * h.y),
 		t.lineTo(c.x, c.y),

@@ -1,11 +1,10 @@
 import PowerupTool from "../poweruptools/poweruptool.js";
 
-export default class extends PowerupTool {
-	name = "vehiclepowerup";
+export default class BaseVehiclePowerupTool extends PowerupTool {
 	options = null;
 	constructor(t, e) {
-		super(e);
-		this.options = t.options;
+		super(e),
+		this.options = t.options
 	}
 	release() {
 		let t = this.scene.track

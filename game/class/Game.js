@@ -39,6 +39,7 @@ window.Game = class extends EventEmitter {
 	}
 	initCanvas() {
 		this.canvas = document.createElement("canvas");
+		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true });
 		this.ctx = this.canvas.getContext("2d");
 		this.gameContainer = document.getElementById(this.settings.defaultContainerID);
 		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas);

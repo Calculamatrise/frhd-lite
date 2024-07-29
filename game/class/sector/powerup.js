@@ -1,15 +1,18 @@
 export default class {
+	game = null;
 	scene = null;
-	duplicates = 0;
 	color = '#FFF';
 	x = 0;
 	y = 0;
+	multiplier = 1;
 	name = null;
 	sector = null;
 	settings = null;
-	outline = '#000'; // /^(dark|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000';
+	outline = '#000';
 	remove = !1;
 	constructor(t, e) {
+		Object.defineProperty(this, 'game', { enumerable: false }),
+		Object.defineProperty(this, 'scene', { enumerable: false });
 		let i = arguments[arguments.length - 1];
 		this.game = i.scene.game,
 		this.scene = i.scene,
@@ -36,6 +39,7 @@ export default class {
 		  , h = o / 2;
 		s.drawImage(this.constructor.cache.canvas, t - a, e - h, r, o)
 	}
+	drawPowerup() {}
 	erase(t, e) {
 		let i = !1;
 		if (!this.remove) {
@@ -57,18 +61,19 @@ export default class {
 	}
 	recache(t) {
 		this.setDirty(!1);
-		let e = this.constructor.cache.canvas;
-		e.width = this.constructor.cache.width * t,
-		e.height = this.constructor.cache.height * t;
-		let i = e.getContext('2d')
-		  , s = e.width / 2
-		  , r = e.height / 2;
-		this.drawPowerup(s, r, t, i),
-		this.settings.developerMode && (i.beginPath(),
-		i.rect(0, 0, e.width, e.height),
-		i.strokeStyle = 'red',
-		i.strokeWidth = 1 * t,
-		i.stroke())
+		let e = this.constructor.cache.canvas
+		  , i = this.constructor.cache.width * t
+		  , s = this.constructor.cache.height * t
+		  , n = e.getContext('2d');
+		(e.width !== i || e.height !== s) && this.updateCache(n, t);
+		let r = e.width / 2
+		  , a = e.height / 2;
+		this.drawPowerup(n, t, r, a),
+		this.settings.developerMode && (n.beginPath(),
+		n.rect(0, 0, e.width, e.height),
+		n.strokeStyle = 'red',
+		n.strokeWidth = 1 * t,
+		n.stroke())
 	}
 	removeAllReferences() {
 		this.remove = !0,
@@ -80,15 +85,20 @@ export default class {
 	setDirty(t) {
 		this.constructor.cache.dirty = t
 	}
-	static canvasPool = new Set()
-	static createCache() {
-		let cache = {
+	updateCache(t, e) {
+		let i = this.constructor.cache
+		  , s = i.canvas;
+		s.width = i.width * e,
+		s.height = i.height * e
+	}
+	static createCache(options, callback) {
+		let cache = Object.assign({
 			canvas: document.createElement('canvas'),
 			dirty: !0,
 			width: 25,
 			height: 25
-		}
-		return this.canvasPool.add(cache),
-		cache;
+		}, options);
+		typeof callback == 'function' && callback(cache.canvas.getContext('2d'));
+		return cache
 	}
 }

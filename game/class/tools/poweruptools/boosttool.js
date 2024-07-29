@@ -1,14 +1,14 @@
 import Cartesian from "../../math/cartesian.js";
 import PowerupTool from "./poweruptool.js";
-import n from "../../sector/powerups/boost.js";
+import BoostPowerup from "../../sector/powerups/boost.js";
 
-export default class extends PowerupTool {
-	name = "boost";
+export default class Boost extends PowerupTool {
+	name = 'boost';
 	p2 = null;
 	constructor(t) {
-		super(t);
-		this.p2 = new Cartesian(0, 0);
-		this.powerup = new n(0, 0, 0, t.scene.track);
+		super(t),
+		this.p2 = new Cartesian(0, 0),
+		this.powerup = new BoostPowerup(0, 0, 0, t.scene.track)
 	}
 	press() {
 		let t = this.mouse.touch
@@ -27,7 +27,7 @@ export default class extends PowerupTool {
 	}
 	release() {
 		let t = this.scene.track
-		  , e = new n(this.p1.x,this.p1.y,this.powerup.angle,t);
+		  , e = new this.powerup.constructor(this.p1.x,this.p1.y,this.powerup.angle,t);
 		t.addPowerup(e),
 		this.active = !1,
 		this.toolhandler.addActionToTimeline({

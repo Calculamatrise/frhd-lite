@@ -92,7 +92,8 @@ export default class {
 			this.physicsLines[t].p2.x -= x,
 			this.physicsLines[t].p2.y -= y,
 			this.addPhysicsLineToTrack(this.physicsLines[t]),
-			this.physicsLines.splice(i, 1);
+			this.physicsLines.splice(i, 1); // remove from sectors
+			// make removePhysicsLineFromTrack method
 		for (const t in this.sceneryLines)
 			this.sceneryLines[t].p1.x -= x,
 			this.sceneryLines[t].p1.y -= y,
@@ -191,36 +192,37 @@ export default class {
 		this.targetCount++;
 		this.targets.push(t)
 	}
-	maxDuplicatePowerups = 0;
 	addPowerup(t) {
 		if (window.hasOwnProperty('lite') && lite.storage.get('filterDuplicatePowerups')) {
-			let e = this.powerups.filter(e => e.name === t.name && e.x == t.x && e.y == t.y);
-			if (e.length > this.maxDuplicatePowerups) {
+			let e = this.powerups.filter(e => e.name === t.name && e.x == t.x && e.y == t.y)
+			  , i = e.length > 0 && e[0];
+			if (e.length > 0) {
 				switch(t.prefix) {
 				case 'B':
-					// e = e.filter(e => e.angle == t.angle);
-					// if (e.length > this.maxDuplicatePowerups)
-					// 	return e[0].duplicates++, t;
-					break;
 				case 'G':
-					// e = e.filter(e => e.angle == t.angle);
-					// if (e.length > this.maxDuplicatePowerups)
+					e = e.filter(e => e.angle == t.angle);
+					i = e.length > 0 && e[0];
+					if (e.length < 1)
+						break;
+					return i.multiplier++,
+					i;
+				case 'V':
+					// i.multiplier++,
+					// i.stack.push(t.time);
+					// return i
+					break;
+				case 'W': // maybe limit to 2
+					// also check other portal to see if it's identical
+					// e = e.filter();
+					// if (e.length > 2 * (1 + this.maxDuplicatePowerups))
 					// 	return t;
 					break;
-				case 'V':
-					e[0].duplicates++,
-					e[0].stack.push(t.time),
-					e[0].time += t.time;
-					return t
-				case 'W': // maybe limit to 2
-					if (e.length > 2 * (1 + this.maxDuplicatePowerups))
-						return t;
-					break;
 				case 'T':
-					this.targetCount--,
+					this.dirty = !0,
 					this.targets.pop()
 				default:
-					return t
+					return i.multiplier++,
+					i
 				}
 			}
 		}
@@ -329,8 +331,8 @@ export default class {
 		let min = new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y))
 		  , max = new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y));
 		for (const i of [...this.physicsLines, ...this.sceneryLines, ...this.powerups].filter(t => !t.remove)) {
-			if (i.p1 || i.p2) {
-				if ((i.p1.x > min.x && i.p1.y > min.y || i.p2.x > min.x && i.p2.y > min.y) && ((i.p1.x < max.x && i.p1.y < max.y) || (i.p2.x < max.x && i.p2.y < max.y))) {
+			if (i.p1 && i.p2) {
+				if (((i.p1.x > min.x && i.p1.y > min.y) || (i.p2.x > min.x && i.p2.y > min.y)) && ((i.p1.x < max.x && i.p1.y < max.y) || (i.p2.x < max.x && i.p2.y < max.y))) {
 					segments.push(i);
 				}
 			} else if (i.x > min.x && i.y > min.y && i.x < max.x && i.y < max.y) {
@@ -396,7 +398,7 @@ export default class {
 	}
 	undraw() {
 		for (let t of this.totalSectors.filter(t => t.drawn))
-			t.clear(!0)
+			t.clear(!0);
 		this.recachePowerups(Math.max(this.camera.zoom, 1)),
 		this.canvasPool.update()
 	}

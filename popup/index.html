@@ -27,7 +27,7 @@
 			<input type="checkbox" id="featuredGhostsDisplay">
 			<span>Featured ghosts</span>
 		</label>
-		<details>
+		<details data-type="experiments" style="display: none;">
 			<summary class="tab ripple">Experiments</summary>
 			<label class="ripple" title="Toggle track playlists">
 				<input type="checkbox" id="playlists">
@@ -40,6 +40,10 @@
 		<label class="ripple" title="Toggle an input display">
 			<input type="checkbox" id="inputDisplay">
 			<span>Input display</span>
+		</label>
+		<label class="ripple" title="Allow keyboard input rollover to prevent overlapping inputs">
+			<input type="checkbox" id="inputRollover">
+			<span>Input Rollover</span>
 		</label>
 		<label class="ripple" title="Change grid style">
 			<input type="checkbox" id="isometricGrid">
@@ -63,6 +67,10 @@
 				<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor">
 				<span>Bike tire colour</span>
 			</label>
+			<label class="ripple" title="Show vehicle colour customizations for frhd-lite users">
+				<input type="checkbox" id="showCustomizations">
+				<span>Show for others</span>
+			</label>
 		</details>
 		<details>
 			<summary class="tab ripple">Show advanced options</summary>
@@ -78,7 +86,7 @@
 				<span class="name">Snapshot Count (10)</span>
 				<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
 			</label>
-			<details>
+			<details data-type="experiments" style="display: none;">
 				<summary class="tab ripple">Experiments</summary>
 				<label class="ripple" title="Remove duplicate powerups">
 					<input type="checkbox" id="filterDuplicatePowerups">
@@ -133,16 +141,31 @@
 			<input type="radio" name="theme" id="dark">
 			<span>Dark</span>
 		</label>
-		<label class="ripple disabled">
+		<label class="ripple">
 			<input type="radio" name="theme" id="darker">
 			<span>Darker</span>
 		</label>
-		<details>
+		<details data-type="experiments" style="display: none;">
 			<summary class="tab ripple">Experiments</summary>
 			<label title="Change the overall brightness of the game">
 				<span class="name">Brightness (100%)</span>
 				<input type="range" class="override-pointer-events" id="brightness" min="1" max="100" value="100" style="width: -webkit-fill-available">
 			</label>
+			<details>
+				<summary class="tab ripple">Custom</summary>
+				<label for="backgroundColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="backgroundColor-visible"><input type="color" id="backgroundColor">
+					<span>Background Color</span>
+				</label>
+				<label for="physicsLineColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="physicsLineColor-visible"><input type="color" id="physicsLineColor">
+					<span>Solid Lines</span>
+				</label>
+				<label for="sceneryLineColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="sceneryLineColor-visible"><input type="color" id="sceneryLineColor">
+					<span>Scenery Lines</span>
+				</label>
+			</details>
 		</details>
 	</div>
 </body>

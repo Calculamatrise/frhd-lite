@@ -35,7 +35,7 @@ export default class {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
 			if (this.isMouseOverComponent(component)) {
-				this.scene.buttonDown(component.key);
+				this.scene.buttonDown(component.key)
 			}
 		}
 	}
@@ -61,7 +61,7 @@ export default class {
 	}
 	isMouseOverComponent(component) {
 		const { x, y } = this.mouse.touch.pos;
-		return Math.sqrt((x - component.x) ** 2 + (y - component.y) ** 2) < component.width / 2 * component.scaleX;
+		return Math.sqrt((x - component.x) ** 2 + (y - component.y) ** 2) < component.width / 2 * component.scaleX
 	}
 	isVisible() {
 		return this.properties.visible

@@ -155,14 +155,13 @@ a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hove
 }
 
 div.details {
-	display: none;
 	padding: 0.25rem;
 	font-size: small;
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
 }
 
 div.details > input:is([type="checkbox"], [type="radio"]) { display: none; }
-div.details:has(> input:is([type="checkbox"], [type="radio"]):checked) { display: block !important; }
+div.details:has(> input:is([type="checkbox"], [type="radio"]):not(:checked)) { display: none !important; }
 
 .disabled {
 	-webkit-user-select: none;

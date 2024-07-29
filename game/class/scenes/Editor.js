@@ -144,7 +144,6 @@ export default class extends Scene {
 		t.cameraLocked = this.toolHandler.options.cameraLocked,
 		t.zoomPercentage = this.camera.zoomPercentage,
 		t.vehicle = this.vehicle,
-		this.controls && (t.hideMenus = this.controls.isVisible()),
 		t
 	}
 	trackAction(t, e) {
@@ -161,17 +160,17 @@ export default class extends Scene {
 		Application.Helpers.GoogleAnalyticsHelper.track_event(r)
 	}
 	openDialog(t) {
+		super.openDialog(t);
 		switch (this.state.dialogOptions = {},
 		t) {
 		case "import":
 			break;
 		case "export":
-			setTimeout(this.getTrackCode.bind(this), 750);
+			setTimeout(this.getTrackCode.bind(this), 1e3 / this.game.ups);
 			break;
 		case "upload":
-			"undefined" == typeof isChromeApp && setTimeout(this.getTrackCode.bind(this), 750)
+			"undefined" == typeof isChromeApp && setTimeout(this.getTrackCode.bind(this), 1e3 / this.game.ups)
 		}
-		super.openDialog(t)
 	}
 	getTrackCode() {
 		this.state.dialogOptions = {},

@@ -26,18 +26,23 @@ export default class extends VehiclePowerup {
 			this.scene.message.show('Blob Powerup!', 50, this.color, !1))
 		}
 	}
-	drawIcon(t, e, i, s) {
-		i *= 1,
-		s.save(),
-		s.scale(i, i),
-		s.beginPath(),
-		s.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
-		s.fillStyle = this.color,
-		s.lineWidth = 2,
-		s.roundRect(1, 1, 22, 22, 3.5),
-		s.fill(),
-		s.stroke()
-		s.restore()
+	drawIcon(t, e) {
+		t.scale(e, e),
+		t.beginPath(),
+		t.roundRect(1, 1, 22, 22, 3.5),
+		t.fill(),
+		t.stroke()
 	}
-	static cache = this.createCache()
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.strokeStyle = i,
+		t.fillStyle = this.color,
+		t.lineWidth = 2
+	}
+	static cache = this.createCache({
+		width: 24,
+		height: 24
+	})
 }

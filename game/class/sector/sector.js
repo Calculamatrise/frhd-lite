@@ -1,5 +1,5 @@
-import s from "./physicsline.js";
-import n from "./sceneryline.js";
+import PhysicsLine from "./physicsline.js";
+import SceneryLine from "./sceneryline.js";
 
 export default class {
 	scene = null;
@@ -42,34 +42,31 @@ export default class {
 	};
 	powerupsCount = 0;
 	constructor(t, e, i) {
-		this.track = i;
-		this.scene = i.scene;
-		this.settings = i.settings;
-		this.drawSectorSize = this.settings.drawSectorSize;
-		this.row = e;
-		this.column = t;
-		this.camera = i.camera;
-		this.zoom = i.camera.zoom;
-		this.canvasPool = i.canvasPool;
-		this.x = t * this.drawSectorSize;
-		this.y = e * this.drawSectorSize;
-		this.realX = this.x * this.zoom;
-		this.realY = this.y * this.zoom;
+		this.track = i,
+		this.scene = i.scene,
+		this.settings = i.settings,
+		this.drawSectorSize = i.settings.drawSectorSize,
+		this.row = e,
+		this.column = t,
+		this.camera = i.camera,
+		this.zoom = i.camera.zoom,
+		this.canvasPool = i.canvasPool,
+		this.x = t * this.drawSectorSize,
+		this.y = e * this.drawSectorSize,
+		this.realX = this.x * this.zoom,
+		this.realY = this.y * this.zoom
 	}
 	addLine(t) {
-		t instanceof s && this.physicsLines.push(t),
-		t instanceof n && this.sceneryLines.push(t),
+		t instanceof PhysicsLine && this.physicsLines.push(t) || t instanceof SceneryLine && this.sceneryLines.push(t),
 		this.lineCount++,
 		this.drawn = !1
 	}
 	searchForLine(t, e) {
-		return this[t].find(item => item.p1.x === e.x && item.p1.y === e.y && !item.recorded && !item.remove);
+		return this[t].find(item => item.p1.x === e.x && item.p1.y === e.y && !item.recorded && !item.remove)
 	}
 	addPowerup(t) {
-		this.powerups.all.push(t);
-		if (["goal", "gravity", "slowmo", "boost", "checkpoint", "bomb", "antigravity", "teleport", "helicopter", "truck", "balloon", "blob"].includes(t.name)) {
-			this.powerups[t.name + "s"].push(t);
-		}
+		this.powerups.all.push(t),
+		this.powerups.hasOwnProperty(t.name + 's') && this.powerups[t.name + "s"].push(t),
 		this.powerupsCount++,
 		this.hasPowerups = !0,
 		this.powerupCanvasDrawn = !1
@@ -115,15 +112,13 @@ export default class {
 		this.powerups.all.length === 0 ? (this.hasPowerups = !1,
 		this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),
 		this.powerupCanvas = null)) : this.hasPowerups = !0,
-		this.dirty = !1;
+		this.dirty = !1
 	}
 	cleanSectorType(t, e) {
 		let i = this[t];
 		e && (i = i[e]);
-		for (let s = i.length, n = s - 1; n >= 0; n--) {
-			let r = i[n];
-			r.remove && i.splice(n, 1)
-		}
+		for (let n of i.filter(s => s.remove))
+			i.splice(i.indexOf(n), 1)
 	}
 	draw() {
 		!this.canvas && this.createCanvas(),
@@ -159,10 +154,8 @@ export default class {
 			for (let n of this.sceneryLines.filter(n => n.erase(t, e)))
 				s.push(n);
 		if (i.powerups === !0)
-			for (let n of this.powerups.all) {
-				let g = n.erase(t, e);
-				g && s.push(...g)
-			}
+			for (let n of this.powerups.all.map(n => n.erase(t, e)).filter(n => n))
+				s.push(...n);
 		return s
 	}
 	update() {
@@ -198,15 +191,15 @@ export default class {
 		let n = t.reduce((e, i) => { // filter overlapping powerups
 			let n = e.filter(s => s.name === i.name && s.x === i.x && s.y === i.y);
 			switch(i.prefix) {
-				case 'B':
-				case 'G':
-					n = n.filter(s => s.angle === i.angle);
-					break;
-				case 'C':
-				case 'O':
-				case 'T':
-				case 'V':
-					n = n.filter(s => s.hit === i.hit)
+			case 'B':
+			case 'G':
+				n = n.filter(s => s.angle === i.angle);
+				break;
+			case 'C':
+			case 'O':
+			case 'T':
+			case 'V':
+				n = n.filter(s => s.hit === i.hit)
 			}
 			n.length > 0 || e.push(i);
 			return e

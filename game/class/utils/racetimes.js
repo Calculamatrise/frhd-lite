@@ -71,7 +71,7 @@ export default class extends GUI {
 		i.y = 40
 	}
 	clear() {
-		this.container.children.splice(0);
+		this.container.children.splice(0),
 		this.raceCount = 0,
 		this.redraw()
 	}

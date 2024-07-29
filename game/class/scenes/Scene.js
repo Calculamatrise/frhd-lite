@@ -51,6 +51,7 @@ export default class {
 			break;
 		case "pause":
 			this.state.paused = !this.state.paused,
+			'mediaSession' in navigator && (navigator.mediaSession.playbackState = this.state.paused ? 'paused' : 'playing');
 			this.state.paused && Object.defineProperty(this, '_idleStateTimeout', {
 				value: setTimeout(() => this.state.idle = this.state.paused, 300),
 				writable: true

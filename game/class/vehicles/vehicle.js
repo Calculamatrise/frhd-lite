@@ -2,7 +2,7 @@ import Cartesian from "../math/cartesian.js";
 import Explosion from "./explosion.js";
 
 export default class {
-	color = '#'.padEnd(7, lite.storage.get('theme') == 'midnight' ? 'C' : lite.storage.get('theme') == 'dark' ? 'FB' : '0');
+	color = '#'.padEnd(7, lite.storage.get('theme') == 'midnight' ? 'C' : /^dark(?:er)?$/.test(lite.storage.get('theme')) ? 'FB' : '0');
 	masses = null;
 	springs = null;
 	slow = !1;

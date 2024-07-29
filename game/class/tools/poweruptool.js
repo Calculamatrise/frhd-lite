@@ -8,13 +8,13 @@ import s from "./poweruptools/gravitytool.js";
 import o from "./poweruptools/slowmotool.js";
 import c from "./poweruptools/teleporttool.js";
 
-export default class extends Tool {
-	name = "Powerup";
+export default class Powerup extends Tool {
+	name = 'powerup';
 	options = { selected: "goal" };
 	powerupTools = {};
 	constructor(t) {
-		super(t);
-		this.registerPowerupTools();
+		super(t),
+		this.registerPowerupTools()
 	}
 	registerPowerupTools() {
 		this.registerTool(new n(this.toolhandler)),
@@ -27,7 +27,7 @@ export default class extends Tool {
 		this.registerTool(new c(this.toolhandler))
 	}
 	registerTool(t) {
-		this.powerupTools[t.name] = t
+		this.powerupTools[this.toolhandler.constructor.parseToolName(t.name)] = t
 	}
 	setOption(t, e) {
 		this.options[t] = e
@@ -77,6 +77,7 @@ export default class extends Tool {
 		this.powerupTools[t].release()
 	}
 	draw(e) {
+		super.draw(e),
 		this.powerupTools[this.options.selected].draw(e)
 	}
 }

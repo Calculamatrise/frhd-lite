@@ -10,11 +10,13 @@ export default {
 	inputDisplay: true,
 	inputDisplayOpacity: 1,
 	inputDisplaySize: 5,
+	inputRollover: true,
 	isometricGrid: false,
 	keymap: {},
 	playerTrail: false,
 	playlists: false,
 	raceProgress: false,
+	showCustomizations: true,
 	snapshots: 10,
-	theme: 'light'
+	theme: 'system'
 }

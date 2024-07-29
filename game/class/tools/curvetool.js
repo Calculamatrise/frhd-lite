@@ -2,8 +2,8 @@ import i from "../math/cartesian.js";
 import s from "../math/curvedivision.js";
 import Tool from "./tool.js";
 
-export default class extends Tool {
-	name = "Curve";
+export default class Curve extends Tool {
+	name = 'curve';
 	active = !1;
 	p1 = null;
 	p2 = null;
@@ -114,6 +114,7 @@ export default class extends Tool {
 		t.mousewheel !== !1 && s.isButtonDown("shift") === !1 && this.mousewheel(t.mousewheel)
 	}
 	draw(e) {
+		super.draw(e);
 		let t = this.scene
 		  , i = t.camera
 		  , s = i.zoom;

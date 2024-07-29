@@ -1,7 +1,7 @@
 import Tool from "./tool.js";
 
-export default class extends Tool {
-	name = "Camera";
+export default class Camera extends Tool {
+	name = 'camera';
 	hold() {
 		let t = this.mouse.touch
 		  , e = t.pos

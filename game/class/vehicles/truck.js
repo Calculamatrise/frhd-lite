@@ -191,11 +191,11 @@ export default class extends Vehicle {
 		  , f = (this.backMass.pos.y - this.head.pos.y) * i
 		  , v = (.5 * (this.head.pos.x + this.backMass.pos.x) - .5 * (this.rearWheel.pos.x + this.frontWheel.pos.x)) * i
 		  , g = (.5 * (this.head.pos.y + this.backMass.pos.y) - .5 * (this.rearWheel.pos.y + this.frontWheel.pos.y)) * i
-		  , q = '#'.padEnd(7, window.lite.storage.get('theme') === 'midnight' ? 'a' : lite.storage.get('theme') === 'dark' ? 'b' : '4');
+		  , q = '#'.padEnd(7, /^(darker|midnight)$/.test(window.lite.storage.get('theme')) ? 'a' : lite.storage.get('theme') === 'dark' ? 'b' : '4');
 		t.lineWidth = 3 * i;
 		let m = c.x - l.x
 		  , y = c.y - l.y
-		  , w = Math.sqrt(Math.pow(m, 2) + Math.pow(y, 2))
+		  , w = Math.sqrt(m ** 2 + y ** 2)
 		  , x = m / w
 		  , _ = y / w;
 		n.draw(t, c.x - .5 * x * i * 20, c.y - _ * i * 20 * .5, r, .45 * i, o),

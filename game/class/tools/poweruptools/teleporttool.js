@@ -1,18 +1,18 @@
 import Cartesian from "../../math/cartesian.js";
 import PowerupTool from "./poweruptool.js";
-import n from "../../sector/powerups/teleport.js";
+import TeleportPowerup from "../../sector/powerups/teleport.js";
 
-export default class extends PowerupTool {
-	name = "teleport";
+export default class Teleport extends PowerupTool {
+	name = 'teleport';
 	p2 = null;
 	constructor(t) {
-		super(t);
-		this.p2 = new Cartesian(0, 0);
-		this.powerup = new n(0, 0, t.scene.track);
+		super(t),
+		this.p2 = new Cartesian(0, 0),
+		this.powerup = new TeleportPowerup(0, 0, t.scene.track)
 	}
 	press() {
 		super.press(),
-		this.portal1 = new n(this.p1.x,this.p1.y,this.scene.track)
+		this.portal1 = new this.powerup.constructor(this.p1.x,this.p1.y,this.scene.track)
 	}
 	hold() {
 		let t = this.mouse.touch
@@ -25,7 +25,7 @@ export default class extends PowerupTool {
 		  , e = Math.abs(this.p2.y - this.p1.y);
 		if (t > 40 || e > 40) {
 			let i = this.scene.track;
-			this.portal2 = new n(this.p2.x,this.p2.y,i),
+			this.portal2 = new this.powerup.constructor(this.p2.x,this.p2.y,i),
 			this.portal1.addOtherPortalRef(this.portal2),
 			this.portal2.addOtherPortalRef(this.portal1),
 			i.addPowerup(this.portal1),

@@ -44,7 +44,7 @@ export default class extends Powerup {
 		  , l = this.scene;
 		if (26 > a && i.isAlive() && -1 === h.indexOf(this.id)) {
 			h.push(this.id);
-			let c = h.length
+			let c = i.getTargetsHit() // h.length
 			  , u = l.track.targetCount;
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
@@ -102,11 +102,11 @@ export default class extends Powerup {
 		this.cacheStar(t),
 		this.cacheEmptyStar(t)
 	}
-	static cache = Object.assign(this.createCache(), {
+	static cache = this.createCache({
 		width: 35,
 		height: 35
 	})
-	static hitCache = Object.assign(this.createCache(), {
+	static hitCache = this.createCache({
 		width: 35,
 		height: 35
 	})

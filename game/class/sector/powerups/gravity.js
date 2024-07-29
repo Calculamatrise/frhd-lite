@@ -1,30 +1,27 @@
 import Powerup from "../powerup.js";
 
 export default class extends Powerup {
-	angle = null;
+	angle = -180;
 	color = '#376eb7';
 	name = "gravity";
 	prefix = 'G';
 	realAngle = 0;
 	constructor(t, e, i, s) {
-		super(t, e, s);
-		this.angle = i - 180;
+		super(t, e, s),
+		this.angle = i - 180,
 		this.realAngle = i;
 		let n = this.angle / 360 * 2 * Math.PI;
-		this.directionX = (-.3 * Math.sin(n)).toFixed(15) / 1;
-		this.directionY = (.3 * Math.cos(n)).toFixed(15) / 1;
+		this.directionX = (-.3 * Math.sin(n)).toFixed(15) / 1,
+		this.directionY = (.3 * Math.cos(n)).toFixed(15) / 1
 	}
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , r = t.pos.y - this.y
-		  , o = Math.pow(s, 2) + Math.pow(r, 2)
-		  , a = e.masses
-		  , h = this.directionX
-		  , l = this.directionY;
-		1e3 > o && i.isAlive() && (e.gravity.x = h,
-		e.gravity.y = l,
+		  , o = s ** 2 + r ** 2;
+		1e3 > o && i.isAlive() && (e.gravity.x = this.directionX,
+		e.gravity.y = this.directionY,
 		i.isGhost() === !1 && (this.scene.message.show('Gravity Changed', 50, '#1F80C3', '#FFFFFF'),
 		this.scene.sound.play('gravity_down_sound')))
 	}
@@ -41,33 +38,35 @@ export default class extends Powerup {
 		s.rotate(-u),
 		s.translate(-t, -e)
 	}
-	drawPowerup(t, e, i, s) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
-		i *= .2,
-		s.lineJoin = 'round'
-		s.save(),
-		s.lineWidth = Math.max(6 * i, 1),
-		s.fillStyle = this.color,
-		s.strokeStyle = n,
-		s.beginPath(),
-		s.moveTo(45 * i, 70 * i),
-		s.lineTo(45 * i, 95 * i),
-		s.lineTo(97 * i, 50 * i),
-		s.lineTo(45 * i, 5 * i),
-		s.lineTo(45 * i, 30 * i),
-		s.lineTo(3 * i, 30 * i),
-		s.lineTo(3 * i, 70 * i),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-        s.restore()
+	drawPowerup(t, e) {
+		e *= this.constructor.cache.scale,
+		t.beginPath(),
+		t.moveTo(45 * e, 70 * e),
+		t.lineTo(45 * e, 95 * e),
+		t.lineTo(97 * e, 50 * e),
+		t.lineTo(45 * e, 5 * e),
+		t.lineTo(45 * e, 30 * e),
+		t.lineTo(3 * e, 30 * e),
+		t.lineTo(3 * e, 70 * e),
+		t.closePath(),
+		t.fill(),
+		t.stroke()
 	}
 	getCode() {
-		return super.getCode() + ' ' + this.realAngle.toString(32)
+		return (super.getCode() + ' ' + this.realAngle.toString(32) + ',').repeat(this.multiplier).slice(0, -1)
 	}
-	static cache = Object.assign(this.createCache(), {
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.lineJoin = 'round',
+		t.lineWidth = Math.max(6 * e * this.constructor.cache.scale, 1),
+		t.fillStyle = this.color,
+		t.strokeStyle = i
+	}
+	static cache = this.createCache({
 		width: 20,
-		height: 20
+		height: 20,
+		scale: .2
 	})
 }

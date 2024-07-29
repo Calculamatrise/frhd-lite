@@ -14,9 +14,9 @@ export default class {
 	gridCacheAlpha = 1;
 	gridUseEnabled = !1;
 	snapPoint = !1;
+	previousTool = "";
 	options = null;
 	constructor(t) {
-		this.currentTool = "";
 		this.scene = t;
 		this.camera = t.camera;
 		this.mouse = t.mouse;
@@ -25,15 +25,13 @@ export default class {
 		this.options = t.settings.toolHandler;
 		this.snapPoint = new i;
 		this.snapPoint.equ(this.scene.track.defaultLine.p2);
-		this.initAnalytics();
+		this.initAnalytics(); // add setting to disable analytics
 		this.actionTimeline = [];
 		this.actionTimelineMax = 50;
 		this.actionTimelinePointer = 0;
 	}
 	initAnalytics() {
-		this.analytics = {
-			actions: 0
-		}
+		this.analytics = { actions: 0 }
 	}
 	enableGridUse() {
 		this.gridUseEnabled = !0
@@ -47,12 +45,12 @@ export default class {
 	}
 	registerTool(t) {
 		t = new t(this);
-		let e = t.name.toLowerCase();
-		this.tools[e] = t;
+		this.tools[this.constructor.parseToolName(t.name)] = t;
 	}
 	setTool(t) {
-		t = t.toLowerCase();
-		this.currentTool !== t && (this.resetTool(),
+		t = this.constructor.parseToolName(t);
+		this.currentTool !== t && this.tools.hasOwnProperty(t) && (this.resetTool(),
+		this.previousTool = this.currentTool,
 		this.currentTool = t,
 		this.scene.updateState(),
 		this.analytics.actions++)
@@ -168,7 +166,7 @@ export default class {
 		s && (n = t.isButtonDown("shift")),
 		n && !e ? this.toggleQuickSnap() : n || !e || i || this.toggleQuickSnap(),
 		t.isButtonDown("ctrl") && t.isButtonDown("z") && (t.setButtonUp("z"),
-		this.revertAction()),
+		this[(t.isButtonDown("shift") ? 'apply' : 'revert') + 'Action']()),
 		t.isButtonDown("ctrl") && t.isButtonDown("y") && (t.setButtonUp("y"),
 		this.applyAction());
 		let r = this.tools;
@@ -308,8 +306,13 @@ export default class {
 		this.mouse = null,
 		this.scene = null,
 		this.camera = null,
-		this.options.grid = !1,
 		this.options = null,
 		this.gridCache = null
+	}
+
+	static parseToolName(t) {
+		// typeof t == 'function' && (t = t.constructor.name); // does not work when minified/obfuscated
+		typeof t == 'object' && t != null && (t = t.name);
+		return t.toLowerCase().replace(/tool$/i, '')
 	}
 }

@@ -1,8 +1,8 @@
 import Cartesian from "../math/cartesian.js";
 import Tool from "./tool.js";
 
-export default class extends Tool {
-	name = "Brush";
+export default class Brush extends Tool {
+	name = 'brush';
 	p1 = null;
 	p2 = null;
 	active = !1;
@@ -127,6 +127,7 @@ export default class extends Tool {
 		e
 	}
 	draw(e) {
+		super.draw(e);
 		let t = this.scene
 		  , i = t.camera
 		  , s = i.zoom;

@@ -1,8 +1,8 @@
 import Cartesian from "../math/cartesian.js";
 import Tool from "./tool.js";
 
-export default class extends Tool {
-	name = "StraightLine";
+export default class StraightLine extends Tool {
+	name = 'straightline';
 	p1 = null;
 	p2 = null;
 	active = !1;
@@ -64,6 +64,7 @@ export default class extends Tool {
 		this.shouldDrawMetadata = e.isButtonDown("ctrl") ? !0 : !1
 	}
 	draw(e) {
+		super.draw(e);
 		let t = this.scene
 		  , i = t.camera
 		  , s = i.zoom;
@@ -113,7 +114,7 @@ export default class extends Tool {
 			let s = this.p1.getAngleInDegrees(this.p2);
 			s = s.toFixed(2);
 			let n = this.game.pixelRatio;
-			t.fillStyle = /^midnight$/i.test(lite.storage.get('theme')) ? 'C' : /^dark$/i.test(lite.storage.get('theme')) ? 'FB' : '0',
+			t.fillStyle = /^midnight$/.test(lite.storage.get('theme')) ? 'C' : /^dark(er)?$/i.test(lite.storage.get('theme')) ? 'FB' : '0',
 			t.font = 8 * n + "pt arial",
 			t.fillText(s + "°", i.x + 10, i.y + 10),
 			t.strokeText(s + "°", i.x + 10, i.y + 10)
@@ -125,7 +126,7 @@ export default class extends Tool {
 		t.beginPath(),
 		t.lineWidth = Math.max(.5, 2 * e),
 		t.lineCap = 'round',
-		t.strokeStyle = '#'.padEnd(7, 'physics' === r ? /^midnight$/i.test(lite.storage.get('theme')) ? 'C' : /^dark$/i.test(lite.storage.get('theme')) ? 'FB' : '0' : /^midnight$/i.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A');
+		t.strokeStyle = '#'.padEnd(7, 'physics' === r ? /^midnight$/.test(lite.storage.get('theme')) ? 'C' : /^dark(er)?$/i.test(lite.storage.get('theme')) ? 'FD' : '0' : /^(darker|midnight)$/.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A');
 		let a = this.p1.toScreen(this.scene)
 		  , h = this.p2.toScreen(this.scene);
 		t.moveTo(a.x, a.y),

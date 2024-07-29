@@ -32,16 +32,13 @@ export default class extends Controls {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
 			if (this.isMouseOverComponent(component)) {
-				this.controlDown(component.keys);
+				this.scene.toolHandler[(i == 'undo' ? 'revert' : 'apply') + 'Action']()
 			}
 		}
 	}
 	update() {
-		let t = this.scene
-		  , e = t.state.paused
-		  , i = t.toolHandler;
-		t.controls && this.properties.visible !== e && (this.properties.visible = e),
-		this.controlData.undo.disabled = i.actionTimelinePointer === 0,
-		this.controlData.redo.disabled = i.actionTimelinePointer >= i.actionTimeline.length
+		let t = this.scene.toolHandler;
+		this.controlData.undo.disabled = t.actionTimelinePointer === 0,
+		this.controlData.redo.disabled = t.actionTimelinePointer >= t.actionTimeline.length
 	}
 }

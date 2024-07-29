@@ -270,10 +270,9 @@ export default class extends Scene {
 		t ||= this.races;
 		for (let { race: e } of t.filter(t => 'string' == typeof t.race.code)) {
 			let i = JSON.parse(e.code);
-			this.game.emit('parseRaceData', i);
-			i.hasOwnProperty('bike_options') && (i.bike_options = new Map(i.bike_options.map(s => s.split(/\s*:\s*/))));
-			for (let s in i)
-				i[s] instanceof Array && (i[s] = i[s].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {}));
+			i.hasOwnProperty('bike_options') && i.bike_options instanceof Array && (i.bike_options = new Map(i.bike_options.map(s => s.split(/\s*:\s*/))));
+			for (let s of Object.keys(Object.fromEntries(Object.entries(i).filter(([, value]) => value instanceof Array))))
+				i[s] = i[s].reduce((s, n) => (s[n] = ~~s[n] + 1, s), {});
 			e.code = i
 		}
 		return t
@@ -282,13 +281,14 @@ export default class extends Scene {
 		this.races = this.races.filter((race, index, races) => index === races.findIndex(dup => this.uniqesByUserIdIterator(dup) == this.uniqesByUserIdIterator(race)))
 	}
 	removeRaces(t) {
-		let e = this.races;
-		for (let i of t)
-			i = e.findIndex(({ user: t }) => t.u_id == i),
-			i > -1 && (i = e.splice(i, 1),
+		t = Array.from(t).map(e => parseInt(e));
+		let e = this.races
+		  , i = [];
+		for (let i of e.filter(({ user: i }) => t.includes(i.u_id)))
+			i = e.splice(e.indexOf(i), 1),
 			this.playerManager.removePlayer(t),
-			this.game.emit('trackRaceDelete', i[0]),
-			this.game.emit('trackRacesDelete', i));
+			this.game.emit('trackRaceDelete', i[0]);
+		this.game.emit('trackRacesDelete', i);
 		this.game.emit('trackChallengeUpdate', this.races),
 		this.addRaceTimes(),
 		this.camera.focusOnMainPlayer()

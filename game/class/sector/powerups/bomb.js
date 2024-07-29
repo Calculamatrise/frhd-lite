@@ -10,7 +10,7 @@ export default class extends Powerup {
 		  , i = e.player
 		  , s = t.pos.x - this.x
 		  , n = t.pos.y - this.y
-		  , a = Math.sqrt(Math.pow(s, 2) + Math.pow(n, 2));
+		  , a = Math.sqrt(s ** 2 + n ** 2);
 		20 > a && i.isAlive() && (e.explode(),
 		i.isGhost() === !1 && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1))
@@ -18,57 +18,64 @@ export default class extends Powerup {
 	draw(...t) {
 		this.hit || super.draw(...t)
 	}
-	drawPowerup(t, e, i, s) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
-		i *= .2,
-		s.fillStyle = n,
-		s.strokeStyle = n,
-		s.lineWidth = 8 * i,
-		s.beginPath(),
-		s.moveTo(53 * i, 105 * i),
-		s.lineTo(41.5 * i, 115 * i),
-		s.lineTo(43 * i, 100 * i),
-		s.bezierCurveTo(35.5 * i, 95 * i, 30 * i, 88.5 * i, 26.5 * i, 80 * i),
-		s.lineTo(11 * i, 78 * i),
-		s.lineTo(24 * i, 69.5 * i),
-		s.bezierCurveTo(24 * i, 68 * i, 24 * i, 67 * i, 24 * i, 66 * i),
-		s.bezierCurveTo(24 * i, 58.5 * i, 26 * i, 51 * i, 30 * i, 45 * i),
-		s.lineTo(22 * i, 31.5 * i),
-		s.lineTo(37.5 * i, 36 * i),
-		s.bezierCurveTo(43.5 * i, 31 * i, 51 * i, 27.5 * i, 60 * i, 26 * i),
-		s.lineTo(66 * i, 11 * i),
-		s.lineTo(72 * i, 26.5 * i),
-		s.bezierCurveTo(80.5 * i, 27.5 * i, 88 * i, 31 * i, 93.5 * i, 36.5 * i),
-		s.lineTo(110 * i, 31.5 * i),
-		s.lineTo(101.5 * i, 46 * i),
-		s.bezierCurveTo(105 * i, 52 * i, 107 * i, 59 * i, 107 * i, 66 * i),
-		s.bezierCurveTo(107 * i, 67 * i, 107 * i, 68 * i, 107 * i, 69 * i),
-		s.lineTo(121 * i, 78 * i),
-		s.lineTo(104.5 * i, 80.5 * i),
-		s.bezierCurveTo(101.5 * i, 88 * i, 96 * i, 95 * i, 89 * i, 99.5 * i),
-		s.lineTo(90.5 * i, 115 * i),
-		s.lineTo(78.5 * i, 104.5 * i),
-		s.bezierCurveTo(74.5 * i, 106 * i, 70 * i, 107 * i, 65.5 * i, 107 * i),
-		s.bezierCurveTo(61 * i, 107 * i, 57 * i, 106 * i, 53 * i, 105 * i),
-		s.lineTo(53 * i, 105 * i),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-		s.beginPath(),
-		s.arc(66 * i, 66 * i, 40 * i, 0 * i, 2 * Math.PI, !0),
-		s.lineWidth = 2 * i,
-		s.fillStyle = this.color,
-		s.fill(),
-		s.stroke(),
-		s.beginPath(),
-		s.arc(66 * i, 66 * i, 8 * i, 0 * i, 2 * Math.PI, !0),
-		s.fillStyle = n,
-		s.fill(),
-		s.stroke()
+	drawPowerup(t, e) {
+		e *= this.constructor.cache.scale,
+		t.beginPath(),
+		t.moveTo(53 * e, 105 * e),
+		t.lineTo(41.5 * e, 115 * e),
+		t.lineTo(43 * e, 100 * e),
+		t.bezierCurveTo(35.5 * e, 95 * e, 30 * e, 88.5 * e, 26.5 * e, 80 * e),
+		t.lineTo(11 * e, 78 * e),
+		t.lineTo(24 * e, 69.5 * e),
+		t.bezierCurveTo(24 * e, 68 * e, 24 * e, 67 * e, 24 * e, 66 * e),
+		t.bezierCurveTo(24 * e, 58.5 * e, 26 * e, 51 * e, 30 * e, 45 * e),
+		t.lineTo(22 * e, 31.5 * e),
+		t.lineTo(37.5 * e, 36 * e),
+		t.bezierCurveTo(43.5 * e, 31 * e, 51 * e, 27.5 * e, 60 * e, 26 * e),
+		t.lineTo(66 * e, 11 * e),
+		t.lineTo(72 * e, 26.5 * e),
+		t.bezierCurveTo(80.5 * e, 27.5 * e, 88 * e, 31 * e, 93.5 * e, 36.5 * e),
+		t.lineTo(110 * e, 31.5 * e),
+		t.lineTo(101.5 * e, 46 * e),
+		t.bezierCurveTo(105 * e, 52 * e, 107 * e, 59 * e, 107 * e, 66 * e),
+		t.bezierCurveTo(107 * e, 67 * e, 107 * e, 68 * e, 107 * e, 69 * e),
+		t.lineTo(121 * e, 78 * e),
+		t.lineTo(104.5 * e, 80.5 * e),
+		t.bezierCurveTo(101.5 * e, 88 * e, 96 * e, 95 * e, 89 * e, 99.5 * e),
+		t.lineTo(90.5 * e, 115 * e),
+		t.lineTo(78.5 * e, 104.5 * e),
+		t.bezierCurveTo(74.5 * e, 106 * e, 70 * e, 107 * e, 65.5 * e, 107 * e),
+		t.bezierCurveTo(61 * e, 107 * e, 57 * e, 106 * e, 53 * e, 105 * e),
+		t.lineTo(53 * e, 105 * e),
+		t.closePath(),
+		t.fill(),
+		t.stroke(),
+		t.beginPath(),
+		t.arc(66 * e, 66 * e, 40 * e, 0 * e, 2 * Math.PI, !0);
+		t.save(),
+		t.lineWidth = 2 * e,
+		t.save(),
+		t.fillStyle = this.color,
+		t.fill(),
+		t.stroke(),
+		t.restore(),
+		t.beginPath(),
+		t.arc(66 * e, 66 * e, 8 * e, 0 * e, 2 * Math.PI, !0),
+		t.fill(),
+		t.stroke(),
+		t.restore()
 	}
-	static cache = Object.assign(this.createCache(), {
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.fillStyle = i,
+		t.strokeStyle = i,
+		t.lineWidth = 8 * e * this.constructor.cache.scale
+	}
+	static cache = this.createCache({
 		width: 26,
-		height: 26
-	})
+		height: 26,
+		scale: .2
+	});
 }

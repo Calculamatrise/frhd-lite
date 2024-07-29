@@ -1,14 +1,13 @@
 import Cartesian from "../../math/cartesian.js";
 import Tool from "../tool.js";
 
-export default class extends Tool {
+export default class BasePowerupTool extends Tool {
 	active = !1;
-	name = "powerup";
 	p1 = null;
 	powerup = null;
 	constructor(t) {
-		super(t);
-		this.p1 = new Cartesian(0, 0);
+		super(t),
+		this.p1 = new Cartesian(0, 0)
 	}
 	draw(t) {
 		let e = this.mouse.touch

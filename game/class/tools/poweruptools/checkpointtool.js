@@ -1,10 +1,10 @@
 import PowerupTool from "./poweruptool.js";
-import n from "../../sector/powerups/checkpoint.js";
+import CheckpointPowerup from "../../sector/powerups/checkpoint.js";
 
-export default class extends PowerupTool {
-	name = "checkpoint";
+export default class Checkpoint extends PowerupTool {
+	name = 'checkpoint';
 	constructor(t) {
-		super(t);
-		this.powerup = new n(0, 0, t.scene.track);
+		super(t),
+		this.powerup = new CheckpointPowerup(0, 0, t.scene.track)
 	}
 }

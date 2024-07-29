@@ -4,13 +4,13 @@ import o from "./vehiclepoweruptools/blobtool.js";
 import s from "./vehiclepoweruptools/helicoptertool.js";
 import n from "./vehiclepoweruptools/trucktool.js";
 
-export default class extends Tool {
-	name = "vehiclepowerup";
+export default class VehiclePowerup extends Tool {
+	name = 'vehiclepowerup';
 	powerupTools = {};
 	constructor(t) {
-		super(t);
-		this.options = t.scene.settings.vehiclePowerup;
-		this.registerPowerupTools();
+		super(t),
+		this.options = t.scene.settings.vehiclePowerup,
+		this.registerPowerupTools()
 	}
 	registerPowerupTools() {
 		this.registerTool(new s(this, this.toolhandler)),
@@ -19,7 +19,7 @@ export default class extends Tool {
 		this.registerTool(new o(this, this.toolhandler))
 	}
 	registerTool(t) {
-		this.powerupTools[t.name] = t
+		this.powerupTools[this.toolhandler.constructor.parseToolName(t.name)] = t
 	}
 	setOption(t, e) {
 		this.options[t] = e
@@ -39,7 +39,8 @@ export default class extends Tool {
 		let t = this.options.selected;
 		this.powerupTools[t].release()
 	}
-	draw(ctx) {
-		this.powerupTools[this.options.selected].draw(ctx)
+	draw(t) {
+		super.draw(t),
+		this.powerupTools[this.options.selected].draw(t)
 	}
 }

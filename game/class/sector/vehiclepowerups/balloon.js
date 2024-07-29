@@ -26,29 +26,32 @@ export default class extends VehiclePowerup {
 			this.scene.message.show('Balloon Powerup!', 50, this.color, !1))
 		}
 	}
-	drawIcon(t, e, i, s) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
-		s.save(),
-		s.scale(i, i),
-		s.lineWidth = 2,
-		s.strokeStyle = n,
-		s.fillStyle = n,
-		s.beginPath(),
-		s.roundRect(6, 23, 9, 8, 1),
-		s.fill(),
-		s.fillStyle = this.color,
-		s.beginPath(),
-		s.arc(10.5, 10.5, 10.5 - s.lineWidth / 2, 0, 2 * Math.PI, !0),
-		s.fill(),
-		s.moveTo(15, 18.5),
-		s.lineTo(13, 24),
-		s.moveTo(8, 24),
-		s.lineTo(6, 18.5),
-		s.stroke(),
-		s.restore()
+	drawIcon(t, e) {
+		t.scale(e, e),
+		t.beginPath(),
+		t.roundRect(6, 23, 9, 8, 1),
+		t.fill(),
+		t.beginPath(),
+		t.arc(10.5, 10.5, 10.5 - t.lineWidth / 2, 0, 2 * Math.PI, !0);
+		let i = t.fillStyle;
+		t.fillStyle = this.color,
+		t.fill(),
+		t.fillStyle = i,
+		t.moveTo(15, 18.5),
+		t.lineTo(13, 24),
+		t.moveTo(8, 24),
+		t.lineTo(6, 18.5),
+		t.stroke()
 	}
-	static cache = Object.assign(this.createCache(), {
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.lineWidth = 2,
+		t.strokeStyle = i,
+		t.fillStyle = i
+	}
+	static cache = this.createCache({
 		width: 21,
 		height: 31
 	})

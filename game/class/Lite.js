@@ -128,14 +128,16 @@ window.lite = new class {
 	}
 
 	_load(game) {
+		this.replayGui && game.currentScene.races.length > 0 && (this.replayGui.progress.max = game.currentScene.races[0].race.run_ticks),
 		game.on('baseVehicleCreate', baseVehicle => this._updateBaseVehicle(baseVehicle)),
 		game.on('cameraFocus', playerFocus => {
 			this.replayGui && (this.replayGui.style.setProperty('display', this.scene.camera.focusIndex !== 0 ? 'block' : 'none'),
-			this.scene.camera.focusIndex !== 0 && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id)) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
+			(this.scene.camera.focusIndex !== 0 || this.scene.playerManager._players.length > 1) && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id) || this.scene.races[this.scene.races.length - 1]) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
 		}),
 		game.on('draw', this.draw.bind(this)),
 		game.on('replayTick', ticks => this.replayGui && (this.replayGui.progress.value = ticks)),
 		game.on('trackChallengeUpdate', races => {
+			this.replayGui && races.length > 0 && this.replayGui.show();
 			let challengeLeaderboard = this.fetchChallengeLeaderboard({ createIfNotExists: true });
 			challengeLeaderboard.replaceChildren(...races.map((data, index) => {
 				let row = this.constructor.fetchRaceRow(data, { parent: challengeLeaderboard, placement: 1 + index });
@@ -177,8 +179,8 @@ window.lite = new class {
 		});
 		this.snapshots.splice(0, this.snapshots.length),
 		this._updateFromSettings(this.storage);
-		for (let player of game.currentScene.playerManager._players)
-			player._baseVehicle && this._updateBaseVehicle(player._baseVehicle)
+		for (let player of game.currentScene.playerManager._players.filter(t => t._baseVehicle))
+			this._updateBaseVehicle(player._baseVehicle)
 	}
 
 	_updateCustomStyleSheet(data) {
@@ -189,9 +191,24 @@ window.lite = new class {
 			properties = Object.entries(properties);
 			for (let property of properties)
 				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
-			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}';
+			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}'; // JSON.stringify().replace(/(?<="),/, ';')
 		}
 		this.#customStyleSheet.textContent = textContent;
+	}
+
+	_getColorScheme(theme) {
+		if (/^(?:auto|device|system)$/i.test(theme)) {
+			this._csPreference || Object.defineProperty(this, '_csPreference', {
+				value: matchMedia('(prefers-color-scheme: dark)'),
+				writable: true
+			});
+			this._csPreference.onchange = event => console.warn('e', event) || this._updateFromSettings(new Map([['theme', event.target.matches ? 'dark' : 'light']]));
+			theme = this._csPreference.matches ? 'dark' : 'light';
+		} else if (this._csPreference) {
+			this._csPreference = null;
+		}
+		return theme
+		// return object with accentColor, etc.
 	}
 
 	_updateFromSettings(changes = this.storage) {
@@ -208,8 +225,8 @@ window.lite = new class {
 				break;
 			case 'bikeFrameColor':
 				var firstPlayer = this.scene.playerManager.firstPlayer;
-				firstPlayer._baseVehicle.color = value,
-				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = firstPlayer);
+				firstPlayer && (firstPlayer._baseVehicle.color = value,
+				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = value));
 				break;
 			case 'bikeTireColor':
 				var baseVehicle = this.scene.playerManager.firstPlayer._baseVehicle;
@@ -225,18 +242,19 @@ window.lite = new class {
 				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 				break;
 			case 'theme':
-				let backgroundColor = '#'.padEnd(7, value == 'midnight' ? '1d2328' : value == 'darker' ? '0' : value == 'dark' ? '1b' : 'f');
+				const theme = this._getColorScheme(value);
+				let backgroundColor = '#'.padEnd(7, theme == 'midnight' ? '1d2328' : theme == 'darker' ? '0' : theme == 'dark' ? '1b' : 'f');
 				this.styleSheet.set('#game-container > canvas', Object.assign({}, this.styleSheet.get('#game-container > canvas'), { backgroundColor }));
 				this.styleSheet.set('.gameFocusOverlay', {
 					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
-					color: '#'.padEnd(7, value == 'midnight' ? 'd' : value == 'dark' ? 'f' : value == 'dark' ? 'eb' : '2d')
+					color: '#'.padEnd(7, theme == 'midnight' ? 'd' : theme == 'dark' ? 'f' : theme == 'dark' ? 'eb' : '2d')
 				});
-				this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? 'c' : '3');
+				this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(theme) ? 'c' : '3');
 				this.scene.message.outline = backgroundColor;
-				let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(value) ? '6' : '9');
+				let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(theme) ? '6' : '9');
 				this.scene.score.best_time.color = gray;
 				this.scene.score.best_time_title.color = gray;
-				let color = '#'.padEnd(7, value == 'midnight' ? 'd' : /^dark(er)?$/i.test(value) ? 'f' : '0');
+				let color = '#'.padEnd(7, theme == 'midnight' ? 'd' : /^dark(er)?$/i.test(theme) ? 'f' : '0');
 				this.scene.score.goals.color = color;
 				this.scene.score.time.color = color;
 				this.scene.score.time_title.color = gray;
@@ -257,11 +275,14 @@ window.lite = new class {
 					});
 				}
 
-				GameSettings.physicsLineColor = '#'.padEnd(7, value == 'midnight' ? 'c' : value == 'darker' ? 'f' : value == 'dark' ? 'fd' : '0');
-				GameSettings.sceneryLineColor = '#'.padEnd(7, value == 'midnight' ? '5' : value == 'darker' ? '121319' : value == 'dark' ? '6' : 'a');
-				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, value == 'midnight' ? '20282e' : value == 'dark' ? '25' : 'e');
-				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, value == 'midnight' ? '161b20' : value == 'dark' ? '3e' : 'c');
+				GameSettings.physicsLineColor = '#'.padEnd(7, theme == 'midnight' ? 'c' : /^dark(er)?$/.test(theme) ? 'fd' : '0');
+				GameSettings.sceneryLineColor = '#'.padEnd(7, theme == 'midnight' ? '5' : theme == 'darker' ? '121319' : theme == 'dark' ? '6' : 'a');
+				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, theme == 'midnight' ? '20282e' : /^dark(er)?$/.test(theme) ? '25' : 'e');
+				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, theme == 'midnight' ? '161b20' : /^dark(er)?$/.test(theme) ? '3e' : 'c');
 				this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
+				var firstPlayer = this.scene.playerManager.firstPlayer;
+				firstPlayer && (firstPlayer._baseVehicle.color = GameSettings.physicsLineColor,
+				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = GameSettings.physicsLineColor));
 			case 'isometricGrid':
 				redraw = true
 			}
@@ -287,6 +308,64 @@ window.lite = new class {
 		colorMatch.test(frameColor) && (baseVehicle.color = frameColor),
 		colorMatch.test(tireColor) && (baseVehicle.frontWheel.color = tireColor,
 		baseVehicle.rearWheel.color = tireColor)
+	}
+
+	_updateMediaSessionMetadata() {
+		if ('mediaSession' in navigator) {
+			navigator.mediaSession.metadata = new MediaMetadata({
+				title: this.currentTrackData.title,
+				artist: this.currentTrackData.author.d_name,
+				album: '',
+				artwork: [{
+					src: this.currentTrackData.img,
+					sizes: "250x150",
+					type: "image/png",
+				}]
+			});
+			navigator.mediaSession.setActionHandler('play', () => {
+				this.scene.state.inFocus = true,
+				this.scene.state.paused = false,
+				this.scene.state.playing = true
+			});
+			navigator.mediaSession.setActionHandler('pause', () => {
+				this.scene.state.paused = true,
+				this.scene.state.playing = false
+			});
+			navigator.mediaSession.setActionHandler('seekbackward', () => {
+				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
+				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) - 5)
+			});
+			navigator.mediaSession.setActionHandler('seekto', event => {
+				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
+				player.isGhost() && player._replayIterator.next(event.seekTime)
+			});
+			navigator.mediaSession.setActionHandler('seekforward', () => {
+				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
+				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) + 5)
+			});
+			navigator.mediaSession.setActionHandler('nexttrack', () => {
+				Application.router.do_route("t/" + (this.currentTrackData.id + 1), {
+					trigger: !0,
+					replace: !1
+				})
+			});
+			navigator.mediaSession.setActionHandler('previoustrack', () => {
+				Application.router.do_route("t/" + (this.currentTrackData.id - 1), {
+					trigger: !0,
+					replace: !1
+				})
+			});
+		}
+	}
+
+	_updateMediaSessionPosition() {
+		if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+			this.replayGui && navigator.mediaSession.setPositionState({
+				duration: this.replayGui.progress.max,
+				playbackRate: 1, // this.replayGui.progress.step?
+				position: this.replayGui.progress.value
+			})
+		}
 	}
 
 	attachContextMenu() {
@@ -649,7 +728,7 @@ window.lite = new class {
 				click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), { u_name: data.d_name })
 			}, {
 				name: 'Report',
-				styles: ['danger'],
+				styles: ['danger'], // check session storage and disable button
 				click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' })
 			});
 			request && options.splice(3, 0, {
@@ -1234,21 +1313,43 @@ window.lite = new class {
 					flag.innerText = '⚠️';
 				}
 			}
-		});
+		})
 	}
 
 	initGhostPlayer() {
-		this.replayGui || Object.defineProperty(this, 'replayGui', {
-			value: this.constructor.createElement('div', {
+		this.replayGui || (Object.defineProperty(this, 'replayGui', {
+			value: Object.defineProperties(this.constructor.createElement('div', {
 				style: {
 					display: 'none',
 					inset: 0,
 					pointerEvents: 'none',
 					position: 'absolute'
 				}
+			}), {
+				fade: {
+					value(ms) {
+						this._fadeTimeout && clearTimeout(this._fadeTimeout),
+						this._fadeTimeout = setTimeout(() => !GameManager.game.currentScene.state.paused && GameManager.game.currentScene.state.playing && this.hide(), ms)
+					},
+					writable: true
+				},
+				hide: {
+					value() {
+						this._fadeTimeout && clearTimeout(this._fadeTimeout),
+						this.style.setProperty('display', 'none')
+					},
+					writable: true
+				},
+				show: {
+					value() {
+						this._fadeTimeout && clearTimeout(this._fadeTimeout),
+						this.style.removeProperty('display')
+					},
+					writable: true
+				}
 			}),
 			writable: true
-		});
+		}),
 		this.replayGui.progress || Object.defineProperty(this.replayGui, 'progress', {
 			value: this.replayGui.appendChild(this.constructor.createElement('progress.frhd-lite\\.race-player-progress#replay-seeker', {
 				max: 100,
@@ -1285,16 +1386,23 @@ window.lite = new class {
 				}
 			})),
 			writable: true
-		});
+		}),
+		this._updateMediaSessionMetadata(),
 		this.styleSheet.set('.frhd-lite\\.race-player-progress::-webkit-progress-value', {
 			backgroundColor: 'hsl(195deg 57% 25%)'
 		}).set('.frhd-lite\\.race-player-progress:hover', {
 			cursor: 'pointer',
 			filter: 'brightness(1.25)',
 			height: '6px !important'
-		});
+		}));
 		this.constructor.waitForElm('#game-container').then(container => {
-			container.appendChild(this.replayGui)
+			container.appendChild(this.replayGui);
+			container.addEventListener('pointerenter', () => this.replayGui.show(), { passive: true }),
+			container.addEventListener('pointermove', () => {
+				this.replayGui.show(),
+				this.replayGui.fade(3e3)
+			}, { passive: true }),
+			container.addEventListener('pointerexit', () => this.replayGui.fade(3e3), { passive: true })
 		})
 	}
 
@@ -1994,7 +2102,7 @@ window.lite = new class {
 		}
 
 		Object.assign(element, options);
-		return typeof callback == 'function' && callback(element), element;
+		return typeof callback == 'function' && callback(element), element
 	}
 
 	static async downloadFile(name, contents, { desc } = {}) {

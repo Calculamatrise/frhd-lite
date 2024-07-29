@@ -1,11 +1,11 @@
 import PowerupTool from "./poweruptool.js";
-import n from "../../sector/powerups/target.js";
+import GoalPowerup from "../../sector/powerups/target.js";
 
-export default class extends PowerupTool {
-	name = "goal";
+export default class Goal extends PowerupTool {
+	name = 'goal';
 	constructor(t) {
-		super(t);
-		this.powerup = new n(0, 0, t.scene.track);
+		super(t),
+		this.powerup = new GoalPowerup(0, 0, t.scene.track)
 	}
 	release() {
 		let t = this.scene.track

@@ -1,6 +1,6 @@
 {
 	"name": "Free Rider Lite",
-	"version": "0.0.42.2",
+	"version": "0.0.43",
 	"author": "Calculamatrise",
 	"description": "A mod for Free Rider HD.",
 	"manifest_version": 3,
@@ -23,7 +23,7 @@
 		"48": "icons/icon_48.png",
 		"128": "icons/icon_128.png"
 	},
-	"permissions": ["declarativeNetRequestWithHostAccess", "scripting", "storage"],
+	"permissions": ["contextMenus", "declarativeNetRequestWithHostAccess", "scripting", "storage"],
 	"host_permissions": [
 		"*://frhd.kanoapps.com/*",
 		"*://www.freeriderhd.com/*",

@@ -6,37 +6,6 @@ export default class extends Powerup {
 	id = crypto.randomUUID();
 	name = 'checkpoint';
 	prefix = 'C';
-	draw(t, e, i, s) {
-		s.save(),
-		this.hit && (s.globalAlpha = .3),
-		super.draw(t, e, i, s),
-		s.restore()
-	}
-	drawPowerup(t, e, i, s) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor)
-		i *= .15,
-		s.save(),
-		s.fillStyle = this.color,
-		s.strokeStyle = n,
-		s.lineWidth = 8 * i,
-		s.beginPath(),
-		s.moveTo(4 * i, 11 * i),
-		s.bezierCurveTo(4 * i, 11 * i, 34.5 * i, 28 * i, 56 * i, 11 * i),
-		s.bezierCurveTo(77 * i, -5 * i, 109 * i, 11 * i, 109 * i, 11 * i),
-		s.lineTo(110 * i, 87 * i),
-		s.bezierCurveTo(110 * i, 87 * i, 75 * i, 74.5 * i, 57.5 * i, 87 * i),
-		s.bezierCurveTo(41 * i, 99 * i, 4 * i, 89.5 * i, 4 * i, 89.5 * i),
-		s.closePath(),
-		s.fill(),
-		s.stroke(),
-		s.beginPath(),
-		s.lineWidth = 10 * i,
-		s.moveTo(5 * i, 11 * i),
-		s.lineTo(5 * i, 181 * i),
-		s.stroke(),
-		s.restore()
-	}
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -51,8 +20,43 @@ export default class extends Powerup {
 		this.scene.message.show('Checkpoint Saved', 50, this.color, '#FFFFFF'),
 		this.scene.sound.play('checkpoint_sound')))
 	}
-	static cache = Object.assign(this.createCache(), {
+	draw(t, e, i, s) {
+		s.save(),
+		this.hit && (s.globalAlpha = .3),
+		super.draw(t, e, i, s),
+		s.restore()
+	}
+	drawPowerup(t, e) {
+		e *= this.constructor.cache.scale,
+		t.beginPath(),
+		t.moveTo(4 * e, 11 * e),
+		t.bezierCurveTo(4 * e, 11 * e, 34.5 * e, 28 * e, 56 * e, 11 * e),
+		t.bezierCurveTo(77 * e, -5 * e, 109 * e, 11 * e, 109 * e, 11 * e),
+		t.lineTo(110 * e, 87 * e),
+		t.bezierCurveTo(110 * e, 87 * e, 75 * e, 74.5 * e, 57.5 * e, 87 * e),
+		t.bezierCurveTo(41 * e, 99 * e, 4 * e, 89.5 * e, 4 * e, 89.5 * e),
+		t.closePath(),
+		t.fill(),
+		t.stroke(),
+		t.beginPath(),
+		t.moveTo(5 * e, 11 * e),
+		t.lineTo(5 * e, 181 * e);
+		let i = t.lineWidth;
+		t.lineWidth = 10 * e,
+		t.stroke(),
+		t.lineWidth = i
+	}
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.fillStyle = this.color,
+		t.strokeStyle = i,
+		t.lineWidth = 8 * e * this.constructor.cache.scale
+	}
+	static cache = this.createCache({
 		width: 18,
-		height: 28
+		height: 28,
+		scale: .15
 	})
 }

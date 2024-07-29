@@ -21,9 +21,7 @@ export default class extends EventEmitter {
 		this.bindToMouseEvents();
 	}
 	initAnalytics() {
-		this.analytics = {
-			clicks: 0
-		}
+		this.analytics = { clicks: 0 }
 	}
 	getTouchObject() {
 		return {
@@ -113,9 +111,7 @@ export default class extends EventEmitter {
 		if (this.scene.toolHandler.options.grid) {
 			let p = this.scene.settings.toolHandler.gridSize | 0;
 			if (lite.storage.get("isometricGrid")) {
-				function c(t, e) {
-					return ((t % e) + e) % e
-				}
+				const c = (t, e) => ((t % e) + e) % e;
 				let g = p / 2
 				  , adjusted = Math.round(i.x / p)
 				  , k = c(adjusted, 2);

@@ -80,6 +80,16 @@ for (const item in defaults) {
 			chrome.storage.proxy.local.settings.set(item, event.target.value | 0)
 		}, { passive: true });
 		break;
+	case 'filterDuplicatePowerups':
+		element.addEventListener('input', event => {
+			if (event.target.checked && !confirm("Are you sure you want to enable this feature? It may cause some of your ghosts to break!")) {
+				event.preventDefault();
+				event.target.checked = false;
+				return;
+			}
+			chrome.storage.proxy.local.settings.set(event.target.id, event.target.checked)
+		});
+		break;
 	case 'keymap':
 		let action = document.querySelector('#keybind-action');
 		action && action.addEventListener('change', event => {
@@ -103,7 +113,7 @@ for (const item in defaults) {
 			}, { passive: true });
 		break;
 	default:
-		element && element.type === 'checkbox' && element.addEventListener('input', ({ target }) => {
+		element && element.type === 'checkbox' && element.addEventListener('change', ({ target }) => {
 			chrome.storage.proxy.local.settings.set(target.id, target.checked)
 		}, { passive: true })
 	}
@@ -176,6 +186,10 @@ function restoreSettings(data) {
 		case 'theme':
 			(element = document.getElementById(data[item])) && (element.checked = true);
 			break;
+		case 'developerMode':
+			for (let dropdown of document.querySelectorAll('[data-type="experiments"]')) {
+				dropdown.style[(data[item] ? 'remove' : 'set') + 'Property']('display', 'none');
+			}
 		default:
 			element && element.type === 'checkbox' && (element.checked = data[item])
 		}

@@ -10,7 +10,8 @@ export default class {
 		for (let i of this.sounds.values()) {
 			i.muted = this.muted;
 			if (i.paused && !e.state.paused) {
-				i.play();
+				i.play()
+				.then(() => window.hasOwnProperty('lite') && lite._updateMediaSessionPosition());
 			} else if (!i.paused && e.state.paused) {
 				i.pause();
 			}
@@ -35,6 +36,12 @@ export default class {
 			let o = this.scene.assets.getItem(t)
 			  , i = o && new Audio(o.src);
 			i && (this.sounds.set(t, i),
+			'mediaSession' in navigator && (i.addEventListener('play', () => {
+				navigator.mediaSession.playbackState = 'playing'
+			}, { passive: true }),
+			i.addEventListener('pause', () => {
+				navigator.mediaSession.playbackState = 'paused'
+			}, { passive: true })),
 			i.addEventListener('ended', () => {
 				this.sounds.delete(t)
 			}, { passive: true }))

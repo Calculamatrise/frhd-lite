@@ -1,14 +1,14 @@
 import Cartesian from "../../math/cartesian.js";
 import PowerupTool from "./poweruptool.js";
-import n from "../../sector/powerups/gravity.js";
+import GravityPowerup from "../../sector/powerups/gravity.js";
 
-export default class extends PowerupTool {
-	name = "gravity";
+export default class Gravity extends PowerupTool {
+	name = 'gravity';
 	p2 = null;
 	constructor(t) {
-		super(t);
-		this.p2 = new Cartesian(0, 0);
-		this.powerup = new n(0, 0, 0, t.scene.track);
+		super(t),
+		this.p2 = new Cartesian(0, 0),
+		this.powerup = new GravityPowerup(0, 0, 0, t.scene.track)
 	}
 	press() {
 		let t = this.mouse.touch
@@ -27,7 +27,7 @@ export default class extends PowerupTool {
 	}
 	release() {
 		let t = this.scene.track
-		  , e = new n(this.p1.x,this.p1.y,this.powerup.angle - 180,t);
+		  , e = new this.powerup.constructor(this.p1.x,this.p1.y,this.powerup.angle - 180,t);
 		t.addPowerup(e),
 		this.active = !1,
 		this.toolhandler.addActionToTimeline({
@@ -37,10 +37,9 @@ export default class extends PowerupTool {
 	}
 	draw(t) {
 		var e = this.mouse.touch
-		, i = (e.pos,
-		this.camera.zoom)
-		, s = this.scene.screen
-		, n = this.scene.settings.device;
+		  , i = this.camera.zoom
+		  , s = this.scene.screen
+		  , n = this.scene.settings.device;
 		if (this.active === !0) {
 			var a = s.realToScreen(this.p1.x, "x")
 			, h = s.realToScreen(this.p1.y, "y")

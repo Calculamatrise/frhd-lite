@@ -1,7 +1,10 @@
-export default class {
+import EventEmitter from "../EventEmitter.js";
+
+export default class extends EventEmitter {
 	tickDownButtons = {};
 	previousTickDownButtons = {};
 	downButtons = {};
+	inactiveDownButtons = new Set();
 	paused = !1;
 	keymap = {};
 	records = {};
@@ -13,20 +16,22 @@ export default class {
 	tickNumberOfKeysDown = 0;
 	replaying = !1;
 	constructor(t) {
-		Object.defineProperty(this, 'scene', { value: t, writable: true })
+		super(),
+		Object.defineProperty(this, 'scene', { value: t, writable: true }),
+		Object.defineProperty(this, 'inactiveDownButtons', { enumerable: false })
 	}
 	listen() {
-		document.onkeydown = this.handleButtonDown.bind(this);
-		document.onkeyup = this.handleButtonUp.bind(this);
-		window.onblur = this.handleBlur.bind(this);
-		window.onfocus = this.handleFocus.bind(this);
+		document.onkeydown = this.handleButtonDown.bind(this),
+		document.onkeyup = this.handleButtonUp.bind(this),
+		window.onblur = this.handleBlur.bind(this),
+		window.onfocus = this.handleFocus.bind(this)
 	}
 	unlisten() {
-		this.downButtons = {};
-		document.onkeydown = null;
-		document.onkeyup = null;
-		window.onblur = null;
-		window.onfocus = null;
+		this.downButtons = {},
+		document.onkeydown = null,
+		document.onkeyup = null,
+		window.onblur = null,
+		window.onfocus = null
 	}
 	pause() {
 		this.paused = !0
@@ -35,13 +40,13 @@ export default class {
 		this.paused = !1
 	}
 	recordKeys(t) {
-		this.keysToRecord = t;
-		this.recording = !0;
+		this.keysToRecord = t,
+		this.recording = !0
 	}
 	loadPlayback(t, e) {
-		this.keysToPlay = e;
-		this.playback = t;
-		this.replaying = !0;
+		this.keysToPlay = e,
+		this.playback = t,
+		this.replaying = !0
 	}
 	setKeyMap(t) {
 		let e = {};
@@ -84,12 +89,18 @@ export default class {
 		this.blurred = false;
 		this.downButtons[t] && (this.onButtonUp && this.onButtonUp(t),
 		this.downButtons[t] = !1,
+		this.inactiveDownButtons.delete(t),
+		this.inactiveDownButtons.delete(t == 'left' ? 'right' : t == 'right' ? 'left' : null),
+		this.emit('buttonUp', t),
 		this.numberOfKeysDown--)
 	}
 	setButtonDown(t, e) {
 		this.blurred = false;
 		this.downButtons[t] || (this.onButtonDown && this.onButtonDown(t),
 		this.downButtons[t] = e ? e : !0,
+		e = t == 'left' ? 'right' : t == 'right' ? 'left' : null,
+		e && this.downButtons[e] && this.inactiveDownButtons.add(e),
+		this.emit('buttonDown', t),
 		this.numberOfKeysDown++)
 	}
 	isButtonDown(t) {
@@ -121,7 +132,7 @@ export default class {
 	update() {
 		this.replaying && this.updatePlayback()
 		!this.blurred && (this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
-		this.tickDownButtons = Object.assign({}, this.downButtons));
+		this.tickDownButtons = window.hasOwnProperty('lite') && lite.storage.get('inputRollover') && this.recording ? Object.fromEntries(Object.entries(this.downButtons).map(([key, value]) => [key, value && this.inactiveDownButtons.has(key) ? false : value])) : Object.assign({}, this.downButtons));
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
 		this.recording && this.updateRecording()
 	}
@@ -186,7 +197,7 @@ export default class {
 		return s
 	}
 	getReplayString() {
-		window.hasOwnProperty('lite') && Object.assign(this.records, lite._appendRecords());
+		window.hasOwnProperty('lite') && lite.storage.get('showCustomizations') && Object.assign(this.records, lite._appendRecords());
 		return JSON.stringify(this.records)
 	}
 	encodeReplayString(t) {
@@ -206,8 +217,6 @@ export default class {
 	}
 	close() {
 		this.unlisten(),
-		this.handleButtonUp = null,
-		this.handleButtonDown = null,
 		this.onButtonDown = null,
 		this.onButtonUp = null,
 		this.scene = null,

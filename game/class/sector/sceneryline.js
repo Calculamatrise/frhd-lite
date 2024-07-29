@@ -1,4 +1,4 @@
-import Vector from "../math/cartesian.js";
+import Cartesian from "../math/cartesian.js";
 
 export default class {
 	sectors = [];
@@ -10,24 +10,22 @@ export default class {
 	highlight = !1;
 	recorded = !1;
 	remove = !1;
-	type = 'scenery';
 	constructor(t, e, i, n) {
 		Object.defineProperties(this, {
 			recorded: { enumerable: false },
 			remove: { enumerable: false },
 			sectors: { enumerable: false }
 		});
-		this.p1 = new Vector(t, e);
-		this.p2 = new Vector(i, n);
+		this.p1 = new Cartesian(t, e);
+		this.p2 = new Cartesian(i, n);
 		this.pp = this.p2.sub(this.p1);
-		this.len = this.pp.len();
+		this.len = this.pp.len()
 	}
 	move(t, e) {
-		this.p1.x += parseInt(t) | 0;
-		this.p1.y += parseInt(e) | 0;
-		this.p2.x += parseInt(t) | 0;
-		this.p2.y += parseInt(e) | 0;
-		return this;
+		this.p1.x += parseInt(t) | 0,
+		this.p1.y += parseInt(e) | 0,
+		this.p2.x += parseInt(t) | 0,
+		this.p2.y += parseInt(e) | 0
 	}
 	getCode(t) {
 		this.recorded = !0;
@@ -42,7 +40,7 @@ export default class {
 		  , s = t.sectors.drawSectors
 		  , n = Math.floor(e.x / i)
 		  , o = Math.floor(e.y / i);
-		return s[n][o].searchForLine(this.type + "Lines", e)
+		return s[n][o].searchForLine(this.constructor.type + "Lines", e)
 	}
 	erase(t, e) {
 		let i = !1;
@@ -85,4 +83,6 @@ export default class {
 			t.dirty = !0;
 		this.sectors = []
 	}
+
+	static type = 'scenery';
 }

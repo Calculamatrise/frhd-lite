@@ -13,37 +13,40 @@ export default class extends Powerup {
 		i.isGhost() === !1 && (this.scene.sound.play('slowmo_sound'),
 		this.scene.message.show('Slow Motion', 50, this.color, '#000000')))
 	}
-	drawPowerup(t, e, i, s) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
-		i *= .24,
-		s.save(),
-		s.scale(i, i),
-		s.beginPath(),
-		s.strokeStyle = n,
-		s.lineWidth = 3,
-		s.arc(50, 50, 50 - s.lineWidth / 2, 0, 2 * Math.PI),
-		s.stroke(),
-		s.beginPath(),
-		s.arc(50, 50, 42.5 - s.lineWidth / 2, 0, 2 * Math.PI),
-		s.stroke(),
-		s.beginPath(),
-		s.lineWidth = 5,
-		s.moveTo(70, 50),
-		s.lineTo(50, 50),
-		s.lineTo(30, 20),
-		s.moveTo(92.5, 50),
-		s.lineTo(82.5, 50),
-		s.moveTo(50, 7.5),
-		s.lineTo(50, 17.5),
-		s.moveTo(50, 92.5),
-		s.lineTo(50, 82.5),
-		s.moveTo(7.5, 50),
-		s.lineTo(17.5, 50),
-		s.stroke(),
-		s.restore()
+	drawPowerup(t, e) {
+		e *= .24,
+		t.scale(e, e),
+		t.beginPath(),
+		t.arc(50, 50, 50 - t.lineWidth / 2, 0, 2 * Math.PI),
+		t.stroke(),
+		t.beginPath(),
+		t.arc(50, 50, 42.5 - t.lineWidth / 2, 0, 2 * Math.PI),
+		t.stroke(),
+		t.beginPath(),
+		t.moveTo(70, 50),
+		t.lineTo(50, 50),
+		t.lineTo(30, 20),
+		t.moveTo(92.5, 50),
+		t.lineTo(82.5, 50),
+		t.moveTo(50, 7.5),
+		t.lineTo(50, 17.5),
+		t.moveTo(50, 92.5),
+		t.lineTo(50, 82.5),
+		t.moveTo(7.5, 50),
+		t.lineTo(17.5, 50);
+		let i = t.lineWidth;
+		t.lineWidth = 5,
+		t.stroke(),
+		t.lineWidth = i
 	}
-	static cache = Object.assign(this.createCache(), {
+	updateCache(t, e) {
+		super.updateCache(t, e);
+		let i = this.outline;
+		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		t.strokeStyle = i,
+		t.lineWidth = 3
+	}
+	static cache = this.createCache({
 		width: 26,
 		height: 24
 	})

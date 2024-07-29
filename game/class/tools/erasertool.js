@@ -1,8 +1,8 @@
 import i from "../math/cartesian.js";
 import Tool from "./tool.js";
 
-export default class extends Tool {
-	name = "Eraser";
+export default class Eraser extends Tool {
+	name = 'eraser';
 	options = null;
 	constructor(t) {
 		super(t);
@@ -42,6 +42,7 @@ export default class extends Tool {
 		c.length > 0 && this.erasedObjects.push(c)
 	}
 	draw(e) {
+		super.draw(e),
 		this.drawEraser(e)
 	}
 	drawEraser(t) {

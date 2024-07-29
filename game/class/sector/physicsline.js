@@ -1,7 +1,6 @@
 import SceneryLine from "./sceneryline.js";
 
 export default class extends SceneryLine {
-	type = 'physics';
 	collide(t) {
 		if (this.collided) return;
 		this.collided = !0;
@@ -45,4 +44,6 @@ export default class extends SceneryLine {
 			}
 		}
 	}
+
+	static type = 'physics';
 }
