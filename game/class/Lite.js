@@ -2,16 +2,15 @@ import ContextMenu from "./ContextMenu.js";
 
 window.lite = new class {
 	#customStyleSheet = null;
-	currentTrackData = null;
 	debug = false;
 	dialogs = new Map();
 	nativeEvents = new Map();
-	playlists = new Map()
+	playlists = new Map();
 	snapshots = new class extends Array {
 		push(...args) {
 			if (this.length >= parseInt(lite.storage.get('snapshots')))
 				this.splice(0, this.length - parseInt(lite.storage.get('snapshots')));
-			return super.push(...args);
+			return super.push(...args)
 		}
 	}
 	storage = new Map();
@@ -55,6 +54,7 @@ window.lite = new class {
 			return returnValue
 		}
 	});
+	trackData = null;
 	constructor() {
 		let searchParams = new URLSearchParams(location.search);
 		if (searchParams.has('ajax')) return;
@@ -81,7 +81,7 @@ window.lite = new class {
 				this._updateFromSettings(changes);
 			}
 		}, { passive: true });
-		Object.defineProperty(this, 'currentTrackData', { enumerable: false });
+		Object.defineProperty(this, 'trackData', { enumerable: false });
 		Object.defineProperty(this, 'dialogs', { enumerable: false });
 		Object.defineProperty(this, 'nativeEvents', { enumerable: false })
 	}
@@ -105,10 +105,13 @@ window.lite = new class {
 	}
 
 	_childLoad() {
-		this.attachContextMenu();
+		// if pathname === /create discard all track related variables (this.replayGui)
+		navigator.onLine && this._uploadOfflineRaces(),
+		this.attachContextMenu(),
 		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
 		this.storage.get('accountManager') && this.initAccountManager();
 		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
+		location.pathname.match(/\/r\/.+$/i) && this._updateChallengeLeaderboard(GameSettings.raceData),
 		this.cacheTrackData(),
 		this.storage.get('achievementMonitor') && this.initAchievementsDisplay(),
 		this.initBestDate(),
@@ -118,8 +121,7 @@ window.lite = new class {
 		location.search.includes('c_id=') && this.initJumpToComment(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
-		this.initGhostPlayer(),
-		this.storage.get('uploadGhosts') && this.initUploadGhosts());
+		this.initGhostPlayer());
 		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('playlists') && this.initPlayLater(),
 		this.initUserTrackAnalytics()) : this.initFriendsLastPlayed(),
 		Application.settings.user.moderator && (this.initUserModeration(),
@@ -128,7 +130,7 @@ window.lite = new class {
 	}
 
 	_load(game) {
-		this.replayGui && game.currentScene.races.length > 0 && (this.replayGui.progress.max = game.currentScene.races[0].race.run_ticks),
+		this.replayGui && game.currentScene.races && game.currentScene.races.length > 0 && (this.replayGui.progress.max = game.currentScene.races[0].race.run_ticks),
 		game.on('baseVehicleCreate', baseVehicle => this._updateBaseVehicle(baseVehicle)),
 		game.on('cameraFocus', playerFocus => {
 			this.replayGui && (this.replayGui.style.setProperty('display', this.scene.camera.focusIndex !== 0 ? 'block' : 'none'),
@@ -138,49 +140,75 @@ window.lite = new class {
 		game.on('replayTick', ticks => this.replayGui && (this.replayGui.progress.value = ticks)),
 		game.on('trackChallengeUpdate', races => {
 			this.replayGui && races.length > 0 && this.replayGui.show();
-			let challengeLeaderboard = this.fetchChallengeLeaderboard({ createIfNotExists: true });
-			challengeLeaderboard.replaceChildren(...races.map((data, index) => {
-				let row = this.constructor.fetchRaceRow(data, { parent: challengeLeaderboard, placement: 1 + index });
-				let num = row.querySelector('.num');
-				num.innerText = (1 + index) + '.';
-				let actionRow = row.querySelector('.track-leaderboard-action');
-				actionRow.querySelector('span.btn.new-button.button-type-1') || actionRow.appendChild(this.constructor.createElement('span.btn.new-button.button-type-1', {
-					innerText: 'X',
-					title: 'Remove Race',
-					style: {
-						aspectRatio: 1,
-						backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)',
-						fontSize: '12px',
-						height: '24px',
-						lineHeight: '2em',
-						marginRight: '6px',
-						textAlign: 'center'
-					},
-					onclick() {
-						let row = this.closest('.track-leaderboard-race-row');
-						lite.scene.removeRaces([row.dataset.u_id]);
-					}
-				}));
-				return row
-			}));
-			challengeLeaderboard.children.length < 1 && challengeLeaderboard.closest('.track-leaderboard').style.setProperty('display', 'none');
+			this._updateChallengeLeaderboard(races);
 			let tasRaces = races.filter(({ race }) => race.code.tas);
-			tasRaces.length > 0 && this.updateTASLeaderboard(tasRaces);
+			tasRaces.length > 0 && this.updateTASLeaderboard(tasRaces)
 		}),
 		game.on('trackRaceCreate', data => {
-			GameSettings.raceData ||= [];
+			GameSettings.raceData ||= [],
 			GameSettings.raceData.push(data),
-			GameSettings.raceUids.push(data.user.u_id)
-		});
+			GameSettings.raceUids.push(data.user.u_id),
+			this._updateRaceURL(GameSettings.raceData)
+		}),
 		game.on('trackRaceDelete', data => {
 			GameSettings.raceData && (GameSettings.raceData.splice(GameSettings.raceData.indexOf(data), 1),
+			this._updateRaceURL(GameSettings.raceData),
 			GameSettings.raceData.length < 1 && (GameSettings.raceData = !1)),
 			GameSettings.raceUids.splice(GameSettings.raceUids.indexOf(data.user.u_id), 1)
-		});
+		}),
+		game.on('trackRaceUpload', () => this._updateChallengeLeaderboard(GameManager.game.currentScene.races)),
+		game.on('trackRaceUploadError', error => {
+			const OFFLINE_RACES_KEY = this.constructor.keyify('offline.races');
+			let offlineRaces = this.constructor.getStorageEntry(OFFLINE_RACES_KEY);
+			offlineRaces instanceof Array || (offlineRaces = []);
+			let existingEntry = offlineRaces.find(({ postData: t }) => t.t_id === error.data.postData.t_id);
+			existingEntry && existingEntry.postData.run_ticks >= error.data.postData.run_ticks ? offlineRaces.splice(offlineRaces.indexOf(existingEntry), 1, error.data) : offlineRaces.push(error.data);
+			this.constructor.setStorageEntry(OFFLINE_RACES_KEY, offlineRaces.reduce((t, e) => -1 !== t.findIndex(i => i.postData.t_id === e.postData.t_id) ? t : t.concat(e), [])),
+			alert('Your connection is offline! Free Rider Lite saved your ghost, and it will be published when your connection is back online!'),
+			!this._connectionEvent && (Object.defineProperty(this, '_connectionEvent', {
+				value: () => {
+					if (!navigator.onLine) return;
+					this._uploadOfflineRaces(),
+					navigator.connection.removeEventListener('change', this._connectionEvent),
+					this._connectionEvent = null
+				},
+				writable: true
+			}),
+			navigator.connection.addEventListener('change', this._connectionEvent))
+		}),
 		this.snapshots.splice(0, this.snapshots.length),
 		this._updateFromSettings(this.storage);
 		for (let player of game.currentScene.playerManager._players.filter(t => t._baseVehicle))
 			this._updateBaseVehicle(player._baseVehicle)
+	}
+
+	_updateChallengeLeaderboard(races) {
+		let challengeLeaderboard = this.fetchChallengeLeaderboard({ createIfNotExists: true });
+		challengeLeaderboard.replaceChildren(...races.map((data, index) => {
+			let row = this.constructor.fetchRaceRow(data, { parent: challengeLeaderboard, placement: 1 + index });
+			let num = row.querySelector('.num');
+			num.innerText = (1 + index) + '.';
+			let actionRow = row.querySelector('.track-leaderboard-action');
+			actionRow.querySelector('span.btn.new-button.button-type-1') || actionRow.appendChild(this.constructor.createElement('span.btn.new-button.button-type-1', {
+				innerText: 'X',
+				title: 'Remove Race',
+				style: {
+					aspectRatio: 1,
+					backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)',
+					fontSize: '12px',
+					height: '24px',
+					lineHeight: '2em',
+					marginRight: '6px',
+					textAlign: 'center'
+				},
+				onclick() {
+					let row = this.closest('.track-leaderboard-race-row');
+					lite.scene.removeRaces([row.dataset.u_id]);
+				}
+			}));
+			return row
+		}));
+		challengeLeaderboard.children.length < 1 && challengeLeaderboard.closest('.track-leaderboard').style.setProperty('display', 'none')
 	}
 
 	_updateCustomStyleSheet(data) {
@@ -193,7 +221,32 @@ window.lite = new class {
 				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
 			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}'; // JSON.stringify().replace(/(?<="),/, ';')
 		}
-		this.#customStyleSheet.textContent = textContent;
+		this.#customStyleSheet.textContent = textContent
+	}
+
+	_uploadOfflineRaces() {
+		if (!navigator.onLine) return;
+		let offlineRaces = this.constructor.getStorageEntry('offline.races');
+		if (!offlineRaces || offlineRaces.length < 1) return;
+		for (let data of offlineRaces) {
+			if (!confirm('Would you like to upload a race you made while offline on ' + data.postData.t_id + '?')) continue;
+			if (this.trackData && this.trackData.id === data.postData.t_id) {
+				this.scene.state.showDialog = !1,
+				setTimeout(() => {
+					this.scene.state.dialogOptions = data,
+					this.scene.command('dialog', 'track_complete')
+				}, 1e3 / this.scene.game.ups);
+			} else
+				Application.Helpers.AjaxHelper.post('track_api/track_run_complete', data.postData, { track: !1 });
+		}
+		offlineRaces.delete()
+	}
+
+	_updateRaceURL(raceData) {
+		if (!raceData) return;
+		let parsedTrackURL = location.pathname.replace(/\/r(\/[^\/]*)+\/?$/i, '');
+		let raceURL = raceData.filter(t => t.user.u_id != Application.settings.user.u_id).map(t => t.user.u_name).join('/');
+		history.replaceState(null, null, location.pathname.replace(/(\/r(\/[^\/]*)+\/?)?$/i, raceURL.length > 0 ? '/r/' + raceURL : '') + location.search)
 	}
 
 	_getColorScheme(theme) {
@@ -202,7 +255,7 @@ window.lite = new class {
 				value: matchMedia('(prefers-color-scheme: dark)'),
 				writable: true
 			});
-			this._csPreference.onchange = event => console.warn('e', event) || this._updateFromSettings(new Map([['theme', event.target.matches ? 'dark' : 'light']]));
+			this._csPreference.onchange = event => this._updateFromSettings(new Map([['theme', event.target.matches ? 'dark' : 'light']]));
 			theme = this._csPreference.matches ? 'dark' : 'light';
 		} else if (this._csPreference) {
 			this._csPreference = null;
@@ -237,6 +290,9 @@ window.lite = new class {
 				this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
 					filter: 'brightness(' + value / 100 + ')'
 				}));
+				break;
+			case 'disableAnalytics':
+				GameSettings.analyticsEnabled = !value;
 				break;
 			case 'keymap':
 				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
@@ -313,11 +369,11 @@ window.lite = new class {
 	_updateMediaSessionMetadata() {
 		if ('mediaSession' in navigator) {
 			navigator.mediaSession.metadata = new MediaMetadata({
-				title: this.currentTrackData.title,
-				artist: this.currentTrackData.author.d_name,
+				title: this.trackData.title,
+				artist: this.trackData.author.d_name,
 				album: '',
 				artwork: [{
-					src: this.currentTrackData.img,
+					src: this.trackData.img,
 					sizes: "250x150",
 					type: "image/png",
 				}]
@@ -344,13 +400,13 @@ window.lite = new class {
 				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) + 5)
 			});
 			navigator.mediaSession.setActionHandler('nexttrack', () => {
-				Application.router.do_route("t/" + (this.currentTrackData.id + 1), {
+				Application.router.do_route("t/" + (this.trackData.id + 1), {
 					trigger: !0,
 					replace: !1
 				})
 			});
 			navigator.mediaSession.setActionHandler('previoustrack', () => {
-				Application.router.do_route("t/" + (this.currentTrackData.id - 1), {
+				Application.router.do_route("t/" + (this.trackData.id - 1), {
 					trigger: !0,
 					replace: !1
 				})
@@ -372,7 +428,39 @@ window.lite = new class {
 		if (!this._oncontextmenu) {
 			Object.defineProperty(this, '_oncontextmenu', {
 				value: async event => {
-					this.currentTrackData === null && this.cacheTrackData();
+					let currentUser = event.target.closest('.left-nav-profile-top');
+					if (null !== currentUser) {
+						event.preventDefault();
+						const options = await this.buildUserContextMenu(Application.settings.user);
+						options.splice(3, 0, {
+							name: 'Switch Accounts',
+							styles: ['disabled'],
+							// type: 'sub-menu', // dropdown
+							// options: [/* ...accounts */ {
+							// 	name: 'Add Account'
+							// }],
+							onclick: () => this.accountManager && this.accountManager.showModal()
+						}, {
+							name: 'Logout',
+							styles: ['danger'],
+							onclick: () => Application.User.logout()
+						});
+						ContextMenu.create(options, event);
+						return;
+					}
+
+					// let gameContiner = event.target.closest('#game-container');
+					// if (null !== gameContiner) {
+					// 	event.preventDefault();
+					// 	const options = [{
+					// 		name: 'Input Display',
+					// 		type: 'checkbox'
+					// 	}];
+					// 	ContextMenu.create(options, event);
+					// 	return;
+					// }
+
+					this.trackData === null && this.cacheTrackData();
 					// track-list-tile
 					let race = event.target.closest('.track-leaderboard-race-row');
 					if (null !== race) {
@@ -382,23 +470,24 @@ window.lite = new class {
 							return;
 						}
 
+						const reports = this.constructor.fetchReports('\'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'race' });
 						const options = [{
 							name: 'Race',
 							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.currentTrackData.t_id,
+								t_id: this.trackData.t_id,
 								u_ids: race.dataset.u_id
 							}).then(r => r.result && this.scene.addRaces(r.data))
 						}, {
 							name: 'Copy Race Data', // 'Request Race Data',
 							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.currentTrackData.t_id,
+								t_id: this.trackData.t_id,
 								u_ids: race.dataset.u_id
 							}).then(r => r.result && navigator.clipboard.writeText(JSON.stringify(r.data, '\t', 4)).catch(err => alert(err.message)))
 						}, {
 							name: race.dataset.legitimacy || 'Test Legitimacy',
 							styles: race.dataset.legitimacy && ['disabled'],
 							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.currentTrackData.t_id,
+								t_id: this.trackData.t_id,
 								u_ids: race.dataset.u_id
 							}).then(({ data, result: r }) => {
 								if (!r) return alert('Race not found.');
@@ -407,16 +496,19 @@ window.lite = new class {
 								race.dataset.legitimacy = isTas ? 'Illegitimate (TAS)' : 'Legit';
 								isTas && this.updateTASLeaderboard([entry]);
 							})
-						}, Application.settings.user.u_id == race.dataset.u_id ? {
+						}, this.constructor.isUserModerator(Application.settings.user) || (Application.settings.user.u_id == race.dataset.u_id ? {
 							name: 'Request Deletion',
-							styles: ['danger', 'disabled']
+							styles: ['danger', race.dataset.requested && 'disabled'],
+							click: () => this.constructor.report('Race \'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'request' }).then(() => {
+								race.dataset.requested = true
+							})
 						} : {
 							name: 'Report',
-							styles: ['danger', race.dataset.reported && 'disabled'],
+							styles: ['danger', (race.dataset.reported || reports.length > 0) && 'disabled'],
 							click: () => this.constructor.report('Race \'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'race' }).then(() => {
 								race.dataset.reported = true
 							})
-						}];
+						})];
 						if (Application.settings.user.u_id != race.dataset.u_id) {
 							const raceData = GameManager.game.currentScene.races.find(({ user: u }) => u.u_id == race.dataset.u_id);
 							if (raceData) {
@@ -441,20 +533,20 @@ window.lite = new class {
 							click: () => this.constructor.fetchRaceBestDate().then(date => race.setAttribute('title', date))
 						}, {
 							name: 'Download',
-							click: () => this.constructor.downloadRace(this.currentTrackData.t_id, race.dataset.u_id)
+							click: () => this.constructor.downloadRace(this.trackData.t_id, race.dataset.u_id)
 						});
 						if (Application.settings.user.moderator) {
 							let targetUser = await this.constructor.fetchUser(race.dataset.d_name);
 							options.splice(options.length - 1, 0, {
 								name: 'Feature',
-								click: () =>  navigator.clipboard.writeText('"frhd.co/t/' + this.currentTrackData.t_id + '/r/' + race.dataset.d_name.toLowerCase() + '": ""').then(() => {
+								click: () =>  navigator.clipboard.writeText('"frhd.co/t/' + this.trackData.t_id + '/r/' + race.dataset.d_name.toLowerCase() + '": ""').then(() => {
 									window.open('https://github.com/Calculamatrise/frhd-featured-ghosts/edit/master/data.json', 'blank')
 								})
 							}, {
 								name: 'Delete',
 								styles: ['danger'],
 								click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
-									t_id: this.currentTrackData.t_id,
+									t_id: this.trackData.t_id,
 									u_id: race.dataset.u_id
 								}).then(r => r.result && (race.remove(),
 								Application.router.current_view.refresh_leaderboard())).fail(err => alert('Something went wrong! ' + err.message))
@@ -462,7 +554,7 @@ window.lite = new class {
 								name: 'Delete & Ban', // only show if mod
 								styles: ['danger', targetUser.user.banned && 'disabled'],
 								click: () => Application.Helpers.AjaxHelper.post('moderator/remove_race', {
-									t_id: this.currentTrackData.t_id,
+									t_id: this.trackData.t_id,
 									u_id: race.dataset.u_id
 								}).then(r => r.result && (race.remove(),
 								Application.router.current_view.refresh_leaderboard(),
@@ -485,16 +577,20 @@ window.lite = new class {
 						const options = [{
 							name: 'Race All',
 							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.currentTrackData.t_id,
+								t_id: this.trackData.t_id,
 								u_ids: Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => row.dataset.u_id).join(',')
 							}).then(r => r.result && this.scene.addRaces(r.data))
+						}, { type: 'hr' }, this.constructor.isUserModerator(Application.settings.user) || {
+							name: 'Report',
+							styles: ['danger'], // check session storage and disable button
+							click: () => this.constructor.report('Leaderboard', {}, { type: 'leaderboard' })
 						}];
-						Application.settings.user.moderator && options.splice(options.length, 0, {
+						Application.settings.user.moderator && options.splice(options.length - 2, 0, {
 							name: 'Delete All',
 							styles: ['danger', 'disabled'],
 							click: () => confirm('Are you sure you want to delete ALL races on this leaderboard? This cannot be undone.') && Promise.all(Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => {
 								return Application.Helpers.AjaxHelper.post('moderator/remove_race', {
-									t_id: this.currentTrackData.t_id,
+									t_id: this.trackData.t_id,
 									u_id: row.dataset.u_id
 								})
 							}))
@@ -530,8 +626,8 @@ window.lite = new class {
 						}, Application.settings.user.d_name == comment.dataset.d_name ? {
 							name: 'Delete',
 							styles: ['danger'],
-							click: () => Application.router.current_view._delete_comment(this.currentTrackData.t_id, comment.dataset.c_id, r => r.result && comment.remove())
-						} : {
+							click: () => Application.router.current_view._delete_comment(this.trackData.t_id, comment.dataset.c_id, r => r.result && comment.remove())
+						} : this.constructor.isUserModerator(Application.settings.user) || {
 							name: 'Report',
 							styles: ['danger', confirmFlag || 'disabled'],
 							click: () => confirmFlag.click()
@@ -555,9 +651,9 @@ window.lite = new class {
 					if (null !== track) {
 						event.preventDefault();
 						if (event.target.closest('.track-about-author-img, a.bold')) {
-							const options = await this.buildUserContextMenu(this.currentTrackData.author);
+							const options = await this.buildUserContextMenu(this.trackData.author);
 							let subscribe = document.querySelector('#subscribe_to_author');
-							Application.settings.user.u_id != this.currentTrackData.author_id && options.splice(3, 0, {
+							Application.settings.user.u_id != this.trackData.author_id && options.splice(3, 0, {
 								name: subscribe.innerText,
 								styles: /^un/i.test(subscribe.innerText) && ['danger'],
 								click: () => subscribe.click()
@@ -579,41 +675,41 @@ window.lite = new class {
 							click: () => this.constructor.fetchTrackLastPlayedDate().then(date => track.dataset.last_played_date = date)
 						}];
 						let playlist = this.fetchAndCachePlaylists('playlater');
-						let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+						let savedToPlaylater = playlist && playlist.has(this.trackData.t_id);
 						let showPlaylistButton = savedToPlaylater || this.storage.get('playlists');
 						if (showPlaylistButton) {
 						// if (this.storage.get('playlists')) {
 							// let playlist = this.fetchAndCachePlaylists('playlater');
-							// let savedToPlaylater = playlist && playlist.has(this.currentTrackData.t_id);
+							// let savedToPlaylater = playlist && playlist.has(this.trackData.t_id);
 							// let showPlaylistButton = savedToPlaylater || this.storage.get('playlists');
 							showPlaylistButton && options.splice(2, 0, {
 								name: (savedToPlaylater ? 'Remove from' : 'Add to') + ' Playlist',
 								styles: [savedToPlaylater && 'danger', savedToPlaylater && !this.storage.get('playlists') && 'disabled'],
-								click: () => Application.Helpers.AjaxHelper.get('t/' + this.currentTrackData.t_id).then(({ track, user_track_stats }) => {
+								click: () => Application.Helpers.AjaxHelper.get('t/' + this.trackData.t_id).then(({ track, user_track_stats }) => {
 									const playlist = this.fetchAndCachePlaylists('playlater');
-									playlist[savedToPlaylater ? 'delete' : 'set'](this.currentTrackData.t_id, {
+									playlist[savedToPlaylater ? 'delete' : 'set'](this.trackData.t_id, {
 										author: track.author,
 										averageTime: user_track_stats.avg_time,
 										featured: track.featured,
-										id: this.currentTrackData.t_id,
+										id: this.trackData.t_id,
 										img: track.img,
 										slug: track.slug,
 										title: track.title
 									});
-									playlist.size > 0 ? localStorage.setItem('frhd-lite.playlists.playlater', JSON.stringify(Array.from(playlist.values()))) : localStorage.removeItem('frhd-lite.playlists.playlater');
+									playlist.size > 0 ? this.constructor.setStorageEntry('playlists.playlater', Array.from(playlist.values())) : this.constructor.removeStorageEntry('playlists.playlater')
 								})
 							});
 						}
-						Application.settings.user.u_id == this.currentTrackData.author_id ? (options.push({
+						Application.settings.user.u_id == this.trackData.author_id ? (options.push({
 							name: 'Download',
-							click: () => this.constructor.downloadTrack(this.currentTrackData.t_id)
-						}, {
+							click: () => this.constructor.downloadTrack(this.trackData.t_id)
+						}, this.constructor.isUserModerator(Application.settings.user) || {
 							name: 'Request Deletion',
 							styles: ['danger', 'disabled']
 						}, { type: 'hr' }, {
 							name: 'Download All',
 							click: () => this.constructor.downloadAllTracks(Application.settings.user.u_name)
-						})) : options.push({
+						})) : this.constructor.isUserModerator(Application.settings.user) || options.push({
 							name: 'Report',
 							styles: ['danger', confirmFlag || 'disabled'],
 							click: () => (confirmFlag.click(),
@@ -626,41 +722,41 @@ window.lite = new class {
 						}, {
 							name: (GameSettings.track.featured ? 'Unf' : 'F') + 'eature',
 							styles: GameSettings.track.featured && ['danger'],
-							click: () => Application.Helpers.AjaxHelper.post('track_api/feature_track/' + this.currentTrackData.t_id + '/' + (1 - GameSettings.track.featured)).then(r => {
-								r.result && (this.currentTrackData.featured = !this.currentTrackData.featured,
-								GameSettings.track.featured = this.currentTrackData.featured)
+							click: () => Application.Helpers.AjaxHelper.post('track_api/feature_track/' + this.trackData.t_id + '/' + (1 - GameSettings.track.featured)).then(r => {
+								r.result && (this.trackData.featured = !this.trackData.featured,
+								GameSettings.track.featured = this.trackData.featured)
 							})
 						}, {
-							name: (this.currentTrackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
+							name: (this.trackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
 							styles: ['danger'],
-							click: () => Application.Helpers.AjaxHelper.get('moderator/hide_track/' + this.currentTrackData.t_id).then(r => {
-								r.result && (this.currentTrackData.hide = 1 - this.currentTrackData.hide,
-								GameSettings.track.hide = this.currentTrackData.hide)
+							click: () => Application.Helpers.AjaxHelper.get('moderator/hide_track/' + this.trackData.t_id).then(r => {
+								r.result && (this.trackData.hide = 1 - this.trackData.hide,
+								GameSettings.track.hide = this.trackData.hide)
 							})
 						});
 						Application.settings.user.admin && options.push({ type: 'hr' }, {
 							name: 'Remove Track of the Day',
 							styles: ['danger'],
 							click: () => Application.Helpers.AjaxHelper.post('admin/removeTrackOfTheDay', {
-								t_id: this.currentTrackData.t_id
+								t_id: this.trackData.t_id
 							})
 						}, {
-							name: (this.currentTrackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
+							name: (this.trackData.hide ? 'Unh' : 'H') + 'ide', // unhide if hidden
 							styles: ['danger'],
-							click: () => Application.Helpers.AjaxHelper.post('admin/' + (this.currentTrackData.hide ? 'un' : '') + 'hide_track', { track_id: this.currentTrackData.t_id }).then(r => {
-								r.result && (this.currentTrackData.hide = 1 - this.currentTrackData.hide,
-								GameSettings.track.hide = this.currentTrackData.hide)
+							click: () => Application.Helpers.AjaxHelper.post('admin/' + (this.trackData.hide ? 'un' : '') + 'hide_track', { track_id: this.trackData.t_id }).then(r => {
+								r.result && (this.trackData.hide = 1 - this.trackData.hide,
+								GameSettings.track.hide = this.trackData.hide)
 							})
 						}, {
 							name: 'Set Uploading Ban',
 							styles: ['danger'],
 							click: () => Application.Helpers.AjaxHelper.post('admin/user_ban_uploading', {
-								uploading_ban_uname: this.currentTrackData.author.u_name
+								uploading_ban_uname: this.trackData.author.u_name
 							})
 						});
 						this.storage.get('developerMode') && options.push({ type: 'hr' }, {
 							name: 'Copy Track Id',
-							click: () => navigator.clipboard.writeText(this.currentTrackData.t_id)
+							click: () => navigator.clipboard.writeText(this.trackData.t_id)
 						});
 						ContextMenu.create(options, event);
 						return;
@@ -716,20 +812,26 @@ window.lite = new class {
 			click: () => Application.router.do_route('u/' + (data.u_name || data.d_name.toLowerCase()))
 		}, {
 			name: 'Copy Username',
-			click: () => navigator.clipboard.writeText(comment.dataset.d_name)
+			click: () => navigator.clipboard.writeText(data.d_name)
 		}];
 		if (!isCurrentUser) {
 			let currentUser = await this.constructor.fetchCurrentUser();
 			let isFriend = currentUser.friends.friends_data.find(this.constructor.compareUsers.bind(this, data));
 			let request = currentUser.friend_requests.request_data.find(this.constructor.compareUsers.bind(this, data));
+			const reports = this.constructor.fetchReports('@{data-d_name} ({data-u_id})', data, { type: 'user' });
+			const cachedReports = this.constructor.getStorageEntry('reports.users');
+			const reported = cachedReports && cachedReports.includes(data.u_id);
 			options.splice(2, 0, {
-				name: (isFriend ? 'Remove' : 'Add') + ' Friend', // accept, deny, remove, send/add
+				name: (isFriend ? 'Remove' : 'Add') + ' Friend',
 				styles: [isFriend && 'danger', !isFriend && currentUser.friends.friend_cnt >= 30 && 'disabled'],
 				click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), { u_name: data.d_name })
-			}, {
+			}, this.constructor.isUserModerator(Application.settings.user) || {
 				name: 'Report',
-				styles: ['danger'], // check session storage and disable button
-				click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' })
+				styles: ['danger', (reported || reports.length > 0) && 'disabled'], // check session storage and disable button
+				// if more than one ghost is reported, report the leaderboard instead and disable all ghost reports on track
+				click: () => this.constructor.report('User @{data-d_name} ({data-u_id})', data, { type: 'user' }).then(() => {
+					this.constructor.updateStorageEntry('reports.users', [data.u_id])
+				})
 			});
 			request && options.splice(3, 0, {
 				name: 'Accept Friend Request',
@@ -745,6 +847,11 @@ window.lite = new class {
 					u_id: data.u_id,
 					action: 'decline'
 				})
+			});
+		} else {
+			options.splice(2, 0, {
+				name: 'Edit Profile',
+				click: () => Application.router.do_route('account/settings')
 			});
 		}
 		if (Application.settings.user.moderator) {
@@ -778,7 +885,7 @@ window.lite = new class {
 			options.push({ type: 'hr' }, {
 				name: 'Change Email',
 				click: () => (email => email && Application.Helpers.AjaxHelper.post('admin/change_user_email', {
-					username: username,
+					username,
 					email
 				}))(prompt('Enter the new email address:'))
 			}, {
@@ -832,11 +939,11 @@ window.lite = new class {
 	cacheTrackData() {
 		let trackData = document.querySelector('#track-data');
 		let combined = Object.assign({}, trackData && trackData.dataset, window.hasOwnProperty('GameSettings') && GameSettings.track);
-		this.currentTrackData = Object.keys(combined).length > 0 ? Object.assign(combined, {
+		this.trackData = Object.keys(combined).length > 0 ? Object.assign(combined, {
 			author: {
 				d_name: combined.author,
 				u_id: parseInt(combined.author_id || combined.u_id),
-				u_name: combined.u_url || combined.author.toLowerCase()
+				u_name: combined.u_url || combined.author?.toLowerCase()
 			}
 		}) : null
 	}
@@ -868,7 +975,7 @@ window.lite = new class {
 			let globalLeaderboard = document.querySelector('#track_leaderboard');
 			if (!globalLeaderboard) return;
 			leaderboard = globalLeaderboard.cloneNode(true);
-			leaderboard.setAttribute('id', 'frhd-lite.tas-leaderboard');
+			leaderboard.setAttribute('id', this.constructor.keyify('tas-leaderboard'));
 			let title = leaderboard.querySelector('h3:first-child');
 			title.setAttribute('title', 'Tool-assisted speedruns');
 			title.innerText = 'TAS BEST TIMES';
@@ -883,10 +990,10 @@ window.lite = new class {
 		typeof name == 'string' && !this.playlists.has(name) && this.playlists.set(name, new Map());
 		for (let key of this.playlists.keys()) {
 			if (typeof name == 'string' && key !== name) continue;
-			const entries = localStorage.getItem('frhd-lite.playlists.' + key);
+			const entries = this.constructor.getStorageEntry('playlists.' + key);
 			if (null === entries) continue;
 			const playlist = this.playlists.get(key);
-			for (const entry of JSON.parse(entries)) {
+			for (const entry of entries) {
 				playlist.set(String(parseInt(entry.id)), entry);
 			}
 		}
@@ -1006,7 +1113,7 @@ window.lite = new class {
 							onclick: () => this.accountManager.close()
 						}),
 						this.constructor.createElement("div.accounts-container", {
-							children: (JSON.parse(localStorage.getItem("frhd-lite.account-manager")) ?? []).map(account => this.constructor.createAccountContainer(account)),
+							children: (this.constructor.getStorageEntry('account-manager') ?? []).map(account => this.constructor.createAccountContainer(account)),
 							style: {
 								display: 'flex',
 								flexDirection: 'column',
@@ -1051,17 +1158,17 @@ window.lite = new class {
 													password: document.querySelector("#save-account-password")?.value
 												}).done(res => {
 													if (!res.result) return;
-													let accounts = JSON.parse(localStorage.getItem("frhd-lite.account-manager")) || [];
+													let accounts = this.constructor.getStorageEntry('account-manager') || [];
 													if (accounts.find(({ login }) => login === res.data.user.d_name)) return;
 													accounts.push({
 														login: res.data.user.d_name,
 														password: document.querySelector("#save-account-password")?.value
-													});
-													this.accountManager.querySelector(".accounts-container").append(lite.constructor.createAccountContainer(accounts[accounts.length - 1]));
-													localStorage.setItem("frhd-lite.account-manager", JSON.stringify(accounts));
-													submit.innerText = "Add account";
-													submit.classList.replace('button-type-3', 'button-type-2');
-													event.target.parentElement.remove();
+													}),
+													this.accountManager.querySelector(".accounts-container").append(lite.constructor.createAccountContainer(accounts[accounts.length - 1])),
+													this.constructor.setStorageEntry('account-manager', accounts),
+													submit.classList.replace('button-type-3', 'button-type-2'),
+													submit.innerText = "Add account",
+													event.target.parentElement.remove()
 												})
 											}
 										})
@@ -1211,43 +1318,43 @@ window.lite = new class {
 	}
 
 	initDownloadGhosts() {
-		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
-		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' });
-		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' });
+		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent(),
+		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' }),
+		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' }),
+		this.styleSheet.set('#frhd-lite\\.download-race', {
+			aspectRatio: 1,
+			fontSize: '15px',
+			height: '22px',
+			lineHeight: '1.5em',
+			marginRight: '8px',
+			textAlign: 'center'
+		}),
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action:not(:has(> #frhd-lite\\.download-race))')) {
+				// let download = actionRow.querySelector('.track-leaderboard-race');
+				// download.removeAttribute('class'),
+				// download.setAttribute('id', 'frhd-lite.download-race'),
+				// download.classList.add('btn', 'new-button', 'button-type-1'),
+				// download.innerText = '⭳';
 				let download = this.constructor.createElement('span.btn.new-button.button-type-1#frhd-lite\\.download-race', {
 					innerText: '⭳',
-					title: 'Download Race',
-					style: {
-						aspectRatio: 1,
-						fontSize: '15px',
-						height: '22px',
-						lineHeight: '1.5em',
-						marginRight: '8px',
-						textAlign: 'center'
-					}
+					title: 'Download Race'
 				});
 				download.addEventListener('click', () => this.constructor.downloadRace(GameSettings.track.id, download.parentElement.parentElement.dataset.u_id), { passive: true });
-				actionRow.style.setProperty('width', '20%');
-				actionRow.prepend(download);
+				actionRow.style.setProperty('width', '20%'),
+				actionRow.prepend(download),
 				actionRow.textContent.length > 0 && actionRow.replaceChildren(...actionRow.children)
 			}
 		})
 	}
 
 	initDownloadTracks() {
-		let subscribeToAuthor = document.querySelector('.subscribe-to-author');
+		let subscribeToAuthor = document.querySelector('.subscribe-to-author-button');
 		let downloadTrack = document.querySelector('#frhd-lite\\.download-track');
 		if (!downloadTrack) {
-			downloadTrack = subscribeToAuthor.cloneNode(true);
-			let subscriberCount = downloadTrack.querySelector('#subscribe_to_author_count');
-			subscriberCount && subscriberCount.remove();
-			let download = downloadTrack.querySelector('#subscribe_to_author');
-			download.setAttribute('id', 'frhd-lite.download-track'); // check if it exists first
-			download.innerText = 'Download';
-			download.addEventListener('click', () => this.constructor.downloadTrack(GameSettings.track.id), { passive: true });
-			subscribeToAuthor.after(downloadTrack);
+			subscribeToAuthor.addEventListener('click', () => this.constructor.downloadTrack(GameSettings.track.id), { passive: true }),
+			subscribeToAuthor.setAttribute('id', 'frhd-lite.download-track'),
+			subscribeToAuthor.innerText = 'Download'
 		}
 	}
 
@@ -1558,134 +1665,6 @@ window.lite = new class {
 		}
 	}
 
-	initUploadGhosts() {
-		this.dialogs.has('ghostUpload') || this.dialogs.set('ghostUpload', document.body.appendChild(this.constructor.createElement('dialog.editorDialog-content.editorDialog-content_importDialog.frhd-lite\\.dialog', {
-			children: [
-				this.constructor.createElement('div.editorDialog-titleBar', {
-					children: [
-						this.constructor.createElement('span.editorDialog-close', {
-							innerText: '×',
-							onclick: event => event.target.closest('dialog').close('cancel')
-						}),
-						this.constructor.createElement('h1.editorDialog-content-title', {
-							innerText: 'UPLOAD GHOST'
-						})
-					]
-				}),
-				this.constructor.createElement('div.importDialog-codeContainer', {
-					children: [
-						this.constructor.createElement('span.importDialog-placeholder', {
-							children: [
-								this.constructor.createElement('span', {
-									innerText: 'Paste ghost data, drag and drop text files here, or '
-								}),
-								this.constructor.createElement('span.link', {
-									innerText: 'select a file',
-									onclick: () => {
-										this.ghostUploadPicker.click();
-									}
-								}),
-								this.constructor.createElement('span', {
-									innerText: ' to import'
-								}),
-								this.ghostUploadPicker ||= this.constructor.createElement('input', {
-									accept: 'application/json',
-									type: 'file',
-									style: { display: 'none' },
-									oninput: async event => {
-										let [file] = event.target.files;
-										let race = JSON.parse(await file.text());
-										if (race.t_id !== GameSettings.track.id) {
-											return;
-										} else if (race.u_id !== Application.settings.user.u_id) {
-											return;
-										}
-
-										delete race['t_id'];
-										delete race['u_id'];
-										Application.Helpers.AjaxHelper.post("/track_api/track_run_complete", {
-											t_id: GameSettings.track.id,
-											u_id: Application.User.attributes.u_id,
-											code: race.code,
-											vehicle: race.vehicle,
-											run_ticks: race.run_ticks,
-											fps: 25,
-											time: (ticks => {
-												let t = ticks / 30 * 1e3;
-												t = parseInt(t, 10);
-												let e = Math.floor(t / 6e4)
-												, i = (t - 6e4 * e) / 1e3;
-												return i = i.toFixed(2),
-													10 > e && (e = e),
-													10 > i && (i = "0" + i),
-													e + ":" + i
-											})(race.run_ticks),
-											sig: await (async message => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message)))).map(b => b.toString(16).padStart(2, '0')).join(''))(`${GameSettings.track.id}|${Application.User.attributes.u_id}|${race.code}|${+race.run_ticks}|${race.vehicle}|25|erxrHHcksIHHksktt8933XhwlstTekz`)
-										}).done(function(response) {
-											if (response.result) {
-												Application.router.current_view.refresh_leaderboard();
-												Application.router.current_view.highlightLeaderboad();
-												setTimeout(refreshlb, 1000);
-											}
-										});
-									}
-								})
-							]
-						}),
-						this.constructor.createElement('textarea.importDialog-code', {
-							autocomplete: false,
-							spellcheck: false
-						})
-					]
-				}),
-				this.constructor.createElement('form.editorDialog-bottomBar.clearfix', {
-					children: [
-						this.constructor.createElement('button.primary-button.primary-button-blue.float-right.margin-0-5', {
-							innerText: 'Upload',
-							value: 'default'
-						}),
-						this.constructor.createElement('button.primary-button.primary-button-black.float-right.margin-0-5', {
-							innerText: 'Cancel',
-							value: 'cancel'
-						})
-					],
-					method: 'dialog'
-				})
-			],
-			style: {
-				margin: 'revert',
-				padding: 0,
-				position: 'revert',
-				top: 'revert'
-			},
-			onclose: event => {
-				switch(event.target.returnValue) {
-				case 'cancel':
-					return;
-				case 'default':
-					// upload ghost
-				}
-			}
-		})));
-		this.constructor.waitForElm('#friends-leaderboard-challenge').then(challenge => {
-			const dialog = this.dialogs.get('ghostUpload');
-			if (!dialog.button) {
-				// Switch to link button beside flag track
-				dialog.button = challenge.cloneNode(true);
-				dialog.button.classList.add('button-type-1');
-				dialog.button.classList.remove('button-type-2');
-				dialog.button.style.setProperty('margin-top', 0);
-				dialog.button.removeAttribute('id');
-				dialog.button.innerText = 'Upload Ghost';
-				dialog.button.addEventListener('click', () => {
-					dialog.showModal();
-				}, { passive: true })
-			}
-
-			challenge.after(dialog.button);
-		})
-	}
-
 	initUserModeration() {
 		let profileUserData = document.querySelector('#profile-user-data');
 		if (!profileUserData) return;
@@ -1969,10 +1948,10 @@ window.lite = new class {
 						aspectRatio: 1,
 						marginRight: 0
 					},
-					onclick() {
-						let accounts = JSON.parse(localStorage.getItem("frhd-lite.account-manager")) ?? [];
-						accounts.splice(accounts.indexOf(accounts.find((account) => account.login === login)), 1);
-						localStorage.setItem("frhd-lite.account-manager", JSON.stringify(accounts));
+					onclick: () => {
+						let accounts = this.getStorageEntry('account-manager') ?? [];
+						accounts.length > 0 && (accounts.splice(accounts.indexOf(accounts.find((account) => account.login === login)), 1),
+						this.setStorageEntry('account-manager', accounts)),
 						container.remove()
 					}
 				})
@@ -2172,7 +2151,7 @@ window.lite = new class {
 	}
 
 	static async fetchCurrentUser({ force } = {}) {
-		const KEY = 'frhd-lite.current_user';
+		const KEY = this.keyify('current_user');
 		let cache = sessionStorage.getItem(KEY);
 		if (cache && !force) {
 			return JSON.parse(cache);
@@ -2184,7 +2163,7 @@ window.lite = new class {
 	}
 
 	static async fetchCurrentUserCosmetics({ force } = {}) {
-		const KEY = 'frhd-lite.current_user.cosmetics';
+		const KEY = this.keyify('current_user.cosmetics');
 		let cache = sessionStorage.getItem(KEY);
 		if (cache && !force) {
 			return JSON.parse(cache);
@@ -2214,7 +2193,7 @@ window.lite = new class {
 	}
 
 	static async fetchFeaturedGhosts({ force } = {}) {
-		const KEY = 'frhd-lite.featured_ghosts';
+		const KEY = this.keyify('featured_ghosts');
 		let cache = sessionStorage.getItem(KEY);
 		if (cache && !force) {
 			return JSON.parse(cache);
@@ -2226,7 +2205,7 @@ window.lite = new class {
 	}
 
 	static async fetchRaceBestDate({ force } = {}) {
-		const KEY = 'frhd-lite.race_best_dates';
+		const KEY = this.keyify('race_best_dates');
 		let cache = JSON.parse(sessionStorage.getItem(KEY)) || {}
 		  , t = GameSettings.track.id;
 		if (!force && cache[t]) {
@@ -2238,7 +2217,7 @@ window.lite = new class {
 	}
 
 	static async fetchTrackLastPlayedDate({ force } = {}) {
-		const KEY = 'frhd-lite.track_last_played_dates';
+		const KEY = this.keyify('track_last_played_dates');
 		let cache = JSON.parse(sessionStorage.getItem(KEY)) || {}
 		  , t = GameSettings.track.id;
 		if (!force && cache[t]) {
@@ -2252,60 +2231,117 @@ window.lite = new class {
 	static fetchRaceRow(data, { parent, placement }) {
 		const racerProfile = 'https://' + location.host + '/u/' + data.user.d_name.toLowerCase();
 		const racerAvatar = racerProfile + '/pic?sz=50';
-		return parent.querySelector('tr.track-leaderboard-race-' + data.user.u_id) || this.createElement('tr', {
-			className: 'track-leaderboard-race-' + data.user.u_id + ' track-leaderboard-race-row',
-			dataset: {
-				u_id: data.user.u_id,
-				d_name: data.user.d_name,
-				run_time: data.runTime,
-				type: 'tas'
-			},
-			children: [
-				this.createElement('td.num', { innerText: placement + '.' }),
-				this.createElement('td.name', {
-					children: [
-						this.createElement('a.profile-icon', {
-							href: racerProfile,
-							title: 'View Profile',
-							children: [
-								this.createElement('div.circular', {
-									style: {
-										background: 'url(' + racerAvatar + ') no-repeat center center',
-										backgroundSize: '100%'
-									},
-									children: [
-										this.createElement('img', {
-											src: racerAvatar,
-											width: 35,
-											height: 35,
-											alt: data.user.d_name
-										})
-									]
-								})
-							]
-						}),
-						this.createElement('span.track-leaderboard-race', {
-							innerText: data.user.d_name,
-							title: 'Race ' + data.user.d_name
-						})
-					]
-				}),
-				document.createElement('td'),
-				this.createElement('td', {
-					innerText: data.runTime,
-					style: { textAlign: 'left' }
-				}),
-				this.createElement('td.track-leaderboard-action', {
-					style: { width: '20%' }
-				})
-			]
-		})
+		let row = parent.querySelector('tr.track-leaderboard-race-' + data.user.u_id);
+		if (row === null) {
+			row = this.createElement('tr', {
+				className: 'track-leaderboard-race-' + data.user.u_id + ' track-leaderboard-race-row',
+				dataset: {
+					u_id: data.user.u_id,
+					d_name: data.user.d_name,
+					run_time: data.runTime,
+					// type: 'tas'
+				},
+				children: [
+					this.createElement('td.num', { innerText: placement + '.' }),
+					this.createElement('td.name', {
+						children: [
+							this.createElement('a.profile-icon', {
+								href: racerProfile,
+								title: 'View Profile',
+								children: [
+									this.createElement('div.circular', {
+										style: {
+											background: 'url(' + racerAvatar + ') no-repeat center center',
+											backgroundSize: '100%'
+										},
+										children: [
+											this.createElement('img', {
+												src: racerAvatar,
+												width: 35,
+												height: 35,
+												alt: data.user.d_name
+											})
+										]
+									})
+								]
+							}),
+							this.createElement('span.track-leaderboard-race', {
+								innerText: data.user.d_name,
+								title: 'Race ' + data.user.d_name
+							})
+						]
+					}),
+					document.createElement('td'),
+					this.createElement('td', {
+						innerText: data.runTime,
+						style: { textAlign: 'left' }
+					}),
+					this.createElement('td.track-leaderboard-action', {
+						style: { width: '20%' }
+					})
+				]
+			})
+		}
+		row.dataset.d_name = data.user.d_name,
+		data.runTime && (row.dataset.run_time = data.runTime);
+		let time = row.querySelector('td:nth-child(4)');
+		time !== null && data.runTime && (time.innerText = data.runTime);
+		return row
 	}
 
 	static formatRaceTime(t) {
 		t = parseInt(t, 10);
 		let e = t % 6e4 / 1e3;
 		return Math.floor(t / 6e4) + ":" + e.toFixed(2).padStart(5, 0)
+	}
+
+	static isUserModerator(data) {
+		data.hasOwnProperty('user') && (data = data.user);
+		return data.moderator || data.admin
+	}
+
+	static _attachShortcuts(key, target) {
+		return Object.defineProperties(target, {
+			delete: {
+				value: () => localStorage.removeItem(this.keyify(key)),
+				writable: true
+			},
+			set: {
+				value: value => this.setStorageEntry(key, value),
+				writable: true
+			},
+			update: {
+				value: value => this.setStorageEntry(key, value),
+				writable: true
+			}
+		})
+	}
+
+	static deleteStorageEntry(key) {
+		return localStorage.removeItem(this.keyify(key))
+	}
+
+	static getStorageEntry(key, value) {
+		let entry = localStorage.getItem(this.keyify(key));
+		if (!entry && value) {
+			return this.setStorageEntry(key, value)
+		}
+		return entry !== null && /^[\[{]]|[}\]]$/g.test(entry) ? this._attachShortcuts(this.keyify(key), JSON.parse(entry)) : entry
+	}
+
+	static setStorageEntry(key, value) {
+		return localStorage.setItem(this.keyify(key), typeof value == 'object' ? JSON.stringify(value) : value),
+		typeof value == 'object' ? this._attachShortcuts(this.keyify(key), structuredClone(value)) : value
+	}
+
+	static updateStorageEntry(key, value) {
+		let entry = this.getStorageEntry(key) || new value.constructor;
+		entry instanceof Array ? entry.push(...value) : Object.assign(entry, value); // recurse?
+		return this.setStorageEntry(key, value)
+	}
+
+	static keyify(key) {
+		return key.replace(/^(?:frhd-lite\.)?(.+)/i, 'frhd-lite.$1')
 	}
 
 	static report(message, data = {}, { type } = {}) {
@@ -2321,6 +2357,21 @@ window.lite = new class {
 			t_id: data.t_id,
 			msg: message.replace(/{data-(\w+)}/g, (_, key) => data[key]) + ' was reported with frhd-lite. (@Calculus/@Totoca12)'
 		})
+	}
+
+	static reportRegex(message, data, { type } = {}) {
+		const hrefify = a => "<a\\shref=\"" + location.origin + "\\/u\\/" + a.toLowerCase() + "\">" + a + "<\/a>";
+		message = message.replace(/{data-(\w+)}/g, (_, key) => data[key]).replace(/([\(\)])/g, '\\$1').replace(/@([\w\._-]+)/, (_, t) => hrefify(t));
+		return new RegExp((message ? "^" + type.replace(/^\w/, c => c.toUpperCase()) + "\\s" + message : '') + " was reported with frhd-lite. \\(" + hrefify('Calculus') + "\\/" + hrefify('Totoca12') + "\\)$", 'i')
+	}
+
+	static fetchReports(...args) {
+		args.length < 1 && (args.splice(0, 1, '.+'),
+		args.splice(1, 1, { d_name: '\\w+', u_id: '\\d+' }),
+		args.splice(2, 1, type = '\\w+'));
+		const comments = Array.from(document.querySelectorAll('.track-comment-msg'));
+		const reportRegex = this.reportRegex(...args);
+		return comments.filter(t => t.innerHTML.match(reportRegex))
 	}
 
 	static verifyRaceData(data) {

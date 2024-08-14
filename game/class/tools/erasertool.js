@@ -2,13 +2,13 @@ import i from "../math/cartesian.js";
 import Tool from "./tool.js";
 
 export default class Eraser extends Tool {
+	erasedObjects = [];
+	eraserPoint = new i;
 	name = 'eraser';
 	options = null;
 	constructor(t) {
-		super(t);
-		this.options = t.scene.settings.eraser;
-		this.eraserPoint = new i;
-		this.erasedObjects = [];
+		super(t),
+		this.options = t.scene.settings.eraser
 	}
 	reset() {
 		this.recordActionsToToolhandler()

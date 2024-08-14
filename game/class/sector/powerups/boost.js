@@ -1,17 +1,12 @@
-import Powerup from "../powerup.js";
+import DirectionalPowerup from "./directional.js";
 
-export default class extends Powerup {
-	angle = null;
+export default class extends DirectionalPowerup {
 	color = '#8ac832';
 	name = 'boost';
 	prefix = 'B';
-	realAngle = 0;
-	directionX = 0;
-	directionY = 0;
 	constructor(t, e, i, s) {
-		super(t, e, s),
-		this.angle = i,
-		this.realAngle = i;
+		super(t, e, i, s),
+		this.angle = i;
 		let n = (i - 180) / 360 * 2 * Math.PI;
 		this.directionX = (-Math.sin(n)).toFixed(15) / 1,
 		this.directionY = Math.cos(n).toFixed(15) / 1
@@ -37,19 +32,6 @@ export default class extends Powerup {
 			this.scene.message.show('Boost Engaged', 50, this.color))
 		}
 	}
-	draw(t, e, i, s) {
-		this.constructor.cache.dirty && this.recache(i);
-		let n = this.constructor.cache.width * i
-		  , o = this.constructor.cache.height * i
-		  , a = n / 2
-		  , h = o / 2
-		  , u = (this.angle - 90) * (Math.PI / 180);
-		s.translate(t, e),
-		s.rotate(u),
-		s.drawImage(this.constructor.cache.canvas, -a, -h, n, o),
-		s.rotate(-u),
-		s.translate(-t, -e)
-	}
 	drawPowerup(t, e) {
 		e *= this.constructor.cache.scale,
 		t.beginPath(),
@@ -70,9 +52,6 @@ export default class extends Powerup {
 		t.fill(),
 		t.stroke()
 	}
-	getCode() {
-		return (super.getCode() + ' ' + this.realAngle.toString(32) + ',').repeat(this.multiplier).slice(0, -1)
-	}
 	updateCache(t, e) {
 		super.updateCache(t, e);
 		let i = this.outline;
@@ -81,6 +60,7 @@ export default class extends Powerup {
 		t.strokeStyle = i,
 		t.lineWidth = Math.max(8 * e * this.constructor.cache.scale, 1)
 	}
+	static angleOffset = -90;
 	static cache = this.createCache({
 		width: 25,
 		height: 16,

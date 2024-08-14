@@ -60,7 +60,7 @@ export default class extends EventEmitter {
 	}
 	handleButtonDown(t) {
 		let e = this.getInternalCode(t.keyCode);
-		"string" == typeof e && t.preventDefault(),
+		"string" == typeof e && !t.ctrlKey && t.preventDefault(),
 		this.setButtonDown(e)
 	}
 	handleButtonUp(t) {

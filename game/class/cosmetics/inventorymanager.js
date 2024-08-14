@@ -3,7 +3,7 @@ class InventoryManager {
 	inventory = {};
 	loaded = new Set();
 	constructor() {
-		Object.defineProperty(this, 'cache', { enumerable: false });
+		Object.defineProperty(this, 'cache', { enumerable: false })
 	}
 	getItem(t) {
 		let e = t.classname
@@ -15,7 +15,7 @@ class InventoryManager {
 		this.loaded.has(i) || (this.loaded.add(i),
 		GameManager.loadFile(i)));
 		let h = this.generateID(a, e, o);
-		return this.cache[h] ||= new this.inventory[e](o);
+		return this.cache[h] ||= new this.inventory[e](o)
 	}
 	redraw() {
 		let n = this.cache

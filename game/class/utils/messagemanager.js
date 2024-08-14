@@ -3,7 +3,7 @@ export default class {
 	message = false;
 	timeout = false;
 	constructor(t) {
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t, writable: true })
 	}
 	draw(a) {
 		let t = this.message

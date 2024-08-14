@@ -24,14 +24,17 @@ export default class {
 		this.gamepad = t.playerManager.firstPlayer.getGamepad();
 		this.options = t.settings.toolHandler;
 		this.snapPoint = new i;
-		this.snapPoint.equ(this.scene.track.defaultLine.p2);
-		this.initAnalytics(); // add setting to disable analytics
-		this.actionTimeline = [];
-		this.actionTimelineMax = 50;
-		this.actionTimelinePointer = 0;
+		this.snapPoint.equ(this.scene.track.defaultLine.p2),
+		t.settings.analyticsEnabled !== false && this.initAnalytics(),
+		this.actionTimeline = [],
+		this.actionTimelineMax = 50,
+		this.actionTimelinePointer = 0
 	}
 	initAnalytics() {
-		this.analytics = { actions: 0 }
+		Object.defineProperty(this, 'analytics', {
+			value: { actions: 0 },
+			writable: true
+		})
 	}
 	enableGridUse() {
 		this.gridUseEnabled = !0
@@ -53,7 +56,7 @@ export default class {
 		this.previousTool = this.currentTool,
 		this.currentTool = t,
 		this.scene.updateState(),
-		this.analytics.actions++)
+		this.analytics && this.analytics.actions++)
 	}
 	addActionToTimeline(t) {
 		this.actionTimeline.length >= this.actionTimelineMax && (this.actionTimeline.splice(0, this.actionTimeline.length - this.actionTimelineMax),
@@ -306,6 +309,7 @@ export default class {
 		this.mouse = null,
 		this.scene = null,
 		this.camera = null,
+		this.options.grid = !1,
 		this.options = null,
 		this.gridCache = null
 	}

@@ -1,4 +1,4 @@
-import Scene from "./Scene.js";
+import BaseScene from "./BaseScene.js";
 import b from "../controls/pause.js";
 import T from "../controls/redoundo.js";
 import p from "../tools/brushtool.js";
@@ -9,7 +9,7 @@ import d from "../tools/selecttool.js";
 import u from "../tools/straightlinetool.js";
 import g from "../tools/vehiclepoweruptool.js";
 
-export default class extends Scene {
+export default class extends BaseScene {
 	clear = !1;
 	redoundoControls = null;
 	verified = !1;
@@ -22,7 +22,22 @@ export default class extends Scene {
 		this.state = this.setStateDefaults(),
 		this.oldState = this.setStateDefaults(),
 		this.restart(),
-		this.initializeAnalytics()
+		t.settings.analyticsEnabled !== false && this.initAnalytics(),
+		Object.defineProperty(this, '_pasteEvent', {
+			value:  ({ clipboardData }) => {
+				if (this.state.showDialog === 'import') return;
+				let e = clipboardData.getData('text');
+				this.state.dialogOptions = {},
+				this.state.dialogOptions.code = e,
+				this.openDialog('import');
+				window.hasOwnProperty('lite') && lite.constructor.waitForElm('.importDialog-code', 1e3 / this.game.ups).then(importDialog => {
+					importDialog.focus(),
+					importDialog.value = e
+				})
+			},
+			writable: true
+		}),
+		document.addEventListener('paste', this._pasteEvent, { passive: true })
 	}
 	createMainPlayer() {
 		let i = super.createMainPlayer();
@@ -44,11 +59,11 @@ export default class extends Scene {
 			width: 0
 		}
 	}
-	initializeAnalytics() {
-		this.analytics = {
-			deaths: 0,
+	initAnalytics() {
+		super.initAnalytics(),
+		Object.assign(this.analytics, {
 			mouseEvents: 0
-		},
+		}),
 		this.trackAction("editor-open", "open")
 	}
 	createControls() {
@@ -147,6 +162,7 @@ export default class extends Scene {
 		t
 	}
 	trackAction(t, e) {
+		if (this.game.settings.analyticsEnabled === false) return;
 		var i = this.toolHandler.analytics.actions
 		  , s = this.mouse.analytics.clicks
 		  , n = i + s
@@ -241,6 +257,8 @@ export default class extends Scene {
 	}
 	close() {
 		this.trackAction("editor-exit", "exit"),
+		document.removeEventListener('paste', this._pasteEvent),
+		this._pasteEvent = null,
 		super.close()
 	}
 }

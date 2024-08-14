@@ -9,7 +9,6 @@ export default class extends EventEmitter {
 	wheel = !1;
 	mousewheel = !1;
 	throttledMouseWheel = null;
-	analytics = null;
 	constructor(t) {
 		super();
 		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
@@ -17,11 +16,14 @@ export default class extends EventEmitter {
 		this.touch.old = this.getTouchObject();
 		this.secondaryTouch = this.getTouchObject();
 		this.secondaryTouch.old = this.getTouchObject();
-		this.initAnalytics();
-		this.bindToMouseEvents();
+		t.settings.analyticsEnabled !== false && this.initAnalytics();
+		this.bindToMouseEvents()
 	}
 	initAnalytics() {
-		this.analytics = { clicks: 0 }
+		Object.defineProperty(this, 'analytics', {
+			value: { clicks: 0 },
+			writable: true
+		})
 	}
 	getTouchObject() {
 		return {
@@ -64,7 +66,7 @@ export default class extends EventEmitter {
 	}
 	onMouseDown(t) {
 		this.scene.game.canvas.setPointerCapture(t.pointerId),
-		this.analytics.clicks++,
+		this.analytics && this.analytics.clicks++,
 		2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
 		this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
 		this.touch.down = !0,

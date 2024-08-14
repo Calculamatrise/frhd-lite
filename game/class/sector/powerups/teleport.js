@@ -1,9 +1,7 @@
-import Powerup from "../powerup.js";
+import Consumable from "./consumable.js";
 
-export default class extends Powerup {
+export default class extends Consumable {
 	color = '#dd45ec';
-	hit = !1;
-	id = crypto.randomUUID();
 	otherPortal = null;
 	name = 'teleport';
 	prefix = 'W';

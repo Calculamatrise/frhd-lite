@@ -1,45 +1,37 @@
-export default function (t, e, i) {
-	let h = t.x
-	  , l = t.y
-	  , c = e.x
-	  , u = e.y
-	  , p = i.x
-	  , d = i.y
-	  , points = []
-	  , v = .25
-	  , g = 10
-	  , m = 1e-30
-	  , y = 0
-	  , w = .01;
-	points.push(h, l),
-	a(h, l, c, u, p, d, 0),
-	points.push(p, d);
-	function a(t, e, i, o, h, l, c) {
-		if (c > g) return;
-		var u = (t + i) / 2
-		  , p = (e + o) / 2
-		  , d = (i + h) / 2
-		  , x = (o + l) / 2
-		  , _ = (u + d) / 2
-		  , b = (p + x) / 2
-		  , T = h - t
-		  , C = l - e
-		  , k = Math.abs((i - h) * C - (o - l) * T);
-		if (k > m) {
-			if (v * (T * T + C * C) >= k * k) {
-				if (w > y)
-					return void points.push(_, b);
-				let S = Math.abs(Math.atan2(l - o, h - i) - Math.atan2(o - e, i - t));
-				if (S >= Math.PI && (S = 2 * Math.PI - S),
-					y > S)
-					return void points.push(_, b)
+export default function (t, e, i, options) {
+	let points = [];
+	let length = (i.delta(e) + e.delta(t)) / 2;
+	let minDistance = 2;
+	let breakLength = Math.max(minDistance, options.breakLength * 100);
+	for (let s = 0; s < length; s += breakLength) {
+		let n = s / length;
+		let pointX = (1 - n) ** 2 * t.x + 2 * (1 - n) * n * parseFloat(e.x) + n ** 2 * parseFloat(i.x);
+		let pointY = (1 - n) ** 2 * t.y + 2 * (1 - n) * n * parseFloat(e.y) + n ** 2 * parseFloat(i.y);
+
+		// Calculate distance from the last point if it exists
+		if (points.length > 0) {
+			let lastPointX = points[points.length - 2];
+			let lastPointY = points[points.length - 1];
+			let distance = Math.sqrt((pointX - lastPointX) ** 2 + (pointY - lastPointY) ** 2);
+
+			// Only add the point if it's beyond minDistance
+			if (distance < minDistance) {
+				continue;
 			}
-		} else if (T = _ - (t + h) / 2,
-			C = b - (e + l) / 2,
-			v >= T * T + C * C)
-			return void points.push(_, b);
-		a(t, e, u, p, _, b, c + 1),
-		a(_, b, d, x, h, l, c + 1)
+		}
+
+		points.push(pointX, pointY);
 	}
-	return points;
+
+	// Ensure the start point is included
+	if (points[0] !== t.x || points[1] !== t.y) {
+		points.unshift(t.x, t.y);
+	}
+
+	// Ensure the end point is included
+	if (points[points.length - 2] !== i.x || points[points.length - 1] !== i.y) {
+		points.push(i.x, i.y);
+	}
+
+	return points
 }

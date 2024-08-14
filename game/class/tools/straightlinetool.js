@@ -2,18 +2,12 @@ import Cartesian from "../math/cartesian.js";
 import Tool from "./tool.js";
 
 export default class StraightLine extends Tool {
-	name = 'straightline';
-	p1 = null;
-	p2 = null;
 	active = !1;
-	constructor(t) {
-		super(t);
-		this.p1 = new Cartesian(0, 0);
-		this.p2 = new Cartesian(0, 0);
-		this.active = !1;
-		this.shouldDrawMetadata = !1;
-		this.options = {};
-	}
+	name = 'straightline';
+	options = {};
+	p1 = new Cartesian;
+	p2 = new Cartesian;
+	shouldDrawMetadata = !1;
 	reset() {
 		this.active = !1
 	}
@@ -44,7 +38,7 @@ export default class StraightLine extends Tool {
 		  , i = this.scene.track
 		  , s = this.toolhandler
 		  , n = !1;
-		n = "physics" === s.options.lineType ? i.addPhysicsLine(t.x, t.y, e.x, e.y) : i.addSceneryLine(t.x, t.y, e.x, e.y),
+		n = i['add' + ("physics" === s.options.lineType ? 'Physics' : 'Scenery') + 'Line'](t.x, t.y, e.x, e.y),
 		n && s.addActionToTimeline({
 			type: "add",
 			objects: [n]
@@ -61,7 +55,7 @@ export default class StraightLine extends Tool {
 		t.options.snap && (this.active = !0,
 		this.p1 = t.snapPoint,
 		this.hold()),
-		this.shouldDrawMetadata = e.isButtonDown("ctrl") ? !0 : !1
+		this.shouldDrawMetadata = e.isButtonDown("ctrl")
 	}
 	draw(e) {
 		super.draw(e);
@@ -91,21 +85,20 @@ export default class StraightLine extends Tool {
 			t.moveTo(i.x - a, i.y),
 			t.lineTo(i.x + a, i.y),
 			t.lineWidth = 1 * s,
-			t.closePath(),
 			t.stroke()
 		} else
+			t.arc(i.x, i.y, 1 * s, 0, 2 * Math.PI, !1),
 			t.lineWidth = 1,
 			t.fillStyle = o,
-			t.arc(i.x, i.y, 1 * s, 0, 2 * Math.PI, !1),
-			t.closePath(),
 			t.fill()
 	}
 	drawPoint(t, e, i) {
-		let s = e.toScreen(this.scene);
+		let s = e.toScreen(this.scene)
+		  , n = this.p2.delta(this.p1);
 		t.beginPath(),
 		t.arc(s.x, s.y, 1 * i, 0, 2 * Math.PI, !1),
 		t.lineWidth = 1,
-		t.fillStyle = "#1884cf",
+		t.fillStyle = n < 2 ? '#cc4444' : '#1884cf',
 		t.fill()
 	}
 	drawPointData(t, e) {
@@ -122,13 +115,14 @@ export default class StraightLine extends Tool {
 	}
 	drawLine(t, e) {
 		let n = this.toolhandler
-		  , r = n.options.lineType;
+		  , r = n.options.lineType
+		  , a = this.p1.toScreen(this.scene)
+		  , h = this.p2.toScreen(this.scene)
+		  , q = this.p2.delta(this.p1);
 		t.beginPath(),
-		t.lineWidth = Math.max(.5, 2 * e),
+		t.lineWidth = Math.max(0.5, 2 * e),
 		t.lineCap = 'round',
-		t.strokeStyle = '#'.padEnd(7, 'physics' === r ? /^midnight$/.test(lite.storage.get('theme')) ? 'C' : /^dark(er)?$/i.test(lite.storage.get('theme')) ? 'FD' : '0' : /^(darker|midnight)$/.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A');
-		let a = this.p1.toScreen(this.scene)
-		  , h = this.p2.toScreen(this.scene);
+		t.strokeStyle = q < 2 ? '#cc4444' : '#'.padEnd(7, 'physics' === r ? /^midnight$/i.test(lite.storage.get('theme')) ? 'C' : /^dark$/i.test(lite.storage.get('theme')) ? 'FB' : '0' : /^midnight$/i.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A'),
 		t.moveTo(a.x, a.y),
 		t.lineTo(h.x, h.y),
 		t.stroke()

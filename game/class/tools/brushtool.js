@@ -1,17 +1,9 @@
-import Cartesian from "../math/cartesian.js";
-import Tool from "./tool.js";
+import StraightLine from "./straightlinetool.js";
 
-export default class Brush extends Tool {
+export default class Brush extends StraightLine {
 	name = 'brush';
-	p1 = null;
-	p2 = null;
-	active = !1;
-	options = null;
 	constructor(t) {
 		super(t);
-		this.p1 = new Cartesian(0, 0);
-		this.p2 = new Cartesian(0, 0);
-		this.active = !1;
 		let e = t.scene.settings.brush;
 		this.addedObjects = [],
 		this.options = {
@@ -27,7 +19,7 @@ export default class Brush extends Tool {
 	}
 	reset() {
 		this.recordActionsToToolhandler(),
-		this.active = !1
+		super.reset()
 	}
 	recordActionsToToolhandler() {
 		var t, e = this.addedObjects, i = e.length;
@@ -40,14 +32,12 @@ export default class Brush extends Tool {
 		this.addedObjects = []
 	}
 	press() {
-		if (this.recordActionsToToolhandler(),
-		!this.active) {
+		this.recordActionsToToolhandler(),
+		super.press();
+		if (!this.active) {
 			let t = this.mouse.touch.real;
-			this.p1.x = t.x,
-			this.p1.y = t.y,
 			this.p2.x = t.x,
-			this.p2.y = t.y,
-			this.active = !0
+			this.p2.y = t.y
 		}
 	}
 	hold() {
@@ -85,16 +75,12 @@ export default class Brush extends Tool {
 		this.active = !1
 	}
 	update() {
-		let t = this.toolhandler.gamepad
-		  , e = this.mouse;
-		t.isButtonDown("alt") ? e.mousewheel !== !1 && this.adjustTrailSpeed(e.mousewheel) : t.isButtonDown("shift") && e.mousewheel !== !1 && this.adjustBreakLength(e.mousewheel);
-		let i = this.toolhandler;
-		i.options.snap && (this.active = !0,
-		this.p1.x = i.snapPoint.x,
-		this.p1.y = i.snapPoint.y,
-		this.p2.x = e.touch.real.x,
-		this.p2.y = e.touch.real.y),
-		super.update()
+		let t = this.toolhandler
+		  , e = t.gamepad
+		  , i = this.mouse;
+		e.isButtonDown("alt") ? i.mousewheel !== !1 && this.adjustTrailSpeed(i.mousewheel) : e.isButtonDown("shift") && i.mousewheel !== !1 && this.adjustBreakLength(i.mousewheel);
+		super.update();
+		t.options.snap && (this.p2 = i.touch.real)
 	}
 	adjustTrailSpeed(t) {
 		let e = this.options.trailSpeed
@@ -119,23 +105,6 @@ export default class Brush extends Tool {
 	setOption(t, e) {
 		this.options[t] = e
 	}
-	getOptions() {
-		let t = this.toolhandler
-		  , e = this.options;
-		return e.lineType = t.options.lineType,
-		e.snap = t.options.snap,
-		e
-	}
-	draw(e) {
-		super.draw(e);
-		let t = this.scene
-		  , i = t.camera
-		  , s = i.zoom;
-		this.drawCursor(e),
-		this.active && (this.drawLine(e, s),
-		this.drawPoint(e, this.p1, s),
-		this.drawPoint(e, this.p2, s))
-	}
 	drawText(t) {
 		let e = this.name
 		  , i = this.options.breakLength
@@ -148,48 +117,5 @@ export default class Brush extends Tool {
 		s = 0 | s,
 		t.fillText("Trail speed : " + s, 10 * n, 40 * n),
 		t.fillText("Break length : " + i, 10 * n, 60 * n)
-	}
-	drawCursor(t) {
-		let e = this.mouse.touch
-		  , i = e.real.toScreen(this.scene)
-		  , s = this.camera.zoom
-		  , n = this.toolhandler
-		  , r = n.options.grid
-		, o = "#1884cf";
-		t.beginPath();
-		if (r) {
-			let a = 5 * s;
-			t.moveTo(i.x, i.y - a),
-			t.lineTo(i.x, i.y + a),
-			t.moveTo(i.x - a, i.y),
-			t.lineTo(i.x + a, i.y),
-			t.lineWidth = 1 * s,
-			t.stroke()
-		} else
-			t.arc(i.x, i.y, 1 * s, 0, 2 * Math.PI, !1),
-			t.lineWidth = 1,
-			t.fillStyle = o,
-			t.fill()
-	}
-	drawPoint(t, e, i) {
-		let s = e.toScreen(this.scene);
-		t.beginPath(),
-		t.arc(s.x, s.y, 1 * i, 0, 2 * Math.PI, !1),
-		t.lineWidth = 1,
-		t.fillStyle = "#1884cf",
-		t.fill()
-	}
-	drawLine(t, e) {
-		let n = this.toolhandler
-		  , r = n.options.lineType;
-		t.beginPath(),
-		t.lineWidth = Math.max(0.5, 2 * e),
-		t.lineCap = 'round',
-		t.strokeStyle = '#'.padEnd(7, 'physics' === r ? /^midnight$/i.test(lite.storage.get('theme')) ? 'C' : /^dark$/i.test(lite.storage.get('theme')) ? 'FB' : '0' : /^midnight$/i.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A');
-		let a = this.p1.toScreen(this.scene)
-		  , h = this.p2.toScreen(this.scene);
-		t.moveTo(a.x, a.y),
-		t.lineTo(h.x, h.y),
-		t.stroke()
 	}
 }

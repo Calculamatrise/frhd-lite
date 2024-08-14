@@ -25,7 +25,6 @@ export default class {
 	importCode = !1;
 	pauseControls = null;
 	message = null;
-	analytics = null;
 	constructor(t) {
 		Object.defineProperty(this, 'game', { value: t, writable: true });
 		this.assets = t.assets,
@@ -155,6 +154,12 @@ export default class {
 		e
 	}
 	hideControlPlanel() {}
+	initAnalytics() {
+		Object.defineProperty(this, 'analytics', {
+			value: { deaths: 0 },
+			writable: true
+		})
+	}
 	interactWithControls() {
 		this.pauseControls.click()
 	}

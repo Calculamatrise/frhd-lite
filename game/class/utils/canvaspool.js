@@ -2,10 +2,9 @@ export default class {
 	canvasPool = [];
 	poolCap = 5e3;
 	setToScreen = true;
-	options = null;
 	constructor(t) {
-		this.options = t;
-		t.screen && this.update();
+		Object.defineProperty(this, 'options', { value: t, writable: true }),
+		t.screen && this.update(),
 		t.cap && (this.setToScreen = !1,
 		this.poolCap = t.cap)
 	}
@@ -14,7 +13,11 @@ export default class {
 		this.cleanPool())
 	}
 	getPoolCapFromScreen() {
-		this.poolCap = Math.ceil(this.options.screen.width / Math.floor(this.options.settings.drawSectorSize * this.options.camera.zoom)) * Math.ceil(this.options.screen.height / Math.floor(this.options.settings.drawSectorSize * this.options.camera.zoom)) + Math.ceil(this.options.screen.width / Math.floor(this.options.settings.drawSectorSize * this.options.camera.zoom)) + Math.ceil(this.options.screen.height / Math.floor(this.options.settings.drawSectorSize * this.options.camera.zoom))
+		let t = this.options
+		  , e = t.screen
+		  , i = t.camera
+		  , s = t.settings;
+		this.poolCap = Math.ceil(e.width / Math.floor(s.drawSectorSize * i.zoom)) * Math.ceil(e.height / Math.floor(s.drawSectorSize * i.zoom)) + Math.ceil(e.width / Math.floor(s.drawSectorSize * i.zoom)) + Math.ceil(e.height / Math.floor(s.drawSectorSize * i.zoom))
 	}
 	getCanvas() {
 		let t = this.canvasPool.pop();

@@ -3,12 +3,8 @@ import Tool from "../tool.js";
 
 export default class BasePowerupTool extends Tool {
 	active = !1;
-	p1 = null;
+	p1 = new Cartesian;
 	powerup = null;
-	constructor(t) {
-		super(t),
-		this.p1 = new Cartesian(0, 0)
-	}
 	draw(t) {
 		let e = this.mouse.touch
 		  , i = this.camera.zoom

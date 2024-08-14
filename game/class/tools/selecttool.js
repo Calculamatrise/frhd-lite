@@ -7,16 +7,14 @@ export default class Select extends Tool {
 	passive = !1;
 	active = !1;
 	dashOffset = 0;
-	p1 = null;
-	p2 = null;
+	p1 = new Vector;
+	p2 = new Vector;
 	travelDistance = 5;
 	addedObjects = [];
 	selectedElements = [];
 	selectedSegments = [];
 	constructor(t) {
-		super(t);
-		this.p1 = new Vector(0, 0),
-		this.p2 = new Vector(0, 0),
+		super(t),
 		document.addEventListener('keydown', this.keyPress.bind(this))
 	}
 	press() {

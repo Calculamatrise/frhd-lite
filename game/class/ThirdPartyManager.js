@@ -1,9 +1,11 @@
 import EventEmitter from "./EventEmitter.js";
 
 export default class ThirdPartyManager extends EventEmitter {
-	#loaded = !1;
 	#cache = new Map();
+	#csPreference = null;
+	#loaded = !1;
 	#parent = null;
+	preferredColorScheme = null;
 	constructor(parent) {
 		super(),
 		parent.thirdParty = this,
@@ -13,7 +15,14 @@ export default class ThirdPartyManager extends EventEmitter {
 			this.#loaded && this.emit('stateChange', state)
 		}),
 		this.#parent = parent,
-		window.hasOwnProperty('navigation') && navigation.addEventListener('navigate', () => this.#loaded = !1, { passive: true })
+		window.hasOwnProperty('navigation') && navigation.addEventListener('navigate', e => e.navigationType != 'replace' && (this.#loaded = !1), { passive: true }),
+		this.#csPreference = matchMedia('(prefers-color-scheme: dark)'),
+		this._updatePreferredColorScheme(this.#csPreference),
+		this.#csPreference.onchange = event => this._updatePreferredColorScheme(event.target)
+	}
+
+	_updatePreferredColorScheme(mediaQuery) {
+		this.preferredColorScheme = mediaQuery.matches ? 'dark' : 'light'
 	}
 
 	hook(instance, { name, overwrite } = {}) {

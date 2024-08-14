@@ -1,10 +1,8 @@
-import Powerup from "../powerup.js";
+import Consumable from "./consumable.js";
 
-export default class extends Powerup {
+export default class extends Consumable {
 	color = '#FAE335';
 	name = "goal";
-	hit = !1;
-	id = crypto.randomUUID();
 	prefix = 'T';
 	cacheStar(t) {
 		let e = this.constructor.cache.canvas;

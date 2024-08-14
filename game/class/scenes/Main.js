@@ -1,4 +1,4 @@
-import Scene from "./Scene.js";
+import BaseScene from "./BaseScene.js";
 import b from "../controls/fullscreen.js";
 import w from "../controls/pause.js";
 import T from "../controls/settings.js";
@@ -13,10 +13,10 @@ async function digestMessage(message) {
 	const hashHex = hashArray
 	.map((b) => b.toString(16).padStart(2, '0'))
 	.join('');
-	return hashHex;
+	return hashHex
 }
 
-export default class extends Scene {
+export default class extends BaseScene {
 	races = [];
 	playing = false;
 	ready = false;
@@ -35,17 +35,12 @@ export default class extends Scene {
 		this.registerTools(),
 		this.setStartingVehicle(),
 		this.restart(),
-		this.initializeAnalytics()
+		t.settings.analyticsEnabled !== false && this.initAnalytics()
 	}
 	getCanvasOffset() {
 		return {
 			height: 0,
 			width: 0
-		}
-	}
-	initializeAnalytics() {
-		this.analytics = {
-			deaths: 0
 		}
 	}
 	createMainPlayer() {
@@ -295,7 +290,7 @@ export default class extends Scene {
 	}
 	uniqesByUserIdIterator(t) {
 		let e = t.user;
-		return e.u_id
+		return String(e.u_id)
 	}
 	sortRaces() {
 		this.races.length > 1 ? this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b)) : this.sortByRunTicksIterator(this.races[0]),
@@ -303,10 +298,10 @@ export default class extends Scene {
 	}
 	mergeRaces(t) {
 		let e = this.races;
-		t && t.forEach(t => {
-			let i = e.find(({ user: e }) => e.u_id === t.user.u_id);
-			i ? Object.assign(i, t) : (e.push(t),
-			this.game.emit('trackRaceCreate', t))
+		t && t.forEach(i => {
+			let s = e.find(n => this.uniqesByUserIdIterator(n) == this.uniqesByUserIdIterator(i));
+			s ? (s.runTime = null, this.sortByRunTicksIterator(Object.assign(s, i))) : (e.push(i),
+			this.game.emit('trackRaceCreate', i))
 		})
 	}
 	redraw() {
@@ -348,14 +343,23 @@ export default class extends Scene {
 			h.sig = await digestMessage(h.t_id + "|" + h.u_id + "|" + h.code + "|" + h.run_ticks + "|" + h.vehicle + "|" + h.fps + "|erxrHHcksIHHksktt8933XhwlstTekz");
 			let u = this.races;
 			u.length > 0 && (h.races = u.map(({ user }) => user.u_id)),
-			n.isCampaign && (h.is_campaign = !0),
-			this.state.dialogOptions = {
+			n.isCampaign && (h.is_campaign = !0);
+			let q = {
 				postData: h,
 				analytics: this.analytics
-			},
-			navigator.onLine || (localStorage.setItem('offline_races', Object.assign(Object.assign({}, JSON.parse(localStorage.getItem('offline_races'))), {
-				[this.settings.track.id]: this.state.dialogOptions
-			})), alert('Your connection is offline! Free Rider Lite saved your ghost, and it will be published when your connection is back online!')),
+			};
+			this.state.dialogOptions = Object.assign({}, q)
+			if (!navigator.onLine) {
+				this.state.dialogOptions.postData = {},
+				this.game.emit('trackRaceUploadError', Object.defineProperty(new Error("Failed to upload race"), 'data', {
+					value: Object.assign({}, q)
+				}));
+			} else
+				this.settings.bestGhostEnabled && -1 === this.races.findIndex(t => n.user.u_id == this.uniqesByUserIdIterator(t) && t.race.run_ticks <= r) && this.addRaces([{
+					race: structuredClone(h),
+					user: n.user
+				}]),
+				this.game.emit('trackRaceUpload', q);
 			this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
 			i.reset(!0),
 			this.listen()

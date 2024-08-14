@@ -34,7 +34,7 @@ export default class extends SceneryLine {
 			let y = v > 0 ? c : l;
 			if (o = e.x - y.x,
 				a = e.y - y.y,
-				h = Math.sqrt(Math.pow(o, 2) + Math.pow(a, 2)),
+				h = Math.sqrt(o ** 2 + a ** 2),
 				0 === h && (h = 1),
 				s > h) {
 				let m = (s - h) / h;

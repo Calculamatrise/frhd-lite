@@ -74,6 +74,22 @@
 		</details>
 		<details>
 			<summary class="tab ripple">Show advanced options</summary>
+			<label class="ripple" title="Toggle developer mode">
+				<input type="checkbox" id="developerMode">
+				<span>Developer mode</span>
+			</label>
+			<label class="ripple" title="Disables all in-game analytics">
+				<input type="checkbox" id="disableAnalytics">
+				<span>Disable analytics</span>
+			</label>
+			<label class="ripple" title="Cursor will be a point on the line">
+				<input type="checkbox" id="preciseEditorTools">
+				<span>Precise editor tools</span>
+			</label>
+			<label title="Change the number of points in a curve">
+				<span class="name">Curve Points (3)</span>
+				<input type="range" class="override-pointer-events" id="curvePoints" min="3" max="5" value="3" style="width: -webkit-fill-available" disabled>
+			</label>
 			<label title="Change the size of the input display">
 				<span class="name">Input display size (5)</span>
 				<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="5" value="5" style="width: -webkit-fill-available">
@@ -93,10 +109,6 @@
 					<span class="name">Filter duplicates</span>
 				</label>
 			</details>
-			<label class="ripple" title="Toggle developer mode">
-				<input type="checkbox" id="developerMode">
-				<span>Developer mode</span>
-			</label>
 			<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
 		</details>
 	</div>
