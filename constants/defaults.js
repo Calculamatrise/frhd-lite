@@ -4,6 +4,7 @@ export default {
 	bikeFrameColor: null,
 	bikeTireColor: null,
 	brightness: 100,
+	curveBreakLength: 20,
 	curvePoints: 3,
 	developerMode: false,
 	disableAnalytics: true,

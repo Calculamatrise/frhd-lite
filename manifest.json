@@ -1,6 +1,6 @@
 {
 	"name": "Free Rider Lite",
-	"version": "0.0.44",
+	"version": "0.0.45",
 	"author": "Calculamatrise",
 	"description": "A mod for Free Rider HD.",
 	"manifest_version": 3,
@@ -10,6 +10,11 @@
 	"background": {
 		"service_worker": "service-worker.js",
 		"type": "module"
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "frhd-lite@freeriderhd.com"
+		}
 	},
 	"declarative_net_request": {
 		"rule_resources": [{
@@ -30,7 +35,6 @@
 		"*://cdn.kanoapps.com/free_rider_hd/assets/scripts/game/game.min.*.js",
 		"*://cdn.freeriderhd.com/free_rider_hd/assets/scripts/game/game.min.*.js"
 	],
-	"update_url": "https://clients2.google.com/service/update2/crx",
 	"web_accessible_resources": [{
 		"resources": [
 			"assets/*",

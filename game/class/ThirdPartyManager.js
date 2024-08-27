@@ -15,6 +15,8 @@ export default class ThirdPartyManager extends EventEmitter {
 			this.#loaded && this.emit('stateChange', state)
 		}),
 		this.#parent = parent,
+		window.hasOwnProperty('Application') && (Object.defineProperty(Application.router.current_view, 'ajax', { value: null, writable: true }),
+		Application.events.subscribe('ajax.request', e => typeof e.header_title == 'string' && (Application.router.current_view.ajax = e))),
 		window.hasOwnProperty('navigation') && navigation.addEventListener('navigate', e => e.navigationType != 'replace' && (this.#loaded = !1), { passive: true }),
 		this.#csPreference = matchMedia('(prefers-color-scheme: dark)'),
 		this._updatePreferredColorScheme(this.#csPreference),

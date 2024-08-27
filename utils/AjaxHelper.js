@@ -2,7 +2,7 @@ export default new Proxy(class {
 	static async request(path, options = {}) {
 		let searchParams = new URLSearchParams(path.replace(/[^?]*/, match => {
 			path = match;
-			return '';
+			return ''
 		}));
 		searchParams.set('ajax', true);
 		searchParams.set('t_1', 'ref');
@@ -23,7 +23,7 @@ export default new Proxy(class {
 		if (res.result === false || /^page\snot\sfound/i.test(res.app_title))
 			throw new Error(res.msg || 'Something went wrong! Please try again.');
 
-		return res;
+		return res
 	}
 
 	static trackSearch(query, callback) {
@@ -36,27 +36,24 @@ export default new Proxy(class {
 			let results = [];
 			for (let track of res.tracks) {
 				let element = document.createElement('div');
-				typeof callback == 'function' && element.addEventListener('click', () => callback(track));
+				typeof callback == 'function' && element.addEventListener('click', () => callback(track), { passive: true });
 				element.addEventListener('keypress', function(event) {
-					if (/^enter$/i.test(event.key)) {
-						this.click();
-					}
-				});
-
-				let avatar = document.createElement('img');
-				avatar.setAttribute('src', track.thmb);
+					/^enter$/i.test(event.key) && this.click()
+				}, { passive: true });
+				let thumb = document.createElement('img');
+				thumb.setAttribute('src', track.thmb);
 				let span = document.createElement('span');
 				span.innerText = track.title;
-				element.append(avatar, span);
+				element.append(thumb, span);
 				results.push(element);
 			}
 
-			return results;
+			return results
 		}).catch(err => {
 			// handle error
 			console.trace('%c' + err.message, 'background-color: #290303;border: 1px solid #5c100d;color: #f07f7f;padding: 0.125rem;');
 			// console.warn(err);
-			return [];
+			return []
 		})
 	}
 
@@ -72,13 +69,10 @@ export default new Proxy(class {
 					let results = [];
 					for (let user of res.data) {
 						let element = document.createElement('div');
-						typeof callback == 'function' && element.addEventListener('click', () => callback(user));
+						typeof callback == 'function' && element.addEventListener('click', () => callback(user), { passive: true });
 						element.addEventListener('keypress', function(event) {
-							if (/^enter$/i.test(event.key)) {
-								this.click();
-							}
-						});
-
+							/^enter$/i.test(event.key) && this.click()
+						}, { passive: true });
 						let avatar = document.createElement('img');
 						avatar.src = user.image;
 						let span = document.createElement('span');
@@ -89,14 +83,14 @@ export default new Proxy(class {
 					}
 
 					await chrome.storage.session.set({ userCache });
-					resolve(results);
-				});
-			});
+					resolve(results)
+				})
+			})
 		}).catch(err => {
 			// handle error
 			console.trace('%c' + err.message, 'background-color: #290303;border: 1px solid #5c100d;color: #f07f7f;padding: 0.125rem;');
 			// console.warn(err);
-			return [];
+			return []
 		})
 	}
 }, {
@@ -109,7 +103,7 @@ export default new Proxy(class {
 			return target.request(path, {
 				body: new URLSearchParams(body),
 				method: String(property).toUpperCase()
-			});
-		}).bind(target);
+			})
+		}).bind(target)
 	}
 });

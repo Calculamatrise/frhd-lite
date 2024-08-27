@@ -62,9 +62,6 @@ export default class Eraser extends Tool {
 	setOption(t, e) {
 		this.options[t] = e
 	}
-	getOptions() {
-		return this.options
-	}
 	update() {
 		let t = this.toolhandler.gamepad
 		  , e = this.mouse;

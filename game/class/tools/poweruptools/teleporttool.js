@@ -77,7 +77,7 @@ export default class Teleport extends PowerupTool {
 		  , u = s.realToScreen(i.y, "y")
 		  , p = Math.sqrt(Math.pow(c - r, 2) + Math.pow(u - o, 2));
 		30 * n > p && (p = 30 * n),
-		t.strokeStyle = "#dd45ec",
+		t.strokeStyle = "#dd45ec", // render red if not long enough
 		t.lineWidth = Math.max(1, 2 * n),
 		t.beginPath(),
 		t.moveTo(r, o),

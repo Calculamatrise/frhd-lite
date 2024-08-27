@@ -2,9 +2,11 @@ import "../utils/Storage.js";
 import defaults from "../constants/defaults.js";
 
 const state = document.querySelector('#state');
-state.addEventListener('click', function() {
+state.addEventListener('click', function(event) {
 	if (this.classList.contains('update-available')) {
 		return chrome.runtime.reload();
+	} else if (event.altKey && event.shiftKey) {
+		return window.open(chrome.runtime.getURL('dashboard/index.html'))
 	}
 
 	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'))
@@ -73,6 +75,8 @@ for (const item in defaults) {
 		}, { passive: true });
 		break;
 	case 'brightness':
+	case 'curveBreakLength':
+	case 'curvePoints':
 	case 'inputDisplayOpacity':
 	case 'inputDisplaySize':
 	case 'snapshots':
@@ -138,6 +142,8 @@ function restoreSettings(data) {
 			element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
 			element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
 			break;
+		case 'curveBreakLength':
+		case 'curvePoints':
 		case 'inputDisplayOpacity':
 		case 'inputDisplaySize':
 			element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');

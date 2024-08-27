@@ -1,4 +1,4 @@
-import Tool from "./tool.js";
+import BasePowerupTool from "./basepoweruptool.js";
 import l from "./poweruptools/antigravitytool.js";
 import h from "./poweruptools/bombtool.js";
 import r from "./poweruptools/boosttool.js";
@@ -8,10 +8,9 @@ import s from "./poweruptools/gravitytool.js";
 import o from "./poweruptools/slowmotool.js";
 import c from "./poweruptools/teleporttool.js";
 
-export default class Powerup extends Tool {
+export default class Powerup extends BasePowerupTool {
 	name = 'powerup';
 	options = { selected: "goal" };
-	powerupTools = {};
 	constructor(t) {
 		super(t),
 		this.registerPowerupTools()
@@ -25,15 +24,6 @@ export default class Powerup extends Tool {
 		this.registerTool(new a(this.toolhandler)),
 		this.registerTool(new l(this.toolhandler)),
 		this.registerTool(new c(this.toolhandler))
-	}
-	registerTool(t) {
-		this.powerupTools[this.toolhandler.constructor.parseToolName(t.name)] = t
-	}
-	setOption(t, e) {
-		this.options[t] = e
-	}
-	getOptions() {
-		return this.options
 	}
 	update() {
 		let t = this.toolhandler.gamepad
@@ -63,21 +53,5 @@ export default class Powerup extends Tool {
 		t.setButtonUp("opt8"),
 		this.scene.updateState()),
 		super.update();
-	}
-	press() {
-		let t = this.options.selected;
-		this.powerupTools[t].press()
-	}
-	hold() {
-		let t = this.options.selected;
-		this.powerupTools[t].hold()
-	}
-	release() {
-		let t = this.options.selected;
-		this.powerupTools[t].release()
-	}
-	draw(e) {
-		super.draw(e),
-		this.powerupTools[this.options.selected].draw(e)
 	}
 }

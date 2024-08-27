@@ -52,7 +52,7 @@ export default class Brush extends StraightLine {
 		i.sub(e).lenSqr() > r) {
 			let o = this.scene.track,
 				a = !1;
-			a = "physics" === this.toolhandler.options.lineType ? o.addPhysicsLine(e.x, e.y, i.x, i.y) : o.addSceneryLine(e.x, e.y, i.x, i.y),
+			a = o['add' + ('physics' === this.toolhandler.options.lineType ? 'Physics' : 'Scenery') + 'Line'](e.x, e.y, i.x, i.y),
 			a && this.addedObjects.push(a),
 			e.equ(i),
 			this.toolhandler.snapPoint.x = i.x,
@@ -65,7 +65,7 @@ export default class Brush extends StraightLine {
 		  , e = this.p2
 		  , i = this.scene.track
 		  , s = !1;
-		s = "physics" === this.toolhandler.options.lineType ? i.addPhysicsLine(t.x, t.y, e.x, e.y) : i.addSceneryLine(t.x, t.y, e.x, e.y),
+		s = i['add' + ('physics' === this.toolhandler.options.lineType ? 'Physics' : 'Scenery') + 'Line'](t.x, t.y, e.x, e.y),
 		s && this.addedObjects.push(s),
 		this.recordActionsToToolhandler();
 		let n = this.toolhandler
@@ -110,7 +110,7 @@ export default class Brush extends StraightLine {
 		  , i = this.options.breakLength
 		  , s = this.options.trailSpeed
 		  , n = this.game.pixelRatio;
-		t.fillStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : '#000',
+		t.fillStyle = this.scene.settings.physicsLineColor,
 		t.font = 12 * n + "pt arial",
 		t.fillText(e, 10 * n, 20 * n),
 		t.font = 8 * n + "pt arial",

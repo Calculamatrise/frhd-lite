@@ -244,7 +244,7 @@ export default class extends BaseScene {
 			this.updateState();
 			break;
 		case "clear track":
-			this.trackAction("editor-action", "clear"),
+			this.settings.analyticsEnabled !== !1 && this.trackAction("editor-action", "clear"),
 			this.clear = !0;
 			break;
 		case "import":
@@ -256,7 +256,7 @@ export default class extends BaseScene {
 		}
 	}
 	close() {
-		this.trackAction("editor-exit", "exit"),
+		this.settings.analyticsEnabled !== !1 && this.trackAction("editor-exit", "exit"),
 		document.removeEventListener('paste', this._pasteEvent),
 		this._pasteEvent = null,
 		super.close()

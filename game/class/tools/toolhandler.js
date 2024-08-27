@@ -56,6 +56,7 @@ export default class {
 		this.previousTool = this.currentTool,
 		this.currentTool = t,
 		this.scene.updateState(),
+		this.scene.message.show(),
 		this.analytics && this.analytics.actions++)
 	}
 	addActionToTimeline(t) {

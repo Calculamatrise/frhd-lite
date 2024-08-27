@@ -4,7 +4,7 @@ export default class {
 			throw new TypeError("object not iterable");
 		}
 
-		Object.assign(this, object);
+		Object.assign(this, object)
 	}
 
 	/**
@@ -13,7 +13,7 @@ export default class {
 	 * @returns {boolean}
 	 */
 	has(key) {
-		return key in this;
+		return key in this
 	}
 
 	/**
@@ -22,7 +22,7 @@ export default class {
 	 * @returns {any} arbitrary
 	 */
 	get(key) {
-		return this[key] ?? null;
+		return this[key] ?? null
 	}
 
 	/**
@@ -35,7 +35,7 @@ export default class {
 			throw new TypeError("Key must be of type string.");
 		}
 
-		this[key] = value;
+		this[key] = value
 	}
 
 	/**
@@ -48,6 +48,6 @@ export default class {
 			return delete this[key];
 		}
 
-		return false;
+		return false
 	}
 }

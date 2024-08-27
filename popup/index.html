@@ -86,9 +86,13 @@
 				<input type="checkbox" id="preciseEditorTools">
 				<span>Precise editor tools</span>
 			</label>
+			<label title="Change the minimum length before lines break in a curve">
+				<span class="name">Curve Break Length (20)</span>
+				<input type="range" class="override-pointer-events" id="curveBreakLength" min="2" max="300" value="20" style="width: -webkit-fill-available">
+			</label>
 			<label title="Change the number of points in a curve">
 				<span class="name">Curve Points (3)</span>
-				<input type="range" class="override-pointer-events" id="curvePoints" min="3" max="5" value="3" style="width: -webkit-fill-available" disabled>
+				<input type="range" class="override-pointer-events" id="curvePoints" min="3" max="10" value="3" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the size of the input display">
 				<span class="name">Input display size (5)</span>
@@ -107,6 +111,10 @@
 				<label class="ripple" title="Remove duplicate powerups">
 					<input type="checkbox" id="filterDuplicatePowerups">
 					<span class="name">Filter duplicates</span>
+				</label>
+				<label class="disabled ripple" title="Draw a racing path and share it for others to follow">
+					<input type="checkbox" id="raceTrail">
+					<span>Path tracer</span>
 				</label>
 			</details>
 			<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>

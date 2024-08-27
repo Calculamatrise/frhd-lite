@@ -34,6 +34,7 @@ export default class {
 	click() {
 		for (const i in this.controlData) {
 			const component = this.controlData[i];
+			if (component.disabled) continue;
 			if (this.isMouseOverComponent(component)) {
 				this.scene.buttonDown(component.key)
 			}
@@ -54,7 +55,7 @@ export default class {
 			let ctrlData = this.controlsSpriteSheetData[(component.image || i) + "_btn"]
 			  , width = ctrlData[2] * this.properties.scaleX
 			  , height = ctrlData[3] * this.properties.scaleY;
-			typeof component.alpha == 'number' && (t.globalAlpha = (typeof this.properties.alpha != 'number' || this.properties.alpha) * (component.alpha / (2 - !component.disabled))),
+			typeof component.alpha == 'number' && (t.globalAlpha = (typeof this.properties.alpha != 'number' || this.properties.alpha) * ((component.alpha + (Boolean(component.active) && .25)) / (2 - !component.disabled))),
 			t.drawImage(this.controlsSpriteSheetData.images[0], ...ctrlData, this.game.width - component.right * this.properties.scaleX - width / 2, component.top * this.properties.scaleY - height / 2, width, height);
 		}
 		globalAlpha !== t.globalAlpha && (t.globalAlpha = globalAlpha)

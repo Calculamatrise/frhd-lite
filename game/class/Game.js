@@ -1,5 +1,3 @@
-// Changes on line 78 onwards
-
 import "./ThirdPartyManager.js";
 import "./Lite.js";
 import EventEmitter from "./EventEmitter.js";
@@ -34,15 +32,18 @@ window.Game = class extends EventEmitter {
 		this.switchScene(t),
 		this.setSize(),
 		(window.createjs ||= {}).Ticker ||= this,
-		Object.defineProperty(this, 'updateCallback', { value: requestAnimationFrame(this.update.bind(this)), writable: true }),
+		Object.defineProperty(this, 'updateCallback', {
+			value: requestAnimationFrame(this.update.bind(this)),
+			writable: true
+		}),
 		this.emit('ready', this)
 	}
 	initCanvas() {
-		this.canvas = document.createElement("canvas");
-		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true });
-		this.ctx = this.canvas.getContext("2d");
-		this.gameContainer = document.getElementById(this.settings.defaultContainerID);
-		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas);
+		this.canvas = document.createElement("canvas"),
+		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true }),
+		this.ctx = this.canvas.getContext("2d"),
+		this.gameContainer = document.getElementById(this.settings.defaultContainerID),
+		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas)
 	}
 	setSize() {
 		let t = window.innerHeight

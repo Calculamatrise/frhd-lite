@@ -1,8 +1,6 @@
 import ContextMenu from "./ContextMenu.js";
 
-window.lite = new class {
-	#customStyleSheet = null;
-	debug = false;
+window.lite = new class Lite {
 	dialogs = new Map();
 	nativeEvents = new Map();
 	playlists = new Map();
@@ -14,60 +12,19 @@ window.lite = new class {
 		}
 	}
 	storage = new Map();
-	styleSheet = new Proxy(Object.defineProperty(new Map(), 'update', {
-		value(key, value) {
-			let newValue = Object.assign(this.get(key) || {}, value);
-			this.set(key, newValue);
-			return newValue
-		},
-		writable: true
-	}), {
-		get: (...args) => {
-			let [target, property, receiver] = args;
-			let returnValue = Reflect.get(...args);
-			if (typeof returnValue == 'function') {
-				switch (property) {
-				case 'delete':
-					return (...args) => {
-						returnValue = returnValue.apply(target, args);
-						this._updateCustomStyleSheet(this.styleSheet.entries());
-						return returnValue
-					}
-				case 'set':
-				case 'update':
-					return (...args) => {
-						let [key, value] = args;
-						returnValue = returnValue.call(target, key, new Proxy(value, {
-							set: (...args) => {
-								let returnValue = Reflect.set(...args);
-								this._updateCustomStyleSheet(this.styleSheet.entries());
-								return returnValue;
-							}
-						}));
-						this._updateCustomStyleSheet(this.styleSheet.entries());
-						return returnValue
-					}
-				default:
-					returnValue = returnValue.bind(target)
-				}
-			}
-			return returnValue
-		}
-	});
 	trackData = null;
 	constructor() {
 		let searchParams = new URLSearchParams(location.search);
 		if (searchParams.has('ajax')) return;
-		window.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this));
+		window.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this)),
 		window.ModManager && (ModManager.hook(this, { name: 'lite' }),
 		ModManager.on('ready', this._load.bind(this)),
 		ModManager.on('stateChange', this.refresh.bind(this)));
-		this.#createCustomStyleSheet();
 		addEventListener('message', ({ data }) => {
 			if (!data) return console.warn('data is missing');
 			switch (data.action) {
 			case 'setStorage':
-				this.storage = new Map(Object.entries(data.storage));
+				this.storage = new Map(Object.entries(data.storage)),
 				this._childLoad();
 				break;
 			case 'updateStorage':
@@ -78,21 +35,16 @@ window.lite = new class {
 					if (JSON.stringify(value) == JSON.stringify(oldStorage.get(key))) continue;
 					changes.set(key, value);
 				}
-				this._updateFromSettings(changes);
+				this._updateFromSettings(changes)
 			}
 		}, { passive: true });
-		Object.defineProperty(this, 'trackData', { enumerable: false });
-		Object.defineProperty(this, 'dialogs', { enumerable: false });
+		Object.defineProperty(this, 'trackData', { enumerable: false }),
+		Object.defineProperty(this, 'dialogs', { enumerable: false }),
 		Object.defineProperty(this, 'nativeEvents', { enumerable: false })
 	}
 
 	get scene() {
 		return GameManager.game && GameManager.game.currentScene
-	}
-
-	#createCustomStyleSheet() {
-		this.#customStyleSheet = document.head.appendChild(document.createElement('style'));
-		this.#customStyleSheet.setAttribute('id', 'frhd-lite.style');
 	}
 
 	_appendRecords() {
@@ -201,7 +153,7 @@ window.lite = new class {
 					marginRight: '6px',
 					textAlign: 'center'
 				},
-				onclick() {
+				click() {
 					let row = this.closest('.track-leaderboard-race-row');
 					lite.scene.removeRaces([row.dataset.u_id]);
 				}
@@ -209,19 +161,6 @@ window.lite = new class {
 			return row
 		}));
 		challengeLeaderboard.children.length < 1 && challengeLeaderboard.closest('.track-leaderboard').style.setProperty('display', 'none')
-	}
-
-	_updateCustomStyleSheet(data) {
-		const entries = Array.from(data);
-		const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
-		let textContent = '';
-		for (let [key, properties] of filteredEntries) {
-			properties = Object.entries(properties);
-			for (let property of properties)
-				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
-			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}'; // JSON.stringify().replace(/(?<="),/, ';')
-		}
-		this.#customStyleSheet.textContent = textContent
 	}
 
 	_uploadOfflineRaces() {
@@ -287,9 +226,15 @@ window.lite = new class {
 				baseVehicle.rearWheel.color = value);
 				break;
 			case 'brightness':
-				this.styleSheet.set('#game-container', Object.assign({}, this.styleSheet.get('#game-container'), {
+				this.constructor.styleSheet.set('#game-container', Object.assign({}, this.constructor.styleSheet.get('#game-container'), {
 					filter: 'brightness(' + value / 100 + ')'
 				}));
+				break;
+			case 'curveBreakLength':
+				this.scene.toolHandler.tools.hasOwnProperty('curve') && (this.scene.toolHandler.tools.curve.options.breakLength = value / 100);
+				break;
+			case 'curvePoints':
+				this.scene.toolHandler.tools.hasOwnProperty('curve') && (this.scene.toolHandler.tools.curve.options.controlPoints = value - 2);
 				break;
 			case 'disableAnalytics':
 				GameSettings.analyticsEnabled = !value;
@@ -300,8 +245,8 @@ window.lite = new class {
 			case 'theme':
 				const theme = this._getColorScheme(value);
 				let backgroundColor = '#'.padEnd(7, theme == 'midnight' ? '1d2328' : theme == 'darker' ? '0' : theme == 'dark' ? '1b' : 'f');
-				this.styleSheet.set('#game-container > canvas', Object.assign({}, this.styleSheet.get('#game-container > canvas'), { backgroundColor }));
-				this.styleSheet.set('.gameFocusOverlay', {
+				this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), { backgroundColor }));
+				this.constructor.styleSheet.set('.gameFocusOverlay', {
 					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
 					color: '#'.padEnd(7, theme == 'midnight' ? 'd' : theme == 'dark' ? 'f' : theme == 'dark' ? 'eb' : '2d')
 				});
@@ -432,18 +377,33 @@ window.lite = new class {
 					if (null !== currentUser) {
 						event.preventDefault();
 						const options = await this.buildUserContextMenu(Application.settings.user);
+						const accounts = this.constructor.getStorageEntry('account-manager') ?? [];
+						const subOptions = accounts.map(account => ({
+							name: account.login,
+							click: () => Application.Helpers.AjaxHelper.post("/auth/standard_login", account).done(r => {
+								r.result && Application.events.publish("auth.login", r.data.user, r.data.user_stats)
+							})
+						}));
+						accounts.length > 0 && subOptions.push({ type: 'hr' }) || subOptions.push({
+							name: 'Add Account',
+							// click: () => this.constructor.getAccountManager({ createIfNotExists: true, showLogin: true }).showModal('login')
+							click: () => Application.Helpers.TemplateHelper.getTemplates(["auth/signup_login"], function(t) {
+								Application.router.auth_dialog_view.template = t["auth/signup_login"],
+								Application.router.auth_dialog_view.options = Object.assign({}, Application.settings, { login: true }),
+								Application.router.auth_dialog_view.setup()
+							})
+						}),
+						subOptions.push({
+							name: 'Manage Accounts',
+							click: () => this.constructor.getAccountManager({ createIfNotExists: true }).showModal()
+						}),
 						options.splice(3, 0, {
 							name: 'Switch Accounts',
-							styles: ['disabled'],
-							// type: 'sub-menu', // dropdown
-							// options: [/* ...accounts */ {
-							// 	name: 'Add Account'
-							// }],
-							onclick: () => this.accountManager && this.accountManager.showModal()
+							options: subOptions
 						}, {
 							name: 'Logout',
 							styles: ['danger'],
-							onclick: () => Application.User.logout()
+							click: () => Application.User.logout()
 						});
 						ContextMenu.create(options, event);
 						return;
@@ -764,42 +724,60 @@ window.lite = new class {
 				},
 				writable: true
 			});
-			this.styleSheet.set('context-menu', {
+			this.constructor.styleSheet.set('context-menu', {
+				fontSize: 'clamp(9px, .75rem, 13px)',
+				zIndex: 1002
+			})
+			.set('context-menu, context-menu > :not(br, div, hr) > *', {
 				backgroundColor: 'hsl(200deg 15% 15%)',
 				border: '1px solid hsl(200deg 25% 25% / 50%)',
 				borderRadius: '.25rem',
 				boxShadow: '2px 2px 4px -1px hsl(0deg 0% 10% / 75%)',
 				display: 'flex',
 				flexDirection: 'column',
-				fontSize: 'clamp(9px, .75rem, 13px)',
 				maxHeight: '50vh',
-				overflow: 'hidden auto',
+				// overflow: 'hidden auto',
 				padding: '.275em',
-				position: 'absolute',
-				zIndex: 1002
-			});
-			this.styleSheet.set('context-menu button', {
+				position: 'absolute'
+			})
+			.set('context-menu > :not(br, div, hr):has(> *)', { position: 'relative' })
+			.set('context-menu > :not(br, div, hr):has(> *)::after', {
+				color: 'hsl(0deg 0% 50% / 75%)',
+				content: '"❯"',
+				display: 'inline-block',
+				fontSize: '.75em',
+				height: '1rem',
+				marginLeft: '2.25em',
+				verticalAlign: 'middle'
+			})
+			.set('context-menu > :not(br, div, hr):has(> :not(:hover)):not(:hover) > *', { /* display: 'none' */ visibility: 'hidden' })
+			.set('context-menu > :not(br, div, hr) > *', {
+				// left: '100%',
+				// top: 0,
+				width: 'max-content'
+			})
+			.set('context-menu > :not(br, div, hr), context-menu button', {
 				backgroundColor: 'transparent',
 				border: 'none',
 				borderRadius: '0.25em',
 				color: 'white',
 				padding: '0.5em 1em',
 				textAlign: 'left'
-			});
-			this.styleSheet.set('context-menu button:hover', { backdropFilter: 'brightness(0.725)' });
-			this.styleSheet.set('context-menu hr', {
+			})
+			.set('context-menu > :not(br, div, hr):hover, context-menu button:hover', { backdropFilter: 'brightness(0.725)' })
+			.set('context-menu hr', {
 				backgroundColor: 'hsl(200deg 20% 25% / 60%)',
 				border: 'none',
 				height: '1px',
 				width: '90%'
-			});
-			this.styleSheet.set('button.danger', { color: 'hsl(0deg, 75%, 55%)' });
-			this.styleSheet.set('button.danger:disabled', { color: 'hsl(0deg 75% 55% / 50%)' });
-			this.styleSheet.set('context-menu::-webkit-scrollbar', { width: '.5em' });
-			this.styleSheet.set('context-menu::-webkit-scrollbar, context-menu::-webkit-scrollbar-track', { backgroundColor: 'hsl(0deg 0% 0% / 4%)' });
-			this.styleSheet.set('context-menu::-webkit-scrollbar-thumb', { backgroundColor: 'hsl(200deg 25% 20% / 50%)' });
+			})
+			.set('button.danger', { color: 'hsl(0deg, 75%, 55%)' })
+			.set('button.danger:disabled', { color: 'hsl(0deg 75% 55% / 50%)' })
+			.set('context-menu::-webkit-scrollbar', { width: '.5em' })
+			.set('context-menu::-webkit-scrollbar, context-menu::-webkit-scrollbar-track', { backgroundColor: 'hsl(0deg 0% 0% / 4%)' })
+			.set('context-menu::-webkit-scrollbar-thumb', { backgroundColor: 'hsl(200deg 25% 20% / 50%)' });
 		}
-		document.removeEventListener('contextmenu', this._oncontextmenu);
+		document.removeEventListener('contextmenu', this._oncontextmenu),
 		document.addEventListener('contextmenu', this._oncontextmenu)
 	}
 
@@ -1018,7 +996,7 @@ window.lite = new class {
 			let actionRow = row.querySelector('.track-leaderboard-action');
 			actionRow.querySelector('span.core_icons.core_icons-btn_add_race.track-leaderboard-race') || actionRow.appendChild(this.constructor.createElement('span.core_icons.core_icons-btn_add_race.track-leaderboard-race', {
 				title: 'Race ' + data.user.d_name,
-				onclick() {
+				click() {
 					let row = this.closest('.track-leaderboard-race-row');
 					lite.scene.removeRaces([row.dataset.u_id])
 				}
@@ -1096,143 +1074,12 @@ window.lite = new class {
 		if (!Application.User.logged_in) return;
 		let logout = Application.router.left_navigation_view.el.querySelector('a.logout');
 		if (!logout.hasAttribute('id')) return;
-		logout.removeAttribute('id');
-		logout.innerText = "Switch";
+		logout.removeAttribute('id'),
+		logout.innerText = "Switch",
 		logout.addEventListener('click', event => {
-			event.stopPropagation();
-			event.stopImmediatePropagation();
-			this.accountManager || (Object.defineProperty(this, 'accountManager', {
-				value: this.constructor.createElement("dialog#frhd-lite\\.account-manager", {
-					children: [
-						this.constructor.createElement("span.core_icons.core_icons-icon_close.signup-login-modal-close", {
-							style: {
-								position: 'absolute',
-								right: '.5em',
-								top: '.5em'
-							},
-							onclick: () => this.accountManager.close()
-						}),
-						this.constructor.createElement("div.accounts-container", {
-							children: (this.constructor.getStorageEntry('account-manager') ?? []).map(account => this.constructor.createAccountContainer(account)),
-							style: {
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '0.4rem'
-							}
-						}),
-						this.constructor.createElement("button.new-button.button-type-2", {
-							innerText: "Add account",
-							onclick: event => {
-								let loginContainer = document.querySelector("div#login-container");
-								if (loginContainer) {
-									event.target.innerText = "Add account";
-									event.target.classList.replace('button-type-3', 'button-type-2');
-									loginContainer.remove();
-									return;
-								}
-	
-								let submit = event.target;
-								event.target.before(lite.constructor.createElement("div#login-container", {
-									children: [
-										this.constructor.createElement("input.field.auth-field#save-account-login", {
-											placeholder: "Username or Email",
-											style: { borderRadius: "2rem" },
-											type: "text",
-											onkeyup(event) {
-												event.key === 'Enter' && this.nextElementSibling.focus()
-											}
-										}),
-										this.constructor.createElement("input.field.auth-field#save-account-password", {
-											placeholder: "Password",
-											style: { borderRadius: "2rem" },
-											type: "password",
-											onkeyup(event) {
-												event.key === 'Enter' && this.nextElementSibling.click()
-											}
-										}),
-										this.constructor.createElement("button.new-button.button-type-1", {
-											innerText: "Save account",
-											onclick: event => {
-												Application.Helpers.AjaxHelper.post("/auth/standard_login", {
-													login: document.querySelector("#save-account-login")?.value,
-													password: document.querySelector("#save-account-password")?.value
-												}).done(res => {
-													if (!res.result) return;
-													let accounts = this.constructor.getStorageEntry('account-manager') || [];
-													if (accounts.find(({ login }) => login === res.data.user.d_name)) return;
-													accounts.push({
-														login: res.data.user.d_name,
-														password: document.querySelector("#save-account-password")?.value
-													}),
-													this.accountManager.querySelector(".accounts-container").append(lite.constructor.createAccountContainer(accounts[accounts.length - 1])),
-													this.constructor.setStorageEntry('account-manager', accounts),
-													submit.classList.replace('button-type-3', 'button-type-2'),
-													submit.innerText = "Add account",
-													event.target.parentElement.remove()
-												})
-											}
-										})
-									],
-									style: {
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '0.4rem',
-										marginTop: '1rem'
-									}
-								}));
-								event.target.classList.replace('button-type-2', 'button-type-3');
-								event.target.innerText = "Cancel";
-							}
-						}),
-						this.constructor.createElement("button.new-button.button-type-3", {
-							innerText: "Logout",
-							onclick: () => {
-								Application.Helpers.AjaxHelper.post('/auth/logout').done(({ result: r }) => {
-									if (!r) return;
-									Application.User.logged_in = !1,
-									Application.User.clear(),
-									Application.events.publish('user.change'),
-									Application.events.unsubscribe('user.change');
-									Application.events.publish("user.logout");
-									Application.User.unset_game_settings_user();
-									this.remove()
-								})
-							}
-						})
-					],
-					onclick: event => {
-						if (this.accountManager !== event.target) return;
-						let rect = event.target.getBoundingClientRect()
-						  , isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-							rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-						!isInDialog && event.target.close()
-					}
-				}),
-				writable: true
-			}), this.styleSheet.set('dialog#frhd-lite\\.account-manager[open]', {
-				display: 'flex',
-				flexDirection: 'column',
-				gap: '0.4em',
-				height: 'fit-content',
-				inset: 0,
-				margin: 'auto',
-				maxHeight: '50vmin',
-				maxWidth: '25vw',
-				minWidth: '230px',
-				overflow: 'hidden auto',
-				padding: '2.5em',
-				position: 'fixed',
-				width: '40vmin',
-				zIndex: 1002
-			}).set('dialog#frhd-lite\\.account-manager[open]::backdrop', {
-				backgroundColor: 'hsl(0deg 0% 0% / 50%)'
-			}).set('.button-type-3', {
-				backgroundImage: 'linear-gradient(to bottom, hsl(7 86% 62% / 1), hsl(10 64% 46% / 1))'
-			}).set('.button-type-3:hover', {
-				backgroundImage: 'linear-gradient(to bottom, hsl(4 79% 60% / 1), hsl(4 69% 37% / 1))'
-			}));
-			document.body.append(this.accountManager);
-			this.accountManager.showModal()
+			event.stopPropagation(),
+			event.stopImmediatePropagation(),
+			this.constructor.getAccountManager({ createIfNotExists: true }).showModal()
 		}, { passive: true })
 	}
 
@@ -1241,7 +1088,7 @@ window.lite = new class {
 		!this.achievementMonitor && (Application.events.subscribe('notification.received', ({ data }) => {
 			if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
 				'undefined' != typeof data.achievements_earned && Application.events.publish('achievementsEarned', data.achievements_earned);
-				this.refreshAchievements() // only update percentages // this.updateAchievements?
+				this.refreshAchievements({ force: true }) // only update percentages // this.updateAchievements?
 			}
 		}),
 		Object.defineProperty(this, 'achievementMonitor', { value: {
@@ -1301,6 +1148,8 @@ window.lite = new class {
 				lastTime[2]--;
 				lastTime.reduce((sum, remainingTime) => sum += remainingTime, 0) === 0 && clearInterval(this.achievementMonitor.countdownTimer);
 				this.achievementMonitor.countdown.innerText = lastTime.map(e => String(e).padStart(2, '0')).join(':');
+				r.time_left -= 1,
+				window.navigation && navigation.addEventListener('navigate', e => e.navigationType != 'replace' && this.constructor.updateAchievements({ time_left: r.time_left }), { once: true, passive: true })
 			}, 1e3);
 			const rightContent = document.querySelector('#right_content');
 			rightContent.prepend(this.achievementMonitor.wrapper)
@@ -1311,7 +1160,7 @@ window.lite = new class {
 		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			document.querySelectorAll(`.track-leaderboard-race-row[data-u_id="${Application.settings.user.u_id}"]`).forEach(race => {
-				race.setAttribute('title', 'Loading...');
+				race.setAttribute('title', 'Loading...'),
 				race.addEventListener('pointerover', () => this.constructor.fetchRaceBestDate().then(date => race.setAttribute('title', date)), { once: true, passive: true })
 			})
 		})
@@ -1319,16 +1168,17 @@ window.lite = new class {
 
 	initDownloadGhosts() {
 		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent(),
-		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' }),
-		this.styleSheet.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' }),
-		this.styleSheet.set('#frhd-lite\\.download-race', {
-			aspectRatio: 1,
-			fontSize: '15px',
-			height: '22px',
-			lineHeight: '1.5em',
-			marginRight: '8px',
-			textAlign: 'center'
-		}),
+		this.constructor.styleSheet
+			.set('.track-page .track-leaderboard .track-leaderboard-action', { textAlign: 'right' })
+			.set('.track-page .track-leaderboard .track-leaderboard-action > :is(span.core_icons, div.moderator-remove-race)', { right: '6px' })
+			.set('#frhd-lite\\.download-race', {
+				aspectRatio: 1,
+				fontSize: '15px',
+				height: '22px',
+				lineHeight: '1.5em',
+				marginRight: '8px',
+				textAlign: 'center'
+			}),
 		Application.router.current_view.on('leaderboard.rendered', () => {
 			for (let actionRow of document.querySelectorAll('.track-leaderboard-race-row[data-u_id="' + Application.settings.user.u_id + '"] > .track-leaderboard-action:not(:has(> #frhd-lite\\.download-race))')) {
 				// let download = actionRow.querySelector('.track-leaderboard-race');
@@ -1374,24 +1224,23 @@ window.lite = new class {
 						}
 
 						let num = row.querySelector('.num');
-						num.classList.add('core_icons', 'core_icons-icon_featured_badge');
-						num.classList.remove('num');
-						num.innerText = null;
-						num.setAttribute('title', 'Featured');
-						row.style.setProperty('background-color', `hsl(${hue}deg 60% 50% / 40%)`);
+						num.classList.add('core_icons', 'core_icons-icon_featured_badge'),
+						num.classList.remove('num'),
+						num.innerText = null,
+						num.setAttribute('title', 'Featured'),
+						row.style.setProperty('background-color', `hsl(${hue}deg 60% 50% / 40%)`)
 					}
 				}
 			}
-		});
+		})
 	}
 
-	initFriendsLastPlayed() {
-		fetch(location.pathname + '?ajax').then(r => r.json()).then(({ friends, is_profile_owner }) => {
-			is_profile_owner || document.querySelectorAll('.friend-list-item-name').forEach(item => {
-				item.after(this.constructor.createElement('div.friend-list-item-date', {
-					innerText: "Last Played " + friends.friends_data.find(({ d_name }) => d_name == item.innerText).activity_time_ago
-				}))
-			})
+	async initFriendsLastPlayed() {
+		const { friends, is_profile_owner } = Application.router.current_view.ajax && Application.router.current_view.username === Application.router.current_view.ajax.header_title.toLowerCase() ? Application.router.current_view.ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
+		is_profile_owner || document.querySelectorAll('.friend-list-item-name').forEach(item => {
+			item.after(this.constructor.createElement('div.friend-list-item-date', {
+				innerText: "Last Played " + friends.friends_data.find(({ d_name }) => d_name == item.innerText).activity_time_ago
+			}))
 		})
 	}
 
@@ -1410,7 +1259,7 @@ window.lite = new class {
 				const filteredAverageTicks = trackLeaderboard.filter(({ u_id }) => u_id !== userId).reduce((total, { run_time }) => total += parseTicks(run_time), 0) / trackLeaderboard.length;
 				const max = parseTicks(trackLeaderboard.at(-1).run_time);
 				const calculatedMargin = max - parseTicks(trackLeaderboard[Math.min(trackLeaderboard.length - 1, index + 1)].run_time);
-				this.debug && console.log(averageTicks, parseTicks(runTime), 'diff', averageTicks - parseTicks(runTime), 'max diff', max - averageTicks, max - filteredAverageTicks, filteredAverageTicks, calculatedMargin, 'max', max, 'max divided by 100', max / 100, calculatedMargin / max, calculatedMargin * (max / 100), max / calculatedMargin)
+				this.constructor.debug && console.log(averageTicks, parseTicks(runTime), 'diff', averageTicks - parseTicks(runTime), 'max diff', max - averageTicks, max - filteredAverageTicks, filteredAverageTicks, calculatedMargin, 'max', max, 'max divided by 100', max / 100, calculatedMargin / max, calculatedMargin * (max / 100), max / calculatedMargin)
 				if (averageTicks - parseTicks(runTime) > max - filteredAverageTicks) return true;
 				return false
 			})) {
@@ -1472,22 +1321,22 @@ window.lite = new class {
 					width: '100%'
 				},
 				type: 'range',
-				onchange(event) {
+				change(event) {
 					GameManager.game.currentScene.state.playing = false;
 					let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
 					player.isGhost() && player._replayIterator.next(this.value)
 				},
-				onpointerdown(event) {
+				pointerdown(event) {
 					this.setPointerCapture(event.pointerId);
 					this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max);
 					this.dispatchEvent(new InputEvent('change'));
 					this.wasPlaying = GameManager.game.currentScene.state.playing
 				},
-				onpointermove(event) {
+				pointermove(event) {
 					event.buttons & 1 == 1 && (this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max),
 					this.dispatchEvent(new InputEvent('change')));
 				},
-				onpointerup(event) {
+				pointerup(event) {
 					this.releasePointerCapture(event.pointerId);
 					GameManager.game.currentScene.state.playing = this.wasPlaying
 				}
@@ -1495,7 +1344,7 @@ window.lite = new class {
 			writable: true
 		}),
 		this._updateMediaSessionMetadata(),
-		this.styleSheet.set('.frhd-lite\\.race-player-progress::-webkit-progress-value', {
+		this.constructor.styleSheet.set('.frhd-lite\\.race-player-progress::-webkit-progress-value', {
 			backgroundColor: 'hsl(195deg 57% 25%)'
 		}).set('.frhd-lite\\.race-player-progress:hover', {
 			cursor: 'pointer',
@@ -1632,7 +1481,7 @@ window.lite = new class {
 					})
 				]
 			})
-		}));
+		}))
 	}
 
 	initReportTracks() {
@@ -1661,7 +1510,7 @@ window.lite = new class {
 			}));
 			requestTrackData.addEventListener('click', () => this.constructor.downloadAllTracks(Application.settings.user.u_name), { passive: true });
 		} else {
-			console.warn("Request track data failed to load! Personal data is not present.");
+			console.warn("Request track data failed to load! Personal data is not present.")
 		}
 	}
 
@@ -1907,9 +1756,9 @@ window.lite = new class {
 	}
 
 	async modifyCommentNotifications() {
-		let notifications = await Application.Helpers.AjaxHelper.get('notifications').then(({ notification_days: d }) => {
-			return d && d.length > 0 && d.flatMap(({ notifications: n }) => n)
-		});
+		// console.log(await this.constructor.fetchRequestData({ attributeFilter: ['notification_days'] }));
+		let { notification_days: d } = Application.router.current_view.ajax && /^notifications$/i.test(Application.router.current_view.ajax.header_title) ? Application.router.current_view.ajax : await Application.Helpers.AjaxHelper.get('notifications');
+		let notifications = d && d.length > 0 && d.flatMap(({ notifications: n }) => n);
 		let commentNotifications = notifications.filter(({ t_uname_mention: t }) => t);
 		for (let { comment, track, ts } of commentNotifications) {
 			let notification = document.querySelector('.notification[data-ts="' + ts + '"] p > a[href$="' + track.url + '"]')
@@ -1918,11 +1767,97 @@ window.lite = new class {
 	}
 
 	refreshAchievements() {
-		return fetch("/achievements?ajax").then(r => r.json()).then(async res => {
+		return this.constructor.fetchAchievements(...arguments).then(async res => {
 			let children = await Promise.all(res.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
 			this.achievementMonitor.container.replaceChildren(...children);
 			return res
 		})
+	}
+
+	static fetchRequestData({ attributeFilter, timeout = 10, typedFilter } = {}) {
+		return new Promise((resolve, reject) => {
+			var event = 'ajax.request';
+			var listener = data => {
+				data = typeof data == 'object' && typeof data.data == 'object' ? data.data : data;
+				if (typeof attributeFilter == 'object' && attributeFilter instanceof Array) {
+					const attributes = Object.keys(data);
+					if (attributeFilter.find(attribute => !attributes.includes(attribute))) return;
+				} else if (typeof typedFilter == 'object') {
+					for (let attribute of typedFilter) {
+						if (typeof data[attribute] !== typedFilter[attribute]) return;
+					}
+				}
+				Application.events.unsubscribe(event, listener),
+				Application.events.unsubscribe(timeoutEvent, listener),
+				resolve(data)
+			};
+			Application.events.subscribe(event, listener);
+			var timeoutEvent = 'mainview.loaded';
+			var timeoutListener = () => {
+				Application.events.unsubscribe(event, listener),
+				Application.events.unsubscribe(timeoutEvent, listener),
+				reject('Request timed out.')
+			};
+			Application.events.subscribe(timeoutEvent, timeoutListener),
+			typeof timeout == 'number' && setTimeout(timeoutListener, timeout * 1e3)
+		})
+	}
+
+	static #customStyleSheet = document.head.appendChild(this.createElement('style', { id: 'frhd-lite.style' }));
+	static ajaxResponse = null;
+	static debug = false;
+	static styleSheet = new Proxy(Object.defineProperty(new Map(), 'update', {
+		value(key, value) {
+			let newValue = Object.assign(this.get(key) || {}, value);
+			this.set(key, newValue);
+			return newValue
+		},
+		writable: true
+	}), {
+		get: (...args) => {
+			let [target, property, receiver] = args;
+			let returnValue = Reflect.get(...args);
+			if (typeof returnValue == 'function') {
+				switch (property) {
+				case 'delete':
+					return (...args) => {
+						returnValue = returnValue.apply(target, args);
+						this._updateCustomStyleSheet(this.styleSheet.entries());
+						return returnValue
+					}
+				case 'set':
+				case 'update':
+					return (...args) => {
+						let [key, value] = args;
+						returnValue.call(target, key, new Proxy(value, {
+							set: (...args) => {
+								let returnValue = Reflect.set(...args);
+								this._updateCustomStyleSheet(this.styleSheet.entries());
+								return returnValue
+							}
+						}));
+						this._updateCustomStyleSheet(this.styleSheet.entries());
+						return receiver
+					}
+				default:
+					returnValue = returnValue.bind(target)
+				}
+			}
+			return returnValue
+		}
+	});
+
+	static _updateCustomStyleSheet(data) {
+		const entries = Array.from(data);
+		const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
+		let textContent = '';
+		for (let [key, properties] of filteredEntries) {
+			properties = Object.entries(properties);
+			for (let property of properties)
+				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
+			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}'; // JSON.stringify().replace(/(?<="),/, ';')
+		}
+		this.#customStyleSheet.textContent = textContent
 	}
 
 	static compareUsers(a, b) {
@@ -1935,10 +1870,10 @@ window.lite = new class {
 				this.createElement("button.new-button.button-type-1", {
 					innerText: login,
 					style: { width: '-webkit-fill-available' },
-					onclick: event => {
+					click: event => {
 						event.target.closest("#frhd-lite\\.account-manager").close();
 						Application.Helpers.AjaxHelper.post("/auth/standard_login", { login, password }).done(r => {
-							r.result && Application.events.publish("auth.login", r.data.user, r.data.user_stats);
+							r.result && Application.events.publish("auth.login", r.data.user, r.data.user_stats)
 						})
 					}
 				}),
@@ -1948,7 +1883,7 @@ window.lite = new class {
 						aspectRatio: 1,
 						marginRight: 0
 					},
-					onclick: () => {
+					click: () => {
 						let accounts = this.getStorageEntry('account-manager') ?? [];
 						accounts.length > 0 && (accounts.splice(accounts.indexOf(accounts.find((account) => account.login === login)), 1),
 						this.setStorageEntry('account-manager', accounts)),
@@ -1962,6 +1897,144 @@ window.lite = new class {
 			}
 		});
 		return container
+	}
+
+	static getAccountManager({ createIfNotExists, showLogin } = {}) {
+		(this.accountManager || createIfNotExists) && (Object.defineProperty(this, 'accountManager', {
+			value: document.body.appendChild(this.createElement("dialog#frhd-lite\\.account-manager", {
+				children: [
+					this.createElement("span.core_icons.core_icons-icon_close.signup-login-modal-close", {
+						style: {
+							position: 'absolute',
+							right: '.5em',
+							top: '.5em'
+						},
+						click: () => this.accountManager.close()
+					}),
+					this.createElement("div.accounts-container", {
+						children: (this.getStorageEntry('account-manager') ?? []).map(account => this.constructor.createAccountContainer(account)),
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '0.4rem'
+						}
+					}),
+					this.createElement("button.new-button.button-type-2", {
+						id: 'add-account',
+						innerText: "Add account",
+						click: event => {
+							let loginContainer = document.querySelector("div#login-container");
+							if (loginContainer) {
+								event.target.innerText = "Add account";
+								event.target.classList.replace('button-type-3', 'button-type-2');
+								loginContainer.remove();
+								return;
+							}
+
+							let submit = event.target;
+							event.target.before(this.createElement("div#login-container", {
+								children: [
+									this.createElement("input.field.auth-field#save-account-login", {
+										placeholder: "Username or Email",
+										style: { borderRadius: "2rem" },
+										type: "text",
+										keyup(event) {
+											event.key === 'Enter' && this.nextElementSibling.focus()
+										}
+									}),
+									this.createElement("input.field.auth-field#save-account-password", {
+										placeholder: "Password",
+										style: { borderRadius: "2rem" },
+										type: "password",
+										keyup(event) {
+											event.key === 'Enter' && this.nextElementSibling.click()
+										}
+									}),
+									this.createElement("button.new-button.button-type-1", {
+										innerText: "Save account",
+										click: event => {
+											Application.Helpers.AjaxHelper.post("/auth/standard_login", {
+												login: document.querySelector("#save-account-login")?.value,
+												password: document.querySelector("#save-account-password")?.value
+											}).done(res => {
+												if (!res.result) return;
+												let accounts = this.getStorageEntry('account-manager') || [];
+												if (accounts.find(({ login }) => login === res.data.user.d_name)) return;
+												accounts.push({
+													login: res.data.user.d_name,
+													password: document.querySelector("#save-account-password")?.value
+												}),
+												this.accountManager.querySelector(".accounts-container").append(this.createAccountContainer(accounts[accounts.length - 1])),
+												this.setStorageEntry('account-manager', accounts),
+												submit.classList.replace('button-type-3', 'button-type-2'),
+												submit.innerText = "Add account",
+												event.target.parentElement.remove()
+											})
+										}
+									})
+								],
+								style: {
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '0.4rem',
+									marginTop: '1rem'
+								}
+							}));
+							event.target.classList.replace('button-type-2', 'button-type-3'),
+							event.target.innerText = "Cancel"
+						}
+					}),
+					this.createElement("button.new-button.button-type-3", {
+						innerText: "Logout",
+						click: () => this.accountManager.close('logout')
+					})
+				],
+				click: event => {
+					if (this.accountManager !== event.target) return;
+					let rect = event.target.getBoundingClientRect()
+					  , isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+						rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+					!isInDialog && event.target.close()
+				},
+				close: event => {
+					switch (event.target.returnValue) {
+					case 'logout':
+						Application.User.logout()
+					}
+				},
+				showModal(target) {
+					switch (target) {
+					case 'login':
+						let addAccount = this.querySelector('#add-account');
+						addAccount && !/^cancel$/i.test(addAccount.innerText) && addAccount.click()
+					}
+					return HTMLDialogElement.prototype.showModal.call(this)
+				}
+			})),
+			writable: true
+		}), this.styleSheet.set('dialog#frhd-lite\\.account-manager[open]', {
+			display: 'flex',
+			flexDirection: 'column',
+			gap: '0.4em',
+			height: 'fit-content',
+			inset: 0,
+			margin: 'auto',
+			maxHeight: '50vmin',
+			maxWidth: '25vw',
+			minWidth: '230px',
+			overflow: 'hidden auto',
+			padding: '2.5em',
+			position: 'fixed',
+			width: '40vmin',
+			zIndex: 1002
+		}).set('dialog#frhd-lite\\.account-manager[open]::backdrop', {
+			backgroundColor: 'hsl(0deg 0% 0% / 50%)'
+		}).set('.button-type-3', {
+			backgroundImage: 'linear-gradient(to bottom, hsl(7 86% 62% / 1), hsl(10 64% 46% / 1))'
+		}).set('.button-type-3:hover', {
+			backgroundImage: 'linear-gradient(to bottom, hsl(4 79% 60% / 1), hsl(4 69% 37% / 1))'
+		}));
+		return this.accountManager
 	}
 
 	static async createProgressElement(achievement) {
@@ -2058,7 +2131,7 @@ window.lite = new class {
 		const classList = type.match(/(?<=\.)([^\.#]+((?<=\\)\.)?)+/g);
 		null !== classList && element.classList.add(...classList.map(name => name.replace(/\\/g, '')));
 		if ('innerText' in options) {
-			element.innerText = options.innerText;
+			element.innerText = options.innerText,
 			delete options.innerText;
 		}
 
@@ -2067,17 +2140,20 @@ window.lite = new class {
 				if (options[attribute] instanceof Array) {
 					if (/^children$/i.test(attribute)) {
 						element.append(...options[attribute]);
-					} else if (/^classlist$/i.test(attribute)) {
+					} else if (/^classlist$/i.test(attribute))
 						element.classList.add(...options[attribute]);
-					} else if (/^on/i.test(attribute)) {
-						for (const listener of options[attribute])
-							// make listener passive if preventDefault() not found in stringified function
-							element.addEventListener(attribute.slice(2), listener, { passive: !/\.preventDefault\(\)/g.test(listener.toString()) });
-					}
 				} else if (/^(dataset|style)$/i.test(attribute))
 					Object.assign(element[attribute.toLowerCase()], options[attribute]);
-				delete options[attribute]
-			}
+				else continue;
+			} else if (typeof options[attribute] == 'function') {
+				if (/^mutation$/i.test(attribute)) {
+					typeof options['MutationObserverOptions'] == 'object' && (new MutationObserver(options[attribute]).observe(element, options['MutationObserverOptions']),
+					delete options['MutationObserverOptions']);
+				} else if (element['on' + attribute] !== undefined)
+					element.addEventListener(attribute, options[attribute], { passive: !/\.preventDefault\(\)/g.test(options[attribute].toString()) });
+				else continue;
+			} else continue;
+			delete options[attribute]
 		}
 
 		Object.assign(element, options);
@@ -2150,6 +2226,25 @@ window.lite = new class {
 		})
 	}
 
+	static async fetchAchievements({ force } = {}) {
+		const KEY = this.keyify('achievements');
+		let cache = sessionStorage.getItem(KEY);
+		if (cache && !force) {
+			return JSON.parse(cache);
+		}
+
+		let data = await fetch('/achievements?ajax').then(r => r.json());
+		sessionStorage.setItem(KEY, JSON.stringify(data));
+		return data
+	}
+
+	static async updateAchievements(data, { force } = {}) {
+		const KEY = this.keyify('achievements');
+		const entry = await this.fetchAchievements({ force });
+		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(entry, data)));
+		return entry
+	}
+
 	static async fetchCurrentUser({ force } = {}) {
 		const KEY = this.keyify('current_user');
 		let cache = sessionStorage.getItem(KEY);
@@ -2157,9 +2252,10 @@ window.lite = new class {
 			return JSON.parse(cache);
 		}
 
-		let data = await fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json());
-		sessionStorage.setItem(KEY, JSON.stringify(data));
-		return data
+		const { ajax } = Application.router.current_view;
+		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json());
+		sessionStorage.setItem(KEY, JSON.stringify(entry));
+		return entry || null
 	}
 
 	static async fetchCurrentUserCosmetics({ force } = {}) {
@@ -2182,8 +2278,9 @@ window.lite = new class {
 		if (cache && !force) {
 			return cache;
 		}
-
-		let entry = await fetch('/u/' + uid + '?ajax').then(r => r.json());
+		const { ajax } = Application.router.current_view;
+		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
+		// let entry = await fetch('/u/' + uid + '?ajax').then(r => r.json());
 		this.users.push(entry);
 		return entry || null
 	}
@@ -2211,9 +2308,10 @@ window.lite = new class {
 		if (!force && cache[t]) {
 			return cache[t]
 		}
-		let date = await fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { best_date } = {}} = {}) => best_date);
+		const { ajax } = Application.router.current_view;
+		const { user_track_stats: { best_date: date } = {}} = ajax && ajax.track && ajax.track.id === t ? ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(cache, { [t]: date })));
-		return date;
+		return date
 	}
 
 	static async fetchTrackLastPlayedDate({ force } = {}) {
@@ -2223,9 +2321,10 @@ window.lite = new class {
 		if (!force && cache[t]) {
 			return cache[t]
 		}
-		let date = await fetch(location.pathname + '?ajax').then(r => r.json()).then(({ user_track_stats: { last_played_date } = {}} = {}) => last_played_date);
+		const { ajax } = Application.router.current_view;
+		const { user_track_stats: { last_played_date: date } = {}} = ajax && ajax.track && ajax.track.id === t ? ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(cache, { [t]: date })));
-		return date;
+		return date
 	}
 
 	static fetchRaceRow(data, { parent, placement }) {
@@ -2355,14 +2454,14 @@ window.lite = new class {
 		});
 		return Application.Helpers.AjaxHelper.post('track_comments/post', {
 			t_id: data.t_id,
-			msg: message.replace(/{data-(\w+)}/g, (_, key) => data[key]) + ' was reported with frhd-lite. (@Calculus/@Totoca12)'
+			msg: message.replace(/{data-(\w+)}/g, (_, key) => data[key]) + ' was reported with frhd-lite. (@Calculus/@Eric/@Totoca12)'
 		})
 	}
 
 	static reportRegex(message, data, { type } = {}) {
 		const hrefify = a => "<a\\shref=\"" + location.origin + "\\/u\\/" + a.toLowerCase() + "\">" + a + "<\/a>";
 		message = message.replace(/{data-(\w+)}/g, (_, key) => data[key]).replace(/([\(\)])/g, '\\$1').replace(/@([\w\._-]+)/, (_, t) => hrefify(t));
-		return new RegExp((message ? "^" + type.replace(/^\w/, c => c.toUpperCase()) + "\\s" + message : '') + " was reported with frhd-lite. \\(" + hrefify('Calculus') + "\\/" + hrefify('Totoca12') + "\\)$", 'i')
+		return new RegExp((message ? "^" + type.replace(/^\w/, c => c.toUpperCase()) + "\\s" + message : '') + " was reported with frhd-lite. \\(" + hrefify('Calculus') + "\\/" + hrefify('Eric') + "\\/" + hrefify('Totoca12') + "\\)$", 'i')
 	}
 
 	static fetchReports(...args) {

@@ -27,7 +27,7 @@ export default class Tool {
 		  n && (i.isButtonDown("ctrl") || n.selectedElements.length > 0) && n.draw(t)
 	}
 	getOptions() {
-		return {}
+		return this.options || {}
 	}
 	press() { }
 	hold() { }
@@ -42,7 +42,7 @@ export default class Tool {
 		  , r = s.isButtonDown("shift")
 		  , g = s.isButtonDown("ctrl");
 		n.rightClickMove && (r = i.old.down),
-		r ? (e.old.down || n.rightClickMove) && this.moveCamera() : g ? this.selectArea(e) : (e.press && this.press(),
+		r ? (e.old.down || n.rightClickMove) && this.moveCamera() : (!this.toolhandler.tools[this.toolhandler.currentTool].active && g) ? this.selectArea(e) : (e.press && this.press(),
 		e.old.down && this.hold(),
 		e.release && this.release()),
 		t.mousewheel !== !1 && r === !1 && this.mousewheel(t.mousewheel)

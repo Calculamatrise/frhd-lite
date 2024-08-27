@@ -3,7 +3,7 @@ class Zip {
 	#zip = new Map();
 	name = null;
 	constructor(name) {
-		name && (this.name = name.replace(/(\.zip)?$/, '.zip'));
+		name && (this.name = name.replace(/(\.zip)?$/, '.zip'))
 	}
 	blob() {
 		return this.compress({ force: true }),
@@ -47,7 +47,7 @@ class Zip {
 		return this.newFile(response.url.replace(/^.+\//, ''), await response.arrayBuffer(), Object.assign({
 			destinationFolder: new URL(response.url.replace(/\/[^/]+$/, '')).pathname,
 			lastModified: response.headers.get('Last-Modified')
-		}, options));
+		}, options))
 	}
 	newFile(name, data, { destinationFolder = '', extension, lastModified = Date.now() } = {}) {
 		if (typeof arguments[0] == 'object')
@@ -85,7 +85,7 @@ class Zip {
 		let n = -1;
 		for (let i of buf)
 			n = n >>> 8 ^ this.crc32lookup(n ^ i);
-		return this.reverse(((-1 ^ n) >>> 0).toString(16).padStart(8, '0'));
+		return this.reverse(((-1 ^ n) >>> 0).toString(16).padStart(8, '0'))
 	}
 	static lastModifiedBinaryToHex(lastModified) {
 		let lastMod = new Date(lastModified);

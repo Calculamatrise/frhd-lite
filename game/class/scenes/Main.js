@@ -1,10 +1,12 @@
 import BaseScene from "./BaseScene.js";
 import b from "../controls/fullscreen.js";
 import w from "../controls/pause.js";
+import Z from "../controls/pathtracer.js";
 import T from "../controls/settings.js";
 import r from "../utils/campaignscore.js";
 import P from "../utils/formatnumber.js";
 import o from "../utils/racetimes.js";
+import PathTracer from "../tools/pathtracertool.js";
 
 async function digestMessage(message) {
 	const msgUint8 = new TextEncoder().encode(message);
@@ -22,6 +24,7 @@ export default class extends BaseScene {
 	ready = false;
 	loading = false;
 	fullscreenControls = null;
+	pathtracerControls = null;
 	settingsControls = null;
 	constructor(t) {
 		super(t);
@@ -50,6 +53,7 @@ export default class extends BaseScene {
 	}
 	createControls() {
 		this.pauseControls = new w(this),
+		this.pathtracerControls = new Z(this);
 		this.settings.fullscreenAvailable && (this.fullscreenControls = new b(this)),
 		this.settingsControls = new T(this)
 	}
@@ -73,11 +77,11 @@ export default class extends BaseScene {
 	exitFullscreen() {
 		this.settings.fullscreenAvailable && (this.settings.fullscreen = !1,
 		this.state.fullscreen = !1,
-		this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen"))
+		this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen"))
 	}
 	toggleFullscreen() {
 		let t = super.toggleFullscreen();
-		t && this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen")
+		t && this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen")
 	}
 	trackEvent(t, e, i) {
 		Application.Helpers.GoogleAnalyticsHelper.track_event({
@@ -95,21 +99,23 @@ export default class extends BaseScene {
 	}
 	interactWithControls() {
 		super.interactWithControls(),
+		this.pathtracerControls.click(),
 		this.settings.fullscreenAvailable && this.fullscreenControls.click()
 		this.settingsControls.click()
 	}
 	updateControls() {
 		super.updateControls(),
 		this.settings.fullscreenAvailable && this.fullscreenControls.update()
-		this.settingsControls.update()
 	}
 	redrawControls() {
 		super.redrawControls(),
+		this.pathtracerControls.redraw(),
 		this.settings.fullscreenAvailable && this.fullscreenControls.redraw(),
 		this.settingsControls.redraw()
 	}
 	registerTools() {
 		let t = super.registerTools();
+		t.registerTool(PathTracer),
 		t.setTool("Camera")
 	}
 	fixedUpdate() {
@@ -126,6 +132,7 @@ export default class extends BaseScene {
 	}
 	draw(ctx) {
 		super.draw(...arguments),
+		this.pathtracerControls.draw(ctx),
 		this.settings.fullscreenAvailable && this.fullscreenControls.draw(ctx),
 		this.settingsControls.draw(ctx),
 		this.campaignScore && this.campaignScore.draw(ctx),

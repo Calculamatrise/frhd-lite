@@ -1,5 +1,5 @@
-import Cartesian from "../math/cartesian.js";
 import Tool from "./tool.js";
+import Cartesian from "../math/cartesian.js";
 
 export default class StraightLine extends Tool {
 	active = !1;
@@ -46,7 +46,7 @@ export default class StraightLine extends Tool {
 		let r = s.snapPoint;
 		r.x = e.x,
 		r.y = e.y,
-		this.active = !1
+		this.reset()
 	}
 	update() {
 		super.update();
@@ -67,7 +67,7 @@ export default class StraightLine extends Tool {
 		this.active && (this.drawLine(e, s),
 		this.drawPoint(e, this.p1, s),
 		this.drawPoint(e, this.p2, s),
-		this.drawPointData(e, this.p2, s)),
+		this.shouldDrawMetadata && this.drawPointData(e, this.p2, s)),
 		e.restore()
 	}
 	drawCursor(t) {
@@ -102,16 +102,14 @@ export default class StraightLine extends Tool {
 		t.fill()
 	}
 	drawPointData(t, e) {
-		let i = e.toScreen(this.scene);
-		if (this.shouldDrawMetadata) {
-			let s = this.p1.getAngleInDegrees(this.p2);
-			s = s.toFixed(2);
-			let n = this.game.pixelRatio;
-			t.fillStyle = /^midnight$/.test(lite.storage.get('theme')) ? 'C' : /^dark(er)?$/i.test(lite.storage.get('theme')) ? 'FB' : '0',
-			t.font = 8 * n + "pt arial",
-			t.fillText(s + "°", i.x + 10, i.y + 10),
-			t.strokeText(s + "°", i.x + 10, i.y + 10)
-		}
+		let i = e.toScreen(this.scene)
+		  , s = this.p1.getAngleInDegrees(this.p2).toFixed(2)
+		  , n = this.game.pixelRatio;
+		t.fillStyle = this.scene.settings.physicsLineColor,
+		t.strokeStyle = this.scene.settings.physicsLineColor,
+		t.font = 8 * n + "pt arial",
+		t.fillText(s + "°", i.x + 10, i.y + 10),
+		t.strokeText(s + "°", i.x + 10, i.y + 10)
 	}
 	drawLine(t, e) {
 		let n = this.toolhandler
@@ -122,7 +120,7 @@ export default class StraightLine extends Tool {
 		t.beginPath(),
 		t.lineWidth = Math.max(0.5, 2 * e),
 		t.lineCap = 'round',
-		t.strokeStyle = q < 2 ? '#cc4444' : '#'.padEnd(7, 'physics' === r ? /^midnight$/i.test(lite.storage.get('theme')) ? 'C' : /^dark$/i.test(lite.storage.get('theme')) ? 'FB' : '0' : /^midnight$/i.test(lite.storage.get('theme')) ? '8' : /^dark$/i.test(lite.storage.get('theme')) ? '6' : 'A'),
+		t.strokeStyle = q < 2 ? '#cc4444' : this.scene.settings[r + 'LineColor'],
 		t.moveTo(a.x, a.y),
 		t.lineTo(h.x, h.y),
 		t.stroke()
