@@ -63,7 +63,7 @@ for (const item in defaults) {
 			t.parentElement.setAttribute('tabindex', '0'),
 			t.parentElement.focus()
 		});
-		let checkbox = document.querySelector(`#${item}-visible`);
+		let checkbox = document.getElementById(element.id + '-visible');
 		element.parentElement.addEventListener('contextmenu', event => {
 			event.preventDefault(),
 			checkbox.checked = !1,
@@ -81,13 +81,40 @@ for (const item in defaults) {
 	case 'inputDisplaySize':
 	case 'snapshots':
 		element.addEventListener('input', event => {
-			chrome.storage.proxy.local.settings.set(item, event.target.value | 0)
+			chrome.storage.proxy.local.settings.set(item, parseFloat(event.target.value) || 0)
 		}, { passive: true });
+		break;
+	case 'colorPalette':
+		for (let element of document.querySelectorAll('[id^=' + item + ']:not([id$=-visible])')) {
+			element.parentElement.addEventListener('focusout', event => event.target.removeAttribute('tabindex'), { passive: true });
+			element.addEventListener('click', event => {
+				let t = event.target;
+				if (t.parentElement.hasAttribute('tabindex')) {
+					event.preventDefault(),
+					t.parentElement.removeAttribute('tabindex');
+					return;
+				}
+
+				t.parentElement.setAttribute('tabindex', '0'),
+				t.parentElement.focus()
+			});
+			let checkbox = document.getElementById(element.id + '-visible');
+			element.parentElement.addEventListener('contextmenu', event => {
+				event.preventDefault(),
+				checkbox.checked = !1,
+				chrome.storage.proxy.local.settings[item].set(element.id.replace(/.+\./g, ''), null)
+			});
+			element.addEventListener('input', event => {
+				console.log(chrome.storage.proxy.local.settings[item], element.id.replace(/.+\./g, ''), event.target.value)
+				chrome.storage.proxy.local.settings[item].set(element.id.replace(/.+\./g, ''), event.target.value),
+				checkbox.checked = event.target.value !== '#000000'
+			}, { passive: true });
+		}
 		break;
 	case 'filterDuplicatePowerups':
 		element.addEventListener('input', event => {
 			if (event.target.checked && !confirm("Are you sure you want to enable this feature? It may cause some of your ghosts to break!")) {
-				event.preventDefault();
+				event.preventDefault(),
 				event.target.checked = false;
 				return;
 			}
@@ -142,6 +169,13 @@ function restoreSettings(data) {
 			element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
 			element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
 			break;
+		case 'colorPalette':
+			for (let property in data[item]) {
+				element = document.getElementById(item + '.' + property);
+				element.parentElement.style.setProperty('background-color', (element.value = data[item][property] || '#000000') + '33');
+				element.value !== '#000000' && (element = document.getElementById(item + '.' + property + '-visible')) && (element.checked = true);
+			}
+			break;
 		case 'curveBreakLength':
 		case 'curvePoints':
 		case 'inputDisplayOpacity':
@@ -150,7 +184,7 @@ function restoreSettings(data) {
 		case 'brightness':
 			element.value = data[item];
 			var name = element.parentElement.querySelector('.name');
-			name.textContent = name.textContent.replace(/(?<=\()([\d.]+)(?=\))/, element.value);
+			name.textContent = name.textContent.replace(/(?<=\()[\d\.]+(%)?(?=\))/, element.value + '$1');
 			break;
 		case 'keymap':
 			var action = document.querySelector('#keybind-action')

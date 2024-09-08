@@ -116,6 +116,10 @@
 					<input type="checkbox" id="raceTrail">
 					<span>Path tracer</span>
 				</label>
+				<label class="ripple disabled" title="Allows you to save multiple additional ghosts locally">
+					<input type="checkbox" id="saveMultipleGhosts">
+					<span>Save multiple ghosts</span>
+				</label>
 			</details>
 			<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
 		</details>
@@ -165,6 +169,10 @@
 			<input type="radio" name="theme" id="darker">
 			<span>Darker</span>
 		</label>
+		<label class="ripple disabled">
+			<input type="radio" name="theme" id="custom">
+			<span>Custom</span>
+		</label>
 		<details data-type="experiments" style="display: none;">
 			<summary class="tab ripple">Experiments</summary>
 			<label title="Change the overall brightness of the game">
@@ -172,17 +180,17 @@
 				<input type="range" class="override-pointer-events" id="brightness" min="1" max="100" value="100" style="width: -webkit-fill-available">
 			</label>
 			<details>
-				<summary class="tab ripple">Custom</summary>
-				<label for="backgroundColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="backgroundColor-visible"><input type="color" id="backgroundColor">
+				<summary class="tab ripple">Custom Color Scheme</summary>
+				<label for="colorPalette.backgroundColor" class="focus ripple" title="Customize your canvas" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="colorPalette.backgroundColor-visible"><input type="color" id="colorPalette.backgroundColor">
 					<span>Background Color</span>
 				</label>
-				<label for="physicsLineColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="physicsLineColor-visible"><input type="color" id="physicsLineColor">
+				<label for="colorPalette.physicsLineColor" class="focus ripple" title="Customize solid line colour" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="colorPalette.physicsLineColor-visible"><input type="color" id="colorPalette.physicsLineColor">
 					<span>Solid Lines</span>
 				</label>
-				<label for="sceneryLineColor" class="focus ripple disabled" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="sceneryLineColor-visible"><input type="color" id="sceneryLineColor">
+				<label for="colorPalette.sceneryLineColor" class="focus ripple" title="Customize background line colour" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+					<input type="checkbox" id="colorPalette.sceneryLineColor-visible"><input type="color" id="colorPalette.sceneryLineColor">
 					<span>Scenery Lines</span>
 				</label>
 			</details>

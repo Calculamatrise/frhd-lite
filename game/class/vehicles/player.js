@@ -30,23 +30,23 @@ function m(t, e) {
 
 export default class {
 	constructor(t, e) {
-		this.id = g++;
-		this._scene = t;
-		this._game = t.game;
+		this.id = g++,
+		this._scene = t,
+		this._game = t.game,
 		Object.defineProperties(this, {
 			_scene: { enumerable: false },
 			_game: { enumerable: false }
-		});
-		this._user = e;
+		}),
+		this._user = e,
 		this._settings = t.settings;
 		let i = t.settings.startVehicle;
-		t.settings.track && (i = t.settings.track.vehicle);
-		this._baseVehicleType = i;
-		this._gamepad = new Gamepad(t);
-		this._ghost = !1;
-		this._color = e.color || "#000000";
-		this.setDefaults();
-		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0));
+		t.settings.track && (i = t.settings.track.vehicle),
+		this._baseVehicleType = i,
+		this._gamepad = new Gamepad(t),
+		this._ghost = !1,
+		this._color = e.color || "#000000",
+		this.setDefaults(),
+		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0))
 	}
 	getCheckpointCount() {
 		return this._checkpoints.length
@@ -214,18 +214,37 @@ export default class {
 	drawName(ctx) {
 		let l = this.getActiveVehicle()
 		  , c = l.focalPoint.pos.toScreen(this._scene);
-		ctx.globalAlpha = this._opacity,
-		ctx.beginPath(),
-		ctx.fillStyle = this._color,
-		ctx.moveTo(c.x, c.y - 40 * this._scene.camera.zoom),
-		ctx.lineTo(c.x - 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
-		ctx.lineTo(c.x + 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
-		ctx.lineTo(c.x, c.y - 40 * this._scene.camera.zoom),
-		ctx.fill();
-		ctx.font = (9 * this._scene.game.pixelRatio * Math.max(this._scene.camera.zoom, 1)) + "pt helsinki",
-		ctx.textAlign = "center",
-		ctx.fillStyle = this._color,
-		ctx.fillText(this._user.d_name, c.x, c.y - 60 * this._scene.camera.zoom),
+		ctx.globalAlpha = this._opacity;
+		ctx.textAlign = "center";
+		if (this._user.badges && this._user.badges.size > 0) {
+			ctx.font = (10 * this._scene.game.pixelRatio * this._scene.camera.zoom) + "pt helsinki",
+			ctx.strokeText(Array.from(this._user.badges)[0], c.x, c.y - 40 * this._scene.camera.zoom);
+		} else {
+			ctx.beginPath(),
+			ctx.fillStyle = this._color,
+			ctx.moveTo(c.x, c.y - 40 * this._scene.camera.zoom),
+			ctx.lineTo(c.x - 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
+			ctx.lineTo(c.x + 5 * this._scene.camera.zoom, c.y - 50 * this._scene.camera.zoom),
+			ctx.lineTo(c.x, c.y - 40 * this._scene.camera.zoom),
+			ctx.fill();
+		}
+		ctx.font = (9 * this._scene.game.pixelRatio * Math.max(this._scene.camera.zoom, 1)) + "pt helsinki";
+		let y = c.y - 60 * this._scene.camera.zoom;
+		if (this._user.gradient && this._user.gradient.length > 0) {
+			let measurement = ctx.measureText(this._user.d_name);
+			let gradient = ctx.createLinearGradient(measurement.width / 2, y - (measurement.fontBoundingBoxAscent + measurement.fontBoundingBoxDescent) / 2, measurement.width / 2, y + (measurement.fontBoundingBoxAscent + measurement.fontBoundingBoxDescent) / 2);
+			for (let i in this._user.gradient)
+				gradient.addColorStop(i, this._user.gradient[i]);
+			gradient.addColorStop(this._user.gradient.length, this._color),
+			ctx.fillStyle = gradient;
+			ctx.save(),
+			ctx.lineWidth = .8 * this._scene.game.pixelRatio * Math.max(this._scene.camera.zoom, 1),
+			ctx.strokeStyle = this._color,
+			ctx.strokeText(this._user.d_name, c.x, y),
+			ctx.restore();
+		} else
+			ctx.fillStyle = this._color;
+		ctx.fillText(this._user.d_name, c.x, y),
 		ctx.globalAlpha = 1
 	}
 	draw(ctx) {
@@ -237,13 +256,13 @@ export default class {
 		this.isGhost() && this.drawName(ctx)
 	}
 	checkKeys() {
-		var t = this._gamepad
+		let t = this._gamepad
 		  , e = this._ghost
 		  , i = this._scene
 		  , s;
 		!t.isButtonDown("enter") && !t.isButtonDown("backspace") && t.areKeysDown() && this._cache.length > 0 && (this._cache = []);
 		if (t.isButtonDown("shift") && t.isButtonDown("enter")) {
-			var s = t.getButtonDownOccurances("enter");
+			s = t.getButtonDownOccurances("enter");
 			this.returnToCheckpoint(s),
 			t.setButtonUp("enter")
 		}
@@ -254,7 +273,7 @@ export default class {
 		t.isButtonDown("enter") && (this.gotoCheckpoint(),
 		t.setButtonUp("enter")),
 		t.isButtonDown("backspace")) {
-			var s = t.getButtonDownOccurances("backspace");
+			s = t.getButtonDownOccurances("backspace");
 			this.removeCheckpoint(s),
 			t.setButtonUp("backspace")
 		}
@@ -278,7 +297,7 @@ export default class {
 		t._baseVehicle = JSON.stringify(this._baseVehicle, this._snapshotFilter)),
 		t._powerupsConsumed = JSON.stringify(this._powerupsConsumed),
 		t._crashed = this._crashed;
-		return t;
+		return t
 	}
 	_snapshotFilter(t, e) {
 		switch (t) {
@@ -367,25 +386,25 @@ export default class {
 		}
 	}
 	close() {
-		this.id = null;
-		this._scene = null;
-		this._game = null;
-		this._user = null;
-		this._settings = null;
-		this._baseVehicleType = null;
-		this._gamepad.close();
-		this._gamepad = null;
-		this._baseVehicle = null;
-		this._tempVehicleType = null;
-		this._tempVehicle = null;
-		this._tempVehicleTicks = null;
-		this._addCheckpoint = null;
-		this._checkpoints = null;
-		this._cache = null;
-		this._crashed = null;
-		this._effect = null;
-		this._effectTicks = null;
-		this._powerupsConsumed = null;
+		this.id = null,
+		this._scene = null,
+		this._game = null,
+		this._user = null,
+		this._settings = null,
+		this._baseVehicleType = null,
+		this._gamepad.close(),
+		this._gamepad = null,
+		this._baseVehicle = null,
+		this._tempVehicleType = null,
+		this._tempVehicle = null,
+		this._tempVehicleTicks = null,
+		this._addCheckpoint = null,
+		this._checkpoints = null,
+		this._cache = null,
+		this._crashed = null,
+		this._effect = null,
+		this._effectTicks = null,
+		this._powerupsConsumed = null
 	}
 	reset() {
 		this._tempVehicle && this._tempVehicle.stopSounds(),
@@ -394,7 +413,6 @@ export default class {
 		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0)),
 		this._gamepad.reset(),
 		this._scene.state.playerAlive = this.isAlive(),
-		window.hasOwnProperty('lite') && (window.lite.snapshots.splice(0),
-		window.lite.replayGui && (window.lite.replayGui.progress.value = 0))
+		this._game.emit('playerReset', this)
 	}
 }

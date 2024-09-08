@@ -18,12 +18,12 @@ for (const scope of Array('local', 'session').filter(scope => typeof chrome.stor
 			return Reflect.get(...arguments)
 		},
 		set() {
-			Reflect.set(...arguments);
+			Reflect.set(...arguments),
 			chrome.storage[scope].set(chrome.storage.proxy[scope]);
 			return true
 		},
 		deleteProperty() {
-			Reflect.deleteProperty(...arguments);
+			Reflect.deleteProperty(...arguments),
 			chrome.storage[scope].set(chrome.storage.proxy[scope]);
 			return true
 		}

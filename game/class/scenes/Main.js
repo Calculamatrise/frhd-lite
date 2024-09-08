@@ -122,6 +122,7 @@ export default class extends BaseScene {
 		let t, e;
 		this.ready ? (this.updateToolHandler(),
 		this.mouse.update(),
+		// commenting this.state.paused may break ghosts -- proceed with caution, add experimental option?
 		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
 		this.playerManager.checkKeys()),
 		this.camera.focusIndex > 0 && (t =  this.playerManager.firstPlayer._gamepad.downButtons,
@@ -243,7 +244,7 @@ export default class extends BaseScene {
 		s.clear();
 		for (let n in i) {
 			let r = i[n];
-			r.user.color = t[n % e],
+			r.user.color = window.hasOwnProperty('lite') && lite.constructor.integrateBadges(r.user) || t[n % e],
 			s.addRace(r, n)
 		}
 	}

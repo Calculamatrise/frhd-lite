@@ -4,6 +4,8 @@ export default {
 	bikeFrameColor: null,
 	bikeTireColor: null,
 	brightness: 100,
+	colorPalette: {},
+	colorScheme: 'system',
 	curveBreakLength: 20,
 	curvePoints: 3,
 	developerMode: false,

@@ -69,6 +69,7 @@ window.lite = new class Lite {
 		this.initBestDate(),
 		this.initDownloadGhosts(),
 		this.initGhostMetadata(),
+		this.initHighlightComment(),
 		this.initReportTracks(),
 		location.search.includes('c_id=') && this.initJumpToComment(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
@@ -89,6 +90,10 @@ window.lite = new class Lite {
 			(this.scene.camera.focusIndex !== 0 || this.scene.playerManager._players.length > 1) && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id) || this.scene.races[this.scene.races.length - 1]) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
 		}),
 		game.on('draw', this.draw.bind(this)),
+		game.on('playerReset', player => {
+			this.snapshots.splice(0),
+			this.replayGui && (this.replayGui.progress.value = 0)
+		}),
 		game.on('replayTick', ticks => this.replayGui && (this.replayGui.progress.value = ticks)),
 		game.on('trackChallengeUpdate', races => {
 			this.replayGui && races.length > 0 && this.replayGui.show();
@@ -139,14 +144,19 @@ window.lite = new class Lite {
 		challengeLeaderboard.replaceChildren(...races.map((data, index) => {
 			let row = this.constructor.fetchRaceRow(data, { parent: challengeLeaderboard, placement: 1 + index });
 			let num = row.querySelector('.num');
-			num.innerText = (1 + index) + '.';
+			num && (num.innerText = (1 + index) + '.');
 			let actionRow = row.querySelector('.track-leaderboard-action');
-			actionRow.querySelector('span.btn.new-button.button-type-1') || actionRow.appendChild(this.constructor.createElement('span.btn.new-button.button-type-1', {
+			let children = Array.from(actionRow.children);
+			this.constructor.isUserModerator(Application.settings.user) && (actionRow.querySelector('div.btn.new-button.button-type-1.moderator-remove-race') || children.push(this.constructor.createElement('div.btn.new-button.button-type-1.moderator-remove-race', {
+				data: { u_id: actionRow.dataset.u_id },
+				innerText: 'X'
+			})));
+			actionRow.querySelector('span.btn.new-button.button-type-1') || children.push(this.constructor.createElement('span.btn.new-button.button-type-1', {
 				innerText: 'X',
 				title: 'Remove Race',
 				style: {
 					aspectRatio: 1,
-					backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)',
+					// backgroundImage: 'linear-gradient(#ee5f5b,#c43c35)',
 					fontSize: '12px',
 					height: '24px',
 					lineHeight: '2em',
@@ -158,6 +168,7 @@ window.lite = new class Lite {
 					lite.scene.removeRaces([row.dataset.u_id]);
 				}
 			}));
+			children.length > 0 && actionRow.replaceChildren(...children);
 			return row
 		}));
 		challengeLeaderboard.children.length < 1 && challengeLeaderboard.closest('.track-leaderboard').style.setProperty('display', 'none')
@@ -200,6 +211,7 @@ window.lite = new class Lite {
 			this._csPreference = null;
 		}
 		return theme
+		// this.storage.get('colorPalette');
 		// return object with accentColor, etc.
 	}
 
@@ -230,6 +242,26 @@ window.lite = new class Lite {
 					filter: 'brightness(' + value / 100 + ')'
 				}));
 				break;
+			case 'colorPalette':
+				let updateTheme = !1;
+				for (let property in value) {
+					if (!value[property]) {
+						updateTheme = !0;
+						continue;
+					}
+					switch (property) {
+					case 'backgroundColor':
+						this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), {
+							backgroundColor: value[property]
+						}));
+						break;
+					case 'physicsLineColor':
+					case 'sceneryLineColor':
+						GameSettings[property] = value[property]
+					}
+				}
+				updateTheme && !changes.has('theme') && changes.set('theme', this.storage.get('theme'));
+				break;
 			case 'curveBreakLength':
 				this.scene.toolHandler.tools.hasOwnProperty('curve') && (this.scene.toolHandler.tools.curve.options.breakLength = value / 100);
 				break;
@@ -244,8 +276,9 @@ window.lite = new class Lite {
 				break;
 			case 'theme':
 				const theme = this._getColorScheme(value);
+				const colorPalette = this.storage.get('colorPalette');
 				let backgroundColor = '#'.padEnd(7, theme == 'midnight' ? '1d2328' : theme == 'darker' ? '0' : theme == 'dark' ? '1b' : 'f');
-				this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), { backgroundColor }));
+				colorPalette.backgroundColor ?? this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), { backgroundColor }));
 				this.constructor.styleSheet.set('.gameFocusOverlay', {
 					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
 					color: '#'.padEnd(7, theme == 'midnight' ? 'd' : theme == 'dark' ? 'f' : theme == 'dark' ? 'eb' : '2d')
@@ -276,8 +309,9 @@ window.lite = new class Lite {
 					});
 				}
 
-				GameSettings.physicsLineColor = '#'.padEnd(7, theme == 'midnight' ? 'c' : /^dark(er)?$/.test(theme) ? 'fd' : '0');
-				GameSettings.sceneryLineColor = '#'.padEnd(7, theme == 'midnight' ? '5' : theme == 'darker' ? '121319' : theme == 'dark' ? '6' : 'a');
+
+				colorPalette.physicsLineColor ?? (GameSettings.physicsLineColor = '#'.padEnd(7, theme == 'midnight' ? 'c' : /^dark(er)?$/.test(theme) ? 'fd' : '0'));
+				colorPalette.sceneryLineColor ?? (GameSettings.sceneryLineColor = '#'.padEnd(7, theme == 'midnight' ? '5' : theme == 'darker' ? '121319' : theme == 'dark' ? '6' : 'a'));
 				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, theme == 'midnight' ? '20282e' : /^dark(er)?$/.test(theme) ? '25' : 'e');
 				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, theme == 'midnight' ? '161b20' : /^dark(er)?$/.test(theme) ? '3e' : 'c');
 				this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
@@ -377,34 +411,39 @@ window.lite = new class Lite {
 					if (null !== currentUser) {
 						event.preventDefault();
 						const options = await this.buildUserContextMenu(Application.settings.user);
-						const accounts = this.constructor.getStorageEntry('account-manager') ?? [];
-						const subOptions = accounts.map(account => ({
-							name: account.login,
-							click: () => Application.Helpers.AjaxHelper.post("/auth/standard_login", account).done(r => {
-								r.result && Application.events.publish("auth.login", r.data.user, r.data.user_stats)
-							})
-						}));
-						accounts.length > 0 && subOptions.push({ type: 'hr' }) || subOptions.push({
-							name: 'Add Account',
-							// click: () => this.constructor.getAccountManager({ createIfNotExists: true, showLogin: true }).showModal('login')
-							click: () => Application.Helpers.TemplateHelper.getTemplates(["auth/signup_login"], function(t) {
-								Application.router.auth_dialog_view.template = t["auth/signup_login"],
-								Application.router.auth_dialog_view.options = Object.assign({}, Application.settings, { login: true }),
-								Application.router.auth_dialog_view.setup()
-							})
-						}),
-						subOptions.push({
-							name: 'Manage Accounts',
-							click: () => this.constructor.getAccountManager({ createIfNotExists: true }).showModal()
-						}),
 						options.splice(3, 0, {
-							name: 'Switch Accounts',
-							options: subOptions
-						}, {
 							name: 'Logout',
 							styles: ['danger'],
 							click: () => Application.User.logout()
 						});
+						if (this.storage.get('accountManager')) {
+							const accounts = Object.values(this.constructor.getStorageEntry('account-manager') || {});
+							const subOptions = accounts.map(account => ({
+								name: account.name,
+								styles: account.name.toLowerCase() === Application.settings.user.u_name && ['disabled'],
+								click: () => {
+									this.constructor.setCookie('frhd_app_sr', account.asr, { days: 365 }),
+									location.reload()
+								}
+							}));
+							accounts.length > 0 && subOptions.push({ type: 'hr' }) || subOptions.push({
+								name: 'Add Account',
+								// click: () => this.constructor.getAccountManager({ createIfNotExists: true, showLogin: true }).showModal('login')
+								click: () => Application.Helpers.TemplateHelper.getTemplates(["auth/signup_login"], function(t) {
+									Application.router.auth_dialog_view.template = t["auth/signup_login"],
+									Application.router.auth_dialog_view.options = Object.assign({}, Application.settings, { login: true }),
+									Application.router.auth_dialog_view.setup()
+								})
+							}),
+							subOptions.push({
+								name: 'Manage Accounts',
+								click: () => this.constructor.getAccountManager({ createIfNotExists: true }).showModal()
+							}),
+							options.splice(3, 0, this.storage.get('accountManager') && {
+								name: 'Switch Accounts',
+								options: subOptions
+							})
+						}
 						ContextMenu.create(options, event);
 						return;
 					}
@@ -540,12 +579,7 @@ window.lite = new class Lite {
 								t_id: this.trackData.t_id,
 								u_ids: Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => row.dataset.u_id).join(',')
 							}).then(r => r.result && this.scene.addRaces(r.data))
-						}, { type: 'hr' }, this.constructor.isUserModerator(Application.settings.user) || {
-							name: 'Report',
-							styles: ['danger'], // check session storage and disable button
-							click: () => this.constructor.report('Leaderboard', {}, { type: 'leaderboard' })
-						}];
-						Application.settings.user.moderator && options.splice(options.length - 2, 0, {
+						}, { type: 'hr' }, this.constructor.isUserModerator(Application.settings.user) ? {
 							name: 'Delete All',
 							styles: ['danger', 'disabled'],
 							click: () => confirm('Are you sure you want to delete ALL races on this leaderboard? This cannot be undone.') && Promise.all(Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => {
@@ -554,7 +588,11 @@ window.lite = new class Lite {
 									u_id: row.dataset.u_id
 								})
 							}))
-						})
+						} : {
+							name: 'Report',
+							styles: ['danger'], // check session storage and disable button
+							click: () => this.constructor.report('Leaderboard', {}, { type: 'leaderboard' })
+						}];
 						ContextMenu.create(options, event);
 						return;
 					}
@@ -795,14 +833,18 @@ window.lite = new class Lite {
 		if (!isCurrentUser) {
 			let currentUser = await this.constructor.fetchCurrentUser();
 			let isFriend = currentUser.friends.friends_data.find(this.constructor.compareUsers.bind(this, data));
-			let request = currentUser.friend_requests.request_data.find(this.constructor.compareUsers.bind(this, data));
+			let request = currentUser.friend_requests.request_cnt > 0 && currentUser.friend_requests.request_data.find(this.constructor.compareUsers.bind(this, data));
 			const reports = this.constructor.fetchReports('@{data-d_name} ({data-u_id})', data, { type: 'user' });
 			const cachedReports = this.constructor.getStorageEntry('reports.users');
 			const reported = cachedReports && cachedReports.includes(data.u_id);
 			options.splice(2, 0, {
-				name: (isFriend ? 'Remove' : 'Add') + ' Friend',
-				styles: [isFriend && 'danger', !isFriend && currentUser.friends.friend_cnt >= 30 && 'disabled'],
-				click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), { u_name: data.d_name })
+				name: !request || !request.outgoing ? (isFriend ? 'Remove' : 'Add') + ' Friend' : 'Pending',
+				styles: [isFriend && 'danger', (!isFriend && currentUser.friends.friend_cnt >= 30 || request && request.outgoing) && 'disabled'],
+				click: () => Application.Helpers.AjaxHelper.post('friends/' + (isFriend ? 'remove_friend' : 'send_friend_request'), { u_name: data.d_name }).done(({ result }) => {
+					!isFriend && (currentUser.friend_requests.request_data.push(Object.assign({ outgoing: true }, data)),
+					currentUser.friend_requests.request_cnt = currentUser.friend_requests.request_data.length,
+					this.constructor.setStorageEntry('current_user', currentUser, { temp: true }))
+				})
 			}, this.constructor.isUserModerator(Application.settings.user) || {
 				name: 'Report',
 				styles: ['danger', (reported || reports.length > 0) && 'disabled'], // check session storage and disable button
@@ -811,7 +853,7 @@ window.lite = new class Lite {
 					this.constructor.updateStorageEntry('reports.users', [data.u_id])
 				})
 			});
-			request && options.splice(3, 0, {
+			(request && !request.outgoing) && options.splice(3, 0, {
 				name: 'Accept Friend Request',
 				styles: !data.u_id && ['disabled'],
 				click: () => Application.Helpers.AjaxHelper.post('friends/respond_to_friend_request', {
@@ -1016,61 +1058,90 @@ window.lite = new class Lite {
 			y: ctx.canvas.height - size * 10
 		}
 
-		ctx.save();
-		ctx.fillStyle = GameSettings.physicsLineColor;
-		ctx.globalAlpha = this.storage.get('inputDisplayOpacity');
-		// ctx.globalCompositeOperation = 'xor'; // rect stroke/fill overlap
-		ctx.lineWidth = size / 2;
+		ctx.save(),
+		ctx.fillStyle = GameSettings.physicsLineColor,
+		ctx.globalAlpha = this.storage.get('inputDisplayOpacity'),
+		// ctx.globalCompositeOperation = 'xor', // rect stroke/fill overlap
+		ctx.lineWidth = size / 2,
 		ctx.strokeStyle = GameSettings.physicsLineColor;
 
-		let borderRadius = size / 2;
-		let buttonSize = size * 4;
+		let borderRadius = size / 2
+		  , buttonSize = size * 4;
 
-		ctx.beginPath();
-		ctx.roundRect(offset.x, offset.y, buttonSize, buttonSize, borderRadius);
-		downButtons.z && ctx.fill();
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.roundRect(offset.x + 5 * size, offset.y, buttonSize, buttonSize, borderRadius);
-		downButtons.up && ctx.fill();
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.roundRect(offset.x, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
-		downButtons.left && ctx.fill();
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.roundRect(offset.x + 5 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
-		downButtons.down && ctx.fill();
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.roundRect(offset.x + 10 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius);
-		downButtons.right && ctx.fill();
+		ctx.beginPath(),
+		ctx.roundRect(offset.x, offset.y, buttonSize, buttonSize, borderRadius),
+		downButtons.z && ctx.fill(),
+		ctx.stroke(),
+		ctx.beginPath(),
+		ctx.roundRect(offset.x + 5 * size, offset.y, buttonSize, buttonSize, borderRadius),
+		downButtons.up && ctx.fill(),
+		ctx.stroke(),
+		ctx.beginPath(),
+		ctx.roundRect(offset.x, offset.y + 5 * size, buttonSize, buttonSize, borderRadius),
+		downButtons.left && ctx.fill(),
+		ctx.stroke(),
+		ctx.beginPath(),
+		ctx.roundRect(offset.x + 5 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius),
+		downButtons.down && ctx.fill(),
+		ctx.stroke(),
+		ctx.beginPath(),
+		ctx.roundRect(offset.x + 10 * size, offset.y + 5 * size, buttonSize, buttonSize, borderRadius),
+		downButtons.right && ctx.fill(),
 		ctx.stroke();
 
-		ctx.globalCompositeOperation = 'xor'; // destination-out
-		ctx.lineWidth = size / 3;
-		ctx.beginPath();
-		ctx.moveTo(offset.x + 2.7 * size, offset.y + 3 * size);
-		ctx.lineTo(offset.x + 1.2 * size, offset.y + 3 * size);
-		ctx.lineTo(offset.x + 2.7 * size, offset.y + 1 * size);
-		ctx.lineTo(offset.x + 1.2 * size, offset.y + 1 * size);
-		ctx.moveTo(offset.x + 6.2 * size, offset.y + 2.7 * size);
-		ctx.lineTo(offset.x + 7 * size, offset.y + 1.2 * size);
-		ctx.lineTo(offset.x + 7.8 * size, offset.y + 2.7 * size);
-		ctx.moveTo(offset.x + 2.5 * size, offset.y + 7.8 * size);
-		ctx.lineTo(offset.x + 1.2 * size, offset.y + 7 * size);
-		ctx.lineTo(offset.x + 2.5 * size, offset.y + 6.2 * size);
-		ctx.moveTo(offset.x + 6.2 * size, offset.y + 6.2 * size);
-		ctx.lineTo(offset.x + 7 * size, offset.y + 7.8 * size);
-		ctx.lineTo(offset.x + 7.8 * size, offset.y + 6.2 * size);
-		ctx.moveTo(offset.x + 11.5 * size, offset.y + 7.8 * size);
-		ctx.lineTo(offset.x + 12.8 * size, offset.y + 7 * size);
-		ctx.lineTo(offset.x + 11.5 * size, offset.y + 6.2 * size);
-		ctx.stroke();
-		ctx.restore();
+		ctx.globalCompositeOperation = 'xor', // destination-out
+		ctx.lineWidth = size / 3,
+		ctx.beginPath(),
+		ctx.moveTo(offset.x + 2.7 * size, offset.y + 3 * size),
+		ctx.lineTo(offset.x + 1.2 * size, offset.y + 3 * size),
+		ctx.lineTo(offset.x + 2.7 * size, offset.y + 1 * size),
+		ctx.lineTo(offset.x + 1.2 * size, offset.y + 1 * size),
+		ctx.moveTo(offset.x + 6.2 * size, offset.y + 2.7 * size),
+		ctx.lineTo(offset.x + 7 * size, offset.y + 1.2 * size),
+		ctx.lineTo(offset.x + 7.8 * size, offset.y + 2.7 * size),
+		ctx.moveTo(offset.x + 2.5 * size, offset.y + 7.8 * size),
+		ctx.lineTo(offset.x + 1.2 * size, offset.y + 7 * size),
+		ctx.lineTo(offset.x + 2.5 * size, offset.y + 6.2 * size),
+		ctx.moveTo(offset.x + 6.2 * size, offset.y + 6.2 * size),
+		ctx.lineTo(offset.x + 7 * size, offset.y + 7.8 * size),
+		ctx.lineTo(offset.x + 7.8 * size, offset.y + 6.2 * size),
+		ctx.moveTo(offset.x + 11.5 * size, offset.y + 7.8 * size),
+		ctx.lineTo(offset.x + 12.8 * size, offset.y + 7 * size),
+		ctx.lineTo(offset.x + 11.5 * size, offset.y + 6.2 * size),
+		ctx.stroke(),
+		ctx.restore()
 	}
 
 	initAccountManager() {
+		if (!this._authLogin) {
+			Object.defineProperty(this, '_authLogin', {
+				value: user => {
+					user.u_id && this.constructor.updateStorageEntry('account-manager', {
+						[user.u_id]: {
+							asr: Application.settings.app_signed_request,
+							name: user.d_name
+						}
+					})
+				},
+				writable: true
+			}),
+			Application.events.subscribe('auth.login', this._authLogin);
+			if (Application.User.logged_in) {
+				let accounts = this.constructor.getStorageEntry('account-manager') || {};
+				if (Object.keys(accounts) < 1) {
+					this.constructor.updateStorageEntry('account-manager', {
+						[Application.settings.user.u_id]: {
+							asr: Application.settings.app_signed_request,
+							name: Application.settings.user.d_name
+						}
+					})
+				}
+			}
+		}
+		// modify function to save token/login?
+		// or subscribe auth.login and save asr
+		// this.replaceLogin(); vvv
+		// Application.router.auth_dialog_view.login_with_email
 		if (!Application.User.logged_in) return;
 		let logout = Application.router.left_navigation_view.el.querySelector('a.logout');
 		if (!logout.hasAttribute('id')) return;
@@ -1136,7 +1207,7 @@ window.lite = new class Lite {
 				padding: '1.5rem',
 				width: '-webkit-fill-available'
 			}
-		}));
+		})),
 		this.refreshAchievements().then(r => {
 			this.achievementMonitor.countdown.innerText = [String(Math.floor(r.time_left / 3600)).padStart(2, '0'), String(Math.floor((r.time_left % 3600) / 60)).padStart(2, '0'), String(Math.floor(r.time_left % 60)).padStart(2, '0')].join(':');
 			this.achievementMonitor.countdownTimer ||= setInterval(() => {
@@ -1362,14 +1433,20 @@ window.lite = new class Lite {
 		})
 	}
 
+	initHighlightComment() {
+		this.constructor.styleSheet.set('.track-comment:has(.track-comment-msg > a[href="' + location.origin + '/u/' + Application.settings.user.u_name + '"])', { backgroundColor: 'hsl(55 70% 85% / 1) !important' })
+	}
+
 	initJumpToComment() {
 		let searchParams = new URLSearchParams(location.search);
 		let commentId = searchParams.get('c_id');
-		if (!commentId || this.lastLoadedComment == commentId || document.querySelector('.track-comment[data-c_id="' + commentId + '"]')) return;
+		if (!commentId || this.lastLoadedComment == commentId /* || document.querySelector('.track-comment[data-c_id="' + commentId + '"]') */) return;
 		Object.defineProperty(this, 'lastLoadedComment', { value: commentId, writable: true });
 		if (typeof Application.router.current_view.load_comments_until != 'function') {
 			const prototype = Object.getPrototypeOf(Application.router.current_view);
 			prototype.load_comments_until = function(cid, callback) {
+				let c = document.querySelector('.track-comment[data-c_id="' + commentId + '"]');
+				if (c) return callback(c);
 				let o = document.querySelector(".track-comments-list div.track-comment:last-child").dataset.c_id
 				  , r = this._get_track_id()
 				  , i = document.querySelector('.track-prev-comments');
@@ -1400,7 +1477,7 @@ window.lite = new class Lite {
 				setTimeout(() => {
 					comment.classList.remove('animated', 'flash');
 				}, 2e3)
-			}, { once: true, passive: true });
+			}, { once: true, passive: true })
 		})
 	}
 
@@ -1756,13 +1833,17 @@ window.lite = new class Lite {
 	}
 
 	async modifyCommentNotifications() {
-		// console.log(await this.constructor.fetchRequestData({ attributeFilter: ['notification_days'] }));
+		Application.Helpers.TemplateHelper.getTemplates(['notifications/t_uname_mention'], templates => {
+			for (let key in templates) {
+				Application.Helpers.TemplateHelper.cached_templates[key] = templates[key].replace(/(?<={{track.url}})/, '?c_id={{comment.id}}')
+			}
+		});
 		let { notification_days: d } = Application.router.current_view.ajax && /^notifications$/i.test(Application.router.current_view.ajax.header_title) ? Application.router.current_view.ajax : await Application.Helpers.AjaxHelper.get('notifications');
 		let notifications = d && d.length > 0 && d.flatMap(({ notifications: n }) => n);
 		let commentNotifications = notifications.filter(({ t_uname_mention: t }) => t);
 		for (let { comment, track, ts } of commentNotifications) {
 			let notification = document.querySelector('.notification[data-ts="' + ts + '"] p > a[href$="' + track.url + '"]')
-			notification.href += '?c_id=' + comment.id
+			notification && (notification.href += '?c_id=' + comment.id)
 		}
 	}
 
@@ -1864,17 +1945,16 @@ window.lite = new class Lite {
 		return a.u_id == b.u_id || a.u_name == b.u_name || a.d_name == b.d_name
 	}
 
-	static createAccountContainer({ login, password }) {
+	static createAccountContainer({ asr, name }) {
 		let container = this.createElement("div", {
 			children: [
 				this.createElement("button.new-button.button-type-1", {
-					innerText: login,
+					innerText: name,
 					style: { width: '-webkit-fill-available' },
 					click: event => {
 						event.target.closest("#frhd-lite\\.account-manager").close();
-						Application.Helpers.AjaxHelper.post("/auth/standard_login", { login, password }).done(r => {
-							r.result && Application.events.publish("auth.login", r.data.user, r.data.user_stats)
-						})
+						this.setCookie('frhd_app_sr', asr, { days: 365 }),
+						location.reload()
 					}
 				}),
 				this.createElement("button.new-button.button-type-3", {
@@ -1884,7 +1964,7 @@ window.lite = new class Lite {
 						marginRight: 0
 					},
 					click: () => {
-						let accounts = this.getStorageEntry('account-manager') ?? [];
+						let accounts = this.getStorageEntry('account-manager') || {};
 						accounts.length > 0 && (accounts.splice(accounts.indexOf(accounts.find((account) => account.login === login)), 1),
 						this.setStorageEntry('account-manager', accounts)),
 						container.remove()
@@ -1912,7 +1992,7 @@ window.lite = new class Lite {
 						click: () => this.accountManager.close()
 					}),
 					this.createElement("div.accounts-container", {
-						children: (this.getStorageEntry('account-manager') ?? []).map(account => this.constructor.createAccountContainer(account)),
+						children: Object.values(this.getStorageEntry('account-manager') ?? {}).map(account => this.createAccountContainer(account)),
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
@@ -1922,67 +2002,7 @@ window.lite = new class Lite {
 					this.createElement("button.new-button.button-type-2", {
 						id: 'add-account',
 						innerText: "Add account",
-						click: event => {
-							let loginContainer = document.querySelector("div#login-container");
-							if (loginContainer) {
-								event.target.innerText = "Add account";
-								event.target.classList.replace('button-type-3', 'button-type-2');
-								loginContainer.remove();
-								return;
-							}
-
-							let submit = event.target;
-							event.target.before(this.createElement("div#login-container", {
-								children: [
-									this.createElement("input.field.auth-field#save-account-login", {
-										placeholder: "Username or Email",
-										style: { borderRadius: "2rem" },
-										type: "text",
-										keyup(event) {
-											event.key === 'Enter' && this.nextElementSibling.focus()
-										}
-									}),
-									this.createElement("input.field.auth-field#save-account-password", {
-										placeholder: "Password",
-										style: { borderRadius: "2rem" },
-										type: "password",
-										keyup(event) {
-											event.key === 'Enter' && this.nextElementSibling.click()
-										}
-									}),
-									this.createElement("button.new-button.button-type-1", {
-										innerText: "Save account",
-										click: event => {
-											Application.Helpers.AjaxHelper.post("/auth/standard_login", {
-												login: document.querySelector("#save-account-login")?.value,
-												password: document.querySelector("#save-account-password")?.value
-											}).done(res => {
-												if (!res.result) return;
-												let accounts = this.getStorageEntry('account-manager') || [];
-												if (accounts.find(({ login }) => login === res.data.user.d_name)) return;
-												accounts.push({
-													login: res.data.user.d_name,
-													password: document.querySelector("#save-account-password")?.value
-												}),
-												this.accountManager.querySelector(".accounts-container").append(this.createAccountContainer(accounts[accounts.length - 1])),
-												this.setStorageEntry('account-manager', accounts),
-												submit.classList.replace('button-type-3', 'button-type-2'),
-												submit.innerText = "Add account",
-												event.target.parentElement.remove()
-											})
-										}
-									})
-								],
-								style: {
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '0.4rem',
-									marginTop: '1rem'
-								}
-							}));
-							event.target.classList.replace('button-type-2', 'button-type-3'),
-							event.target.innerText = "Cancel"
-						}
+						click: () => this.accountManager.close('add-account')
 					}),
 					this.createElement("button.new-button.button-type-3", {
 						innerText: "Logout",
@@ -1998,6 +2018,13 @@ window.lite = new class Lite {
 				},
 				close: event => {
 					switch (event.target.returnValue) {
+					case 'add-account':
+						Application.Helpers.TemplateHelper.getTemplates(["auth/signup_login"], function(t) {
+							Application.router.auth_dialog_view.template = t["auth/signup_login"],
+							Application.router.auth_dialog_view.options = Object.assign({}, Application.settings, { login: true }),
+							Application.router.auth_dialog_view.setup()
+						});
+						break;
 					case 'logout':
 						Application.User.logout()
 					}
@@ -2253,7 +2280,7 @@ window.lite = new class Lite {
 		}
 
 		const { ajax } = Application.router.current_view;
-		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json());
+		const entry = ajax && ajax.header_title && ((ajax.user && Application.settings.user.u_id === ajax.user.u_id) || Application.settings.user.u_name === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + Application.settings.user.u_name + '?ajax').then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(entry));
 		return entry || null
 	}
@@ -2279,7 +2306,7 @@ window.lite = new class Lite {
 			return cache;
 		}
 		const { ajax } = Application.router.current_view;
-		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
+		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.u_id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + uid + '?ajax').then(r => r.json());
 		// let entry = await fetch('/u/' + uid + '?ajax').then(r => r.json());
 		this.users.push(entry);
 		return entry || null
@@ -2299,6 +2326,35 @@ window.lite = new class Lite {
 		let data = await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(data));
 		return data
+	}
+
+	static isFeaturedRace(user) {
+		// GameSettings.track.id
+		let data = this.getStorageEntry('featured_ghosts', null, { temp: true });
+		if (!data) return !1;
+		return Object.entries(data).filter(([, entries]) => Object.keys(entries).find(t => t.includes(GameSettings.track.id))).map(([u]) => u.toLowerCase()).includes(user.u_name)
+	}
+
+	static integrateBadges(user) {
+		Object.defineProperty(user, 'badges', {
+			value: new Set(),
+			writable: true
+		}),
+		/^5815066$/.test(user.u_id) && user.badges.add('🛠️');
+		(user.admin || user.moderator || /^(?:10(?:18|82)|5(?:0(?:00(?:1|3)|1(?:15|7935))|815066))$/.test(user.u_id)) && user.badges.add('🛡️');
+		this.isFeaturedRace(user) && user.badges.add('⭐');
+		Object.defineProperty(user, 'r_name', {
+			value: (user.badges.size > 0 ? Array.from(user.badges).join('').concat(' ') : '') + user.d_name,
+			writable: true
+		}),
+		Object.defineProperty(user, 'gradient', { value: [], writable: true });
+		if (user.badges.has('🛡️')) {
+			user.gradient.push('#e95f4d');
+			return '#d34836';
+		} else if (user.badges.has('⭐')) {
+			user.gradient.push('#fac51f');
+			return '#e8a923'
+		}
 	}
 
 	static async fetchRaceBestDate({ force } = {}) {
@@ -2416,27 +2472,27 @@ window.lite = new class Lite {
 		})
 	}
 
-	static deleteStorageEntry(key) {
-		return localStorage.removeItem(this.keyify(key))
+	static deleteStorageEntry(key, { temp } = {}) {
+		return globalThis[(temp ? 'session' : 'local') + 'Storage'].removeItem(this.keyify(key))
 	}
 
-	static getStorageEntry(key, value) {
-		let entry = localStorage.getItem(this.keyify(key));
+	static getStorageEntry(key, value, { temp } = {}) {
+		let entry = globalThis[(temp ? 'session' : 'local') + 'Storage'].getItem(this.keyify(key));
 		if (!entry && value) {
 			return this.setStorageEntry(key, value)
 		}
 		return entry !== null && /^[\[{]]|[}\]]$/g.test(entry) ? this._attachShortcuts(this.keyify(key), JSON.parse(entry)) : entry
 	}
 
-	static setStorageEntry(key, value) {
-		return localStorage.setItem(this.keyify(key), typeof value == 'object' ? JSON.stringify(value) : value),
+	static setStorageEntry(key, value, { temp } = {}) {
+		return globalThis[(temp ? 'session' : 'local') + 'Storage'].setItem(this.keyify(key), typeof value == 'object' ? JSON.stringify(value) : value),
 		typeof value == 'object' ? this._attachShortcuts(this.keyify(key), structuredClone(value)) : value
 	}
 
-	static updateStorageEntry(key, value) {
+	static updateStorageEntry(key, value, { temp } = {}) {
 		let entry = this.getStorageEntry(key) || new value.constructor;
-		entry instanceof Array ? entry.push(...value) : Object.assign(entry, value); // recurse?
-		return this.setStorageEntry(key, value)
+		entry instanceof Array && typeof value[Symbol.iterator] == 'function' ? entry.push(...value) : Object.assign(entry, value); // recurse?
+		return this.setStorageEntry(key, entry)
 	}
 
 	static keyify(key) {
@@ -2471,6 +2527,15 @@ window.lite = new class Lite {
 		const comments = Array.from(document.querySelectorAll('.track-comment-msg'));
 		const reportRegex = this.reportRegex(...args);
 		return comments.filter(t => t.innerHTML.match(reportRegex))
+	}
+
+	static setCookie(key, value, { days, domain, reload } = {}) {
+		let entries = { [key]: value ?? '' };
+		days && (entries.expires = new Date(864e5 * days + Date.now()).toUTCString());
+		entries.domain = domain ?? ('.' + location.host);
+		entries.path = '/';
+		document.cookie = Object.entries(entries).map(([key, value]) => key + '=' + value).join('; ');
+		reload && location.reload()
 	}
 
 	static verifyRaceData(data) {
