@@ -51,15 +51,6 @@ const contentScripts = [{
 	world: "MAIN"
 }, moduleScript];
 
-chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
-	let res = "418 I'm a teapot";
-	if (/^manifest/i.test(message)) {
-		let manifest = chrome.runtime.getManifest();
-		/^manifest\.version$/i.test(message) && (res = { version: manifest.version })
-	}
-	sendResponse(res)
-});
-
 chrome.runtime.onInstalled.addListener(function() {
 	chrome.storage.local.get(({ enabled, settings }) => {
 		enabled !== undefined && setState({ enabled });
@@ -169,5 +160,9 @@ async function updateModuleScript(settings) {
 		}
 	}
 
-	return chrome.scripting.updateContentScripts([moduleScript])
+	// return chrome.scripting.updateContentScripts([moduleScript])
+	await chrome.scripting.unregisterContentScripts();
+	return chrome.scripting.registerContentScripts(contentScripts)
 }
+
+import "./external-api.js";

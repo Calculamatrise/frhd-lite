@@ -1,14 +1,53 @@
 class CanvasPool {
-	canvasPool = [];
+	canvasPools = new Map();
 	poolCap = 5e3;
 	getCanvas(size) {
-		size ??= 0;
-		const canvas = this.canvasPool.pop() || new OffscreenCanvas(size, size);
-		size !== 0 && setCanvasSize(canvas, size);
+		if (!this.canvasPools.has(size)) {
+			this.canvasPools.set(size, []);
+		}
+
+		const pool = this.canvasPools.get(size);
+		return pool.pop() || new OffscreenCanvas(size, size)
+	}
+
+	getConfiguredCanvas(size, config) {
+		const canvas = this.getCanvas(size);
+		this.constructor.getConfiguredCtx(canvas, config);
 		return canvas
 	}
-	releaseCanvas(t) {
-		this.canvasPool.length < this.poolCap && this.canvasPool.push(t)
+
+	releaseCanvas(canvas) {
+		const size = canvas.width;
+		if (!this.canvasPools.has(size)) {
+			this.canvasPools.set(size, []);
+		}
+
+		const pool = this.canvasPools.get(size);
+		if (pool.length < this.poolCap) {
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			pool.push(canvas)
+		}
+	}
+
+	static getConfiguredCtx(canvas, config) {
+		const ctx = canvas.getContext('2d');
+		if (!canvas._ctxConfigured && config instanceof Object) {
+			ctx.lineCap = 'round';
+			ctx.lineJoin = 'round';
+			for (const key in config) {
+				const val = config[key];
+				switch (key) {
+				case 'zoom':
+					ctx.lineWidth = Math.max(2 * val, .5);
+					continue;
+				}
+
+				ctx[key] = val;
+			}
+			Object.defineProperty(canvas, '_ctxConfigured', { value: true });
+		}
+		return ctx
 	}
 }
 
@@ -24,10 +63,9 @@ class Grid {
 	clear(x, y) {
 		const sector = this.get(x, y);
 		if (!sector) return;
-		const { ctx, offscreen } = sector;
-		if (!ctx || !offscreen) return;
-		ctx.clearRect(0, 0, offscreen.width, offscreen.height);
-		sector.ctx = null;
+		sector?.timeout && sector.cancel();
+		const { offscreen } = sector;
+		if (!offscreen) return;
 		this.canvasPool.releaseCanvas(offscreen);
 		sector.offscreen = null
 	}
@@ -66,23 +104,16 @@ addEventListener('message', async function({ data }) {
 		if (!sector) return console.warn(`Sector not found (${column}, ${row})`);
 
 		const { physicsLines, sceneryLines } = sector;
-		let offscreen = sector.offscreen;
-		if (!offscreen) {
-			offscreen = grid.canvasPool.getCanvas();
-			const computedSize = size * zoom | 0;
-			setCanvasSize(offscreen, computedSize);
-		}
-
+		const computedSize = size * zoom | 0;
+		const offscreen = grid.canvasPool.getConfiguredCanvas(computedSize, { zoom });
 		const ctx = offscreen.getContext('2d');
-		ctx.clearRect(0, 0, offscreen.width, offscreen.height);
-		ctx.lineCap = 'round';
-		ctx.lineWidth = Math.max(2 * zoom, .5);
+		sector.offscreen = offscreen;
 
 		const sendBitmap = async (partial = false) => postMessage({
 			column,
 			row,
 			partial,
-			bitmap: await snapshotCanvas(offscreen) // await createImageBitmap(offscreen) // offscreen.transferToImageBitmap()
+			bitmap: await snapshotCanvas(ctx.canvas) // await createImageBitmap(offscreen) // offscreen.transferToImageBitmap()
 		});
 		const sendBitmapUpdate = () => sendBitmap(true);
 
@@ -109,9 +140,9 @@ addEventListener('message', async function({ data }) {
 			sessionId
 		}, sendBitmapUpdate);
 
-		delete sector.sessionId;
 		await sendBitmap(false);
 		grid.clear(column, row);
+		delete sector.sessionId;
 		break;
 	}
 
@@ -122,15 +153,8 @@ addEventListener('message', async function({ data }) {
 	}
 
 	case 'CREATE_SECTOR':
-		const { sector: { column, row, size, x, y }, physicsLines, sceneryLines, settings, zoom } = data;
-		const existingSector = grid.get(column, row);
-		existingSector?.timeout && existingSector.cancel();
-		// const offscreen = existingSector?.offscreen || grid.canvasPool.getCanvas(); // new OffscreenCanvas(size, size);
-		// const computedSize = size * zoom | 0;
-		// setCanvasSize(offscreen, computedSize);
-		// const ctx = existingSector?.ctx || offscreen.getContext('2d');
-		// ctx.lineCap = 'round';
-		// ctx.lineWidth = Math.max(2 * zoom, .5);
+		const { sector: { column, row, size, x, y }, physicsLines, sceneryLines, settings } = data;
+		grid.clear(column, row);
 		grid.set(column, row, {
 			physicsLines,
 			sceneryLines,
@@ -212,8 +236,7 @@ function setCanvasSize(canvas, width, height) {
 // Fix suggestion:
 // Use the same snapshot(offscreen) strategy mentioned earlier:
 function snapshotCanvas(offscreen) {
-	const tmp = grid.canvasPool.getCanvas();
-	setCanvasSize(tmp, offscreen.width, offscreen.height);
+	const tmp = grid.canvasPool.getCanvas(offscreen.width);
 	tmp.getContext('2d').drawImage(offscreen, 0, 0);
 	return createImageBitmap(tmp)
 }
