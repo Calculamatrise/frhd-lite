@@ -4,11 +4,8 @@ import Spring from "./spring.js";
 import Vehicle from "./vehicle.js";
 import Prop from "./prop.js";
 
-let c = {
-	HELICOPTER: "helicopter"
-}
-
 export default class extends Vehicle {
+	static Sounds = { Helicopter: 'helicopter' };
 	swapped = !1;
 	vehicleName = "Helicopter";
 	constructor(t, e, i) {
@@ -61,7 +58,7 @@ export default class extends Vehicle {
 	}
 	createSprings() {
 		let t = this.masses
-		  , e = [];
+		  , e = this.springs;
 		e.push(new Spring(t[0],t[1],this)),
 		e.push(new Spring(t[2],t[0],this)),
 		e.push(new Spring(t[2],t[1],this)),
@@ -83,8 +80,7 @@ export default class extends Vehicle {
 		e[6].leff = e[4].lrest = 35;
 		for (let i of e)
 			i.dampConstant = .4,
-			i.springConstant = .5;
-		this.springs = e
+			i.springConstant = .5
 	}
 	drawCockpit() {
 		let t = this.canvasCockpit
@@ -100,7 +96,7 @@ export default class extends Vehicle {
 		c.lineWidth !== l) {
 			t.width = r,
 			t.height = o;
-			var e = this.masses
+			let e = this.masses
 			  , n = e[0].radius * s * .9;
 			c.save(),
 			c.translate(r / 2, o / 2),
@@ -129,40 +125,31 @@ export default class extends Vehicle {
 	}
 	updateCameraFocalPoint() {}
 	fixedUpdate() {
-		if (this.crashed === !1 && (this.updateSound(),
-		this.control()),
-		this.explosion)
-			this.explosion.fixedUpdate();
-		else {
-			for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
+		if (super.fixedUpdate()) return;
+		for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
+			t[i].fixedUpdate();
+		for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
+			s[r].fixedUpdate();
+		if ((this.masses[1].contact || this.masses[2].contact) && (this.slow = !1),
+		this.slow === !1) {
+			this.crashed === !1 && this.control();
+			for (var i = e - 1; i >= 0; i--)
 				t[i].fixedUpdate();
-			for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-				s[r].fixedUpdate();
-			if ((this.masses[1].contact || this.masses[2].contact) && (this.slow = !1),
-			this.slow === !1) {
-				this.crashed === !1 && this.control();
-				for (var i = e - 1; i >= 0; i--)
-					t[i].fixedUpdate();
-				for (var r = n - 1; r >= 0; r--)
-					s[r].fixedUpdate()
-			}
-			this.updateCockpitAngle()
+			for (var r = n - 1; r >= 0; r--)
+				s[r].fixedUpdate()
 		}
+		this.updateCockpitAngle()
 	}
-	update(progress) {
-		for (let s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-			s[r].update(progress)
+	update() {
+		super.update(...arguments);
+		// this.updateCockpitAngle()
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
 			let t = this.scene.sound
 			  , e = Math.min(this.head.motor, 1);
-			t.play(c.HELICOPTER, e)
+			t.play(this.constructor.Sounds.Helicopter, e)
 		}
-	}
-	stopSounds() {
-		let t = this.scene.sound;
-		t.stop(c.HELICOPTER)
 	}
 	swap() {
 		let t = this.dir
@@ -209,8 +196,8 @@ export default class extends Vehicle {
 	}
 	updateCockpitAngle() {
 		let t = this.masses
-		  , e = t[0].pos
-		  , i = t[3].pos
+		  , e = t[0].displayPos
+		  , i = t[3].displayPos
 		  , s = e.x
 		  , n = e.y
 		  , r = i.x
@@ -224,38 +211,35 @@ export default class extends Vehicle {
 		this.rotor2 > 6.2831 && (this.rotor2 -= 6.2831)
 	}
 	draw(ctx) {
-		if (this.explosion)
-			this.explosion.draw(ctx, 1);
-		else {
-			ctx.imageSmoothingEnabled = !0,
-			ctx.webkitImageSmoothingEnabled = !0,
-			ctx.mozImageSmoothingEnabled = !0;
-			if (this.scene.ticks > 0 && !this.player.isGhost()) {
-				if (!this.scene.state.playing) {
-					let t = window.lite && parseInt(lite.storage.get("snapshots"));
-					if (t > 0) {
-						for (let e of this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
-							let i = document.createElement('canvas');
-							this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * this.player._checkpoints.indexOf(e) % 1);
-						}
-
-						for (let e of this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
-							let i = document.createElement('canvas');
-							this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * this.player._cache.indexOf(e) % 1);
-						}
-					}
-				}
-
-				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let e of lite.snapshots.filter(t => t._tempVehicle)) {
+		if (super.draw(...arguments)) return;
+		ctx.imageSmoothingEnabled = !0,
+		ctx.webkitImageSmoothingEnabled = !0,
+		ctx.mozImageSmoothingEnabled = !0;
+		if (this.scene.ticks > 0 && !this.player.isGhost()) {
+			if (!this.scene.state.playing) {
+				let t = window.lite && parseInt(lite.storage.get("snapshots"));
+				if (t > 0) {
+					for (let e of this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
 						let i = document.createElement('canvas');
-						this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(lite.snapshots.indexOf(e)) % 1);
+						this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * this.player._checkpoints.indexOf(e) % 1);
+					}
+
+					for (let e of this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle)) {
+						let i = document.createElement('canvas');
+						this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, t / 3e2 * this.player._cache.indexOf(e) % 1);
 					}
 				}
 			}
 
-			this.drawHelicopter(ctx);
+			if (window.lite && lite.storage.get("playerTrail")) {
+				for (let e of lite.snapshots.filter(t => t._tempVehicle)) {
+					let i = document.createElement('canvas');
+					this.drawHelicopter.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {canvasCockpit: i, ctx: i.getContext('2d'), drawCockpit: this.drawCockpit}), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * parseInt(lite.snapshots.indexOf(e)) % 1);
+				}
+			}
 		}
+
+		this.drawHelicopter(ctx)
 	}
 	drawHelicopter(t, alpha = this.player._opacity) {
 		t.globalAlpha = alpha;
@@ -264,8 +248,8 @@ export default class extends Vehicle {
 		  , r = this.rotor2
 		  , o = this.scene
 		  , a = o.camera.zoom
-		  , q = new s(this.head.pos.x, this.head.pos.y)
-		  , m = new s(this.mass2.pos.x, this.mass2.pos.y).add(this.mass3.pos).factor(.5)
+		  , q = new s(this.head.displayPos.x, this.head.displayPos.y)
+		  , m = new s(this.mass2.displayPos.x, this.mass2.displayPos.y).add(this.mass3.displayPos).factor(.5)
 		  , h = q.sub(m).factor(a)
 		  , l = new s(-h.y * i,h.x * i)
 		  , c = q.toScreen(o);
@@ -281,8 +265,8 @@ export default class extends Vehicle {
 		t.moveTo(c.x + .9 * h.x + l.x * u, c.y + .8 * h.y + l.y * u),
 		t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
 		t.stroke();
-		var p = new s(this.mass2.pos.x, this.mass2.pos.y).toScreen(o)
-		  , d = new s(this.mass3.pos.x, this.mass3.pos.y).toScreen(o);
+		var p = new s(this.mass2.displayPos.x, this.mass2.displayPos.y).toScreen(o)
+		  , d = new s(this.mass3.displayPos.x, this.mass3.displayPos.y).toScreen(o);
 		t.lineWidth = 3 * a,
 		t.strokeStyle = '#'.padEnd(7, /^(darker|midnight)$/.test(window.lite.storage.get('theme')) ? '8' : window.lite.storage.get('theme') === 'dark' ? '9' : '6'),
 		t.beginPath(),
@@ -300,7 +284,7 @@ export default class extends Vehicle {
 		t.lineWidth = 6 * a,
 		t.strokeStyle = this.color,
 		t.beginPath();
-		var f = new s(this.mass4.pos.x, this.mass4.pos.y).toScreen(o);
+		var f = new s(this.mass4.displayPos.x, this.mass4.displayPos.y).toScreen(o);
 		t.moveTo(c.x, c.y),
 		t.lineTo(f.x, f.y),
 		t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),

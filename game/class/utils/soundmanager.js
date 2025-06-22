@@ -1,59 +1,64 @@
 export default class {
-	muted = !1;
+	muted = false;
 	sounds = new Map();
+	volume = 1;
 	constructor(t) {
-		Object.defineProperty(this, 'scene', { value: t || null, writable: true })
+		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
+		this.muted = t.settings.soundsEnabled !== !1;
+		Number.isFinite(t.settings.volume) && (this.volume = t.settings.volume)
 	}
 	update() {
-		let e = this.scene;
-		this.muted = e.state.paused || e.settings.soundsEnabled === !1;
-		for (let i of this.sounds.values()) {
-			i.muted = this.muted;
-			if (i.paused && !e.state.paused) {
-				i.play()
-				.then(() => window.hasOwnProperty('lite') && lite._updateMediaSessionPosition());
-			} else if (!i.paused && e.state.paused) {
-				i.pause();
+		let t = this.scene
+		  , e = t.settings
+		  , i = t.state.paused || !t.state.playing;
+		this.muted = i || e.soundsEnabled === !1;
+		this.volume !== e.volume && Number.isFinite(e.volume) && (this.volume = e.volume);
+		for (let s of this.sounds.values()) {
+			s.muted = this.muted;
+			if (s.paused && !i) {
+				s.play().catch(() => !1);
+			} else if (!s.paused && i) {
+				s.pause()
 			}
+			this.scene.game.emit(this.scene.game.constructor.Events.SoundUpdate, s)
 		}
 	}
 	setVolume(t, e) {
-		this.sounds.has(t) && (this.sounds.get(t).volume = this.muted ? 0 : e ?? 1)
+		const sound = this.sounds.get(t);
+		sound && (sound.volume = (e ?? 1) * this.volume)
 	}
 	mute_all() {
-		let t = this.sounds;
-		for (let e in t)
-			t[e].muted = true,
-			t[e].volume = 0;
-		this.muted = !0
+		for (let t of this.sounds.values())
+			t.muted = true;
+		this.muted = true
 	}
 	stop_all() {
 		for (let e in this.sounds)
 			this.stop(e)
 	}
 	play(t, e) {
-		if (!this.sounds.has(t) && this.scene.settings.soundsEnabled) {
-			let o = this.scene.assets.getItem(t)
-			  , i = o && new Audio(o.src);
+		if (!this.scene.settings.soundsEnabled) return;
+		if (!this.sounds.has(t)) {
+			const o = this.scene.assets.getItem(t)
+				, i = o && this.constructor.play(o);
 			i && (this.sounds.set(t, i),
-			'mediaSession' in navigator && (i.addEventListener('play', () => {
-				navigator.mediaSession.playbackState = 'playing'
-			}, { passive: true }),
-			i.addEventListener('pause', () => {
-				navigator.mediaSession.playbackState = 'paused'
-			}, { passive: true })),
-			i.addEventListener('ended', () => {
-				this.sounds.delete(t)
-			}, { passive: true }))
+			this.scene.game.emit(this.scene.game.constructor.Events.SoundCreate, i),
+			i.addEventListener('ended', () => this.sounds && this.sounds.delete(t), { passive: true }));
 		}
-
 		this.setVolume(t, e)
 	}
 	stop(t) {
-		this.sounds.has(t) && (this.sounds.get(t).pause(),
+		const sound = this.sounds.get(t);
+		sound && (sound.pause(),
+		this.scene.game.emit(this.scene.game.constructor.Events.SoundDelete, sound),
 		this.sounds.delete(t))
 	}
 	close() {
 		this.sounds = null
+	}
+	static play(asset) {
+		if (typeof asset != 'object' || asset === null)
+			throw new TypeError('First positional argument: asset must be of type: object');
+		return new Audio(asset.src)
 	}
 }

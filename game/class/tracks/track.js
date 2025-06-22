@@ -17,11 +17,6 @@ import Helicopter from "../sector/vehiclepowerups/helicopter.js";
 import Truck from "../sector/vehiclepowerups/truck.js";
 import CanvasPool from "../utils/canvaspool.js";
 
-let M = {
-	LINE: 1,
-	POWERUPS: 2  
-}
-let A = [];
 export default class {
 	defaultLine = {
 		p1: new Vector(-40,50),
@@ -36,9 +31,12 @@ export default class {
 	powerupsLookupTable = {};
 	targets = [];
 	targetCount = 0;
-	sectors = {};
+	sectors = {
+		drawSectors: [],
+		physicsSectors: []
+	}
 	totalSectors = [];
-	allowedVehicles = null;
+	allowedVehicles = ["MTB", "BMX"];
 	dirty = !1;
 	constructor(t) {
 		Object.defineProperties(this, {
@@ -47,33 +45,55 @@ export default class {
 		});
 		this.settings = t.game.settings;
 		if (!this.settings.track) {
-			this.settings.track = {
-				vehicle: this.settings.startVehicle
-			}
+			this.settings.track = { vehicle: this.settings.startVehicle };
 		}
-		this.camera = t.camera;
-		this.sectors.drawSectors = [];
-		this.sectors.physicsSectors = [];
-		this.allowedVehicles = ["MTB", "BMX"];
-		this.canvasPool = new CanvasPool(t);
+		this.camera = t.camera,
+		this.canvasPool = new CanvasPool(t),
 		this.createPowerupCache();
+		if ('TrackRenderer' in window) {
+			Object.defineProperty(this, '_boundRenderer', {
+				configurable: true,
+				value: this._handleRenderer.bind(this),
+				writable: true
+			});
+			TrackRenderer.addEventListener('message', this._boundRenderer)
+		}
+	}
+	_handleRenderer({ data }) {
+		let t = this.sectors.drawSectors
+		  , e = t[data.column];
+		if (e === void 0) return;
+		let i = e[data.row];
+		if (i === void 0) return;
+		if (i.initialRender && data.partial) return;
+		!i.initialRender && data.partial === false && (i.initialRender = true);
+		i.bitmap = data.bitmap
+		i.canvas = data.bitmap
 	}
 	createPowerupCache() {
-		A.push(new Boost(0, 0, 0, this)),
-		A.push(new Slowmo(0, 0, this)),
-		A.push(new Bomb(0, 0, this)),
-		A.push(new Gravity(0, 0, 0, this)),
-		A.push(new Checkpoint(0, 0, this)),
-		A.push(new Target(0, 0, this)),
-		A.push(new Antigravity(0, 0, this)),
-		A.push(new Teleport(0, 0, this)),
-		A.push(new Helicopter(0, 0, 0, this)),
-		A.push(new Truck(0, 0, 0, this)),
-		A.push(new Balloon(0, 0, 0, this)),
-		A.push(new Blob(0, 0, 0, this))
+		let t = this.constructor.powerupCache;
+		t.push(new Boost(0, 0, 0, this)),
+		t.push(new Slowmo(0, 0, this)),
+		t.push(new Bomb(0, 0, this)),
+		t.push(new Gravity(0, 0, 0, this)),
+		t.push(new Checkpoint(0, 0, this)),
+		t.push(new Target(0, 0, this)),
+		t.push(new Antigravity(0, 0, this)),
+		t.push(new Teleport(0, 0, this)),
+		t.push(new Helicopter(0, 0, 0, this)),
+		t.push(new Truck(0, 0, 0, this)),
+		t.push(new Balloon(0, 0, 0, this)),
+		t.push(new Blob(0, 0, 0, this))
+	}
+	updatePowerups(t) {
+		if (typeof t != 'function')
+			throw new TypeError("'t' must be of type: function");
+		for (let e of this.constructor.powerupCache)
+			t(e);
+		this.recachePowerups(Math.max(this.camera.zoom, 1))
 	}
 	recachePowerups(t) {
-		for (const e of A)
+		for (const e of this.constructor.powerupCache)
 			e.recache(t)
 	}
 	read(t) {
@@ -226,8 +246,8 @@ export default class {
 				}
 			}
 		}
-		this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.physicsSectors, this.settings.physicsSectorSize);
-		let a = this.addRef(t.x, t.y, t, M.POWERUPS, this.sectors.drawSectors, this.settings.drawSectorSize);
+		this.addRef(t.x, t.y, t, this.constructor.types.POWERUPS, this.sectors.physicsSectors, this.settings.physicsSectorSize);
+		let a = this.addRef(t.x, t.y, t, this.constructor.types.POWERUPS, this.sectors.drawSectors, this.settings.drawSectorSize);
 		return a !== !1 && this.totalSectors.push(a), t !== null && (this.powerups.push(t), t.id && (this.powerupsLookupTable[t.id] = t)), t
 	}
 	addLines(t, e) {
@@ -252,11 +272,11 @@ export default class {
 	}
 	addPhysicsLineToTrack(t) {
 		for (let l = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.drawSectorSize, !0), p = 0; l.length > p; p += 2) {
-			let v = this.addRef(l[p], l[p + 1], t, M.LINE, this.sectors.drawSectors, this.settings.drawSectorSize);
+			let v = this.addRef(l[p], l[p + 1], t, this.constructor.types.LINE, this.sectors.drawSectors, this.settings.drawSectorSize);
 			v !== !1 && this.totalSectors.push(v)
 		}
 		for (let m = o(t.p1.x, t.p1.y, t.p2.x, t.p2.y, this.settings.physicsSectorSize), p = 0; m.length > p; p += 2) {
-			this.addRef(m[p], m[p + 1], t, M.LINE, this.sectors.physicsSectors, this.settings.physicsSectorSize)
+			this.addRef(m[p], m[p + 1], t, this.constructor.types.LINE, this.sectors.physicsSectors, this.settings.physicsSectorSize)
 		}
 		return this.physicsLines.push(t), t
 	}
@@ -267,7 +287,7 @@ export default class {
 	}
 	addSceneryLineToTrack(t) {
 		for (let e = this.settings.drawSectorSize, i = t.p1, s = t.p2, n = i.x, r = i.y, a = s.x, h = s.y, l = o(n, r, a, h, e, !0), c = this.sectors.drawSectors, u = l.length, p = 0; u > p; p += 2) {
-			let v = this.addRef(l[p], l[p + 1], t, M.LINE, c, e);
+			let v = this.addRef(l[p], l[p + 1], t, this.constructor.types.LINE, c, e);
 			v !== !1 && this.totalSectors.push(v)
 		}
 		return this.sceneryLines.push(t), t
@@ -282,11 +302,11 @@ export default class {
 			c = u
 		}
 		switch (s) {
-		case M.LINE:
+		case this.constructor.types.LINE:
 			n[o][h].addLine(i),
 			i.addSectorReference(n[o][h]);
 			break;
-		case M.POWERUPS:
+		case this.constructor.types.POWERUPS:
 			n[o][h].addPowerup(i),
 			i.addSectorReference(n[o][h])
 		}
@@ -420,19 +440,24 @@ export default class {
 		return typeof this.sectors.drawSectors[s] != "undefined" && typeof this.sectors.drawSectors[s][n] != "undefined" && (this.sectors.drawSectors[s][n])
 	}
 	draw(ctx) {
-		let f = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
-			v = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) - this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2 - 1,
-			g = this.scene.camera.position.x * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.width / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2,
-			m = this.scene.camera.position.y * this.scene.camera.zoom / (this.settings.drawSectorSize * this.scene.camera.zoom) + this.scene.screen.height / (this.settings.drawSectorSize * this.scene.camera.zoom) / 2;
+		const scene = this.scene
+			, camera = scene.camera
+			, settings = this.settings
+			, size = settings.drawSectorSize * camera.zoom
+			, g = camera.position.x / settings.drawSectorSize + scene.screen.width / (2 * size) | 0
+			, m = camera.position.y / settings.drawSectorSize + scene.screen.height / (2 * size) | 0
+			, f = camera.position.x / settings.drawSectorSize - scene.screen.width / (2 * size) - 1 | 0
+			, v = camera.position.y / settings.drawSectorSize - scene.screen.height / (2 * size) - 1 | 0;
 		for (const t of this.totalSectors) {
 			if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
 				t.drawn === !1 && t.draw(),
 				t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
-				let S = t.column * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.x * this.scene.camera.zoom - this.scene.screen.center.x) | 0,
-					P = t.row * (this.settings.drawSectorSize * this.scene.camera.zoom) - (this.scene.camera.position.y * this.scene.camera.zoom - this.scene.screen.center.y) | 0;
-				ctx.drawImage(t.canvas, S, P, this.settings.drawSectorSize * this.scene.camera.zoom, this.settings.drawSectorSize * this.scene.camera.zoom);
+				let S = (t.column * settings.drawSectorSize - camera.position.x) * camera.zoom + scene.screen.center.x | 0,
+					P = (t.row * settings.drawSectorSize - camera.position.y) * camera.zoom + scene.screen.center.y | 0;
+				ctx.drawImage(t.canvas, S, P, size, size);
 				if (t.hasPowerups && t.powerupCanvasDrawn) {
-					ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * this.scene.camera.zoom / 2, P - t.powerupCanvasOffset * this.scene.camera.zoom / 2, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom, (this.settings.drawSectorSize * this.scene.camera.zoom) + t.powerupCanvasOffset * this.scene.camera.zoom)
+					const powerupSectorSize = (settings.drawSectorSize + t.powerupCanvasOffset) * camera.zoom;
+					ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * camera.zoom / 2, P - t.powerupCanvasOffset * camera.zoom / 2, powerupSectorSize, powerupSectorSize)
 				}
 			} else
 				t.drawn && t.clear()
@@ -443,6 +468,9 @@ export default class {
 			t.close()
 	}
 	close() {
+		if ('TrackRenderer' in window)
+			TrackRenderer.removeEventListener('message', this._boundRenderer),
+			delete this._boundRenderer;
 		this.scene = null,
 		this.closeSectors(),
 		this.totalSectors = null,
@@ -452,5 +480,11 @@ export default class {
 		this.sceneryLines = null,
 		this.powerups = null,
 		this.camera = null
+	}
+
+	static powerupCache = [];
+	static types = {
+		LINE: 1,
+		POWERUPS: 2
 	}
 }

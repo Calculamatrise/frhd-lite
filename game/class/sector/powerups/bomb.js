@@ -66,12 +66,11 @@ export default class extends Powerup {
 		t.restore()
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
-		t.fillStyle = i,
-		t.strokeStyle = i,
-		t.lineWidth = 8 * e * this.constructor.cache.scale
+		let i = super.updateCache(t, e);
+		t.fillStyle = this.outline,
+		t.strokeStyle = this.outline,
+		t.lineWidth = 8 * e * this.constructor.cache.scale;
+		return i
 	}
 	static cache = this.createCache({
 		width: 26,

@@ -23,24 +23,20 @@ export default class {
 	oldState = null;
 	vehicle = "Mtb";
 	importCode = !1;
-	pauseControls = null;
-	message = null;
+	message = new MessageManager(this);
 	constructor(t) {
 		Object.defineProperty(this, 'game', { value: t, writable: true });
 		this.assets = t.assets,
 		this.settings = t.settings,
-		this.sound = new SoundManager(this),
 		this.mouse = new MouseHandler(this),
-		this.score = new Score(this),
 		this.camera = new Camera(this),
+		this.score = new Score(this);
 		this.screen = new Screen(this),
-		this.message = new MessageManager(this),
+		this.sound = new SoundManager(this),
 		this.createTrack(),
 		this.loadingcircle = new LoadingCircle(this),
 		this.playerManager = new PlayerManager(this),
-		this.vehicleTimer = new VehicleTimer(this),
-		Object.defineProperty(this, '_onresize', { value: this.redraw.bind(this), writable: true }),
-		window.addEventListener('resize', this._onresize, { passive: true })
+		this.vehicleTimer = new VehicleTimer(this)
 	}
 	buttonDown(t) {
 		let e = this.camera;
@@ -49,7 +45,8 @@ export default class {
 			e.focusOnNextPlayer();
 			break;
 		case "pause":
-			this.state.paused = !this.state.paused,
+			this.state.paused = !this.state.paused;
+			// (this.state.paused = !this.state.paused) || this.game.resume(),
 			'mediaSession' in navigator && (navigator.mediaSession.playbackState = this.state.paused ? 'paused' : 'playing');
 			this.state.paused && Object.defineProperty(this, '_idleStateTimeout', {
 				value: setTimeout(() => this.state.idle = this.state.paused, 300),
@@ -119,8 +116,10 @@ export default class {
 		}
 	}
 	draw(ctx) {
-		/* !this.state.paused && */ /* !this.state.idle && */ (ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
-		this.game.emit('clearRect', 0, 0, ctx.canvas.width, ctx.canvas.height, true),
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		this.game.emit(this.game.constructor.Events.Clear, ctx);
+		if (this.game.emit(this.game.constructor.Events.BeforeDraw, ctx)) return;
+		/* !this.state.paused && */ /* !this.state.idle && */ (// ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
 		this.toolHandler.drawGrid(ctx),
 		this.track.draw(ctx)),
 		this.score.draw(ctx),
@@ -128,22 +127,37 @@ export default class {
 		this.vehicleTimer.player && this.vehicleTimer.player._tempVehicleTicks > 0 && this.vehicleTimer.draw(ctx),
 		this.toolHandler.draw(ctx),
 		this.loading && this.loadingcircle.draw(ctx),
-		this.message.draw(ctx),
-		this.pauseControls.draw(ctx)
+		this.message.draw(ctx)
 	}
 	fixedUpdate() {
-		this.screen.update(),
-		this.updateControls(),
-		this.camera.update(),
-		this.sound.update(),
-		this.restartTrack && this.restart(),
+		!this.game.interpolation && !this.camera.playerFocus?.isGhost() && this.camera.playerFocus?.isAlive() && this.camera.update(),
+		!this.state.paused && !this.state.showDialog && (this.playerManager.updateGamepads(),
+		this.playerManager.checkKeys()),
 		!this.state.paused && this.state.playing && (this.message.update(),
 		this.playerManager.fixedUpdate(),
 		!this.camera.focusIndex && (this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++)),
-		this.score.update(),
-		this.vehicleTimer.fixedUpdate(),
+		this.vehicleTimer.fixedUpdate()
+	}
+	update(delta) {
+		this.restartTrack && this.restart();
+		this.updateToolHandler();
+		this.mouse.update();
+		this.score.update();
+		this.sound.update();
+		this.playerManager.update(delta)
+	}
+	lateUpdate(delta) {
+		!this.state.paused && this.state.playing && this.playerManager.lateUpdate(),
+		(this.game.interpolation || this.camera.playerFocus?.isGhost() || !this.camera.playerFocus?.isAlive()) && this.camera.update(delta),
+		this.camera.updateZoom(delta),
 		this.isStateDirty() && this.updateState(),
-		this.camera.updateZoom()
+		this.importCode && this.createTrack()
+	}
+	exitFullscreen() {
+		if (!this.settings.fullscreenAvailable) return !1;
+		this.settings.fullscreen = !1;
+		this.state.fullscreen = !1;
+		return !0
 	}
 	getAvailableTrackCode() {
 		let t = this.settings
@@ -153,16 +167,13 @@ export default class {
 		this.importCode = null),
 		e
 	}
-	hideControlPlanel() {}
 	initAnalytics() {
 		Object.defineProperty(this, 'analytics', {
 			value: { deaths: 0 },
 			writable: true
 		})
 	}
-	interactWithControls() {
-		this.pauseControls.click()
-	}
+	interactWithControls() {}
 	isStateDirty() {
 		let i = !1;
 		for (let s in this.state)
@@ -176,26 +187,18 @@ export default class {
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()
 	}
-	redrawControls() {
-		this.pauseControls.redraw()
-	}
+	redrawControls() {}
 	registerTools() {
 		let t = new ToolHandler(this);
 		this.toolHandler = t,
 		t.registerTool(CameraTool);
 		return t
 	}
-	resize() {
-		this.redrawControls()
-	}
-	showControlPlanel() {}
-	updateState() {
-		let t = this.state
-		  , e = structuredClone(this.state);
+	updateState(e = structuredClone(this.state)) {
+		let t = this.state;
 		t.zoomPercentage = this.camera.zoomPercentage,
-		t.vehicle = this.vehicle,
-		this.game.emit('stateChange', this.state),
-		this.game.emit('stateUpdate', e, structuredClone(this.state)),
+		t.vehicle = this.vehicle;
+		this.game.emit('stateChange', e, structuredClone(this.state));
 		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
 	toggleVehicle() {
@@ -205,9 +208,6 @@ export default class {
 		  , s = t.indexOf(i);
 		i = t[++s % e];
 		this.selectVehicle(i)
-	}
-	updateControls() {
-		this.pauseControls.update()
 	}
 	updateToolHandler() {
 		this.toolHandler.update()
@@ -248,21 +248,14 @@ export default class {
 		this.sound && this.sound.stop_all()
 	}
 	toggleFullscreen() {
-		if (this.settings.embedded) {
-			let t = this.settings
-			  , e = t.basePlatformUrl + "/t/" + t.track.url;
-			window.open(e)
-		} else if (this.settings.fullscreenAvailable) {
-			let e = !this.settings.fullscreen;
-			this.settings.fullscreen = e,
-			this.state.fullscreen = e;
-			return !0
-		}
+		if (!this.settings.fullscreenAvailable) return !1;
+		let e = !this.settings.fullscreen;
+		this.settings.fullscreen = e,
+		this.state.fullscreen = e;
+		return !0
 	}
 	close() {
-		window.removeEventListener('resize', this._onresize),
 		this._onresize = null,
-		this.pauseControls = null,
 		this.score = null,
 		this.mouse.close(),
 		this.mouse = null,
@@ -274,6 +267,7 @@ export default class {
 		this.vehicleTimer = null,
 		this.playerManager.close(),
 		this.playerManager = null,
+		this.stopAudio(),
 		this.sound.close(),
 		this.sound = null,
 		this.track.close(),
@@ -282,7 +276,6 @@ export default class {
 		this.assets = null,
 		this.settings = null,
 		this.track = null,
-		this.state = null,
-		this.stopAudio()
+		this.state = null
 	}
 }

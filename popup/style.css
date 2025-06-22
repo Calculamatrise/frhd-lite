@@ -1,45 +1,28 @@
 @keyframes rotate {
-	to { rotate: 360deg; }
+	to { rotate: 360deg }
 }
 
 @keyframes slide {
-	to { left: 0; }
+	to { left: 0 }
 }
 
 :root {
-	--accent-color: #161b1f;
-	--background-color: #1d2328;
-	--border-color: hsl(200deg 40% 25% / 50%);
-	--text-color: #fdfdfd;
+	--base-hue: 207deg;
+	--accent-color: hsl(var(--base-hue) 17% 10%);
+	--background-color: hsl(var(--base-hue) 16% 14%);
+	--border-color: hsl(var(--base-hue) 40% 25% / 50%);
+	--text-color: hsl(0 0% 99%);
+	accent-color: hsl(var(--base-hue) 20% 70%);
 	color-scheme: dark;
+	scrollbar-color: hsl(var(--base-hue) 10% 50% / 50%) transparent;
+	scrollbar-width: thin;
 }
 
-::placeholder { color: hsl(200deg 10% 50% / 50%); }
-::-webkit-scrollbar {
-	height: 8px;
-	width: 8px;
-}
+::placeholder { color: hsl(200deg 10% 50% / 50%) }
 
-::-webkit-scrollbar-corner { display: none; }
-::-webkit-scrollbar-track {
-	background-color: #0e111499;
-	border-radius: 30px;
-}
-
-::-webkit-scrollbar-thumb {
-	background-color: #232f38;
-	border-radius: 30px;
-}
-
-::-webkit-scrollbar-thumb:hover { background-color: #303b44; }
-::-webkit-scrollbar-thumb:active { background-color: #3d4953; }
-
-html {
-	background-color: var(--background-color);
-	color: var(--text-color);
-}
-
+html { background-color: var(--background-color) }
 body {
+	color: var(--text-color);
 	margin: 0.75rem;
 	max-height: fit-content;
 	overflow-y: auto;
@@ -57,7 +40,7 @@ body:has(> div.alt.view) {
 	gap: 1.25rem;
 }
 
-body:has(> div.alt.view > input:checked) { translate: -100vw; }
+body:has(> div.alt.view > input:checked) { translate: -100vw }
 
 /* body:has(> div.alt.view > input:checked) > :not(div.alt.view) {
 	display: none !important;
@@ -89,17 +72,18 @@ body:has(> div.alt.view > input:checked) { translate: -100vw; }
 	transition: all 200ms;
 }
 
-#state:hover { cursor: pointer; }
-#state::before { content: "Disabled"; }
-#state:hover::before { content: "Click to enable"; }
-#state, .danger { background-color: rgb(218, 34, 34, .2) !important; }
-#state.enabled, .safe { background-color: rgb(0, 167, 8, .2) !important; }
-#state.enabled::before { content: "Enabled"; }
-#state.enabled:hover::before { content: "Click to disable"; }
-#state.update-available::before { content: "Update"; }
-#state.update-available:hover::before { content: "Click to update"; }
-#state:hover:active, .danger:hover:active, .safe:hover:active { backdrop-filter: brightness(0.5); }
-.danger.hover-border:hover, .danger-border { box-shadow: inset 0px 0px 1px 1px hsl(0 60% 20% / 1); }
+#state:hover { cursor: pointer }
+#state::before { content: "Disabled" }
+#state:hover::before { content: "Click to enable" }
+#state, .danger { background-color: rgb(218, 34, 34, .2) !important }
+#state.enabled, .safe { background-color: rgb(0, 167, 8, .2) !important }
+#state.enabled::before { content: "Enabled" }
+#state.enabled:hover::before { content: "Click to disable" }
+#state.update-avialable { background-color: hsl(180deg 100% 30% / 20%) !important }
+#state.update-available::before { content: "Update" }
+#state.update-available:hover::before { content: "Click to update" }
+#state:hover:active, .danger:hover:active, .safe:hover:active { backdrop-filter: brightness(0.5) }
+.danger.hover-border:hover, .danger-border { box-shadow: inset 0px 0px 1px 1px hsl(0 60% 20% / 1) }
 
 a.button, button, details > summary, label {
 	-webkit-user-select: none;
@@ -134,7 +118,7 @@ a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hove
 	cursor: pointer;
 }
 
-.notification { padding-right: 2rem; }
+.notification { padding-right: 2rem }
 .notification::after {
 	background-color: crimson;
 	border-radius: 0.25rem;
@@ -154,14 +138,45 @@ a:is(.button, .tab):hover, button:hover, label:hover, details.tab > summary:hove
 	top: 0;
 }
 
+dialog.prompt {
+	backdrop-filter: blur(.4rem);
+	background-color: transparent;
+	border: none;
+	height: 100%;
+	width: 100%;
+	z-index: 40;
+}
+
+dialog.prompt > form {
+	height: fit-content;
+	inset: 0;
+	margin: auto;
+	position: absolute;
+	width: fit-content;
+}
+
+.option-wrapper { position: relative }
+.option-wrapper > .options:empty { display: none }
+.option-wrapper > .options {
+	background-color: var(--background-color);
+	display: flex;
+	flex-direction: column;
+	max-height: 25vh;
+	overflow-y: auto;
+	position: absolute;
+	top: 100%;
+	width: 100%;
+	z-index: 10;
+}
+
 div.details {
 	padding: 0.25rem;
 	font-size: small;
 	font-family: roboto_medium, Arial, Helvetica, sans-serif;
 }
 
-div.details > input:is([type="checkbox"], [type="radio"]) { display: none; }
-div.details:has(> input:is([type="checkbox"], [type="radio"]):not(:checked)) { display: none !important; }
+div.details > input:is([type="checkbox"], [type="radio"]) { display: none }
+div.details:has(> input:is([type="checkbox"], [type="radio"]):not(:checked)) { display: none !important }
 
 .disabled {
 	-webkit-user-select: none;
@@ -200,6 +215,7 @@ label input:is([type="checkbox"], [type="radio"]):checked {
 	transition: all .2s;
 }
 
+label.acuired-color:has(input[type="color"]) { mix-blend-mode: exclusion; }
 label input[type="color"] {
 	border: none;
 	border-radius: 2px;
@@ -213,8 +229,27 @@ label input[type="color"] {
 	width: 13px;
 }
 
-label input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-label input[type="color"]::-webkit-color-swatch { border: none; }
+label input[type="color"]::-webkit-color-swatch-wrapper { padding: 0 }
+label input[type="color"]::-webkit-color-swatch { border: none }
+
+.name[data-value]::after {
+	/* content: "(" attr(data-value) ")"; */
+	content: attr(data-value);
+	font-size: .875em;
+	/* font-weight: bold; */
+	/* line-height: 1em; */
+	margin-left: .5em;
+	opacity: .75;
+	vertical-align: middle;
+	/* float right */
+	float: right;
+	line-height: 1rem;
+}
+
+.name.percentage[data-value]::after {
+	/* content: "(" attr(data-value) "%)" */
+	content: attr(data-value) "%"
+}
 
 input:is([type="date"], [type="email"], [type="number"], [type="password"], [type="text"]),
 textarea {
@@ -238,9 +273,9 @@ textarea:focus {
 	box-shadow: inset 0 0 0 1px hsl(206, 23%, 18%);
 }
 
-input[type="email"]:focus { outline-style: auto !important; }
-input[type="email"]:focus:invalid { outline: red; }
-input[type="email"]:focus:valid { outline: green; }
+input[type="email"]:focus { outline-style: auto !important }
+input[type="email"]:focus:invalid { outline: red }
+input[type="email"]:focus:valid { outline: green }
 
 select {
 	background-color: hsl(206, 23%, 18%);
@@ -253,8 +288,8 @@ select {
 	padding: 0.25rem;
 }
 
-select > * { background-color: inherit; }
-select > option:empty { text-transform: capitalize; }
+select > * { background-color: inherit }
+select > option:empty { text-transform: capitalize }
 
 #keybind-entries {
 	display: flex;
@@ -273,7 +308,7 @@ select > option:empty { text-transform: capitalize; }
 	gap: 0.25rem;
 }
 
-.keybind-wrapper > select { font-size: inherit; }
+.keybind-wrapper > select { font-size: inherit }
 .keybind-wrapper > input {
 	font-size: smaller;
 	font-size: 2cqh;
@@ -282,7 +317,7 @@ select > option:empty { text-transform: capitalize; }
 	text-align: center;
 }
 
-table tr > * { padding: 0.25rem; }
+table tr > * { padding: 0.25rem }
 table tbody tr td {
 	border-radius: 0.36rem;
 	text-transform: capitalize;
@@ -301,9 +336,9 @@ table tbody tr td {
 	position: absolute;
 }
 
-.keybind:empty::before { content: "Not set"; }
+.keybind:empty::before { content: "Not set" }
 
-div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: #808080dd; }
+div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: hsl(0 0% 50% / 80%) }
 
 :is([data-shift-key] .keybind, div.details:has(> #keybinds) table tbody tr td:nth-child(1)):hover {
 	background-color: rgb(218, 34, 34, .2);
@@ -326,7 +361,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: #808080dd; 
 	transition: all 10s;
 }
 
-.dropdown:empty { display: none; }
+.dropdown:empty { display: none }
 .dropdown > main {
 	background-color: var(--accent-color);
 	box-shadow: 0 0 20px -10px var(--border-color);
@@ -345,7 +380,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: #808080dd; 
 	transition: max-height .25s ease-in;
 }
 
-.dropdown:is(:hover, :focus-within) > * { outline: none; }
+.dropdown:is(:hover, :focus-within) > * { outline: none }
 .dropdown > main > * {
 	border-radius: 0.4rem;
 	margin: 0.25rem;
@@ -372,7 +407,7 @@ div.details:has(> #keybinds) table tbody tr td:nth-child(1) { color: #808080dd; 
 	width: 2rem;
 }
 
-button.loading { box-shadow: inset 0 0 1px 2px rgba(0, 0, 0, .2) !important; }
+button.loading { box-shadow: inset 0 0 1px 2px rgba(0, 0, 0, .2) !important }
 
 .loading {
 	-webkit-user-select: none;

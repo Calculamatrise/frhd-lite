@@ -54,8 +54,11 @@ export default class {
 		this.rKnee = p,
 		this.lFoot = d,
 		this.rFoot = f;
-		for (var y in t)
-			this[y].pos.equ(t[y])
+		for (const y in t) {
+			this[y].pos.equ(t[y]);
+			this[y].old.equ(t[y]);
+			this[y].lastFixedPos.equ(t[y])
+		}
 	}
 	zero(t, e) {
 		t = t.factor(.7),
@@ -99,54 +102,53 @@ export default class {
 		  , u = c.camera
 		  , p = u.zoom
 		  , f = this.parent.alpha ?? 1
-		  , q = c.settings.physicsLineColor
-		  , j = q.padEnd(7, q.slice(1, 4));
-		d.strokeStyle = j + Math.min(255, Math.round(255 * .5 * f)).toString(16),
+		  , j = this.parent.player.color;
+		d.strokeStyle = j + Math.min(255, Math.round(255 * .5 * f)).toString(16).padStart(Math.floor(j.length / 3), 0),
 		d.lineWidth = 5 * p;
-		let v = t.pos.toScreen(c)
+		let v = t.displayPos.toScreen(c)
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		let g = i.pos.toScreen(c)
+		let g = i.displayPos.toScreen(c)
 		d.lineTo(g.x, g.y);
-		let m = r.pos.toScreen(c)
+		let m = r.displayPos.toScreen(c)
 		d.lineTo(m.x, m.y),
 		d.stroke(),
-		d.strokeStyle = j + Math.min(255, Math.round(255 * f)).toString(16),
+		d.strokeStyle = j + Math.min(255, Math.round(255 * f)).toString(16).padStart(Math.floor(j.length / 3), 0),
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		let y = s.pos.toScreen(c)
+		let y = s.displayPos.toScreen(c)
 		d.lineTo(y.x, y.y);
-		let w = n.pos.toScreen(c)
+		let w = n.displayPos.toScreen(c)
 		d.lineTo(w.x, w.y),
 		d.stroke(),
 		d.lineWidth = 8 * p,
 		d.beginPath(),
 		d.moveTo(v.x, v.y);
-		let x = e.pos.toScreen(c)
+		let x = e.displayPos.toScreen(c)
 		d.lineTo(x.x, x.y),
 		d.stroke(),
 		d.lineWidth = 5 * p,
 		d.beginPath(),
 		d.moveTo(x.x, x.y);
-		let _ = o.pos.toScreen(c)
+		let _ = o.displayPos.toScreen(c)
 		d.lineTo(_.x, _.y);
-		let b = h.pos.toScreen(c)
+		let b = h.displayPos.toScreen(c)
 		d.lineTo(b.x, b.y);
-		let T = o.pos.sub(e.pos).normalize();
+		let T = o.displayPos.sub(e.displayPos).normalize();
 		T.factorSelf(4),
-		T.inc(h.pos);
+		T.inc(h.displayPos);
 		let C = T.toScreen(c);
 		d.lineTo(C.x, C.y),
 		d.stroke(),
-		d.strokeStyle = j + Math.min(255, Math.round(255 * .5 * f)).toString(16),
+		d.strokeStyle = j + Math.min(255, Math.round(255 * .5 * f)).toString(16).padStart(Math.floor(j.length / 3), 0),
 		d.lineWidth = 5 * p,
 		d.beginPath(),
 		d.moveTo(x.x, x.y);
-		let k = a.pos.toScreen(c)
+		let k = a.displayPos.toScreen(c)
 		d.lineTo(k.x, k.y);
-		let S = a.pos.sub(e.pos).normalize();
-		S = S.factor(4).add(l.pos);
-		let P = l.pos.toScreen(c)
+		let S = a.displayPos.sub(e.displayPos).normalize();
+		S = S.factor(4).add(l.displayPos);
+		let P = l.displayPos.toScreen(c)
 		d.lineTo(P.x, P.y);
 		let M = S.toScreen(c);
 		d.lineTo(M.x, M.y),
@@ -160,16 +162,20 @@ export default class {
 		for (let t of this.springs)
 			t.fixedUpdate();
 		for (let t of this.masses)
-			t.fixedUpdate();
+			t.fixedUpdate()
+	}
+	update() {
+		for (let t of this.masses)
+			t.update(...arguments);
 		this.updateDrawHeadAngle()
 	}
-	update(progress) {
+	lateUpdate() {
 		for (let t of this.masses)
-			t.update(progress);
+			t.lateUpdate()
 	}
 	updateDrawHeadAngle() {
-		let t = this.head.pos
-		  , e = this.waist.pos;
+		let t = this.head.displayPos
+		  , e = this.waist.displayPos;
 		this.dir < 0 && ([t, e] = [e, t]);
 		let i = t.x
 		  , s = t.y

@@ -1,12 +1,10 @@
 {
 	"name": "Free Rider Lite",
-	"version": "0.0.45",
+	"version": "0.0.46",
 	"author": "Calculamatrise",
 	"description": "A mod for Free Rider HD.",
 	"manifest_version": 3,
-	"action": {
-		"default_popup": "popup/index.html"
-	},
+	"action": { "default_popup": "popup/index.html" },
 	"background": {
 		"service_worker": "service-worker.js",
 		"type": "module"
@@ -32,12 +30,11 @@
 	],
 	"web_accessible_resources": [{
 		"resources": [
-			"assets/*",
-			"game/*",
+			"game/**",
 			"shared/*"
 		],
 		"matches": [
-			"*://*.kanoapps.com/*",
+			"*://frhd.kanoapps.com/*",
 			"*://*.freeriderhd.com/*"
 		]
 	}]

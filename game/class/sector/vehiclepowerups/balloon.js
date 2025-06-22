@@ -23,7 +23,7 @@ export default class extends VehiclePowerup {
 			l.vehicleTimer.playerAddedTime(i)),
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
-			this.scene.message.show('Balloon Powerup!', 50, this.color, !1))
+			this.scene.message.show('Balloon Powerup!', 50, this.color))
 		}
 	}
 	drawIcon(t, e) {
@@ -32,7 +32,7 @@ export default class extends VehiclePowerup {
 		t.roundRect(6, 23, 9, 8, 1),
 		t.fill(),
 		t.beginPath(),
-		t.arc(10.5, 10.5, 10.5 - t.lineWidth / 2, 0, 2 * Math.PI, !0);
+		t.arc(10.5, 10.5, 10.5 - t.lineWidth / 2, 0, 2 * Math.PI);
 		let i = t.fillStyle;
 		t.fillStyle = this.color,
 		t.fill(),
@@ -41,15 +41,15 @@ export default class extends VehiclePowerup {
 		t.lineTo(13, 24),
 		t.moveTo(8, 24),
 		t.lineTo(6, 18.5),
-		t.stroke()
+		t.stroke(),
+		t.resetTransform()
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		let i = super.updateCache(t, e);
 		t.lineWidth = 2,
-		t.strokeStyle = i,
-		t.fillStyle = i
+		t.strokeStyle = this.outline,
+		t.fillStyle = this.outline;
+		return i
 	}
 	static cache = this.createCache({
 		width: 21,

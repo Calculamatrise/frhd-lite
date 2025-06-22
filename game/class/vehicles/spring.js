@@ -5,16 +5,12 @@ export default class {
 	m2 = null;
 	lrest = 40;
 	leff = 40;
-	dampConstant = 0;
-	springConstant = 0;
+	dampConstant = .5;
+	springConstant = .7;
 	constructor(t, e, i) {
 		Object.defineProperty(this, 'parent', { value: i });
 		this.m1 = t;
-		this.m2 = e;
-		this.lrest = 40;
-		this.leff = 40;
-		this.dampConstant = .5;
-		this.springConstant = .7;
+		this.m2 = e
 	}
 	swap() {
 		let t = new i

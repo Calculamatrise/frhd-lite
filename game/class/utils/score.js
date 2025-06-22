@@ -1,6 +1,5 @@
 import Component from "../interfaces/component.js";
 import GUI from "../interfaces/gui.js";
-import Cartesian from "../math/cartesian.js";
 import format from "./formatnumber.js";
 
 export default class extends GUI {
@@ -74,48 +73,15 @@ export default class extends GUI {
 		this.sprites.timer = t.assets.getResult("time_icon"),
 		this.sprites.target = t.assets.getResult("targets_icon"),
 		this.timer_sprite.image.canvas = this.sprites.timer,
-		this.target_sprite.image.canvas = this.sprites.target
-	}
-	draw(t) {
-		super.draw(t);
-		if (window.hasOwnProperty('lite') && lite.storage.get('raceProgress')) {
-			let e = this.scene.camera.playerFocus;
-			if (e && this.scene.state.inFocus) {
-				t.beginPath();
-				let i = t.canvas.width / 3
-				, s = t.canvas.width / 2 - i / 2
-				, n = t.canvas.height - 16
-				, r = Math.min(6, t.canvas.height / 12)
-				, o = r / 2;
-				t.roundRect(s, n, i, r, o),
-				t.fillStyle = 'hsl(0deg, 0%, 50%)',
-				t.fill(),
-				t.lineWidth = 2,
-				t.strokeStyle = t.fillStyle,
-				t.stroke(),
-				t.beginPath();
-				let a = e._powerupsConsumed.targets
-				, h = this.scene.track
-				, u = a.length / h.targetCount
-				, l = h.targets.find(t => t.id == (typeof a.at == 'function' ? a.at(-1) : a[a.length - 1])) || { x: 0, y: 0 }
-				, p = new Cartesian(l.x, l.y) // anchor point A
-				, q = h.targets.filter(t => !a.includes(t.id)).sort((a, b) => p.sub(new Cartesian(a.x, a.y)).len() - p.sub(new Cartesian(b.x, b.y)).len())[0] // next target
-				, v = q && new Cartesian(q.x, q.y)
-				, w = (q && p.sub(v).len()) ?? 0 // len from previous target
-				, y = (q && Math.min(...(e._tempVehicle || e._baseVehicle).masses.map(t => v.sub(t.pos).len() /* - ~~t.radius / 2*/).sort((a, b) => a - b))) ?? 0 // distance to next target
-				, d = Math.min(1, Math.max(0, (w - y) / w)) * 100 / h.targetCount;
-				u += d / 100;
-				t.roundRect(s, n, Math.max(0, Math.min(i, i * u)), r, o),
-				t.fillStyle = '#FAE335',
-				t.fill()
-			}
-		}
+		this.target_sprite.image.canvas = this.sprites.target,
+		GameManager.scene === 'Editor' && (this.best_time.visible = false,
+		this.best_time_title.visible = false)
 	}
 	update() {
 		let t = this.scene
 		  , e = t.state.paused
 		  , i = format(1e3 * ((null !== t.camera.playerFocus && t.camera.playerFocus._gamepad.playbackTicks || null) ?? t.ticks) / t.settings.drawFPS)
-		  , s = t.playerManager.firstPlayer.getTargetsHit() + '/' + t.track.targetCount
+		  , s = (t.camera.playerFocus || t.playerManager.firstPlayer).getTargetsHit() + '/' + t.track.targetCount
 		  , n = t.settings.isCampaign && t.settings.campaignData.user.best_time || t.settings.userTrackStats && t.settings.userTrackStats.best_time;
 		this.paused !== e && (this.timer_sprite.image.y = e ? 62 : 2,
 		this.container.cached = !1,
@@ -125,8 +91,7 @@ export default class extends GUI {
 		this.goals.text !== s && (this.goals.text = s,
 		this.goals.setDirty());
 		n && this.best_time.text !== n && (this.best_time.text = n,
-		this.best_time.setDirty());
-		t.settings.mobile && this.centerContainer()
+		this.best_time.setDirty())
 	}
 	centerContainer() {
 		let t = this.container

@@ -1,7 +1,6 @@
 import Vector from "../math/cartesian.js";
-import EventEmitter from "../EventEmitter.js";
 
-export default class extends EventEmitter {
+export default class {
 	enabled = !0;
 	touch = null;
 	touches = [];
@@ -10,7 +9,6 @@ export default class extends EventEmitter {
 	mousewheel = !1;
 	throttledMouseWheel = null;
 	constructor(t) {
-		super();
 		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
 		this.touch = this.getTouchObject();
 		this.touch.old = this.getTouchObject();

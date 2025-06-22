@@ -11,10 +11,20 @@ export default class {
 	}
 	fixedUpdate() {
 		if (!this.scene.camera.focusIndex)
-			for (let t = this._players.filter(player => !player.complete && !player.isGhost()), e = t.length, i = 0; e > i; i++)
-				t[i].fixedUpdate()
-		for (let t = this._players.filter(player => !player.complete && player.isGhost()), e = t.length, i = 0; e > i; i++)
-			t[i]._replayIterator.next()
+			for (const t of this._players.filter(player => !player.complete && !player.isGhost()))
+				t.fixedUpdate();
+		for (const { _replayIterator: t } of this._players.filter(player => !player.complete && player.isGhost()))
+			t.next();
+		window.hasOwnProperty('lite') && lite.storage.get('confirmRestart') && this.firstPlayer && this.firstPlayer._gamepad.isButtonDown('restart') && this.firstPlayer._restartTimeout && (this.scene.ticks - this.firstPlayer._restartTimeout >= 10) && (this.scene.restartTrack = !0,
+		this.firstPlayer._gamepad.setButtonUp('restart'))
+	}
+	update() {
+		for (const t of this._players.filter(player => !player.complete))
+			t.update(...arguments)
+	}
+	lateUpdate() {
+		for (const t of this._players.filter(player => !player.complete))
+			t.lateUpdate(...arguments)
 	}
 	mutePlayers() {
 		for (let t = this._players, e = t.length, i = 0; e > i; i++) {
@@ -23,8 +33,8 @@ export default class {
 		}
 	}
 	updateGamepads() {
-		for (let t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
-			t[i]._gamepad.update()
+		for (const { _gamepad: t } of this._players.filter(player => !player.isGhost()))
+			t.update()
 	}
 	createPlayer(t, e) {
 		return new s(this.scene,e)
@@ -35,11 +45,11 @@ export default class {
 		this.game.emit('playerAdd', t)
 	}
 	checkKeys() {
-		for (let t = this._players.filter(player => !player.isGhost()), e = t.length, i = 0; e > i; i++)
-			t[i].checkKeys()
+		for (const t of this._players.filter(player => !player.isGhost()))
+			t.checkKeys()
 	}
 	draw(ctx) {
-		for (let t of this._players)
+		for (const t of this._players)
 			t.draw(ctx)
 	}
 	getPlayerByIndex(t) {
@@ -60,20 +70,21 @@ export default class {
 		this.game.emit('playerRemove', s)
 	}
 	reset() {
-		for (let t = this._players, e = t.length, i = 0; e > i; i++)
-			t[i].reset()
-		for (let t = this._players.filter(player => player.isGhost()), e = t.length, i = 0; e > i; i++)
-			t[i]._replayIterator = t[i].createReplayIterator();
+		for (const t of this._players)
+			t.reset(),
+			t.isGhost() && (t._replayIterator = t.createReplayIterator())
 	}
 	clear() {
-		this._players.splice(1),
-		this._playerLookup = {},
-		this._playerLookup[this.firstPlayer.id] = this.firstPlayer,
+		this._players.splice(1);
+		for (const t in this._playerLookup) {
+			if (t === this.firstPlayer.id) continue;
+			delete this._playerLookup[t];
+		}
 		this.scene.camera.focusIndex > 0 && this.scene.camera.unfocus()
 	}
 	_closePlayers() {
-		for (let t = this._players, e = t.length, i = 0; e > i; i++)
-			t[i].close()
+		for (const t of this._players)
+			t.close()
 	}
 	close() {
 		this._closePlayers(),

@@ -1,6 +1,4 @@
-import ContextMenu from "./ContextMenu.js";
-
-window.lite = new class Lite {
+class FreeRiderLite {
 	dialogs = new Map();
 	nativeEvents = new Map();
 	playlists = new Map();
@@ -16,12 +14,16 @@ window.lite = new class Lite {
 	constructor() {
 		let searchParams = new URLSearchParams(location.search);
 		if (searchParams.has('ajax')) return;
-		window.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this)),
-		window.ModManager && (ModManager.hook(this, { name: 'lite' }),
-		ModManager.on('ready', this._load.bind(this)),
-		ModManager.on('stateChange', this.refresh.bind(this)));
+		self.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this)),
+		self.ModManager && (ModManager.hook(this, { name: 'lite' }),
+		ModManager.addEventListener('game:ready', this._load.bind(this)),
+		ModManager.addEventListener('game:stateChange', this.refresh.bind(this)));
+		self.hasOwnProperty('Application') && (Object.defineProperty(Application.Helpers.AjaxHelper, 'lastRequest', { value: null, writable: true }),
+		Object.defineProperty(Application.router.current_view, 'ajax', { value: null, writable: true }),
+		Application.events.subscribe('ajax.request', e => (Application.Helpers.AjaxHelper.lastRequest = e,
+		typeof e.header_title == 'string' && (Application.router.current_view.ajax = e))));
 		addEventListener('message', ({ data }) => {
-			if (!data) return console.warn('data is missing');
+			if (!data || data.sender != 'frhd-lite') return;
 			switch (data.action) {
 			case 'setStorage':
 				this.storage = new Map(Object.entries(data.storage)),
@@ -57,15 +59,16 @@ window.lite = new class Lite {
 	}
 
 	_childLoad() {
-		// if pathname === /create discard all track related variables (this.replayGui)
+		// if pathname === /create discard all track related variables (this.playerGui)
 		navigator.onLine && this._uploadOfflineRaces(),
 		this.attachContextMenu(),
+		this.initEditorStyles(),
 		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
 		this.storage.get('accountManager') && this.initAccountManager();
 		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
-		location.pathname.match(/\/r\/.+$/i) && this._updateChallengeLeaderboard(GameSettings.raceData),
+		location.pathname.match(/\/r\/.+$/i) && GameSettings.raceData && this._updateChallengeLeaderboard(GameSettings.raceData),
 		this.cacheTrackData(),
-		this.storage.get('achievementMonitor') && this.initAchievementsDisplay(),
+		this.storage.get('achievementMonitor') && this.initAchievementMonitor(),
 		this.initBestDate(),
 		this.initDownloadGhosts(),
 		this.initGhostMetadata(),
@@ -74,7 +77,7 @@ window.lite = new class Lite {
 		location.search.includes('c_id=') && this.initJumpToComment(),
 		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
 		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
-		this.initGhostPlayer());
+		typeof this.initPlayer == 'function' && this.initPlayer());
 		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('playlists') && this.initPlayLater(),
 		this.initUserTrackAnalytics()) : this.initFriendsLastPlayed(),
 		Application.settings.user.moderator && (this.initUserModeration(),
@@ -82,38 +85,101 @@ window.lite = new class Lite {
 		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData()
 	}
 
-	_load(game) {
-		this.replayGui && game.currentScene.races && game.currentScene.races.length > 0 && (this.replayGui.progress.max = game.currentScene.races[0].race.run_ticks),
-		game.on('baseVehicleCreate', baseVehicle => this._updateBaseVehicle(baseVehicle)),
+	_load({ detail: game }) {
+		if (this.playerGui) {
+			if (game.currentScene.races?.length > 0) {
+				const runTicks = game.currentScene.races[0].race.run_ticks;
+				const progress = this.playerGui.querySelector('.progress-bar-value');
+				progress.setAttribute('max', runTicks);
+				const progressIndicator = this.playerGui.querySelector('#time');
+				progressIndicator.setAttribute('max', this.constructor.formatRaceTime(runTicks / GameSettings.drawFPS * 1e3));
+			}
+			const targets = this.playerGui.querySelector('#target-count');
+			targets && targets.setAttribute('max', game.currentScene.track.targetCount);
+		}
+
+		game.on('baseVehicleCreate', baseVehicle => this._integratePlaybackOptions(baseVehicle));
 		game.on('cameraFocus', playerFocus => {
-			this.replayGui && (this.replayGui.style.setProperty('display', this.scene.camera.focusIndex !== 0 ? 'block' : 'none'),
-			(this.scene.camera.focusIndex !== 0 || this.scene.playerManager._players.length > 1) && (playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id) || this.scene.races[this.scene.races.length - 1]) && (this.replayGui.progress.max = playerFocus.race.run_ticks ?? 100))
-		}),
-		game.on('draw', this.draw.bind(this)),
-		game.on('playerReset', player => {
-			this.snapshots.splice(0),
-			this.replayGui && (this.replayGui.progress.value = 0)
-		}),
-		game.on('replayTick', ticks => this.replayGui && (this.replayGui.progress.value = ticks)),
+			if (!this.playerGui) return;
+			// this.playerGui.toggleAttribute('hidden', this.scene.camera.focusIndex === 0);
+			this.playerGui.toggleAttribute('playing', this.scene.camera.focusIndex === 0);
+			if (this.scene.camera.focusIndex === 0) return;
+			if (this.scene.playerManager._players.length < 2) return;
+			if (!(playerFocus = this.scene.races.find(({ user }) => user.u_id == playerFocus._user.u_id) || this.scene.races[this.scene.races.length - 1])) return;
+			const progress = this.playerGui.querySelector('.progress-bar-value');
+			if (!progress) return;
+			progress.setAttribute('max', playerFocus.race.run_ticks ?? 100)
+		});
+		game.on('draw', ctx => this.draw(ctx));
+		// game.on('playerBaseVehicleDraw', ({ baseVehicle, ctx, player }) => {
+		// 	if (this.scene.ticks <= 0 || player.isGhost()) return;
+		// 	try {
+		// 		if (!this.scene.state.playing) {
+		// 			let t = parseInt(this.storage.get('snapshots'));
+		// 			if (t > 0) {
+		// 				// Object.create(Object.getPrototypeOf(baseVehicle))
+		// 				for (let e of player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+		// 					baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, t / 3e2 * player._checkpoints.indexOf(e) % 1);
+		// 				for (let e of player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
+		// 					baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, t / 3e2 * player._cache.indexOf(e) % 1);
+		// 			}
+		// 		}
+
+		// 		if (this.storage.get('playerTrail')) {
+		// 			for (let e of this.snapshots.filter(({ _baseVehicle: t }) => t))
+		// 				baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, this.snapshots.length / (this.snapshots.length * 200) * this.snapshots.indexOf(e) % 1);
+		// 		}
+		// 	} catch (err) {
+		// 		this.constructor.warn(err)
+		// 	}
+		// });
+		game.on('playerReset', () => {
+			// make sure it's first player???
+			this.snapshots.splice(0);
+			if (!this.playerGui) return;
+			const progress = this.playerGui.querySelector('.progress-bar-value');
+			progress.style.setProperty('--value', 0);
+			// progress.setAttribute('value', 0);
+			const progressIndicator = this.playerGui.querySelector('#time');
+			progressIndicator.textContent = this.constructor.formatRaceTime(0)
+		});
+		game.on('replayTick', ticks => {
+			// update replay progressIndicator
+			if (!this.playerGui) return;
+			const progress = this.playerGui.querySelector('.progress-bar-value');
+			const max = parseInt(progress.getAttribute('max'));
+			progress.style.setProperty('--value', ticks / max * 100);
+			// const time
+			const progressIndicator = this.playerGui.querySelector('#time');
+			progressIndicator.textContent = this.constructor.formatRaceTime(ticks / GameSettings.drawFPS * 1e3);
+			// this._updateMediaSessionPosition()
+		});
+		game.on('stateChange', (oldState, newState) => {
+			if (!this.playerGui) return;
+			const playpause = this.playerGui.querySelector('.playpause');
+			playpause.classList.toggle('playing', !newState.paused);
+			const fullscreen = this.playerGui.querySelector('.fullscreen');
+			fullscreen.classList.toggle('active', newState.fullscreen)
+		});
 		game.on('trackChallengeUpdate', races => {
-			this.replayGui && races.length > 0 && this.replayGui.show();
+			this.playerGui && races.length > 0 && this.playerGui.show();
 			this._updateChallengeLeaderboard(races);
 			let tasRaces = races.filter(({ race }) => race.code.tas);
 			tasRaces.length > 0 && this.updateTASLeaderboard(tasRaces)
-		}),
+		});
 		game.on('trackRaceCreate', data => {
 			GameSettings.raceData ||= [],
 			GameSettings.raceData.push(data),
 			GameSettings.raceUids.push(data.user.u_id),
 			this._updateRaceURL(GameSettings.raceData)
-		}),
+		});
 		game.on('trackRaceDelete', data => {
 			GameSettings.raceData && (GameSettings.raceData.splice(GameSettings.raceData.indexOf(data), 1),
 			this._updateRaceURL(GameSettings.raceData),
 			GameSettings.raceData.length < 1 && (GameSettings.raceData = !1)),
 			GameSettings.raceUids.splice(GameSettings.raceUids.indexOf(data.user.u_id), 1)
-		}),
-		game.on('trackRaceUpload', () => this._updateChallengeLeaderboard(GameManager.game.currentScene.races)),
+		});
+		game.on('trackRaceUpload', () => this._updateChallengeLeaderboard(GameManager.game.currentScene.races));
 		game.on('trackRaceUploadError', error => {
 			const OFFLINE_RACES_KEY = this.constructor.keyify('offline.races');
 			let offlineRaces = this.constructor.getStorageEntry(OFFLINE_RACES_KEY);
@@ -132,11 +198,23 @@ window.lite = new class Lite {
 				writable: true
 			}),
 			navigator.connection.addEventListener('change', this._connectionEvent))
-		}),
-		this.snapshots.splice(0, this.snapshots.length),
+		});
+		game.currentScene.playerManager.firstPlayer._gamepad.addEventListener('buttonDown', event => {
+			if (event.key !== 'left' && event.key !== 'right') return;
+			if (this.scene.camera.focusIndex < 1) return;
+			const { playerFocus } = this.scene.camera;
+			if (!playerFocus.isGhost() || playerFocus._gamepad.playbackTicks < 1) return;
+			event.preventDefault();
+			const dir = event.key === 'left' ? -1 : 1;
+			const targetTick = (playerFocus._gamepad.playbackTicks ?? this.scene.ticks) + 5 * dir;
+			playerFocus._replayIterator.next(targetTick);
+			this.scene.state.playing = false;
+			game.emit('seek', targetTick)
+		});
+		this.snapshots.splice(0);
 		this._updateFromSettings(this.storage);
-		for (let player of game.currentScene.playerManager._players.filter(t => t._baseVehicle))
-			this._updateBaseVehicle(player._baseVehicle)
+		for (const player of game.currentScene.playerManager._players.filter(t => t._baseVehicle))
+			this._integratePlaybackOptions(player)
 	}
 
 	_updateChallengeLeaderboard(races) {
@@ -185,7 +263,7 @@ window.lite = new class Lite {
 				setTimeout(() => {
 					this.scene.state.dialogOptions = data,
 					this.scene.command('dialog', 'track_complete')
-				}, 1e3 / this.scene.game.ups);
+				}, this.scene.game.updateInterval);
 			} else
 				Application.Helpers.AjaxHelper.post('track_api/track_run_complete', data.postData, { track: !1 });
 		}
@@ -200,7 +278,7 @@ window.lite = new class Lite {
 	}
 
 	_getColorScheme(theme) {
-		if (/^(?:auto|device|system)$/i.test(theme)) {
+		if (/^(?:device|system)$/i.test(theme)) {
 			this._csPreference || Object.defineProperty(this, '_csPreference', {
 				value: matchMedia('(prefers-color-scheme: dark)'),
 				writable: true
@@ -232,6 +310,10 @@ window.lite = new class Lite {
 				firstPlayer && (firstPlayer._baseVehicle.color = value,
 				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = value));
 				break;
+			case 'bikeFrameColor':
+				var firstPlayer = this.scene.playerManager.firstPlayer;
+				firstPlayer && (firstPlayer.color = value);
+				break;
 			case 'bikeTireColor':
 				var baseVehicle = this.scene.playerManager.firstPlayer._baseVehicle;
 				baseVehicle && (baseVehicle.frontWheel.color = value,
@@ -255,12 +337,30 @@ window.lite = new class Lite {
 							backgroundColor: value[property]
 						}));
 						break;
+					case 'accentColor':
+						this.scene.track.updatePowerups(p => {
+							p.constructor.outline = value[property],
+							p.outline = value[property]
+						});
 					case 'physicsLineColor':
 					case 'sceneryLineColor':
 						GameSettings[property] = value[property]
 					}
 				}
 				updateTheme && !changes.has('theme') && changes.set('theme', this.storage.get('theme'));
+				break;
+			case 'cosmetics':
+				for (let property in value) {
+					let currentUser = this.scene.playerManager.firstPlayer._user;
+					switch (property) {
+					case 'head':
+						currentUser.cosmetics.head.classname = value[property],
+						currentUser.cosmetics.head.script = currentUser.cosmetics.head.script.replace(/\w+(\.js)$/, value[property] + '$1');
+						break;
+					case 'options':
+						currentUser.cosmetics.head[property] = value[property]
+					}
+				}
 				break;
 			case 'curveBreakLength':
 				this.scene.toolHandler.tools.hasOwnProperty('curve') && (this.scene.toolHandler.tools.curve.options.breakLength = value / 100);
@@ -274,50 +374,82 @@ window.lite = new class Lite {
 			case 'keymap':
 				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 				break;
+			case 'raceProgress':
+				this.scene.raceProgress && (this.scene.raceProgress.enabled = value);
+				break;
 			case 'theme':
 				const theme = this._getColorScheme(value);
 				const colorPalette = this.storage.get('colorPalette');
 				let backgroundColor = '#'.padEnd(7, theme == 'midnight' ? '1d2328' : theme == 'darker' ? '0' : theme == 'dark' ? '1b' : 'f');
 				colorPalette.backgroundColor ?? this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), { backgroundColor }));
-				this.constructor.styleSheet.set('.gameFocusOverlay', {
+				backgroundColor = this.constructor.styleSheet.get('#game-container > canvas').backgroundColor;
+				GameSettings.UITextColor = this.constructor.getVisibleColor(backgroundColor),
+				GameSettings.UIGrayColor = this.constructor.getVisibleColor(backgroundColor, { darkDefault: '6', initial: 128, lightDefault: '9', min: 40, max: 215 }),
+				GameSettings.UIDarkerGrayColor = this.constructor.getVisibleColor(backgroundColor, { darkDefault: '3', initial: 180, lightDefault: 'c', min: 40, max: 215 });
+				this.constructor.styleSheet.set('.gameDialog, .gameFocusOverlay, .gameLoading', {
 					backgroundColor: getComputedStyle(GameManager.game.canvas).backgroundColor.replace(/[,]/g, '').replace(/(?=\))/, '/90%'),
-					color: '#'.padEnd(7, theme == 'midnight' ? 'd' : theme == 'dark' ? 'f' : theme == 'dark' ? 'eb' : '2d')
-				});
-				this.scene.message.color = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(theme) ? 'c' : '3');
+					color: GameSettings.UITextColor
+				})
+				.set('.gameLoading-bar', {
+					backgroundColor,
+					borderColor: GameSettings.UITextColor
+				})
+				.set('.gameLoading-name', { color: GameSettings.UITextColor });
+				this.scene.message.color = GameSettings.UIDarkerGrayColor,
 				this.scene.message.outline = backgroundColor;
-				let gray = '#'.padEnd(7, /^(dark(er)?|midnight)$/i.test(theme) ? '6' : '9');
-				this.scene.score.best_time.color = gray;
-				this.scene.score.best_time_title.color = gray;
-				let color = '#'.padEnd(7, theme == 'midnight' ? 'd' : /^dark(er)?$/i.test(theme) ? 'f' : '0');
-				this.scene.score.goals.color = color;
-				this.scene.score.time.color = color;
-				this.scene.score.time_title.color = gray;
+				this.scene.score.best_time.color = GameSettings.UIGrayColor,
+				this.scene.score.best_time_title.color = GameSettings.UIGrayColor;
+				let color = GameSettings.UITextColor;
+				this.scene.score.goals.color = color,
+				this.scene.score.time.color = color,
+				this.scene.score.time_title.color = GameSettings.UIGrayColor;
 				if (this.scene.hasOwnProperty('campaignScore')) {
 					this.scene.campaignScore.container.children.forEach(medal => {
-						medal.children.forEach(element => {
-							element.color = color
-						})
+						medal.children.forEach(element => element.color = color)
 					});
 				}
 
 				if (this.scene.hasOwnProperty('raceTimes')) {
 					this.scene.raceTimes.container.color = color;
 					this.scene.raceTimes.raceList.forEach(race => {
-						race.children.forEach(element => {
-							element.color = color
-						})
+						race.children.forEach(element => element.color = color)
 					});
 				}
 
+				colorPalette.accentColor ?? (GameSettings.accentColor = GameSettings.UITextColor),
+				colorPalette.physicsLineColor ?? (GameSettings.physicsLineColor = GameSettings.UITextColor);
+				// scenery/grid lines don't need to be grayscaled!!!
+				// higher/lower brightness instead by increasing/decreasing rgb by the same value
+				const { r, g, b } = this.constructor.hexToRgb(backgroundColor);
+				const brightness = this.constructor.getBrightness(backgroundColor);
+				// let val = (brightness % 128) / 3.625;
+				// val = Math.max(16, 120 - Math.min(96, val)) // Math.max(60, val);
+				// let val = 128 - (brightness % 128);
+				// brightness >= 128 && (val *= -1);
+				let factor = brightness < 128 ? 1 : -1;
+				let val = Math.max(42, Math.min(84, (brightness % 128))) * factor;
+				const sceneryLineColor = this.constructor.rgbToHex(r + val, g + val, b + val);
+				const minor = this.constructor.rgbToHex(r + val / 4.9, g + val / 4.9, b + val / 4.9);
+				// console.log(this.constructor.hexToRgb(backgroundColor), brightness, val, sceneryLineColor, minor)
+				colorPalette.sceneryLineColor ?? (GameSettings.sceneryLineColor = this.constructor.rgbToHex(r + val, g + val, b + val)),
+				this.scene.toolHandler.options.gridMinorLineColor = this.constructor.rgbToHex(r + val / 4.9, g + val / 4.9, b + val / 4.9), // this.constructor.getVisibleColor(backgroundColor, { darkDefault: '25', initial: 128, lightDefault: 'e', min: 40, max: 215 }), // '#'.padEnd(7, theme == 'midnight' ? '20282e' : /^dark(er)?$/.test(theme) ? '25' : 'e'),
+				this.scene.toolHandler.options.gridMajorLineColor = this.constructor.rgbToHex(r + val / 1.66, g + val / 1.66, b + val / 1.66),
+				this.scene.track.updatePowerups(p => {
+					p.constructor.outline = GameSettings.accentColor,
+					p.outline = GameSettings.accentColor
+				});
+				for (let player of this.scene.playerManager._players) {
+					this._integratePlaybackOptions(player);
+				}
 
-				colorPalette.physicsLineColor ?? (GameSettings.physicsLineColor = '#'.padEnd(7, theme == 'midnight' ? 'c' : /^dark(er)?$/.test(theme) ? 'fd' : '0'));
-				colorPalette.sceneryLineColor ?? (GameSettings.sceneryLineColor = '#'.padEnd(7, theme == 'midnight' ? '5' : theme == 'darker' ? '121319' : theme == 'dark' ? '6' : 'a'));
-				this.scene.toolHandler.options.gridMinorLineColor = '#'.padEnd(7, theme == 'midnight' ? '20282e' : /^dark(er)?$/.test(theme) ? '25' : 'e');
-				this.scene.toolHandler.options.gridMajorLineColor = '#'.padEnd(7, theme == 'midnight' ? '161b20' : /^dark(er)?$/.test(theme) ? '3e' : 'c');
-				this.scene.track.powerups.forEach(p => p.outline = GameSettings.physicsLineColor);
-				var firstPlayer = this.scene.playerManager.firstPlayer;
-				firstPlayer && (firstPlayer._baseVehicle.color = GameSettings.physicsLineColor,
-				firstPlayer._tempVehicle && (firstPlayer._tempVehicle.color = GameSettings.physicsLineColor));
+
+				// attempt modify editor gui
+				this.constructor.styleSheet.update('.editorGui > :is(.topMenu, .leftMenu, .rightMenu, .bottomMenu)', {
+					backgroundColor,
+					color
+				})
+				.set('.editorGui :not(.rightMenu .sideButton_powerupTool) > .editorgui_icons', { filter: 'invert(' + Number(brightness < 128) + ')' })
+				.set('.editorGui > .editorDialog', { backgroundColor: `hsl(0 0% ${Math.round(brightness / 255 * 100)}% / 50%)` });
 			case 'isometricGrid':
 				redraw = true
 			}
@@ -328,79 +460,128 @@ window.lite = new class Lite {
 		this.refresh()
 	}
 
-	_updateBaseVehicle(baseVehicle) {
-		if (!baseVehicle) return;
-		let frameColor, tireColor;
-		if (baseVehicle.player !== this.scene.playerManager.firstPlayer) {
-			let playback = baseVehicle.player._gamepad.playback;
-			if (!playback || !playback.hasOwnProperty('bike_options')) return;
-			playback.bike_options.has('frameColor') && (frameColor = playback.bike_options.get('frameColor')),
-			playback.bike_options.has('tireColor') && (tireColor = playback.bike_options.get('tireColor'));
-		} else
-			frameColor = this.storage.get('bikeFrameColor'),
-			tireColor = this.storage.get('bikeTireColor');
-		let colorMatch = /^#([a-f0-9]{3}){1,2}$/i;
-		colorMatch.test(frameColor) && (baseVehicle.color = frameColor),
-		colorMatch.test(tireColor) && (baseVehicle.frontWheel.color = tireColor,
-		baseVehicle.rearWheel.color = tireColor)
+	_parsePlaybackOptions(player, alt) {
+		player.hasOwnProperty('player') && ({ player } = player);
+		let playback = player._gamepad.playback;
+		let options = playback && playback[alt || 'bike_options'] || (this.scene.playerManager.firstPlayer == player && new Map([
+			['frameColor', this.storage.get('bikeFrameColor')],
+			['riderColor', this.storage.get('bikeRiderColor')],
+			['tireColor', this.storage.get('bikeTireColor')]
+		]));
+		if (typeof options == 'object') {
+			let colorMatch = /^#([a-f0-9]{3}){1,2}$/i;
+			for (let [key, value] of options.entries()) {
+				if (!colorMatch.test(value)) {
+					options.delete(key);
+				}
+			}
+		}
+		return options || null
+	}
+
+	_integratePlaybackOptions(player) {
+		player.hasOwnProperty('player') && ({ player } = player);
+		let options = this._parsePlaybackOptions(player, ...Array.prototype.slice.call(arguments, 1));
+		this._integrateDefaultOptions(...arguments);
+		if (!options) return;
+		let baseVehicle = player._baseVehicle;
+		for (let [key, value] of options.entries()) {
+			switch (key) {
+			case 'frameColor':
+				baseVehicle && (baseVehicle.color = value);
+				break;
+			case 'riderColor':
+				player.color = value;
+				break;
+			case 'tireColor':
+				baseVehicle && (baseVehicle.tireColor = value,
+				baseVehicle.frontWheel.color = value,
+				baseVehicle.rearWheel.color = value);
+				break;
+			default:
+				console.warn('Unrecognized playback option:', key);
+			}
+		}
+	}
+
+	_integrateDefaultOptions(player) {
+		let value = GameSettings.physicsLineColor;
+		player.color = value;
+		let baseVehicle = player._baseVehicle;
+		baseVehicle && (baseVehicle.color = value,
+		baseVehicle.tireColor = value,
+		baseVehicle.frontWheel.color = value,
+		baseVehicle.rearWheel.color = value)
 	}
 
 	_updateMediaSessionMetadata() {
-		if ('mediaSession' in navigator) {
-			navigator.mediaSession.metadata = new MediaMetadata({
-				title: this.trackData.title,
-				artist: this.trackData.author.d_name,
-				album: '',
-				artwork: [{
-					src: this.trackData.img,
-					sizes: "250x150",
-					type: "image/png",
-				}]
-			});
-			navigator.mediaSession.setActionHandler('play', () => {
-				this.scene.state.inFocus = true,
-				this.scene.state.paused = false,
-				this.scene.state.playing = true
-			});
-			navigator.mediaSession.setActionHandler('pause', () => {
-				this.scene.state.paused = true,
-				this.scene.state.playing = false
-			});
-			navigator.mediaSession.setActionHandler('seekbackward', () => {
-				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
-				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) - 5)
-			});
-			navigator.mediaSession.setActionHandler('seekto', event => {
-				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
-				player.isGhost() && player._replayIterator.next(event.seekTime)
-			});
-			navigator.mediaSession.setActionHandler('seekforward', () => {
-				let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
-				player.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) + 5)
-			});
-			navigator.mediaSession.setActionHandler('nexttrack', () => {
-				Application.router.do_route("t/" + (this.trackData.id + 1), {
-					trigger: !0,
-					replace: !1
-				})
-			});
-			navigator.mediaSession.setActionHandler('previoustrack', () => {
-				Application.router.do_route("t/" + (this.trackData.id - 1), {
-					trigger: !0,
-					replace: !1
-				})
-			});
-		}
+		if (!('mediaSession' in navigator)) return;
+		this.scene?.game.on('soundCreate', sound => {
+			sound.addEventListener('play', () => {
+				navigator.mediaSession.playbackState = 'playing'
+			}, { passive: true }),
+			sound.addEventListener('pause', () => {
+				navigator.mediaSession.playbackState = 'paused'
+			}, { passive: true })
+		});
+		// this.scene.game.on('soundDelete', () => navigator.mediaSession.playbackState = 'none');
+		// this.scene?.game.on('soundUpdate', sound => {
+		// 	this._updateMediaSessionPosition()
+		// });
+		navigator.mediaSession.metadata = new MediaMetadata({
+			title: this.trackData.title,
+			artist: this.trackData.author.d_name,
+			album: '',
+			artwork: [{
+				src: this.trackData.img,
+				sizes: "250x150",
+				type: "image/png",
+			}]
+		});
+		navigator.mediaSession.setActionHandler('play', () => {
+			this.scene.state.inFocus = true,
+			this.scene.state.paused = false,
+			this.scene.state.playing = true
+		});
+		navigator.mediaSession.setActionHandler('pause', () => {
+			this.scene.state.paused = true,
+			this.scene.state.playing = false
+		});
+		navigator.mediaSession.setActionHandler('seekbackward', () => {
+			const player = GameManager.game.currentScene.camera.focusPlayer;
+			player?.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) - 5)
+		});
+		navigator.mediaSession.setActionHandler('seekto', event => {
+			const player = GameManager.game.currentScene.camera.focusPlayer;
+			player?.isGhost() && player._replayIterator.next(event.seekTime)
+		});
+		navigator.mediaSession.setActionHandler('seekforward', () => {
+			const player = GameManager.game.currentScene.camera.focusPlayer;
+			player?.isGhost() && player._replayIterator.next((player._gamepad.playbackTicks ?? GameManager.game.currentScene.ticks) + 5)
+		});
+		navigator.mediaSession.setActionHandler('nexttrack', () => {
+			Application.router.do_route("t/" + (this.trackData.id + 1), {
+				trigger: !0,
+				replace: !1
+			})
+		});
+		navigator.mediaSession.setActionHandler('previoustrack', () => {
+			Application.router.do_route("t/" + (this.trackData.id - 1), {
+				trigger: !0,
+				replace: !1
+			})
+		});
 	}
 
 	_updateMediaSessionPosition() {
-		if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
-			this.replayGui && navigator.mediaSession.setPositionState({
-				duration: this.replayGui.progress.max,
-				playbackRate: 1, // this.replayGui.progress.step?
-				position: this.replayGui.progress.value
-			})
-		}
+		if (!('mediaSession' in navigator)) return;
+		if (typeof navigator.mediaSession.setPositionState != 'function') return;
+		if (!this.playerGui) return;
+		// this.playerGui && navigator.mediaSession.setPositionState({
+		// 	duration: this.playerGui.progress.max,
+		// 	playbackRate: 1, // this.playerGui.progress.step?
+		// 	position: this.playerGui.progress.value
+		// })
 	}
 
 	attachContextMenu() {
@@ -472,20 +653,14 @@ window.lite = new class Lite {
 						const reports = this.constructor.fetchReports('\'{data-u_id}\' by @{data-d_name}', race.dataset, { type: 'race' });
 						const options = [{
 							name: 'Race',
-							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.trackData.t_id,
-								u_ids: race.dataset.u_id
-							}).then(r => r.result && this.scene.addRaces(r.data))
+							click: () => GameManager.loadRace(GameManager.trackId, race.dataset.u_id)
 						}, {
-							name: 'Copy Race Data', // 'Request Race Data',
-							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
-								t_id: this.trackData.t_id,
-								u_ids: race.dataset.u_id
-							}).then(r => r.result && navigator.clipboard.writeText(JSON.stringify(r.data, '\t', 4)).catch(err => alert(err.message)))
+							name: 'Copy Race Data', // 'Request Race Data' if data is not loaded,
+							click: () => this.constructor.fetchRace(race.dataset.u_id).then(data => navigator.clipboard.writeText(JSON.stringify(data, '\t', 4)).catch(err => alert(err.message)))
 						}, {
 							name: race.dataset.legitimacy || 'Test Legitimacy',
 							styles: race.dataset.legitimacy && ['disabled'],
-							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', {
+							click: () => Application.Helpers.AjaxHelper.post('track_api/load_races', { // grab race data from GameSettings.raceData instead
 								t_id: this.trackData.t_id,
 								u_ids: race.dataset.u_id
 							}).then(({ data, result: r }) => {
@@ -493,7 +668,7 @@ window.lite = new class Lite {
 								let [entry] = this.scene.formatRaces(data);
 								let isTas = !this.constructor.verifyRaceData(entry);
 								race.dataset.legitimacy = isTas ? 'Illegitimate (TAS)' : 'Legit';
-								isTas && this.updateTASLeaderboard([entry]);
+								isTas && this.updateTASLeaderboard([entry])
 							})
 						}, this.constructor.isUserModerator(Application.settings.user) || (Application.settings.user.u_id == race.dataset.u_id ? {
 							name: 'Request Deletion',
@@ -579,6 +754,9 @@ window.lite = new class Lite {
 								t_id: this.trackData.t_id,
 								u_ids: Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => row.dataset.u_id).join(',')
 							}).then(r => r.result && this.scene.addRaces(r.data))
+						}, this.constructor.isUserModerator(Application.settings.user) && {
+							name: 'Copy Race Data',
+							click: () => this.constructor.fetchRaces(Array.from(leaderboard.querySelectorAll('.track-leaderboard-race-row')).map(row => row.dataset.u_id)).then(races => navigator.clipboard.writeText(JSON.stringify(races, '\t', 4)).catch(err => alert(err.message)))
 						}, { type: 'hr' }, this.constructor.isUserModerator(Application.settings.user) ? {
 							name: 'Delete All',
 							styles: ['danger', 'disabled'],
@@ -671,7 +849,14 @@ window.lite = new class Lite {
 							name: track.dataset.last_played_date || 'Check Last Played',
 							styles: track.dataset.last_played_date && ['disabled'],
 							click: () => this.constructor.fetchTrackLastPlayedDate().then(date => track.dataset.last_played_date = date)
-						}];
+						} /* , {
+							name: 'Add to Playlist',
+							options: [{
+								name: 'Play Later'
+							}, {
+								name: 'Create a new Playlist'
+							}]
+						} */];
 						let playlist = this.fetchAndCachePlaylists('playlater');
 						let savedToPlaylater = playlist && playlist.has(this.trackData.t_id);
 						let showPlaylistButton = savedToPlaylater || this.storage.get('playlists');
@@ -763,57 +948,11 @@ window.lite = new class Lite {
 				writable: true
 			});
 			this.constructor.styleSheet.set('context-menu', {
-				fontSize: 'clamp(9px, .75rem, 13px)',
-				zIndex: 1002
+				'--background-color': 'hsl(200deg 15% 15%)',
+				'--border-color': 'hsl(200deg 25% 25% / 50%)',
+				'--color': 'hsl(0 0% 90%)',
+				fontSize: 'clamp(9px, .75rem, 13px)'
 			})
-			.set('context-menu, context-menu > :not(br, div, hr) > *', {
-				backgroundColor: 'hsl(200deg 15% 15%)',
-				border: '1px solid hsl(200deg 25% 25% / 50%)',
-				borderRadius: '.25rem',
-				boxShadow: '2px 2px 4px -1px hsl(0deg 0% 10% / 75%)',
-				display: 'flex',
-				flexDirection: 'column',
-				maxHeight: '50vh',
-				// overflow: 'hidden auto',
-				padding: '.275em',
-				position: 'absolute'
-			})
-			.set('context-menu > :not(br, div, hr):has(> *)', { position: 'relative' })
-			.set('context-menu > :not(br, div, hr):has(> *)::after', {
-				color: 'hsl(0deg 0% 50% / 75%)',
-				content: '"❯"',
-				display: 'inline-block',
-				fontSize: '.75em',
-				height: '1rem',
-				marginLeft: '2.25em',
-				verticalAlign: 'middle'
-			})
-			.set('context-menu > :not(br, div, hr):has(> :not(:hover)):not(:hover) > *', { /* display: 'none' */ visibility: 'hidden' })
-			.set('context-menu > :not(br, div, hr) > *', {
-				// left: '100%',
-				// top: 0,
-				width: 'max-content'
-			})
-			.set('context-menu > :not(br, div, hr), context-menu button', {
-				backgroundColor: 'transparent',
-				border: 'none',
-				borderRadius: '0.25em',
-				color: 'white',
-				padding: '0.5em 1em',
-				textAlign: 'left'
-			})
-			.set('context-menu > :not(br, div, hr):hover, context-menu button:hover', { backdropFilter: 'brightness(0.725)' })
-			.set('context-menu hr', {
-				backgroundColor: 'hsl(200deg 20% 25% / 60%)',
-				border: 'none',
-				height: '1px',
-				width: '90%'
-			})
-			.set('button.danger', { color: 'hsl(0deg, 75%, 55%)' })
-			.set('button.danger:disabled', { color: 'hsl(0deg 75% 55% / 50%)' })
-			.set('context-menu::-webkit-scrollbar', { width: '.5em' })
-			.set('context-menu::-webkit-scrollbar, context-menu::-webkit-scrollbar-track', { backgroundColor: 'hsl(0deg 0% 0% / 4%)' })
-			.set('context-menu::-webkit-scrollbar-thumb', { backgroundColor: 'hsl(200deg 25% 20% / 50%)' });
 		}
 		document.removeEventListener('contextmenu', this._oncontextmenu),
 		document.addEventListener('contextmenu', this._oncontextmenu)
@@ -1021,19 +1160,19 @@ window.lite = new class Lite {
 	}
 
 	refresh() {
-		let keymap = this.storage.get('keymap');
-		for (let key in keymap)
-			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key];
+		const keymap = this.storage.get('keymap');
+		for (const key in keymap)
+			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key]
 	}
 
 	updateTASLeaderboard(races) {
 		let leaderboard = this.fetchTASLeaderboard({ createIfNotExists: true });
 		for (let data of races) {
 			let row = leaderboard.appendChild(this.constructor.fetchRaceRow(data, { parent: leaderboard, placement: 1 + races.indexOf(data) }))
-			let num = row.querySelector('.num');
+			  , num = row.querySelector('.num');
 			num.innerText = (1 + races.indexOf(data)) + '.';
-			let stats = Object.fromEntries(Object.keys(data.race.code.tas).slice(1).map(value => value.split(/:\s*/).map(value => isFinite(value) ? parseFloat(value) : value.replace(/\s+/g, '_'))));
-			let time = row.querySelector(':nth-child(4)');
+			let stats = Object.fromEntries(Object.keys(data.race.code.tas).slice(1).map(value => value.split(/:\s*/).map(value => isFinite(value) ? parseFloat(value) : value.replace(/\s+/g, '_'))))
+			  , time = row.querySelector(':nth-child(4)');
 			time.innerText = this.constructor.formatRaceTime(stats.run_ticks / GameSettings.drawFPS * 1e3);
 			let actionRow = row.querySelector('.track-leaderboard-action');
 			actionRow.querySelector('span.core_icons.core_icons-btn_add_race.track-leaderboard-race') || actionRow.appendChild(this.constructor.createElement('span.core_icons.core_icons-btn_add_race.track-leaderboard-race', {
@@ -1051,8 +1190,14 @@ window.lite = new class Lite {
 	}
 
 	drawInputDisplay(ctx) {
-		let { downButtons } = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad;
-		let size = parseInt(this.storage.get('inputDisplaySize')) + 3;
+		let { downButtons } = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad
+		  , size = parseInt(this.storage.get('inputDisplaySize')) + 3;
+		if (this.storage.get('relativeUISize')) {
+			let base = 1500
+			  , current = (screen.width + screen.height) / 2;
+			size *= current / base;
+		}
+
 		let offset = {
 			x: size,
 			y: ctx.canvas.height - size * 10
@@ -1112,121 +1257,6 @@ window.lite = new class Lite {
 		ctx.restore()
 	}
 
-	initAccountManager() {
-		if (!this._authLogin) {
-			Object.defineProperty(this, '_authLogin', {
-				value: user => {
-					user.u_id && this.constructor.updateStorageEntry('account-manager', {
-						[user.u_id]: {
-							asr: Application.settings.app_signed_request,
-							name: user.d_name
-						}
-					})
-				},
-				writable: true
-			}),
-			Application.events.subscribe('auth.login', this._authLogin);
-			if (Application.User.logged_in) {
-				let accounts = this.constructor.getStorageEntry('account-manager') || {};
-				if (Object.keys(accounts) < 1) {
-					this.constructor.updateStorageEntry('account-manager', {
-						[Application.settings.user.u_id]: {
-							asr: Application.settings.app_signed_request,
-							name: Application.settings.user.d_name
-						}
-					})
-				}
-			}
-		}
-		// modify function to save token/login?
-		// or subscribe auth.login and save asr
-		// this.replaceLogin(); vvv
-		// Application.router.auth_dialog_view.login_with_email
-		if (!Application.User.logged_in) return;
-		let logout = Application.router.left_navigation_view.el.querySelector('a.logout');
-		if (!logout.hasAttribute('id')) return;
-		logout.removeAttribute('id'),
-		logout.innerText = "Switch",
-		logout.addEventListener('click', event => {
-			event.stopPropagation(),
-			event.stopImmediatePropagation(),
-			this.constructor.getAccountManager({ createIfNotExists: true }).showModal()
-		}, { passive: true })
-	}
-
-	initAchievementsDisplay() {
-		this.nativeEvents.has('notificationEvent') || this.initNotificationEvent();
-		!this.achievementMonitor && (Application.events.subscribe('notification.received', ({ data }) => {
-			if ('undefined' != typeof data && ('undefined' != typeof data.achievements_earned)) {
-				'undefined' != typeof data.achievements_earned && Application.events.publish('achievementsEarned', data.achievements_earned);
-				this.refreshAchievements({ force: true }) // only update percentages // this.updateAchievements?
-			}
-		}),
-		Object.defineProperty(this, 'achievementMonitor', { value: {
-			container: this.constructor.createElement('div#achievements-container', {
-				style: {
-					display: 'flex',
-					flexDirection: 'column',
-					fontFamily: 'riffic',
-					gap: '0.4rem'
-				}
-			})
-		}, writable: true }),
-		this.achievementMonitor.wrapper = this.constructor.createElement('div#frhd-lite\\.achievement-monitor', {
-			children: [
-				this.constructor.createElement('a', {
-					children: [
-						this.constructor.createElement('span', {
-							innerText: 'Daily Achievements',
-							style: { float: 'left' }
-						}),
-						this.achievementMonitor.countdown = this.constructor.createElement('span.time-remaining', {
-							innerText: '00:00:00',
-							style: { float: 'right' }
-						})
-					],
-					href: '/achievements',
-					style: {
-						borderBottom: '1px solid hsl(190deg 25% 60%)',
-						color: 'black',
-						fontFamily: 'helsinki',
-						paddingBottom: '5px'
-					}
-				}),
-				this.achievementMonitor.container
-			],
-			style: {
-				backgroundColor: 'hsl(190 25% 95% / 1)',
-				// backgroundImage: 'linear-gradient(transparent, hsl(191 25% 90% / 1))',
-				border: '1px solid hsl(190deg 25% 60%)',
-				borderRadius: '1rem',
-				display: 'flex',
-				flexDirection: 'column',
-				gap: '0.6rem',
-				margin: '0 0.6rem',
-				padding: '1.5rem',
-				width: '-webkit-fill-available'
-			}
-		})),
-		this.refreshAchievements().then(r => {
-			this.achievementMonitor.countdown.innerText = [String(Math.floor(r.time_left / 3600)).padStart(2, '0'), String(Math.floor((r.time_left % 3600) / 60)).padStart(2, '0'), String(Math.floor(r.time_left % 60)).padStart(2, '0')].join(':');
-			this.achievementMonitor.countdownTimer ||= setInterval(() => {
-				let lastTime = this.achievementMonitor.countdown.innerText.split(':').map(e => parseInt(e));
-				lastTime[2] === 0 && (lastTime[1] === 0 && (lastTime[0]--,
-				lastTime[1] = 59),
-				lastTime[1]--,
-				lastTime[2] = 59);
-				lastTime[2]--;
-				lastTime.reduce((sum, remainingTime) => sum += remainingTime, 0) === 0 && clearInterval(this.achievementMonitor.countdownTimer);
-				this.achievementMonitor.countdown.innerText = lastTime.map(e => String(e).padStart(2, '0')).join(':');
-				r.time_left -= 1,
-				window.navigation && navigation.addEventListener('navigate', e => e.navigationType != 'replace' && this.constructor.updateAchievements({ time_left: r.time_left }), { once: true, passive: true })
-			}, 1e3);
-			const rightContent = document.querySelector('#right_content');
-			rightContent.prepend(this.achievementMonitor.wrapper)
-		})
-	}
-
 	initBestDate() {
 		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
 		Application.router.current_view.on('leaderboard.rendered', () => {
@@ -1279,30 +1309,19 @@ window.lite = new class Lite {
 		}
 	}
 
-	initFeaturedGhosts() {
-		this.nativeEvents.has('leaderboardEvent') || this.initLeaderboardEvent();
-		Application.router.current_view.on('leaderboard.rendered', async () => {
-			const matches = Object.fromEntries(Object.entries(await this.constructor.fetchFeaturedGhosts()).filter(e => Object.keys(e[1] = Object.fromEntries(Object.entries(e[1]).filter(([t]) => parseInt(t.split('/t/')[1]) == Application.router.current_view._get_track_id()))).length));
-			for (const player in matches) {
-				for (const ghost in matches[player]) {
-					let name = ghost.split('/r/')[1];
-					for (const row of document.querySelectorAll('.track-page .track-leaderboard .track-leaderboard-race-row[data-d_name="' + name + '" i]')) {
-						let hue = 10;
-						switch(matches[player][ghost]) {
-							case 'fast': hue = 180; break;
-							case 'vehicle': hue = 40; break;
-							case 'trick': hue = 120;
-						}
-
-						let num = row.querySelector('.num');
-						num.classList.add('core_icons', 'core_icons-icon_featured_badge'),
-						num.classList.remove('num'),
-						num.innerText = null,
-						num.setAttribute('title', 'Featured'),
-						row.style.setProperty('background-color', `hsl(${hue}deg 60% 50% / 40%)`)
-					}
-				}
-			}
+	initEditorStyles() {
+		this.constructor.styleSheet
+		.update('.editorGui > :is(.topMenu, .leftMenu, .rightMenu, .bottomMenu)', { borderColor: 'hsl(0 0% 40% / 60%)' })
+		.set('.editorGui >  .bottomMenu', { filter: 'brightness(.89)' })
+		.set('.editorGui > :is(.topMenu, .bottomMenu) :is(.topMenu-button, .bottomMenu-button):hover', { backgroundColor: 'hsl(0 0% 40% / 60%)' })
+		.set('.editorGui .sideButton', { borderColor: 'transparent' })
+		.set('.editorGui .sideButton:hover', {
+			backgroundColor: 'hsl(0 0% 50% / 15%)',
+			borderColor: 'hsl(0 0% 50% / 50%)'
+		})
+		.set('.editorGui .sideButton.active', {
+			backgroundColor: 'hsl(0 0% 50% / 35%)',
+			borderColor: 'hsl(0 0% 50% / 50%)'
 		})
 	}
 
@@ -1340,96 +1359,6 @@ window.lite = new class Lite {
 					flag.innerText = '⚠️';
 				}
 			}
-		})
-	}
-
-	initGhostPlayer() {
-		this.replayGui || (Object.defineProperty(this, 'replayGui', {
-			value: Object.defineProperties(this.constructor.createElement('div', {
-				style: {
-					display: 'none',
-					inset: 0,
-					pointerEvents: 'none',
-					position: 'absolute'
-				}
-			}), {
-				fade: {
-					value(ms) {
-						this._fadeTimeout && clearTimeout(this._fadeTimeout),
-						this._fadeTimeout = setTimeout(() => !GameManager.game.currentScene.state.paused && GameManager.game.currentScene.state.playing && this.hide(), ms)
-					},
-					writable: true
-				},
-				hide: {
-					value() {
-						this._fadeTimeout && clearTimeout(this._fadeTimeout),
-						this.style.setProperty('display', 'none')
-					},
-					writable: true
-				},
-				show: {
-					value() {
-						this._fadeTimeout && clearTimeout(this._fadeTimeout),
-						this.style.removeProperty('display')
-					},
-					writable: true
-				}
-			}),
-			writable: true
-		}),
-		this.replayGui.progress || Object.defineProperty(this.replayGui, 'progress', {
-			value: this.replayGui.appendChild(this.constructor.createElement('progress.frhd-lite\\.race-player-progress#replay-seeker', {
-				max: 100,
-				min: 0,
-				value: 0,
-				style: {
-					border: 'none',
-					bottom: 0,
-					height: '4px',
-					pointerEvents: 'all',
-					position: 'absolute',
-					transition: 'height 100ms',
-					width: '100%'
-				},
-				type: 'range',
-				change(event) {
-					GameManager.game.currentScene.state.playing = false;
-					let player = GameManager.game.currentScene.playerManager.getPlayerByIndex(GameManager.game.currentScene.camera.focusIndex);
-					player.isGhost() && player._replayIterator.next(this.value)
-				},
-				pointerdown(event) {
-					this.setPointerCapture(event.pointerId);
-					this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max);
-					this.dispatchEvent(new InputEvent('change'));
-					this.wasPlaying = GameManager.game.currentScene.state.playing
-				},
-				pointermove(event) {
-					event.buttons & 1 == 1 && (this.value = Math.round(event.offsetX / parseInt(getComputedStyle(this).getPropertyValue('width')) * this.max),
-					this.dispatchEvent(new InputEvent('change')));
-				},
-				pointerup(event) {
-					this.releasePointerCapture(event.pointerId);
-					GameManager.game.currentScene.state.playing = this.wasPlaying
-				}
-			})),
-			writable: true
-		}),
-		this._updateMediaSessionMetadata(),
-		this.constructor.styleSheet.set('.frhd-lite\\.race-player-progress::-webkit-progress-value', {
-			backgroundColor: 'hsl(195deg 57% 25%)'
-		}).set('.frhd-lite\\.race-player-progress:hover', {
-			cursor: 'pointer',
-			filter: 'brightness(1.25)',
-			height: '6px !important'
-		}));
-		this.constructor.waitForElm('#game-container').then(container => {
-			container.appendChild(this.replayGui);
-			container.addEventListener('pointerenter', () => this.replayGui.show(), { passive: true }),
-			container.addEventListener('pointermove', () => {
-				this.replayGui.show(),
-				this.replayGui.fade(3e3)
-			}, { passive: true }),
-			container.addEventListener('pointerexit', () => this.replayGui.fade(3e3), { passive: true })
 		})
 	}
 
@@ -1651,7 +1580,7 @@ window.lite = new class Lite {
 			return Application.Helpers.AjaxHelper.post("moderator/change_username", {
 				u_id: data.u_id,
 				username: event.detail
-			}).then(r => (alert(r.msg), r));
+			}).then(r => (alert(r.msg), r))
 		});
 		let password = pm.appendChild(email.cloneNode());
 		property = password.appendChild(property.cloneNode());
@@ -1884,63 +1813,10 @@ window.lite = new class Lite {
 		})
 	}
 
-	static #customStyleSheet = document.head.appendChild(this.createElement('style', { id: 'frhd-lite.style' }));
+	static #styleSheet = document.head.appendChild(this.createElement('style', { id: 'frhd-lite.style' }));
 	static ajaxResponse = null;
 	static debug = false;
-	static styleSheet = new Proxy(Object.defineProperty(new Map(), 'update', {
-		value(key, value) {
-			let newValue = Object.assign(this.get(key) || {}, value);
-			this.set(key, newValue);
-			return newValue
-		},
-		writable: true
-	}), {
-		get: (...args) => {
-			let [target, property, receiver] = args;
-			let returnValue = Reflect.get(...args);
-			if (typeof returnValue == 'function') {
-				switch (property) {
-				case 'delete':
-					return (...args) => {
-						returnValue = returnValue.apply(target, args);
-						this._updateCustomStyleSheet(this.styleSheet.entries());
-						return returnValue
-					}
-				case 'set':
-				case 'update':
-					return (...args) => {
-						let [key, value] = args;
-						returnValue.call(target, key, new Proxy(value, {
-							set: (...args) => {
-								let returnValue = Reflect.set(...args);
-								this._updateCustomStyleSheet(this.styleSheet.entries());
-								return returnValue
-							}
-						}));
-						this._updateCustomStyleSheet(this.styleSheet.entries());
-						return receiver
-					}
-				default:
-					returnValue = returnValue.bind(target)
-				}
-			}
-			return returnValue
-		}
-	});
-
-	static _updateCustomStyleSheet(data) {
-		const entries = Array.from(data);
-		const filteredEntries = entries.filter(([_,value]) => Object.values(value).length);
-		let textContent = '';
-		for (let [key, properties] of filteredEntries) {
-			properties = Object.entries(properties);
-			for (let property of properties)
-				property[0] = property[0].replace(/([A-Z])/g, c => '-' + c.toLowerCase());
-			textContent += key + '{' + properties.map(property => property.join(':')).join(';') + '}'; // JSON.stringify().replace(/(?<="),/, ';')
-		}
-		this.#customStyleSheet.textContent = textContent
-	}
-
+	static styleSheet = GameStyleManager.createProxyStyle(this.#styleSheet);
 	static compareUsers(a, b) {
 		return a.u_id == b.u_id || a.u_name == b.u_name || a.d_name == b.d_name
 	}
@@ -2184,7 +2060,8 @@ window.lite = new class Lite {
 		}
 
 		Object.assign(element, options);
-		return typeof callback == 'function' && callback(element), element
+		typeof callback == 'function' && callback(element);
+		return element
 	}
 
 	static async downloadFile(name, contents, { desc } = {}) {
@@ -2198,15 +2075,17 @@ window.lite = new class Lite {
 					startIn: 'downloads',
 					suggestedName: name ?? '',
 					types: [{
-						description: 'Free Rider HD ' + desc,
+						description: 'Free Rider HD ' + (desc || 'File'),
 						accept: { [mimeType]: ['.' + (mimeType == 'application/zip' ? 'zip' : mimeType == 'application/json' ? 'json' : 'txt')] }
 					}]
-				}).then(async fileHandle => {
-					let writable = fileHandle.createWritable();
-					await writable.write(contents);
-					await writable.close();
+				}).then(fileHandle => {
+					return fileHandle.createWritable().then(writable => {
+						return writable.write(contents).then(() => {
+							return writable.close()
+						})
+					})
 				}).catch(err => {
-					console.log('Download operation cancelled.')
+					console.warn('Download operation cancelled.', err.message)
 				})
 			}
 		}
@@ -2223,19 +2102,23 @@ window.lite = new class Lite {
 		URL.revokeObjectURL(download.href)
 	}
 
-	static downloadRace(tid, uid) {
-		return Application.Helpers.AjaxHelper.post("/track_api/load_races", {
+	static async downloadRace(tid, uid) {
+		return Application.Helpers.AjaxHelper.post("track_api/load_races", {
 			t_id: tid,
 			u_ids: uid
 		}).done(({ data: [entry], result: r }) => {
+			if (!r) throw new Error();
 			r && this.downloadFile('frhd_ghost_' + tid + '-' + uid, Object.assign(entry.race, {
-				t_id: tid,
-				u_id: entry.user.u_id
+				code: this.encodeReplayString(JSON.parse(entry.race.code)),
+				metadata: {
+					t_id: tid,
+					u_id: entry.user.u_id
+				}
 			}), { desc: 'Race' })
 		})
 	}
 
-	static downloadTrack(id) {
+	static async downloadTrack(id) {
 		return fetch('/track_api/load_track?id=' + id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json()).then(({ data: { track } = {}, result }) => {
 			if (!result) return;
 			this.downloadFile(track.title + '-' + track.id, track.code, { desc: 'Track' })
@@ -2244,13 +2127,98 @@ window.lite = new class Lite {
 
 	static async downloadAllTracks(username) {
 		return fetch('/u/' + username + '/created?ajax').then(r => r.json()).then(async ({ created_tracks }) => {
-			let zip = new Zip();
-			let tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
-			.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
+			const zip = new Zip()
+				, tracks = await Promise.all(created_tracks.tracks.map(track => fetch('/track_api/load_track?id=' + track.id + '&fields[]=code&fields[]=id&fields[]=title').then(r => r.json())))
+				.then(tracks => tracks.filter(({ result }) => result).map(({ data }) => data.track));
 			for (let track of tracks)
 				zip.newFile(track.title + '-' + track.id + '.txt', track.code);
-			this.downloadFile('created-tracks', zip.blob(), { desc: 'Created' })
+			this.downloadFile('created-tracks', await zip.blob(), { desc: 'Created' })
 		})
+	}
+
+	static encodeReplayString(t, e = {}) {
+		let i = {
+			version: e.replayVersion ?? 1
+		};
+		for (let s in t) {
+			let n = t[s];
+			i[s] = "";
+			for (let r in n) {
+				let o = n[r];
+				i[s] += o.toString(32) + " "
+			}
+			i[s] = i[s].slice(0, -1)
+		}
+		return btoa(JSON.stringify(i))
+	}
+
+	static async openRace({ desc, multiple } = {}) {
+		let races = [];
+		if ('showOpenFilePicker' in window) {
+			let results = await showOpenFilePicker({
+				excludeAcceptAllOption: true,
+				multiple: true,
+				types: [{
+					accept: { 'application/json': ['.json'] },
+					description: 'Free Rider HD ' + (desc || 'File')
+				}]
+			});
+			for (let fileHandle of results) {
+				let file = await fileHandle.getFile();
+				races.push(JSON.parse(await file.text()))
+			}
+		} else {
+			let results = await new Promise((resolve, reject) => {
+				let filePicker = this.createElement('input', {
+					accept: 'application/json',
+					multiple: true,
+					type: 'file'
+				});
+				filePicker.addEventListener('cancel', () => resolve([]), { once: true, passive: true });
+				filePicker.addEventListener('change', event => {
+					resolve(event.target.files)
+				}, { once: true, passive: true }),
+				filePicker.click();
+			});
+			for (let file of results) {
+				races.push(JSON.parse(await file.text()))
+			}
+		}
+
+		for (let i in races) {
+			let metadata = races[i].metadata;
+			delete races[i].metadata;
+			races[i].code = JSON.stringify(GameManager.game.currentScene.playerManager.firstPlayer._gamepad.constructor.decodeReplayString(races[i].code));
+			let user, userPage = window.hasOwnProperty('lite') && lite.storage.get('importRaceMetadata') && await this.fetchUserById(metadata.u_id);
+			if (userPage.user && 1 >= Object.keys(userPage.user.cosmetics.head).length) {
+				let recentGhosts = userPage.recently_ghosted_tracks.tracks;
+				recentGhosts && recentGhosts.length > 0 && (user = await Application.Helpers.AjaxHelper.get('t/' + recentGhosts[0].slug).then(({ game_settings: { raceData }}) => raceData[0].user))
+			}
+			user ||= {
+				cosmetics: { head: { type: '1' }},
+				d_name: 'Guest',
+				guest: true,
+				img_url_small: 'https://cdn.freeriderhd.com/free_rider_hd/sprites/guest_profile_v2.png',
+				u_id: metadata.u_id
+			}
+			races[i] = {
+				race: races[i],
+				user
+			}
+		}
+
+		GameManager.game.currentScene.addRaces(races)
+	}
+
+	static async fetchUserById(uid) {
+		// check current user, then friend list, then remove friend
+		let currentUser = await this.fetchCurrentUser();
+		if (currentUser) {
+			if (currentUser.user.u_id === uid) return currentUser;
+			let friend = currentUser.friends.friends_data.find(friend => friend.u_id === uid);
+			if (friend) return this.fetchUser(friend.u_name)
+		}
+		return this.fetchUser(await Application.Helpers.AjaxHelper.post('friends/remove_friend', { u_id: uid }).then(r => r.result || /\w+(?=,)/.exec(r.msg).toString()))
 	}
 
 	static async fetchAchievements({ force } = {}) {
@@ -2298,34 +2266,22 @@ window.lite = new class Lite {
 	}
 
 	static users = [];
-	static async fetchUser(uid, { force } = {}) {
+	static async fetchUser(uid, { cache, force } = {}) {
 		uid = String(uid).toLowerCase();
 		if (uid == Application.settings.user.u_id || uid == Application.settings.user.u_name) return this.fetchCurrentUser();
-		let cache = this.users.find(({ user: { u_id, u_name }}) => u_id == uid || u_name === uid.toLowerCase());
-		if (cache && !force) {
-			return cache;
+		let entry = this.users.find(({ user: { u_id, u_name }}) => u_id == uid || u_name === uid.toLowerCase());
+		if (entry && !force) {
+			return entry;
 		}
 		const { ajax } = Application.router.current_view;
-		const entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.u_id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + uid + '?ajax').then(r => r.json());
+		entry = ajax && ajax.header_title && ((ajax.user && uid === ajax.user.u_id) || uid === ajax.header_title.toLowerCase()) ? ajax : await fetch('/u/' + uid + '?ajax').then(r => r.json());
 		// let entry = await fetch('/u/' + uid + '?ajax').then(r => r.json());
-		this.users.push(entry);
+		!1 !== cache && this.users.push(entry);
 		return entry || null
 	}
 
 	static fetchComment(trackId, commentId) {
 		return Application.Helpers.AjaxHelper.post('track_comments/load_more/' + trackId + '/' + (commentId + 1)).then(r => r.result && r.data.track_comments[0]);
-	}
-
-	static async fetchFeaturedGhosts({ force } = {}) {
-		const KEY = this.keyify('featured_ghosts');
-		let cache = sessionStorage.getItem(KEY);
-		if (cache && !force) {
-			return JSON.parse(cache);
-		}
-
-		let data = await fetch("https://raw.githubusercontent.com/calculamatrise/frhd-featured-ghosts/master/data.json").then(r => r.json());
-		sessionStorage.setItem(KEY, JSON.stringify(data));
-		return data
 	}
 
 	static isFeaturedRace(user) {
@@ -2381,6 +2337,36 @@ window.lite = new class Lite {
 		const { user_track_stats: { last_played_date: date } = {}} = ajax && ajax.track && ajax.track.id === t ? ajax : await fetch(location.pathname + '?ajax').then(r => r.json());
 		sessionStorage.setItem(KEY, JSON.stringify(Object.assign(cache, { [t]: date })));
 		return date
+	}
+
+	static async fetchRace(uid, { trackId = GameManager.trackId } = {}) {
+		if (typeof uids == 'object') return this.fetchRaces(...arguments);
+		let data = GameManager.trackId === trackId && GameSettings.raceData && GameSettings.raceData.find(data => data.user.u_id == userId);
+		if (!data) {
+			data = await Application.Helpers.AjaxHelper.post('track_api/load_races', {
+				t_id: trackId,
+				u_ids: uid
+			}).then(r => {
+				if (!r.result) throw new Error(r.msg || 'Something went wrong! Failed to fetch race.');
+				return r.data
+			});
+		}
+		return data && data[0] || null
+	}
+
+	static async fetchRaces(uids, { trackId = GameManager.trackId } = {}) {
+		if (typeof uids != 'object') return this.fetchRace(...arguments);
+		let races = GameManager.trackId === trackId && GameSettings.raceData && GameSettings.raceData.filter(data => uids.includes(data.user.u_id)) || [];
+		if (!races || races.length !== uids.length) {
+			await Application.Helpers.AjaxHelper.post('track_api/load_races', {
+				t_id: trackId,
+				u_ids: uids.filter(uid => -1 === races.findIndex(data => data.user.u_id == uid)).toString()
+			}).then(r => {
+				if (!r.result) throw new Error(r.msg || 'Something went wrong! Failed to fetch race.');
+				races.push(...r.data)
+			});
+		}
+		return races
 	}
 
 	static fetchRaceRow(data, { parent, placement }) {
@@ -2448,6 +2434,33 @@ window.lite = new class Lite {
 		t = parseInt(t, 10);
 		let e = t % 6e4 / 1e3;
 		return Math.floor(t / 6e4) + ":" + e.toFixed(2).padStart(5, 0)
+	}
+
+	static getVisibleColor(hex, { darkDefault, initial = 255, lightDefault, min = 55, max = 200 } = {}) {
+		const brightness = this.getBrightness(hex);
+		return '#'.padEnd(7, brightness < min || brightness > max ? (initial - brightness).toString(16).padStart(2, 0) : brightness < 128 ? lightDefault || 'F' : darkDefault || '0')
+	}
+
+	static getBrightness(hex) {
+		const { r, g, b } = this.hexToRgb(hex);
+		return Math.round(.299 * r + .587 * g + .114 * b)
+	}
+
+	static hexToRgb(hex) {
+		hex = hex.replace(/^#/, '');
+		if (hex.length < 5) {
+			hex = hex.split('').map(c => c + c).join('');
+		}
+
+		return {
+			r: parseInt(hex.substring(0, 2), 16),
+			g: parseInt(hex.substring(2, 4), 16),
+			b: parseInt(hex.substring(4, 6), 16)
+		}
+	}
+
+	static rgbToHex(...args) {
+		return '#' + args.map(value => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, 0)).join('')
 	}
 
 	static isUserModerator(data) {
@@ -2574,4 +2587,37 @@ window.lite = new class Lite {
 			limit && setTimeout(reject, limit, new Error('Operation timed out'))
 		})
 	}
+
+	static warn(err) {
+		console.log('%cFree Rider Lite', `
+			background-color: hsl(207deg 33% 33%);
+			border: 1px solid hsl(0 0% 50% / 12.5%);
+			border-radius: .25em;
+			color: white;
+			font-size: .95em;
+			font-weight: bold;
+			line-height: 1em;
+			padding: .05em .33em;
+		`, err)
+	}
+}
+
+Object.defineProperty(self, 'FreeRiderLite', {
+	value: FreeRiderLite,
+	writable: true
+});
+
+Object.defineProperty(self, 'lite', {
+	value: new FreeRiderLite(),
+	writable: true
+});
+
+function m(t, e) {
+	for (var i in e)
+		try {
+			t[i] = e[i].constructor == Object ? m(t[i], e[i]) : e[i]
+		} catch (s) {
+			t[i] = e[i]
+		}
+	return t
 }

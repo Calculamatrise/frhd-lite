@@ -58,8 +58,12 @@ export default class {
 		for (let t of this.masses)
 			t.fixedUpdate()
 	}
-	update(progress, delta) {
+	update() {
 		for (let t of this.masses)
-			t.update(progress, delta)
+			t.update(...arguments)
+	}
+	lateUpdate() {
+		for (let t of this.masses)
+			t.lateUpdate()
 	}
 }

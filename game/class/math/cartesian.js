@@ -68,8 +68,19 @@ export default class {
 		this.x = t.x,
 		this.y = t.y
 	}
+	lerp(to, alpha) {
+		return new this.constructor(
+			this.x + (to.x - this.x) * alpha,
+			this.y + (to.y - this.y) * alpha
+		)
+	}
+	lerpTo(target, alpha) {
+		this.x += (target.x - this.x) * alpha;
+    	this.y += (target.y - this.y) * alpha
+	}
 	normalize() {
 		let t = this.len();
+		if (t === 0) return new this.constructor(0, 0);
 		return new this.constructor(this.x / t, this.y / t)
 	}
 	getAngleInDegrees(t) {

@@ -40,11 +40,10 @@ export default class extends Powerup {
 		t.lineWidth = i
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
-		t.strokeStyle = i,
-		t.lineWidth = 3
+		let i = super.updateCache(t, e);
+		t.strokeStyle = this.outline,
+		t.lineWidth = 3;
+		return i
 	}
 	static cache = this.createCache({
 		width: 26,

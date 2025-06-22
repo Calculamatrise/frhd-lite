@@ -53,12 +53,11 @@ export default class extends DirectionalPowerup {
 		t.stroke()
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		let i = super.updateCache(t, e);
 		t.fillStyle = this.color,
-		t.strokeStyle = i,
-		t.lineWidth = Math.max(8 * e * this.constructor.cache.scale, 1)
+		t.strokeStyle = this.outline,
+		t.lineWidth = Math.max(8 * e * this.constructor.cache.scale, 1);
+		return i
 	}
 	static angleOffset = -90;
 	static cache = this.createCache({

@@ -1,7 +1,6 @@
 import Mass from "./mass.js";
 
 let l = [1, .7, .8, .9, .5, 1, .7, 1];
-
 export default class extends Mass {
 	angle = 6.2 * Math.random();
 	color = "black";
@@ -13,10 +12,9 @@ export default class extends Mass {
 		this.color = i;
 		this.pos.x = t.x + 5 * (Math.random() - Math.random());
 		this.pos.y = t.y + 5 * (Math.random() - Math.random());
-		this.old.x = this.pos.x;
-		this.old.y = this.pos.y;
+		this.old.equ(this.pos);
 		this.vel.y = 11 * (Math.random() - Math.random());
-		this.vel.x = 11 * (Math.random() - Math.random());
+		this.vel.x = 11 * (Math.random() - Math.random())
 	}
 	drive(t, e) {
 		let i = this.vel
@@ -42,8 +40,8 @@ export default class extends Mass {
 	draw(d) {
 		let t = this.scene.screen
 		  , e = this.scene.camera
-		  , i = t.realToScreen(this.pos.x, "x")
-		  , s = t.realToScreen(this.pos.y, "y")
+		  , i = t.realToScreen(this.displayPos.x, "x")
+		  , s = t.realToScreen(this.displayPos.y, "y")
 		  , n = 0
 		  , r = e.zoom
 		  , o = this.angle

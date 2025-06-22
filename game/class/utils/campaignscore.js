@@ -10,29 +10,25 @@ export default class extends GUI {
 		silver_medal: [502, 68, 44, 44],
 		left_panel: [2, 2, 588, 64],
 		gold_medal: [456, 68, 44, 44]
-	}
+	};
 	bronze_container = new Container({
 		alpha: 0.4,
-		font: { size: 12 },
-		inline: true,
-		x: 6.4
-	}, this.container)
+		inline: true
+	}, this.container);
 	silver_container = new Container({
 		alpha: 0.4,
-		font: { size: 12 },
-		inline: true,
-		x: 6.4
-	}, this.container)
+		inline: true
+	}, this.container);
 	gold_container = new Container({
 		alpha: 0.4,
-		font: { size: 12 },
-		inline: true,
-		x: 6.4
-	}, this.container)
+		inline: true
+	}, this.container);
 	constructor(t) {
 		super(t, {
 			font: { size: 12 },
+			gap: 6.4,
 			inline: true,
+			x: 6.4,
 			y: 32
 		}),
 		this.settings = t.settings;
@@ -101,7 +97,7 @@ export default class extends GUI {
 			this.silver_container.alpha = 1;
 		case 3:
 		case "third":
-			this.bronze_container.alpha = 1;
+			this.bronze_container.alpha = 1
 		}
 		this.redraw()
 	}

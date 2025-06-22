@@ -1,42 +1,56 @@
-import "./ThirdPartyManager.js";
-import "./Lite.js";
 import EventEmitter from "./EventEmitter.js";
-
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
+import Events from "./utils/events.js";
 
-window.Game = class extends EventEmitter {
-	gameContainer = null;
-	_frames = 0;
-	frames = 0;
-	lastTime = -1;
-	timer = performance.now();
-	_updates = 0;
-	updates = 0;
-	ups = 30; // 60;
-	tickCount = 0;
-	currentScene = null;
+const SCENES =  { Editor, Main };
+class Game extends EventEmitter {
+	static Events = Events;
+	#frames = 0;
+	#lastFrameTime = performance.now();
+	#timer = performance.now();
+	#updates = 0;
+	stats = { fps: 0, ups: 0 };
+	config = { maxFrameRate: null, tickRate: 30 };
+	// config = { maxFrameRate: null, tickRate: 60 };
+	frameInterval = 1e3 / this.config.maxFrameRate;
+	interpolation = true;
+	updateInterval = 1e3 / this.config.tickRate;
 	assets = null;
 	canvas = null;
-	stats = null;
-	width = 0;
+	currentScene = null;
+	gameContainer = null;
 	height = 0;
-	fullscreen = !1;
 	onStateChange = null;
+	pixelRatio = window.devicePixelRatio;
+	width = 0;
 	constructor(t, e, i) {
 		super();
-		this.assets = e,
-		this.settings = i,
-		this.initCanvas(),
-		this.setSize(),
-		this.switchScene(t),
-		this.setSize(),
-		(window.createjs ||= {}).Ticker ||= this,
+		Object.defineProperties(this, {
+			lastTime: { value: performance.now(), writable: true },
+			linearInterpolation: { value: true, writable: true },
+			progress: { value: 0, writable: true }
+		});
+		this.assets = e;
+		i.UIDarkerGrayColor ||= '#777777';
+		i.UIGrayColor ||= '#808080';
+		i.UITextColor ||= '#000000';
+		this.settings = i;
+		this.initCanvas();
+		this.setSize();
+		this.switchScene(t);
+		(globalThis.createjs ||= {}).Ticker ||= this;
 		Object.defineProperty(this, 'updateCallback', {
 			value: requestAnimationFrame(this.update.bind(this)),
 			writable: true
-		}),
-		this.emit('ready', this)
+		});
+		this.emit(Events.Ready)
+	}
+	command() {
+		this.currentScene.command.apply(this.currentScene, arguments)
+	}
+	freeze() {
+		cancelAnimationFrame(this.updateCallback)
 	}
 	initCanvas() {
 		this.canvas = document.createElement("canvas"),
@@ -45,12 +59,24 @@ window.Game = class extends EventEmitter {
 		this.gameContainer = document.getElementById(this.settings.defaultContainerID),
 		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas)
 	}
+	resetFrameProgress() {
+		this.lastTime = performance.now();
+		this.progress = 0;
+		this.config.maxFrameRate && (this.#lastFrameTime = this.lastTime)
+	}
+	resume() {
+		this.updateCallback = requestAnimationFrame(this.update.bind(this))
+	}
+	setMaxFrameRate(fps) {
+		this.config.maxFrameRate = fps;
+		this.frameInterval = 1e3 / fps
+	}
 	setSize() {
 		let t = window.innerHeight
 		  , e = window.innerWidth;
 		if (!this.settings.fullscreen && !this.settings.isStandalone) {
 			t = this.gameContainer.clientHeight,
-			e = this.gameContainer.clientWidth
+			e = this.gameContainer.clientWidth;
 		}
 		this.currentScene && (t -= this.currentScene.getCanvasOffset().height)
 		let n = 1;
@@ -69,56 +95,80 @@ window.Game = class extends EventEmitter {
 		this.ctx.lineCap = "round",
 		this.ctx.lineJoin = "round",
 		this.ctx.strokeStyle = this.settings.physicsLineColor,
-		this.currentScene && this.currentScene.command("resize")
+		this.currentScene && (this.currentScene.command("resize"),
+		this.currentScene.screen.update(),
+		(this.currentScene.state.paused || !this.currentScene.state.playing) && this.currentScene.draw(this.ctx));
+		this.emit(Events.Resize, {
+			devicePixelRatio: n,
+			height: o,
+			width: r
+		})
 	}
-
-	progress = 0
-	update(time) {
-		this.updateCallback = requestAnimationFrame(this.update.bind(this));
-		let delta = time - this.lastTime
-		  , max = 1e3 / this.ups;
-		// if (delta >= max) {
-		// 	console.log(this.updates, this.lastTime, time, time + max)
-		// 	this.lastTime = time + max;
-		// 	this.currentScene.fixedUpdate();
-		// 	this._updates++;
-		// }
-
-		if (delta > 1e3) {
-			delta = max;
-		}
-
-		this.progress += delta / max,
-		this.lastTime = time;
-		while (this.progress >= 1) {
-			this.currentScene.fixedUpdate(),
-			this.emit('tick', ++this._updates),
-			this.progress--
-		}
-
-		this.currentScene.draw(this.ctx),
-		this.emit('draw', this.ctx),
-		this._frames++;
-		if (time - this.timer > 1e3) {
-			this.timer = time,
-			this.updates = this._updates,
-			this._updates = 0,
-			this.frames = this._frames,
-			this._frames = 0
-		}
-	}
-
 	switchScene(t) {
 		this.currentScene !== null && this.currentScene.close(),
-		this.currentScene = new { Editor, Main }[t](this)
+		this.currentScene = new SCENES[t](this),
+		this.emit(Events.SceneChange, this.currentScene)
 	}
+	update(time) {
+		// DEBUG
+		if (this._lastRafTime !== null) {
+			let rafDelta = time - this._lastRafTime;
+			(this._rafDeltaHist ||= []).push(rafDelta);
+			if (this._rafDeltaHist.length > 300) this._rafDeltaHist.shift();
+			if (rafDelta > 20) console.warn(`Slow rAF frame: ${Math.round(rafDelta)}ms`);
+		}
+		this._lastRafTime = time;
+		// DEBUG END
 
-	command() {
-		this.currentScene.command.apply(this.currentScene, arguments)
+		this.updateCallback = requestAnimationFrame(this.update.bind(this));
+		if (this._wasPaused !== this.currentScene.state.paused) {
+			this._wasPaused = this.currentScene.state.paused;
+			!this.currentScene.state.paused && this.resetFrameProgress();
+			this.lastTime = time;
+		}
+
+		let delta = time - this.lastTime;
+		if (delta >= 1e3) {
+			delta = this.updateInterval;
+		}
+
+		this.progress += delta / this.updateInterval;
+		// if (this.progress >= 1 && this.currentScene.state.paused) {
+		// 	this.freeze();
+		// 	return;
+		// }
+
+		this.lastTime = time;
+		while (this.progress >= 1) {
+			this.progress--;
+			if (this.emit(Events.Tick, this.currentScene.ticks)) continue;
+			this.currentScene.fixedUpdate();
+			this.#updates++
+		}
+
+		if (!this.config.maxFrameRate || time - this.#lastFrameTime >= this.frameInterval) {
+			this.config.maxFrameRate && (this.#lastFrameTime = time);
+			this.currentScene.update(this.progress);
+			this.currentScene.lateUpdate(this.progress);
+			this.currentScene.draw(this.ctx);
+			this.emit(Events.Draw, this.ctx);
+			this.#frames++;
+		}
+
+		if (time - this.#timer >= 1e3) {
+			this.#timer = time,
+			this.stats.ups = this.#updates,
+			this.stats.fps = this.#frames,
+			this.#updates = 0,
+			this.#frames = 0,
+			this.emit(Events.Stats, {
+				fps: this.stats.fps,
+				ups: this.stats.ups
+			})
+		}
 	}
-
 	close() {
-		cancelAnimationFrame(this.updateCallback),
+		this.freeze(),
 		this.updateCallback = null,
 		this.currentScene.close(),
 		this.currentScene = null,
@@ -127,8 +177,12 @@ window.Game = class extends EventEmitter {
 		this.canvas.remove(),
 		this.canvas = null,
 		this.ctx = null,
-		this.tickCount = null,
 		this.height = null,
 		this.width = null
 	}
 }
+
+Object.defineProperty(self, 'Game', {
+	value: Game,
+	writable: true
+});

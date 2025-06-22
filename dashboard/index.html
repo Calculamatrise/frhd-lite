@@ -34,48 +34,6 @@
 				</form>
 			</dialog>
 		</section>
-		<section caption="tracks">
-			<div class="dropdown">
-				<input type="text" class="fill-available" id="t_title" placeholder="Search">
-				<main id="t_title-search-results"></main>
-			</div>
-			<div class="track-actions">
-				<button id="add-to-totd" style="grid-column: span 2;">Add to track of the day</button>
-				<button id="feature-track">Feature</button>
-				<button id="hide-track">Hide</button>
-			</div>
-			<span id="result"></span>
-			<dialog id="add-totd">
-				<h3>Add track of the day</h3>
-				<form method="dialog">
-					<div class="flex max-width" style="flex-direction: column;">
-						<input type="number" name="lives" id="lives" placeholder="Lives">
-						<input type="number" name="refill-cost" id="refill-cost" placeholder="Refill Cost">
-						<input type="number" name="gems" id="gems" placeholder="Gems">
-						<input type="date" name="date" id="date">
-					</div><br>
-					<div class="flex max-width">
-						<button value="cancel">Cancel</button>
-						<button value="default">Submit</button>
-					</div>
-				</form>
-			</dialog>
-		</section>
-		<section caption="users">
-			<div class="dropdown">
-				<input type="text" class="fill-available" id="u_name" placeholder="Search">
-				<main id="u_name-search-results"></main>
-			</div>
-			<div class="flex max-width">
-				<input type="text" id="n_name" placeholder="new username">
-				<button id="change-u_name">Change username</button>
-			</div>
-			<div class="flex max-width">
-				<input type="email" id="n_mailbox" placeholder="new email">
-				<button id="change-u_mailbox">Change email</button>
-			</div>
-			<span id="result"></span>
-		</section>
 	</main>
 </body>
 </html>

@@ -1,11 +1,8 @@
 import BaseScene from "./BaseScene.js";
-import b from "../controls/fullscreen.js";
-import w from "../controls/pause.js";
-import Z from "../controls/pathtracer.js";
-import T from "../controls/settings.js";
 import r from "../utils/campaignscore.js";
 import P from "../utils/formatnumber.js";
 import o from "../utils/racetimes.js";
+import RaceProgress from "../utils/raceprogress.js";
 import PathTracer from "../tools/pathtracertool.js";
 
 async function digestMessage(message) {
@@ -13,32 +10,37 @@ async function digestMessage(message) {
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 	const hashHex = hashArray
-	.map((b) => b.toString(16).padStart(2, '0'))
-	.join('');
+		.map((b) => b.toString(16).padStart(2, '0'))
+		.join('');
 	return hashHex
 }
 
 export default class extends BaseScene {
 	races = [];
 	playing = false;
+	raceTimes = new o(this);
 	ready = false;
 	loading = false;
-	fullscreenControls = null;
-	pathtracerControls = null;
-	settingsControls = null;
 	constructor(t) {
-		super(t);
-		this.raceTimes = new o(this);
-		this.settings.isCampaign && (this.campaignScore = new r(this));
-		this.setStartingVehicle(),
+		super(t),
+		this.raceProgress = new RaceProgress(this),
+		this.settings.isCampaign && (this.campaignScore = new r(this)),
 		this.state = this.setStateDefaults(),
 		this.oldState = this.setStateDefaults(),
 		this.createMainPlayer(),
-		this.createControls(),
 		this.registerTools(),
 		this.setStartingVehicle(),
 		this.restart(),
-		t.settings.analyticsEnabled !== false && this.initAnalytics()
+		t.settings.analyticsEnabled !== false && this.initAnalytics(),
+		GameManager.once('gameComplete', () => {
+			let e = {
+				race: structuredClone(this.state.dialogOptions.postData),
+				user: t.settings.user
+			};
+			this.settings.bestGhostEnabled && -1 === this.races.findIndex(i => this.uniqesByUserIdIterator(e) == this.uniqesByUserIdIterator(i) && i.race.run_ticks <= e.race.run_ticks) && this.addRaces([e]);
+			this.settings.fullscreen && this.command('focused', true); // only works on the first one
+			t.emit('trackRaceUploadSuccess', e)
+		})
 	}
 	getCanvasOffset() {
 		return {
@@ -50,12 +52,6 @@ export default class extends BaseScene {
 		let t = super.createMainPlayer();
 		t.setKeyMap(this.settings.playHotkeys),
 		t.recordKeys(this.settings.keysToRecord)
-	}
-	createControls() {
-		this.pauseControls = new w(this),
-		this.pathtracerControls = new Z(this);
-		this.settings.fullscreenAvailable && (this.fullscreenControls = new b(this)),
-		this.settingsControls = new T(this)
 	}
 	createTrack() {
 		let t = super.createTrack()
@@ -72,12 +68,23 @@ export default class extends BaseScene {
 		this.hideControlPlanel())
 	}
 	buttonDown(t) {
+		switch (t) {
+		case "exit_fullscreen":
+			this.state.playing = !1; // does nothing
+			if (!this.state.fullscreen) {
+				const showDialog = 'settings';
+				if (this.state.showDialog === showDialog) {
+					this.state.showDialog = null;
+				} else {
+					this.openDialog("settings")
+				}
+			}
+		}
 		this.state.showDialog || super.buttonDown(t)
 	}
 	exitFullscreen() {
-		this.settings.fullscreenAvailable && (this.settings.fullscreen = !1,
-		this.state.fullscreen = !1,
-		this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen"))
+		if (!super.exitFullscreen()) return !1;
+		this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen")
 	}
 	toggleFullscreen() {
 		let t = super.toggleFullscreen();
@@ -97,59 +104,37 @@ export default class extends BaseScene {
 		  , e = this.settings.track;
 		e && (t.allowedVehicles = e.vehicles)
 	}
-	interactWithControls() {
-		super.interactWithControls(),
-		this.pathtracerControls.click(),
-		this.settings.fullscreenAvailable && this.fullscreenControls.click()
-		this.settingsControls.click()
-	}
-	updateControls() {
-		super.updateControls(),
-		this.settings.fullscreenAvailable && this.fullscreenControls.update()
-	}
-	redrawControls() {
-		super.redrawControls(),
-		this.pathtracerControls.redraw(),
-		this.settings.fullscreenAvailable && this.fullscreenControls.redraw(),
-		this.settingsControls.redraw()
-	}
 	registerTools() {
 		let t = super.registerTools();
 		t.registerTool(PathTracer),
 		t.setTool("Camera")
 	}
 	fixedUpdate() {
-		let t, e;
-		this.ready ? (this.updateToolHandler(),
-		this.mouse.update(),
-		// commenting this.state.paused may break ghosts -- proceed with caution, add experimental option?
-		this.state.paused || this.state.showDialog || (this.playerManager.updateGamepads(),
-		this.playerManager.checkKeys()),
-		this.camera.focusIndex > 0 && (t =  this.playerManager.firstPlayer._gamepad.downButtons,
-		t = ~~t['right'] - ~~t['left']) && (e = this.playerManager.getPlayerByIndex(this.camera.focusIndex)) && e.isGhost() && e._gamepad.playbackTicks > 0 && (e._replayIterator.next((e._gamepad.playbackTicks ?? this.ticks) + 5 * t), /* add option for amount of ticks to skip */
-		this.state.playing = false),
-		super.fixedUpdate(),
-		this.updateScore()) : this.importCode && this.createTrack()
+		if (!this.ready) return;
+		super.fixedUpdate()
+	}
+	update() {
+		super.update(...arguments);
+		this.updateScore()
 	}
 	draw(ctx) {
 		super.draw(...arguments),
-		this.pathtracerControls.draw(ctx),
-		this.settings.fullscreenAvailable && this.fullscreenControls.draw(ctx),
-		this.settingsControls.draw(ctx),
 		this.campaignScore && this.campaignScore.draw(ctx),
+		window.hasOwnProperty('lite') && lite.storage.get('raceProgress') && this.state.inFocus && this.camera.playerFocus && this.raceProgress.draw(ctx),
 		this.raceTimes.draw(ctx)
 	}
 	isStateDirty() {
 		let e = this.state;
-		e.fullscreen != GameSettings.fullscreen && (e.fullscreen = GameSettings.fullscreen);
+		e.fullscreen != this.settings.fullscreen && (e.fullscreen = this.settings.fullscreen);
 		return super.isStateDirty()
 	}
 	updateScore() {
 		this.campaignScore && this.campaignScore.update(),
+		window.hasOwnProperty('lite') && lite.storage.get('raceProgress') && this.camera.playerFocus && this.raceProgress.update(this.camera.playerFocus),
 		this.raceTimes.update()
 	}
 	restart() {
-		this.message.show("Press Any Key To Start", 1, "#333333", "#FFFFFF"),
+		this.message.show("Press Any Key To Start", 1),
 		this.track.resetPowerups(),
 		this.restartTrack = !1,
 		this.state.paused = !1,
@@ -159,7 +144,8 @@ export default class extends BaseScene {
 		this.playerManager.getPlayerCount() > 0 && (this.camera.focusIndex = 1),
 		this.camera.focusOnPlayer(),
 		this.camera.fastforward(),
-		this.showControlPlanel("main")
+		this.showControlPlanel("main"),
+		this.resetRaceTimes()
 	}
 	setStartingVehicle() {
 		let t = this.settings
@@ -176,13 +162,10 @@ export default class extends BaseScene {
 	}
 	showControlPlanel(t) {
 		this.settings.isCampaign && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
-		this.stateshowControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
+		this.state.showControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
 	}
 	resize() {
-		this.pauseControls.resize(),
-		this.settings.fullscreenAvailable && this.fullscreenControls.resize(),
-		this.settingsControls.resize(),
-		super.resize()
+		this.raceProgress.resize()
 	}
 	setStateDefaults() {
 		let t = super.setStateDefaults();
@@ -291,7 +274,6 @@ export default class extends BaseScene {
 			i = e.splice(e.indexOf(i), 1),
 			this.playerManager.removePlayer(t),
 			this.game.emit('trackRaceDelete', i[0]);
-		this.game.emit('trackRacesDelete', i);
 		this.game.emit('trackChallengeUpdate', this.races),
 		this.addRaceTimes(),
 		this.camera.focusOnMainPlayer()
@@ -301,8 +283,7 @@ export default class extends BaseScene {
 		return String(e.u_id)
 	}
 	sortRaces() {
-		this.races.length > 1 ? this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b)) : this.sortByRunTicksIterator(this.races[0]),
-		this.game.emit('trackRacesSort', this.races)
+		this.races.length > 1 ? this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b)) : this.sortByRunTicksIterator(this.races[0])
 	}
 	mergeRaces(t) {
 		let e = this.races;
@@ -312,14 +293,26 @@ export default class extends BaseScene {
 			this.game.emit('trackRaceCreate', i))
 		})
 	}
+	resetRaceTimes() {
+		for (let element of this.raceTimes.raceList.filter(e => e.children.length > 2))
+			element.children[2].text = '0/' + this.track.targetCount,
+			element.setDirty()
+	}
 	redraw() {
 		super.redraw(),
+		this.raceProgress.redraw(),
 		this.raceTimes.redraw()
 	}
 	sortByRunTicksIterator(t) {
 		let e = parseInt(t.race.run_ticks);
 		return t.runTime ||= P(e / this.settings.drawFPS * 1e3),
 		e
+	}
+	toggleFullscreen() {
+		if (!this.settings.embedded) return super.toggleFullscreen();
+		let t = this.settings
+		  , e = t.basePlatformUrl + "/t/" + t.track.url;
+		window.open(e)
 	}
 	verifyComplete() {
 		let t = this.playerManager.firstPlayer
@@ -359,14 +352,10 @@ export default class extends BaseScene {
 			this.state.dialogOptions = Object.assign({}, q)
 			if (!navigator.onLine) {
 				this.state.dialogOptions.postData = {},
-				this.game.emit('trackRaceUploadError', Object.defineProperty(new Error("Failed to upload race"), 'data', {
+				this.game.emit('trackRaceUploadError', Object.defineProperty(new Error("Network Error: Failed to upload race"), 'data', {
 					value: Object.assign({}, q)
 				}));
 			} else
-				this.settings.bestGhostEnabled && -1 === this.races.findIndex(t => n.user.u_id == this.uniqesByUserIdIterator(t) && t.race.run_ticks <= r) && this.addRaces([{
-					race: structuredClone(h),
-					user: n.user
-				}]),
 				this.game.emit('trackRaceUpload', q);
 			this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
 			i.reset(!0),
@@ -374,8 +363,6 @@ export default class extends BaseScene {
 		}
 	}
 	close() {
-		this.fullscreenControls = null,
-		this.settingsControls = null,
 		this.raceTimes = null,
 		this.score = null,
 		this.campaignScore = null,

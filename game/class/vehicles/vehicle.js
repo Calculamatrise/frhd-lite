@@ -2,37 +2,68 @@ import Cartesian from "../math/cartesian.js";
 import Explosion from "./explosion.js";
 
 export default class {
-	color = '#'.padEnd(7, lite.storage.get('theme') == 'midnight' ? 'C' : /^dark(?:er)?$/.test(lite.storage.get('theme')) ? 'FB' : '0');
-	masses = null;
-	springs = null;
-	slow = !1;
+	static Sounds = {};
+	alive = true;
+	color = '#000000';
+	complete = false;
+	cosmetics = null;
+	crashed = false;
+	dir = 1;
+	explosion = false;
+	gravity = new Cartesian(0, .3);
+	masses = [];
+	powerupsEnabled = true;
+	speed = 0;
+	springs = [];
+	slow = false;
 	constructor(t) {
 		Object.defineProperty(this, 'player', { value: t, writable: true }),
 		Object.defineProperty(this, 'scene', { value: t._scene, writable: true }),
 		this.gamepad = t._gamepad,
 		this.settings = t._settings,
-		this.gravity = new Cartesian(0,.3),
-		this.complete = !1,
-		this.alive = !0,
-		this.crashed = !1,
-		this.dir = 1,
-		this.ghost = !1,
-		this.ragdoll = !1,
-		this.explosion = !1,
-		this.speed = 0,
-		this.powerupsEnabled = !0,
 		this.createCosmetics()
 	}
+	createCosmetics() {
+		this.cosmetics = this.player._user.cosmetics
+	}
+	dead() {
+		this.stopSounds(),
+		this.player.dead(),
+		this.crashed = !0,
+		this.alive = !1
+	}
 	explode() {
-		this.scene.sound.play("bomb_sound", 1),
-		this.explosion = new Explosion(this.masses[0].pos,this.scene),
+		this.scene.sound.play('bomb_sound', 1),
+		this.explosion = new Explosion(this.masses[0].displayPos,this.scene),
 		this.dead()
 	}
-	createCosmetics() {
-		this.cosmetics = this.player._user.cosmetics;
+	fixedUpdate() {
+		this.crashed === !1 && (this.updateSound(),
+		this.control?.());
+		return this.explosion && (this.explosion.fixedUpdate(), !0)
 	}
-	updateSpeed() {
-		this.speed = Math.abs(Math.round(this.focalPoint.vel.x + this.focalPoint.vel.y))
+	update() {
+		for (let e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
+			e[s].update(...arguments)
+	}
+	lateUpdate() {
+		for (let e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
+			e[s].lateUpdate(...arguments)
+	}
+	draw(t) {
+		if (this.scene.game.emit(this.scene.game.constructor.Events.PlayerVehicleDraw, this)) return !0;
+		return this.explosion && (this.explosion.draw(t, 1), !0)
+	}
+	moveVehicle(t, e) {
+		for (var i = this.masses, s = i.length, n = s - 1; n >= 0; n--)
+			i[n].move(t, e)
+	}
+	stopSounds() {
+		for (const key in this.constructor.Sounds) {
+			const sound = this.constructor.Sounds[key];
+			if (typeof sound != 'string') continue;
+			this.scene.sound.stop(sound)
+		}
 	}
 	close() {
 		this.scene = null,
@@ -41,24 +72,8 @@ export default class {
 		this.speed = null,
 		this.cosmetics = null,
 		this.explosion = null,
-		this.ragdoll = null,
-		this.ghost = null,
 		this.crashed = null,
 		this.alive = null,
 		this.gamepad = null
 	}
-	dead() {
-		this.stopSounds(),
-		this.player.dead(),
-		this.crashed = !0,
-		this.alive = !1
-	}
-	moveVehicle(t, e) {
-		for (var i = this.masses, s = i.length, n = s - 1; n >= 0; n--)
-			i[n].pos.x += t,
-			i[n].pos.y += e,
-			i[n].old.x += t,
-			i[n].old.y += e
-	}
-	stopSounds() {}
 }

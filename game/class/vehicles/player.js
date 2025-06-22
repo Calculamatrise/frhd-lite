@@ -8,8 +8,8 @@ import HELI from "./helicopter.js";
 import MTB from "./mtb.js";
 import TRUCK from "./truck.js";
 
-let g = 0;
-let v = {
+let g = 0
+  , v = {
 	BMX,
 	MTB,
 	HELI,
@@ -29,22 +29,21 @@ function m(t, e) {
 }
 
 export default class {
+	_ghost = !1;
+	color = '#000000';
+	id = g++;
 	constructor(t, e) {
-		this.id = g++,
-		this._scene = t,
-		this._game = t.game,
 		Object.defineProperties(this, {
-			_scene: { enumerable: false },
-			_game: { enumerable: false }
-		}),
+			_scene: { value: t, writable: true },
+			_game: { value: t.game, writable: true }
+		});
 		this._user = e,
 		this._settings = t.settings;
 		let i = t.settings.startVehicle;
 		t.settings.track && (i = t.settings.track.vehicle),
 		this._baseVehicleType = i,
 		this._gamepad = new Gamepad(t),
-		this._ghost = !1,
-		this._color = e.color || "#000000",
+		e.color && (this._color = e.color),
 		this.setDefaults(),
 		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0))
 	}
@@ -83,7 +82,7 @@ export default class {
 			let t = this._scene
 			  , i = t.message;
 			t.state.playerAlive = this.isAlive(),
-			i.show(this._checkpoints.length > 0 ? "Press Enter For Checkpoint" : "Press Enter To Restart!", !1, "#000", "#FFF")
+			i.show(this._checkpoints.length > 0 ? "Press Enter For Checkpoint" : "Press Enter To Restart!", !1)
 		}
 	}
 	setAsGhost() {
@@ -142,20 +141,32 @@ export default class {
 		this._tempVehicleTicks = e)
 	}
 	fixedUpdate() {
+		// When game is at 60 UPS, player.fixedUpdate should still only occur at 30 UPS
+		// Only the second/last (n + 1) fixedUpdate should be recognized at 60 UPS
+		// First of the pair of updates should be ignored
+		// const skip = !Number.isInteger(this._gamepad.playbackTicks ?? (this._scene.ticks / (this._game.config.tickRate / 30)));
 		let t = this._baseVehicle;
-		this._temp_vehicle_options && this.createTempVehicle(),
+		/* !skip && */ this._temp_vehicle_options && this.createTempVehicle(),
 		this._tempVehicleTicks > 0 && (t = this._tempVehicle,
 		this._crashed === !1 && this._tempVehicleTicks--,
 		this._tempVehicleTicks <= 0 && this._crashed === !1 && (this._effectTicks = 45,
-		this._effect = new Explosion(this._tempVehicle.focalPoint.pos, this._scene),
+		this._effect = new Explosion(this._tempVehicle.focalPoint.displayPos, this._scene),
 		this.createBaseVehicle(this._tempVehicle.focalPoint.pos, this._tempVehicle.dir, this._tempVehicle.masses[0].vel),
 		t = this._baseVehicle)),
 		this._effectTicks > 0 && (this._effectTicks--,
 		this._effect.fixedUpdate()),
-		lite.storage.get("playerTrail") && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
-		t.fixedUpdate(),
-		this._addCheckpoint && (this.isAlive() && this._createCheckpoint(),
+		window.hasOwnProperty('lite') && lite.storage.get('playerTrail') && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
+		t.fixedUpdate();
+		/* !skip && */ this._addCheckpoint && (this._createCheckpoint(),
 		this._addCheckpoint = !1)
+	}
+	update() {
+		const e = this.getActiveVehicle();
+		e.update(...arguments)
+	}
+	lateUpdate() {
+		const e = this.getActiveVehicle();
+		e.lateUpdate(...arguments)
 	}
 	*createReplayIterator(nextTick = 0) {
 		const snapshots = new Map();
@@ -184,21 +195,21 @@ export default class {
 					nextTick = value;
 					continue;
 				} else {
-					nextTick = this._gamepad.playbackTicks + 1 / (this._game.ups / 30) // this._gamepad.playbackTicks + 1;
+					nextTick = this._gamepad.playbackTicks + 1 / (this._game.config.tickRate / 30) // this._gamepad.playbackTicks + 1;
 				}
 			}
 
 			this._gamepad.update(),
 			this.checkKeys(),
 			this.fixedUpdate(),
-			!this.complete && (this._gamepad.playbackTicks += 1 / (this._game.ups / 30)), /* this._gamepad.playbackTicks++; */
+			!this.complete && (this._gamepad.playbackTicks += 1 / (this._game.config.tickRate / 30)), /* this._gamepad.playbackTicks++; */
 			this.isInFocus() && this._game.emit('replayTick', this._gamepad.playbackTicks)
 		}
 
 		// this.loop = true;
 		this.loop && (this.reset(),
 		this._replayIterator = this.createReplayIterator())
-		return snapshots;
+		return snapshots
 	}
 	isInFocus() {
 		return this._scene.camera.playerFocus && this._scene.camera.playerFocus === this
@@ -213,7 +224,7 @@ export default class {
 	}
 	drawName(ctx) {
 		let l = this.getActiveVehicle()
-		  , c = l.focalPoint.pos.toScreen(this._scene);
+		  , c = l.focalPoint.displayPos.toScreen(this._scene);
 		ctx.globalAlpha = this._opacity;
 		ctx.textAlign = "center";
 		if (this._user.badges && this._user.badges.size > 0) {
@@ -253,7 +264,28 @@ export default class {
 		this._tempVehicleTicks > 0 && (t = this._tempVehicle),
 		this._effectTicks > 0 && this._effect.draw(ctx, this._effectTicks / 100),
 		t.draw(ctx),
+		window.hasOwnProperty('lite') && lite.storage.get('confirmRestart') && this._gamepad.isButtonDown('restart') && this.drawRestart(ctx),
 		this.isGhost() && this.drawName(ctx)
+	}
+	drawRestart(ctx) {
+		let l = this.getActiveVehicle()
+		  , c = l.focalPoint.displayPos.toScreen(this._scene)
+		  , delta = this._scene.ticks - this._restartTimeout
+		  , fontSize = 16 * this._scene.camera.zoom;
+		ctx.save(),
+		ctx.fillStyle = this._settings.UITextColor || this._settings.physicsLineColor,
+		ctx.font = fontSize + 'px Helsinki',
+		ctx.globalAlpha !== 1 && (ctx.globalAlpha = 1),
+		ctx.lineWidth = fontSize / 2.5,
+		ctx.strokeStyle = this._settings.UITextColor || this._settings.physicsLineColor,
+		ctx.textAlign = 'center',
+		ctx.textBaseline = 'bottom',
+		ctx.fillText('R', c.x, c.y - 50 * this._scene.camera.zoom),
+		ctx.beginPath(),
+		ctx.arc(c.x, c.y - fontSize / 1.6 - 50 * this._scene.camera.zoom, 1.25 * fontSize, 0, 2 * Math.PI * ((12 - delta) / 12), !0),
+		ctx.globalAlpha = Math.min(1, Math.max(0.1, delta / 12)),
+		ctx.stroke(),
+		ctx.restore()
 	}
 	checkKeys() {
 		let t = this._gamepad
@@ -267,9 +299,9 @@ export default class {
 			t.setButtonUp("enter")
 		}
 		if (e === !1 && (t.areKeysDown() && !this._crashed && i.play(),
-		t.isButtonDown("restart") && (i.restartTrack = !0,
-		t.setButtonUp("restart")),
-		(t.isButtonDown("up") || t.isButtonDown("down") || (!i.camera.focusIndex || ((s = i.playerManager.getPlayerByIndex(i.camera.focusIndex)) && s._gamepad.playbackTicks < 1)) && (t.isButtonDown("left") || t.isButtonDown("right"))) && i.camera.focusOnMainPlayer()),
+		t.isButtonDown("restart") ? (!window.hasOwnProperty('lite') || !lite.storage.get('confirmRestart') || !(this._restartTimeout ?? (i.ticks > 0 && Object.defineProperty(this, '_restartTimeout', { value: i.ticks, writable: true })))) && (i.restartTrack = !0,
+		t.setButtonUp("restart")) : this._restartTimeout = null,
+		(t.isButtonDown("up") || t.isButtonDown("down") || (!i.camera.focusIndex || ((s = i.camera.playerFocus) && s._gamepad.playbackTicks < 1)) && (t.isButtonDown("left") || t.isButtonDown("right"))) && i.camera.focusOnMainPlayer()),
 		t.isButtonDown("enter") && (this.gotoCheckpoint(),
 		t.setButtonUp("enter")),
 		t.isButtonDown("backspace")) {
@@ -279,9 +311,9 @@ export default class {
 		}
 	}
 	getDistanceBetweenPlayers(t) {
-		let e = t.getActiveVehicle()
-		  , i = this.getActiveVehicle();
-		return e.focalPoint.pos.sub(i.focalPoint.pos).len()
+		const e = t.getActiveVehicle()
+			, i = this.getActiveVehicle();
+		return e.focalPoint.displayPos.sub(i.focalPoint.displayPos).len()
 	}
 	getActiveVehicle() {
 		return this._tempVehicleTicks > 0 ? this._tempVehicle : this._baseVehicle
@@ -344,9 +376,10 @@ export default class {
 			} else {
 				let n = this._baseVehicle
 				  , r = JSON.parse(s._baseVehicle);
-				m(n, r),
+				m(n, r);
+				// for (const m of n.masses)
+				// 	m.lastFixedPos.equ(m.pos);
 				this._tempVehicle && this._tempVehicle.stopSounds(),
-				this._baseVehicle = n,
 				this._tempVehicleTicks = 0,
 				this._tempVehicleType = !1,
 				n.updateCameraFocalPoint()
@@ -407,6 +440,7 @@ export default class {
 		this._powerupsConsumed = null
 	}
 	reset() {
+		this._restartTimeout = null,
 		this._tempVehicle && this._tempVehicle.stopSounds(),
 		this._baseVehicle.stopSounds(),
 		this.setDefaults(),

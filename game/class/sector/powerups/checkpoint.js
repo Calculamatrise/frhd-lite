@@ -1,4 +1,4 @@
-import Consumable from "./consumable.js";
+import Consumable from "../consumable.js";
 
 export default class extends Consumable {
 	color = '#826cdc';
@@ -45,12 +45,11 @@ export default class extends Consumable {
 		t.lineWidth = i
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		let i = super.updateCache(t, e);
 		t.fillStyle = this.color,
-		t.strokeStyle = i,
-		t.lineWidth = 8 * e * this.constructor.cache.scale
+		t.strokeStyle = this.outline,
+		t.lineWidth = 8 * e * this.constructor.cache.scale;
+		return i
 	}
 	static cache = this.createCache({
 		width: 18,

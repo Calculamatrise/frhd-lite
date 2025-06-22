@@ -4,11 +4,8 @@ import o from "./wheel.js";
 import a from "./spring.js";
 import Vehicle from "./vehicle.js";
 
-let l = {
-	BLOB: "blob_sound"
-}
-
 export default class extends Vehicle {
+	static Sounds = { Blob: 'blob_sound' };
 	vehicleName = "Blob";
 	constructor(t, e) {
 		super(t),
@@ -17,7 +14,7 @@ export default class extends Vehicle {
 		this.stopSounds()
 	}
 	createMasses(t) {
-		let e = [];
+		let e = this.masses;
 		e.push(new o(new n(t.x + 15,t.y + 40),this)),
 		e.push(new o(new n(t.x + -15,t.y + 40),this)),
 		e.push(new o(new n(t.x + -15,t.y + 10),this)),
@@ -29,12 +26,11 @@ export default class extends Vehicle {
 		this.m2 = e[2],
 		this.m3 = e[3],
 		this.head = i,
-		this.masses = e,
 		this.focalPoint = this.head
 	}
 	createSprings() {
 		let t = this.masses
-		  , e = []
+		  , e = this.springs
 		  , i = this.spring0 = new a(t[0],t[1],this)
 		  , s = this.spring1 = new a(t[1],t[2],this)
 		  , n = this.spring2 = new a(t[2],t[3],this)
@@ -49,55 +45,41 @@ export default class extends Vehicle {
 		e.push(h);
 		for (let l in e)
 			e[l].springConstant = .2,
-			e[l].dampConstant = .2;
-		this.springs = e
+			e[l].dampConstant = .2
 	}
 	fixedUpdate() {
-		if (this.crashed === !1 && (this.updateSound(),
-		this.control()),
-		this.explosion)
-			this.explosion.fixedUpdate();
-		else {
-			let t = this.masses
-			  , e = t.length
-			  , i = this.springs
-			  , n = i.length;
-			for (var s = n - 1; s >= 0; s--)
+		if (super.fixedUpdate()) return;
+		let t = this.masses
+			, e = t.length
+			, i = this.springs
+			, n = i.length;
+		for (var s = n - 1; s >= 0; s--)
+			i[s].fixedUpdate();
+		for (var m = e - 1; m >= 0; m--)
+			t[m].fixedUpdate();
+		if ((t[0].contact || t[1].contact || t[2].contact || t[3].contact) && (this.slow = !1),
+		!this.slow) {
+			for (this.control(),
+			s = n - 1; s >= 0; s--)
 				i[s].fixedUpdate();
-			for (var m = e - 1; m >= 0; m--)
-				t[m].fixedUpdate();
-			if ((t[0].contact || t[1].contact || t[2].contact || t[3].contact) && (this.slow = !1),
-			!this.slow) {
-				for (this.control(),
-				s = n - 1; s >= 0; s--)
-					i[s].fixedUpdate();
-				for (m = e - 1; m >= 0; m--)
-					t[m].fixedUpdate()
-			}
-			let r = 0,
-				o = 0;
-			for (let t of this.masses)
-				r += t.pos.x,
-				o += t.pos.y;
-			let a = this.head;
-			a.pos.x = .25 * r,
-			a.pos.y = .25 * o,
-			a.vel = t[0].vel
+			for (m = e - 1; m >= 0; m--)
+				t[m].fixedUpdate()
 		}
-	}
-	update(progress) {
-		for (let t = this.masses, e = t.length, m = e - 1; m >= 0; m--)
-			t[m].update(progress);
+		let r = 0,
+			o = 0;
+		for (let t of this.masses)
+			r += t.pos.x,
+			o += t.pos.y;
+		let a = this.head;
+		a.pos.x = .25 * r,
+		a.pos.y = .25 * o,
+		a.vel = t[0].vel
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
 			let t = this.scene.sound;
-			t.play(l.BLOB, .4)
+			t.play(this.constructor.Sounds.Blob, .4)
 		}
-	}
-	stopSounds() {
-		let t = this.scene.sound;
-		t.stop(l.BLOB)
 	}
 	updateCameraFocalPoint() {}
 	control() {
@@ -121,37 +103,33 @@ export default class extends Vehicle {
 				l[e].contract(0, 1.5)
 	}
 	draw(ctx) {
-		if (this.explosion)
-			this.explosion.draw(ctx, 1);
-		else {
-			if (this.scene.ticks > 0 && !this.player.isGhost()) {
-				if (!this.scene.state.playing) {
-					let t = window.lite && lite.storage.get("snapshots");
-					if (t > 0) {
-						for (let e of this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle))
-							this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, t / 3e2 * this.player._checkpoints.indexOf(e) % 1);
-						for (let e of this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle))
-							this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, t / 3e2 * this.player._cache.indexOf(e) % 1);
-					}
-				}
-
-				if (window.lite && lite.storage.get("playerTrail")) {
-					for (let e of lite.snapshots.filter(t => t._tempVehicle))
-						this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1);
+		if (super.draw(...arguments)) return;
+		if (this.scene.ticks > 0 && !this.player.isGhost()) {
+			if (!this.scene.state.playing) {
+				let t = window.lite && lite.storage.get("snapshots");
+				if (t > 0) {
+					for (let e of this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle))
+						this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, t / 3e2 * this.player._checkpoints.indexOf(e) % 1);
+					for (let e of this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._tempVehicle))
+						this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, t / 3e2 * this.player._cache.indexOf(e) % 1);
 				}
 			}
 
-			this.drawBlob(ctx);
+			if (window.lite && lite.storage.get("playerTrail")) {
+				for (let e of lite.snapshots.filter(t => t._tempVehicle))
+					this.drawBlob.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle)), ctx, lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1);
+			}
 		}
-	}
 
+		this.drawBlob(ctx)
+	}
 	drawBlob(t, alpha = this.player._opacity) {
 		let i = this.scene
 		  , s = i.camera.zoom
-		  , m = new n(this.m0.pos.x, this.m0.pos.y).toScreen(i)
-		  , r = new n(this.m1.pos.x, this.m1.pos.y).toScreen(i)
-		  , o = new n(this.m2.pos.x, this.m2.pos.y).toScreen(i)
-		  , a = new n(this.m3.pos.x, this.m3.pos.y).toScreen(i);
+		  , m = new n(this.m0.displayPos.x, this.m0.displayPos.y).toScreen(i)
+		  , r = new n(this.m1.displayPos.x, this.m1.displayPos.y).toScreen(i)
+		  , o = new n(this.m2.displayPos.x, this.m2.displayPos.y).toScreen(i)
+		  , a = new n(this.m3.displayPos.x, this.m3.displayPos.y).toScreen(i);
 		t.globalAlpha = alpha,
 		t.beginPath(),
 		t.fillStyle = this.color,

@@ -1,6 +1,10 @@
 import "../inventorymanager.js";
 
 export default GameInventoryManager.HeadClass = class {
+	static Defaults = {
+		Outline: 'hsl(0, 0%, 0%)',
+		Skin: 'hsl(0, 0%, 100%)'
+	};
 	versions = {};
 	createVersion() {
 		let t = this.colors

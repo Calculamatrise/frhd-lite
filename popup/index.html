@@ -43,7 +43,7 @@
 		</label>
 		<label class="ripple" title="Allow keyboard input rollover to prevent overlapping inputs">
 			<input type="checkbox" id="inputRollover">
-			<span>Input Rollover</span>
+			<span>Input rollover</span>
 		</label>
 		<label class="ripple" title="Change grid style">
 			<input type="checkbox" id="isometricGrid">
@@ -59,11 +59,15 @@
 		</label>
 		<details>
 			<summary class="tab ripple">Colour scheme options</summary>
-			<label for="bikeFrameColor" class="focus ripple" title="Customize your bike frame" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+			<label for="bikeFrameColor" class="focus ripple acuired-color" title="Customize your bike frame">
 				<input type="checkbox" id="bikeFrameColor-visible"><input type="color" id="bikeFrameColor">
 				<span>Bike frame colour</span>
 			</label>
-			<label for="bikeTireColor" class="focus ripple" title="Customize your bike's tires" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
+			<label for="bikeRiderColor" class="focus ripple acuired-color" title="Customize your player">
+				<input type="checkbox" id="bikeRiderColor-visible"><input type="color" id="bikeRiderColor">
+				<span>Bike rider colour</span>
+			</label>
+			<label for="bikeTireColor" class="focus ripple acuired-color" title="Customize your bike's tires">
 				<input type="checkbox" id="bikeTireColor-visible"><input type="color" id="bikeTireColor">
 				<span>Bike tire colour</span>
 			</label>
@@ -74,6 +78,14 @@
 		</details>
 		<details>
 			<summary class="tab ripple">Show advanced options</summary>
+			<label class="ripple" title="Always show the distance to the next target">
+				<input type="checkbox" id="alwaysShowDistance">
+				<span>Always show distance</span>
+			</label>
+			<label class="ripple" title="When selected, you must hold R to restart the track">
+				<input type="checkbox" id="confirmRestart">
+				<span>Confirm restart</span>
+			</label>
 			<label class="ripple" title="Toggle developer mode">
 				<input type="checkbox" id="developerMode">
 				<span>Developer mode</span>
@@ -82,28 +94,44 @@
 				<input type="checkbox" id="disableAnalytics">
 				<span>Disable analytics</span>
 			</label>
+			<label title="Use relative size for UI components">
+				<input type="checkbox" id="relativeUISize">
+				<span class="name">Relative UI size</span>
+			</label>
 			<label class="ripple" title="Cursor will be a point on the line">
 				<input type="checkbox" id="preciseEditorTools">
 				<span>Precise editor tools</span>
 			</label>
+			<label class="ripple" title="Draw steps on the race progress display">
+				<input type="checkbox" id="raceProgressSteps">
+				<span>Race progress steps</span>
+			</label>
 			<label title="Change the minimum length before lines break in a curve">
-				<span class="name">Curve Break Length (20)</span>
+				<span class="name" data-value="20">Curve Break Length</span>
 				<input type="range" class="override-pointer-events" id="curveBreakLength" min="2" max="300" value="20" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the number of points in a curve">
-				<span class="name">Curve Points (3)</span>
+				<span class="name" data-value="3">Curve Points</span>
 				<input type="range" class="override-pointer-events" id="curvePoints" min="3" max="10" value="3" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the size of the input display">
-				<span class="name">Input display size (5)</span>
+				<span class="name" data-value="5">Input display size</span>
 				<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="5" value="5" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the opacity of the input display">
-				<span class="name">Input display opacity (1)</span>
+				<span class="name" data-value="1">Input display opacity</span>
 				<input type="range" class="override-pointer-events" id="inputDisplayOpacity" min="0.1" max="1" value="1" step="0.1" style="width: -webkit-fill-available">
 			</label>
+			<label title="Change the maximum number of characters for the track code to be displayed in the export dialog">
+				<span class="name" data-value="400000">Export threshold</span>
+				<input type="range" class="override-pointer-events" id="exportThreshold" min="100000" max="1000000" value="400000" step="50000" style="width: -webkit-fill-available">
+			</label>
+			<label title="Change the minimum number of steps to draw on the race progress display">
+				<span class="name" data-value="1">Race progress min</span>
+				<input type="range" class="override-pointer-events" id="raceProgressMin" min="1" max="10" value="1" step="1" style="width: -webkit-fill-available">
+			</label>
 			<label title="Change the number of snaphsots shown on checkpoints">
-				<span class="name">Snapshot Count (10)</span>
+				<span class="name" data-value="10">Snapshot Count</span>
 				<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
 			</label>
 			<details data-type="experiments" style="display: none;">
@@ -111,6 +139,10 @@
 				<label class="ripple" title="Remove duplicate powerups">
 					<input type="checkbox" id="filterDuplicatePowerups">
 					<span class="name">Filter duplicates</span>
+				</label>
+				<label class="ripple" title="Display race author name and cosmetics">
+					<input type="checkbox" id="importRaceMetadata">
+					<span>Import race metadata</span>
 				</label>
 				<label class="disabled ripple" title="Draw a racing path and share it for others to follow">
 					<input type="checkbox" id="raceTrail">
@@ -120,6 +152,27 @@
 					<input type="checkbox" id="saveMultipleGhosts">
 					<span>Save multiple ghosts</span>
 				</label>
+				<label class="ripple" title="Indicate the general direction of the next target">
+					<input type="checkbox" id="targetCompass">
+					<span class="name">Target compass</span>
+				</label>
+				<details data-type="cosmetics">
+					<summary class="tab ripple">Custom Cosmetic Options</summary>
+					<label class="ripple" title="Equip any cosmetic">
+						<input type="checkbox" id="cosmetics.head">
+						<span class="name">Equip any head</span>
+					</label>
+					<dialog class="prompt">
+						<form>
+							<div class="option-wrapper">
+								<input type="text" id="skuid" placeholder="Item descriptor">
+								<div class="options"></div>
+							</div>
+							<button class="ripple" formmethod="dialog" value="default">Save</button>
+							<button class="ripple" formmethod="dialog" value="cancel">Cancel</button>
+						</form>
+					</dialog>
+				</details>
 			</details>
 			<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
 		</details>
@@ -149,8 +202,12 @@
 	</div>
 	<div class="details">
 		<input type="radio" name="nav" id="themes">
-		<label class="ripple">
+		<label class="ripple disabled" title="This option will switch between light and dark according to the time of day">
 			<input type="radio" name="theme" id="auto">
+			<span>Auto</span>
+		</label>
+		<label class="ripple">
+			<input type="radio" name="theme" id="system">
 			<span>System theme</span>
 		</label>
 		<label class="ripple">
@@ -173,25 +230,40 @@
 			<input type="radio" name="theme" id="custom">
 			<span>Custom</span>
 		</label>
-		<details data-type="experiments" style="display: none;">
-			<summary class="tab ripple">Experiments</summary>
+		<details>
+			<summary class="tab ripple">Custom Color Scheme</summary>
+			<label for="colorPalette.accentColor" class="focus ripple acuired-color" title="Customize your canvas">
+				<input type="checkbox" id="colorPalette.accentColor-visible"><input type="color" id="colorPalette.accentColor">
+				<span>Accent Color</span>
+			</label>
+			<label for="colorPalette.backgroundColor" class="focus ripple acuired-color" title="Customize your canvas">
+				<input type="checkbox" id="colorPalette.backgroundColor-visible"><input type="color" id="colorPalette.backgroundColor">
+				<span>Background Color</span>
+			</label>
+			<label for="colorPalette.physicsLineColor" class="focus ripple acuired-color" title="Customize solid line colour">
+				<input type="checkbox" id="colorPalette.physicsLineColor-visible"><input type="color" id="colorPalette.physicsLineColor">
+				<span>Solid Lines</span>
+			</label>
+			<label for="colorPalette.sceneryLineColor" class="focus ripple acuired-color" title="Customize background line colour">
+				<input type="checkbox" id="colorPalette.sceneryLineColor-visible"><input type="color" id="colorPalette.sceneryLineColor">
+				<span>Scenery Lines</span>
+			</label>
+		</details>
+		<details>
+			<summary class="tab ripple">Advanced options</summary>
 			<label title="Change the overall brightness of the game">
-				<span class="name">Brightness (100%)</span>
+				<span class="name percentage" data-value="100">Brightness</span>
 				<input type="range" class="override-pointer-events" id="brightness" min="1" max="100" value="100" style="width: -webkit-fill-available">
 			</label>
 			<details>
-				<summary class="tab ripple">Custom Color Scheme</summary>
-				<label for="colorPalette.backgroundColor" class="focus ripple" title="Customize your canvas" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="colorPalette.backgroundColor-visible"><input type="color" id="colorPalette.backgroundColor">
-					<span>Background Color</span>
+				<summary class="tab ripple">Day/Night shift</summary>
+				<label title="Change the number of points in a curve">
+					<span class="name" data-value="6">Sunrise</span>
+					<input type="range" class="override-pointer-events" id="curvePoints" min="5" max="8" value="6" style="width: -webkit-fill-available">
 				</label>
-				<label for="colorPalette.physicsLineColor" class="focus ripple" title="Customize solid line colour" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="colorPalette.physicsLineColor-visible"><input type="color" id="colorPalette.physicsLineColor">
-					<span>Solid Lines</span>
-				</label>
-				<label for="colorPalette.sceneryLineColor" class="focus ripple" title="Customize background line colour" style="background-color: hsl(0deg 0% 0% / 20%);mix-blend-mode: exclusion;">
-					<input type="checkbox" id="colorPalette.sceneryLineColor-visible"><input type="color" id="colorPalette.sceneryLineColor">
-					<span>Scenery Lines</span>
+				<label title="Change the number of points in a curve">
+					<span class="name" data-value="20">Sunset</span>
+					<input type="range" class="override-pointer-events" id="curvePoints" min="16" max="21" value="20" style="width: -webkit-fill-available">
 				</label>
 			</details>
 		</details>

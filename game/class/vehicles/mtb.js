@@ -2,11 +2,11 @@ import "../cosmetics/heads/head.js";
 import "../cosmetics/heads/forward_cap.js";
 
 import s from "../math/cartesian.js";
-import bike from "./bike.js";
+import Bike from "./bike.js";
 import n from "./mass.js";
 import a from "./wheel.js";
 
-export default class extends bike {
+export default class extends Bike {
 	vehicleName = "MTB";
 	constructor(t, e, i, s) {
 		super(t);
@@ -14,10 +14,9 @@ export default class extends bike {
 		this.createSprings();
 		this.updateCameraFocalPoint();
 		this.stopSounds();
-		-1 === i && this.swap();
+		-1 === i && this.swap()
 	}
 	createMasses(t, e) {
-		this.masses = [];
 		var i = new n(new s(t.x + 2, t.y + -38), this)
 		, r = new a(new s(t.x + 23, t.y), this)
 		, o = new a(new s(t.x + -23, t.y), this);
@@ -74,9 +73,9 @@ export default class extends bike {
 	}
 	drawBikeFrame(o, a = this.player._opacity) {
 		let t = this.scene
-		  , frontWheel = new s(this.frontWheel.pos.x, this.frontWheel.pos.y)
-		  , rearWheel = new s(this.rearWheel.pos.x, this.rearWheel.pos.y)
-		  , head = new s(this.head.pos.x, this.head.pos.y)
+		  , frontWheel = new s(this.frontWheel.displayPos.x, this.frontWheel.displayPos.y)
+		  , rearWheel = new s(this.rearWheel.displayPos.x, this.rearWheel.displayPos.y)
+		  , head = new s(this.head.displayPos.x, this.head.displayPos.y)
 		  , e = frontWheel.toScreen(t)
 		  , i = rearWheel.toScreen(t)
 		  , n = head.toScreen(t)
@@ -90,19 +89,14 @@ export default class extends bike {
 		l.factorSelf(this.dir),
 		i.addOut(c, c),
 		n.subOut(c, c),
-		o.globalAlpha = a,
-		o.strokeStyle = this.frontWheel.color || q,
-		o.lineWidth = 3 * r,
-		o.beginPath(),
+		super.drawBikeFrame(...arguments);
 		o.fillStyle = z + '33', // "rgba(200,200,200,0.2)",
-		o.arc(e.x, e.y, 12.5 * r, 0, 2 * Math.PI, !1),
-		o.fill(),
-		o.stroke(),
-		this.rearWheel.color && (o.strokeStyle = this.rearWheel.color),
-		o.beginPath(),
-		o.arc(i.x, i.y, 12.5 * r, 0, 2 * Math.PI, !1),
-		o.fill(),
-		o.stroke(),
+		this.frontWheel.draw(o),
+		this.frontWheel.fill || o.fill(),
+		this.frontWheel.stroke || o.stroke(),
+		this.rearWheel.draw(o),
+		this.rearWheel.fill || o.fill(),
+		this.rearWheel.stroke || o.stroke(),
 		o.strokeStyle = "rgba(128,128,128,0.8)", // "rgba(153, 153, 153,1)",
 		o.fillStyle = y, // "rgba(204, 204, 204,1)",
 		o.lineWidth = 1,
@@ -196,8 +190,8 @@ export default class extends bike {
 			let T = y.factor(.12);
 			T.x = v.x + T.x + c.x * (50 / w),
 			T.y = v.y + T.y + c.y * (50 / w);
-			z = q.padEnd(7, q.slice(1, 4));
-			o.strokeStyle = z + Math.min(255, Math.round(255 * .5 * a)).toString(16),
+			z = this.player && this.player.color || z,
+			o.strokeStyle = z + Math.min(255, Math.round(255 * .5 * a)).toString(16).padStart(Math.floor(z.length / 3), 0),
 			o.lineWidth = 6 * r,
 			o.beginPath(),
 			o.moveTo(v.x, v.y),

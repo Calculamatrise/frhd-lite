@@ -17,6 +17,7 @@ export default class {
 		this.game = i.scene.game,
 		this.scene = i.scene,
 		this.settings = this.game.settings,
+		this.settings.accentColor && (this.outline = this.settings.accentColor),
 		this.x = t,
 		this.y = e,
 		this.remove = !1
@@ -28,7 +29,7 @@ export default class {
 		let e = t.pos.x - this.x
 		  , i = t.pos.y - this.y
 		  , r = Math.sqrt(e ** 2 + i ** 2);
-		!this.hit && 26 > r && (this.hit = !0,
+		!this.hit && /* this.hitboxRadius */ 26 > r && (this.hit = !0,
 		this.sector.powerupCanvasDrawn = !1)
 	}
 	draw(t, e, i, s) {
@@ -62,13 +63,12 @@ export default class {
 	recache(t) {
 		this.setDirty(!1);
 		let e = this.constructor.cache.canvas
-		  , i = this.constructor.cache.width * t
-		  , s = this.constructor.cache.height * t
 		  , n = e.getContext('2d');
-		(e.width !== i || e.height !== s) && this.updateCache(n, t);
-		let r = e.width / 2
-		  , a = e.height / 2;
-		this.drawPowerup(n, t, r, a),
+		this.updateCache(n, t) || n.clearRect(0, 0, e.width, e.height);
+		let a = e.width / 2
+		  , r = e.height / 2;
+		n.clearRect(0, 0, e.width, e.height),
+		this.drawPowerup(n, t, a, r),
 		this.settings.developerMode && (n.beginPath(),
 		n.rect(0, 0, e.width, e.height),
 		n.strokeStyle = 'red',
@@ -87,9 +87,14 @@ export default class {
 	}
 	updateCache(t, e) {
 		let i = this.constructor.cache
-		  , s = i.canvas;
-		s.width = i.width * e,
-		s.height = i.height * e
+		  , s = i.canvas
+		  , n = i.width * e
+		  , r = i.height * e
+		  , a = n !== s.width
+		  , h = r !== s.height;
+		a && (s.width = n),
+		h && (s.height = r);
+		return a || h
 	}
 	static createCache(options, callback) {
 		let cache = Object.assign({

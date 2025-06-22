@@ -17,8 +17,8 @@ export default class extends GUI {
 			x: 6,
 			y: 32
 		}),
-		this.scene.game.settings.isCampaign && (this.container.y += 24),
-		this.maxRaces = this.scene.settings.mobile ? 3 : 10,
+		this.scene.settings.isCampaign && (this.container.y += 24),
+		this.scene.settings.mobile && (this.maxRaces = 3),
 		this.raceList = this.container.children
 	}
 	addRace(t, e) {
@@ -39,10 +39,10 @@ export default class extends GUI {
 			a.mobile ? u.x = e * this.mobileRaceXOffset : u.y = e * this.raceYOffset,
 			u.addChild(new Component({
 				background: r.color,
-				border: 'round',
+				borderRadius: '100%',
 				font: { size: 10 },
 				radius: 8,
-				text: r.d_name.charAt(0).toUpperCase(),
+				text: r.d_name.charAt(0).toUpperCase(), // r.d_name // add option for full name + add padding
 				textAlign: 'center'
 			})),
 			u.addChild(new Component({

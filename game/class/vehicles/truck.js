@@ -4,13 +4,9 @@ import r from "./spring.js";
 import Vehicle from "./vehicle.js";
 import h from "./wheel.js";
 
-let d = {
-	TRUCK_GROUND: "truck_idle"
-}
-
 export default class extends Vehicle {
+	static Sounds = { TruckGround: 'truck_idle' };
 	color = "#444";
-	pedala = 0;
 	swapped = !1;
 	vehicleName = "TRUCK";
 	constructor(t, e, i) {
@@ -19,10 +15,9 @@ export default class extends Vehicle {
 		this.createSprings();
 		this.stopSounds();
 		this.updateCameraFocalPoint();
-		-1 === i && this.swap();
+		-1 === i && this.swap()
 	}
 	createMasses(t) {
-		this.masses = [],
 		this.masses.push(new n(new s(t.x - 15,t.y + 7), this)),
 		this.masses.push(new n(new s(t.x + 15,t.y + 7), this)),
 		this.masses[0].friction = .1,
@@ -37,7 +32,6 @@ export default class extends Vehicle {
 		this.frontWheel = this.masses[3]
 	}
 	createSprings() {
-		this.springs = [];
 		let t = this.masses;
 		this.springs.push(new r(t[0],t[1],this)),
 		this.springs.push(new r(t[0],t[2],this)),
@@ -55,54 +49,41 @@ export default class extends Vehicle {
 	}
 	updateCameraFocalPoint() {}
 	fixedUpdate() {
-		if (this.crashed === !1 && (this.updateSound(),
-		this.control()),
-		this.explosion)
-			this.explosion.fixedUpdate();
-		else {
-			for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
-				t[i].fixedUpdate();
-			for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
-				s[r].fixedUpdate();
-			if (this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1),
-			this.slow === !1) {
-				this.crashed === !1 && this.control();
-				for (var i = e - 1; i >= 0; i--)
-					t[i].fixedUpdate();
-				for (var r = n - 1; r >= 0; r--)
-					s[r].fixedUpdate()
-			}
-			this.updateDrawHeadAngle(),
-			this.updateCameraFocalPoint()
-		}
-	}
-	update(progress) {
+		if (super.fixedUpdate()) return;
+		for (var t = this.springs, e = t.length, i = e - 1; i >= 0; i--)
+			t[i].fixedUpdate();
 		for (var s = this.masses, n = s.length, r = n - 1; r >= 0; r--)
 			s[r].fixedUpdate();
+		if (this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1),
+		this.slow === !1) {
+			this.crashed === !1 && this.control();
+			for (var i = e - 1; i >= 0; i--)
+				t[i].fixedUpdate();
+			for (var r = n - 1; r >= 0; r--)
+				s[r].fixedUpdate()
+		}
+		this.updateDrawHeadAngle(),
+		this.updateCameraFocalPoint()
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
 			let t = this.scene.sound;
 			if (this.rearWheel.contact) {
 				let e = Math.min(this.rearWheel.motor, 1);
-				t.play(d.TRUCK_GROUND, e)
+				t.play(this.constructor.Sounds.TruckGround, e)
 			} else if (this.frontWheel.contact) {
 				let e = Math.min(this.frontWheel.motor, 1);
-				t.play(d.TRUCK_GROUND, e)
+				t.play(this.constructor.Sounds.TruckGround, e)
 			} else
-				t.stop(d.TRUCK_GROUND)
+				t.stop(this.constructor.Sounds.TruckGround)
 		}
 	}
 	updateCameraFocalPoint() {
 		this.focalPoint = 1 === this.dir ? this.head : this.backMass
 	}
-	stopSounds() {
-		let t = this.scene.sound;
-		t.stop(d.TRUCK_GROUND)
-	}
 	updateDrawHeadAngle() {
-		let t = this.frontWheel.pos
-		  , e = this.rearWheel.pos
+		let t = this.frontWheel.displayPos
+		  , e = this.rearWheel.displayPos
 		  , i = t.x
 		  , s = t.y
 		  , n = e.x
@@ -140,42 +121,39 @@ export default class extends Vehicle {
 		c[5].rotate(l / 8)
 	}
 	draw(t) {
-		if (this.explosion)
-			this.explosion.draw(t, 1);
-		else {
-			if (this.scene.ticks > 0 && !this.player.isGhost()) {
-				if (!this.scene.state.playing) {
-					let e = window.lite.storage.get("snapshots");
-					if (e > 0) {
-						for (let i of this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
-							t.globalAlpha = e / 3e2 * this.player._checkpoints.indexOf(i) % 1,
-							this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
-						}
+		if (super.draw(...arguments)) return;
+		if (this.scene.ticks > 0 && !this.player.isGhost()) {
+			if (!this.scene.state.playing) {
+				let e = window.lite.storage.get("snapshots");
+				if (e > 0) {
+					for (let i of this.player._checkpoints.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+						t.globalAlpha = e / 3e2 * this.player._checkpoints.indexOf(i) % 1,
+						this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
+					}
 
-						for (let i of this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
-							t.globalAlpha = e / 3e2 * this.player._cache.indexOf(i) % 1,
-							this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
-						}
+					for (let i of this.player._cache.filter((i, s, n) => s > n.length - (e + 1) && i._tempVehicle)) {
+						t.globalAlpha = e / 3e2 * this.player._cache.indexOf(i) % 1,
+						this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(i._tempVehicle), {tire: this.tire}), t)
 					}
 				}
-
-				if (window.lite && lite.storage.get("playerTrail"))
-					for (let e of lite.snapshots.filter(t => t._tempVehicle)) {
-						t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1,
-						this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {tire: this.tire}), t)
-					}
 			}
 
-			if (t.imageSmoothingEnabled = !0,
-			t.mozImageSmoothingEnabled = !0,
-			t.webkitImageSmoothingEnabled = !0,
-			this.settings.developerMode)
-				for (let e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
-					e[s].draw();
-			t.globalAlpha = this.player._opacity,
-			this.drawTruck(t),
-			t.globalAlpha = 1
+			if (window.lite && lite.storage.get("playerTrail"))
+				for (let e of lite.snapshots.filter(t => t._tempVehicle)) {
+					t.globalAlpha = lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1,
+					this.drawTruck.call(Object.assign({}, this, { player: this.player, scene: this.scene }, JSON.parse(e._tempVehicle), {tire: this.tire}), t)
+				}
 		}
+
+		if (t.imageSmoothingEnabled = !0,
+		t.mozImageSmoothingEnabled = !0,
+		t.webkitImageSmoothingEnabled = !0,
+		this.settings.developerMode)
+			for (let e = this.masses, i = e.length, s = i - 1; s >= 0; s--)
+				e[s].draw();
+		t.globalAlpha = this.player._opacity,
+		this.drawTruck(t),
+		t.globalAlpha = 1
 	}
 	drawTruck(t) {
 		let e = this.scene
@@ -183,14 +161,14 @@ export default class extends Vehicle {
 		  , n = GameInventoryManager.getItem(this.cosmetics.head)
 		  , r = this.drawHeadAngle
 		  , o = this.dir
-		  , a = new s(this.frontWheel.pos.x, this.frontWheel.pos.y).toScreen(e)
-		  , h = new s(this.rearWheel.pos.x, this.rearWheel.pos.y).toScreen(e)
-		  , l = new s(this.head.pos.x, this.head.pos.y).toScreen(e)
-		  , c = new s(this.backMass.pos.x, this.backMass.pos.y).toScreen(e)
-		  , d = (this.backMass.pos.x - this.head.pos.x) * i
-		  , f = (this.backMass.pos.y - this.head.pos.y) * i
-		  , v = (.5 * (this.head.pos.x + this.backMass.pos.x) - .5 * (this.rearWheel.pos.x + this.frontWheel.pos.x)) * i
-		  , g = (.5 * (this.head.pos.y + this.backMass.pos.y) - .5 * (this.rearWheel.pos.y + this.frontWheel.pos.y)) * i
+		  , a = new s(this.frontWheel.displayPos.x, this.frontWheel.displayPos.y).toScreen(e)
+		  , h = new s(this.rearWheel.displayPos.x, this.rearWheel.displayPos.y).toScreen(e)
+		  , l = new s(this.head.displayPos.x, this.head.displayPos.y).toScreen(e)
+		  , c = new s(this.backMass.displayPos.x, this.backMass.displayPos.y).toScreen(e)
+		  , d = (this.backMass.displayPos.x - this.head.displayPos.x) * i
+		  , f = (this.backMass.displayPos.y - this.head.displayPos.y) * i
+		  , v = (.5 * (this.head.displayPos.x + this.backMass.displayPos.x) - .5 * (this.rearWheel.displayPos.x + this.frontWheel.displayPos.x)) * i
+		  , g = (.5 * (this.head.displayPos.y + this.backMass.displayPos.y) - .5 * (this.rearWheel.displayPos.y + this.frontWheel.displayPos.y)) * i
 		  , q = '#'.padEnd(7, /^(darker|midnight)$/.test(window.lite.storage.get('theme')) ? 'a' : lite.storage.get('theme') === 'dark' ? 'b' : '4');
 		t.lineWidth = 3 * i;
 		let m = c.x - l.x

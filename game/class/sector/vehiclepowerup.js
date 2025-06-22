@@ -1,7 +1,6 @@
-import Powerup from "./powerup.js";
+import Consumable from "./consumable.js";
 
-export default class extends Powerup {
-	hit = !1;
+export default class extends Consumable {
 	index = null;
 	prefix = 'V';
 	stack = [];
@@ -9,8 +8,7 @@ export default class extends Powerup {
 		super(s);
 		this.x = t;
 		this.y = e;
-		this.time = i;
-		this.id = Math.random().toString(36).slice(2);
+		this.time = i
 	}
 	draw(t, e, i, s) {
 		this.hit || super.draw(t, e, i, s)

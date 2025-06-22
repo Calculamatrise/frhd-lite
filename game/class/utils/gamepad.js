@@ -1,11 +1,8 @@
-import EventEmitter from "../EventEmitter.js";
-
-export default class extends EventEmitter {
+export default class extends EventTarget {
 	tickDownButtons = {};
 	previousTickDownButtons = {};
 	downButtons = {};
 	inactiveDownButtons = new Set();
-	paused = !1;
 	keymap = {};
 	records = {};
 	keysToRecord = null;
@@ -21,23 +18,18 @@ export default class extends EventEmitter {
 		Object.defineProperty(this, 'inactiveDownButtons', { enumerable: false })
 	}
 	listen() {
-		document.onkeydown = this.handleButtonDown.bind(this),
-		document.onkeyup = this.handleButtonUp.bind(this),
-		window.onblur = this.handleBlur.bind(this),
-		window.onfocus = this.handleFocus.bind(this)
+		document.onkeydown = this.handleButtonDown.bind(this);
+		document.onkeyup = this.handleButtonUp.bind(this);
+		window.addEventListener('blur', this._handleBlur = this.handleBlur.bind(this));
+		window.addEventListener('focus', this._handleFocus = this.handleFocus.bind(this))
 	}
 	unlisten() {
-		this.downButtons = {},
-		document.onkeydown = null,
-		document.onkeyup = null,
-		window.onblur = null,
-		window.onfocus = null
-	}
-	pause() {
-		this.paused = !0
-	}
-	unpause() {
-		this.paused = !1
+		document.onkeydown = null;
+		document.onkeyup = null;
+		window.removeEventListener('blur', this._handleBlur);
+		window.removeEventListener('focus', this._handleFocus);
+		this._handleBlur = null;
+		this._handleFocus = null
 	}
 	recordKeys(t) {
 		this.keysToRecord = t,
@@ -87,21 +79,24 @@ export default class extends EventEmitter {
 	}
 	setButtonUp(t) {
 		this.blurred = false;
+		const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Up', t));
+		if (defaultPrevented) return;
 		this.downButtons[t] && (this.onButtonUp && this.onButtonUp(t),
 		this.downButtons[t] = !1,
 		this.inactiveDownButtons.delete(t),
 		this.inactiveDownButtons.delete(t == 'left' ? 'right' : t == 'right' ? 'left' : null),
-		this.emit('buttonUp', t),
 		this.numberOfKeysDown--)
 	}
 	setButtonDown(t, e) {
 		this.blurred = false;
-		this.downButtons[t] || (this.onButtonDown && this.onButtonDown(t),
+		if (this.downButtons[t]) return;
+		const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Down', t));
+		if (defaultPrevented) return;
+		this.onButtonDown && this.onButtonDown(t),
 		this.downButtons[t] = e ? e : !0,
 		e = t == 'left' ? 'right' : t == 'right' ? 'left' : null,
 		e && this.downButtons[e] && this.inactiveDownButtons.add(e),
-		this.emit('buttonDown', t),
-		this.numberOfKeysDown++)
+		this.numberOfKeysDown++
 	}
 	isButtonDown(t) {
 		return this.tickDownButtons[t] > 0
@@ -130,9 +125,10 @@ export default class extends EventEmitter {
 		this.records = {}
 	}
 	update() {
-		this.replaying && this.updatePlayback()
+		this.replaying && this.updatePlayback();
 		!this.blurred && (this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
 		this.tickDownButtons = window.hasOwnProperty('lite') && lite.storage.get('inputRollover') && this.recording ? Object.fromEntries(Object.entries(this.downButtons).map(([key, value]) => [key, value && this.inactiveDownButtons.has(key) ? false : value])) : Object.assign({}, this.downButtons));
+		// console.log(this.downButtons, this.tickDownButtons)
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
 		this.recording && this.updateRecording()
 	}
@@ -200,20 +196,8 @@ export default class extends EventEmitter {
 		window.hasOwnProperty('lite') && lite.storage.get('showCustomizations') && Object.assign(this.records, lite._appendRecords());
 		return JSON.stringify(this.records)
 	}
-	encodeReplayString(t) {
-		let e = this.scene.settings
-		  , i = {
-				version: e.replayVersion
-			};
-		for (let s in t) {
-			let n = t[s];
-			i[s] = "";
-			for (let r in n) {
-				let o = n[r];
-				i[s] += o.toString(32) + " "
-			}
-		}
-		return i
+	encodeReplayString() {
+		return window.hasOwnProperty('lite') && lite.constructor.encodeReplayString(this.records, this.scene.settings)
 	}
 	close() {
 		this.unlisten(),
@@ -225,5 +209,32 @@ export default class extends EventEmitter {
 		this.keymap = null,
 		this.records = null,
 		this.keysToRecord = null
+	}
+	static createEvent(type, code) {
+		const key = typeof code == 'string' ? code : String.fromCharCode(code)
+			, keyCode = typeof code == 'number' ? code : code.charCodeAt();
+		return new KeyboardEvent(`button${type}`, {
+			key: key,
+			code,
+			keyCode,
+			bubbles: true,
+			cancelable: true
+		})
+	}
+	static decodeReplayString(t) {
+		let e = JSON.parse(atob(t));
+		let i = {
+			version: e.replayVersion ?? 1
+		};
+		for (let s in e) {
+			if (!/_(?:down|up)$/.test(s)) continue;
+			let n = e[s].split(" ");
+			i[s] = [];
+			for (let r in n) {
+				let o = n[r];
+				i[s].push(parseInt(o, 32))
+			}
+		}
+		return i
 	}
 }

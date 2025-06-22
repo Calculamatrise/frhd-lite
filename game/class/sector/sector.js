@@ -98,12 +98,37 @@ export default class {
 		}
 	}
 	createCanvas() {
-		this.canvas = this.canvasPool.getCanvas(),
-		this.canvas.width = this.drawSectorSize * this.scene.camera.zoom | 0,
-		this.canvas.height = this.drawSectorSize * this.scene.camera.zoom | 0,
+		if ('TrackRenderer' in window) {
+			this.canvas = document.createElement('canvas');
+			TrackRenderer.postMessage({
+				type: 'CREATE_SECTOR',
+				sector: {
+					column: this.column,
+					row: this.row,
+					size: this.drawSectorSize,
+					x: this.x,
+					y: this.y
+				},
+				physicsLines: this.physicsLines,
+				sceneryLines: this.sceneryLines,
+				settings: {
+					physicsLineColor: this.settings.physicsLineColor,
+					sceneryLineColor: this.settings.sceneryLineColor
+				},
+				zoom: this.scene.camera.zoom
+			});
+			return;
+		}
+
+		this.canvas = this.canvasPool.getCanvas();
+		let size = this.drawSectorSize * this.scene.camera.zoom | 0
+		  , cleared = this.canvas.width !== size || this.canvas.height !== size;
+		this.canvas.width = size,
+		this.canvas.height = size,
 		this.ctx = this.canvas.getContext("2d"),
 		this.ctx.lineCap = 'round',
-		this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5);
+		this.ctx.lineWidth = Math.max(2 * this.scene.camera.zoom, .5),
+		!cleared && this.ctx.clearRect(0, 0, size, size)
 	}
 	cleanSector() {
 		this.cleanSectorType("physicsLines"),
@@ -121,20 +146,39 @@ export default class {
 			i.splice(i.indexOf(n), 1)
 	}
 	draw() {
-		!this.canvas && this.createCanvas(),
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height),
-		this.ctx.beginPath(),
-		this.ctx.strokeStyle = this.settings.sceneryLineColor,
-		this.drawLines(this.sceneryLines, this.scene.camera.zoom, this.ctx),
-		this.ctx.stroke(),
-		this.ctx.beginPath(),
-		this.ctx.strokeStyle = this.settings.physicsLineColor,
-		this.drawLines(this.physicsLines, this.scene.camera.zoom, this.ctx),
-		this.ctx.stroke(),
-		this.settings.developerMode && (this.ctx.beginPath(),
-		this.ctx.strokeStyle = 'blue',
-		this.ctx.rect(0, 0, this.canvas.width, this.canvas.height),
-		this.ctx.stroke()),
+		!this.canvas && this.createCanvas();
+		if ('TrackRenderer' in window) {
+			TrackRenderer.postMessage({
+				type: 'CACHE_SECTOR',
+				sector: {
+					column: this.column,
+					row: this.row,
+					size: this.drawSectorSize,
+					x: this.x,
+					y: this.y
+				},
+				// physicsLines: this.physicsLines,
+				// sceneryLines: this.sceneryLines,
+				settings: {
+					physicsLineColor: this.settings.physicsLineColor,
+					sceneryLineColor: this.settings.sceneryLineColor
+				},
+				zoom: this.scene.camera.zoom
+			});
+		} else {
+			this.ctx.beginPath(),
+			this.ctx.strokeStyle = this.settings.sceneryLineColor,
+			this.drawLines(this.sceneryLines, this.scene.camera.zoom, this.ctx),
+			this.ctx.stroke(),
+			this.ctx.beginPath(),
+			this.ctx.strokeStyle = this.settings.physicsLineColor,
+			this.drawLines(this.physicsLines, this.scene.camera.zoom, this.ctx),
+			this.ctx.stroke(),
+			this.settings.developerMode && (this.ctx.beginPath(),
+			this.ctx.strokeStyle = 'blue',
+			this.ctx.rect(0, 0, this.canvas.width, this.canvas.height),
+			this.ctx.stroke());
+		}
 		this.drawn = !0
 	}
 	drawLine(t, e) {
@@ -171,7 +215,7 @@ export default class {
 	collide(t) {
 		let physicsLines = this.physicsLines.filter(item => !item.collided);
 		for (let n = physicsLines.length - 1; n >= 0; n--)
-			physicsLines[n].remove ? this.physicsLines.splice(this.physicsLines.indexOf(physicsLines[n]), 1) : physicsLines[n].collide(t)
+			physicsLines[n].remove ? this.physicsLines.splice(this.physicsLines.indexOf(physicsLines[n]), 1) : physicsLines[n].collide(t);
 		if (t.parent.powerupsEnabled) {
 			let i = t.parent.player
 			  , s = this.powerups.all.filter(item => -1 === i._powerupsConsumed.misc.indexOf(item.id));
@@ -181,11 +225,9 @@ export default class {
 		}
 	}
 	drawLines(t, e, i) {
-		for (let s in t) {
-			if (t[s].remove) t.splice(s, 1);
-			else i.moveTo((t[s].p1.x - this.x) * e, (t[s].p1.y - this.y) * e),
-			i.lineTo((t[s].p2.x - this.x) * e, (t[s].p2.y - this.y) * e)
-		}
+		for (const { p1: s, p2: n } of t)
+			i.moveTo((s.x - this.x) * e, (s.y - this.y) * e),
+			i.lineTo((n.x - this.x) * e, (n.y - this.y) * e)
 	}
 	drawPowerups(t, e, i) {
 		let n = t.reduce((e, i) => { // filter overlapping powerups
@@ -213,17 +255,21 @@ export default class {
 		}
 	}
 	drawBackground(ctx, e, i) {
-		ctx.beginPath(),
-		ctx.rect(0, 0, this.drawSectorSize * e | 0, this.drawSectorSize * e | 0),
 		ctx.fillStyle = i,
-		ctx.fill()
+		ctx.fillRect(0, 0, this.drawSectorSize * e | 0, this.drawSectorSize * e | 0)
 	}
 	clear() {
 		this.drawn = !1,
 		this.powerupCanvasDrawn = !1,
-		this.canvas && (this.canvasPool.releaseCanvas(this.canvas),
+		this.canvas && ('TrackRenderer' in window ? TrackRenderer.postMessage({
+			type: 'CLEAR_SECTOR',
+			sector: {
+				column: this.column,
+				row: this.row
+			}
+		}) : (this.canvasPool.releaseCanvas(this.canvas),
 		this.canvas = null,
-		this.ctx = null),
+		this.ctx = null)),
 		this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),
 		this.powerupCanvas = null)
 	}

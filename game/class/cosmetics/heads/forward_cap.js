@@ -16,12 +16,12 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		  , f = this.colors
 		  , r = Math.PI / 12;
 		l.scale(d, d),
-		l.strokeStyle = f.outline || lite.storage.get('theme') === 'darker' ? 'hsl(0, 0%, 100%)' : lite.storage.get('theme') === 'dark' ? 'hsl(0, 0%, 98%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 0%)',
+		l.strokeStyle = f.outline || window.lite && lite.storage.get('theme').startsWith('dark') ? 'hsl(0, 0%, 98%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(0, 0%, 80%)' : GameInventoryManager.HeadClass.Defaults.Outline,
 		l.lineCap = 'round',
 		l.lineJoin = 'miter',
 		l.lineWidth = 7,
 		l.miterLimit = 4,
-		l.fillStyle = f.skin || lite.storage.get('theme') === 'darker' ? 'hsl(231, 16%, 8%)' : lite.storage.get('theme') === 'dark' ? 'hsl(0, 0%, 11%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(207, 16%, 14%)' : 'hsl(0, 0%, 100%)',
+		l.fillStyle = f.skin || window.lite && lite.storage.get('theme') === 'darker' ? 'hsl(231, 16%, 8%)' : lite.storage.get('theme') === 'dark' ? 'hsl(0, 0%, 11%)' : lite.storage.get('theme') === 'midnight' ? 'hsl(207, 16%, 14%)' : GameInventoryManager.HeadClass.Defaults.Skin,
 		l.save(),
 		l.beginPath(),
 		l.arc(42.4, 52.5, 30.3 + l.lineWidth / 2, 0, 2 * Math.PI, !0),

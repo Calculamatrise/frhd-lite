@@ -23,7 +23,7 @@ export default class extends VehiclePowerup {
 			l.vehicleTimer.playerAddedTime(i)),
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
-			this.scene.message.show('Helicopter Powerup!', 50, '#F2902E', !1))
+			this.scene.message.show('Helicopter Powerup!', 50, '#F2902E'))
 		}
 	}
 	drawIcon(t, e) {
@@ -85,18 +85,18 @@ export default class extends VehiclePowerup {
 		t.bezierCurveTo(8.6, 9, 5, 12.6, 5, 17),
 		t.lineTo(21, 17),
 		t.closePath(),
-		t.fill()
+		t.fill(),
+		t.resetTransform()
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		let i = super.updateCache(t, e);
 		t.lineCap = 'butt',
 		t.lineJoin = 'miter',
 		t.lineWidth = 2,
 		t.miterLimit = 4,
-		t.strokeStyle = i;
-		t.fillStyle = i
+		t.strokeStyle = this.outline,
+		t.fillStyle = this.outline;
+		return i
 	}
 	static cache = this.createCache({
 		width: 26,

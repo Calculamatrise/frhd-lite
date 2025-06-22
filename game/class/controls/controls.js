@@ -1,7 +1,5 @@
 export default class {
-	defaultControlOptions = {
-		visible: !0
-	}
+	defaultControlOptions = { visible: !0 }
 	name = null;
 	controlsSpriteSheetData = {};
 	controlData = null;

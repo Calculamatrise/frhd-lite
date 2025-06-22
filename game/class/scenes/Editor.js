@@ -30,7 +30,7 @@ export default class extends BaseScene {
 				this.state.dialogOptions = {},
 				this.state.dialogOptions.code = e,
 				this.openDialog('import');
-				window.hasOwnProperty('lite') && lite.constructor.waitForElm('.importDialog-code', 1e3 / this.game.ups).then(importDialog => {
+				window.hasOwnProperty('lite') && lite.constructor.waitForElm('.importDialog-code', this.game.updateInterval).then(importDialog => {
 					importDialog.focus(),
 					importDialog.value = e
 				})
@@ -42,6 +42,19 @@ export default class extends BaseScene {
 	createMainPlayer() {
 		let i = super.createMainPlayer();
 		i.setKeyMap(this.settings.editorHotkeys)
+	}
+	buttonDown(t) {
+		t === 27 && (t === 'exit_fullscreen');
+		super.buttonDown(t);
+		let e = this.camera;
+		this.state.playing = !0;
+		switch (t) {
+		case "up":
+		case "down":
+		case "left":
+		case "right":
+			e.focusOnMainPlayer()		
+		}
 	}
 	createTrack() {
 		let t = super.createTrack()
@@ -71,7 +84,7 @@ export default class extends BaseScene {
 		this.pauseControls = new b(this)
 	}
 	redrawControls() {
-		super.redrawControls(),
+		this.pauseControls.redraw();
 		this.redoundoControls.redraw()
 	}
 	registerTools() {
@@ -90,23 +103,24 @@ export default class extends BaseScene {
 		this.state.playing = !0
 	}
 	interactWithControls() {
-		super.interactWithControls(),
+		this.pauseControls.click();
 		this.redoundoControls.click()
 	}
 	updateControls() {
-		super.updateControls(),
+		this.pauseControls.update();
 		this.redoundoControls.update()
 	}
-	fixedUpdate() {
-		this.updateToolHandler(),
-		this.mouse.update(),
-		this.state.showDialog || (this.playerManager.updateGamepads(),
-		this.playerManager.checkKeys()),
-		super.fixedUpdate(),
-		(this.importCode || this.clear) && this.createTrack()
+	update() {
+		super.update(...arguments);
+		this.updateControls()
+	}
+	lateUpdate() {
+		super.lateUpdate(...arguments);
+		this.clear && this.createTrack()
 	}
 	draw(ctx) {
-		super.draw(...arguments),
+		super.draw(...arguments);
+		this.pauseControls.draw(ctx);
 		this.redoundoControls.draw(ctx)
 	}
 	restart() {
@@ -122,30 +136,18 @@ export default class extends BaseScene {
 		this.camera.fastforward(),
 		this.score.update()
 	}
-	buttonDown(t) {
-		super.buttonDown(t);
-		let e = this.camera;
-		this.state.playing = !0;
-		switch (t) {
-		case "up":
-		case "down":
-		case "left":
-		case "right":
-			e.focusOnMainPlayer()
-		}
-	}
 	resize() {
 		this.pauseControls.resize(),
-		this.redoundoControls.resize(),
-		super.resize()
+		this.redoundoControls.resize()
 	}
 	updateState() {
-		let t = this.state;
+		let t = this.state
+		  , e = structuredClone(t);
 		t && (t.tool = this.toolHandler.currentTool,
 		t.toolOptions = this.toolHandler.getToolOptions(),
 		t.grid = this.toolHandler.options.grid,
 		t.cameraLocked = this.toolHandler.options.cameraLocked,
-		super.updateState())
+		super.updateState(e))
 	}
 	setStateDefaults() {
 		let t = super.setStateDefaults();
@@ -182,22 +184,25 @@ export default class extends BaseScene {
 		case "import":
 			break;
 		case "export":
-			setTimeout(this.getTrackCode.bind(this), 1e3 / this.game.ups);
+			setTimeout(this.getTrackCode.bind(this, true), this.game.updateInterval);
 			break;
 		case "upload":
-			"undefined" == typeof isChromeApp && setTimeout(this.getTrackCode.bind(this), 1e3 / this.game.ups)
+			"undefined" == typeof isChromeApp && setTimeout(this.getTrackCode.bind(this), this.game.updateInterval)
 		}
 	}
-	getTrackCode() {
+	getTrackCode(failIfTooLarge) {
 		this.state.dialogOptions = {},
-		this.state.dialogOptions.verified = this.verified,
-		this.state.dialogOptions.code = this.track.getCode()
+		this.state.dialogOptions.verified = this.verified;
+		let code = this.track.getCode()
+		  , threshold = (window.lite && lite.storage.get('exportThreshold')) ?? 4e5;
+		failIfTooLarge && code.length < threshold && (failIfTooLarge = false);
+		this.state.dialogOptions.code = failIfTooLarge ? "Track code too large to display" : code
 	}
 	trackComplete() {
 		this.verified = !this.track.dirty
 	}
-	hideControlPlanel() {}
-	showControlPlanel() {}
+	hideControlPanel() {}
+	showControlPanel() {}
 	command(t, ...e) {
 		super.command(...arguments);
 		switch (t) {

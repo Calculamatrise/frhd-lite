@@ -86,36 +86,6 @@ dialog {
 	color: red;
 }
 
-.loading {
-	-webkit-user-select: none;
-	color: transparent;
-	position: relative;
-	user-select: none;
-}
-
-.loading * {
-	visibility: hidden;
-}
-
-.loading::after {
-	animation: rotate 800ms cubic-bezier(.5, .5, .5, .5) infinite;
-	background-color: transparent;
-	border: 2px solid;
-	border-color: black !important;
-	border-bottom-color: transparent !important;
-	border-radius: 50%;
-	bottom: 0;
-	content: "";
-	height: 0;
-	left: 0;
-	margin: auto;
-	padding: 0.25rem;
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 0;
-}
-
 .success {
 	color: green;
 }

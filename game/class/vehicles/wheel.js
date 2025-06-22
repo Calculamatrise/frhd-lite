@@ -26,7 +26,18 @@ export default class extends Mass {
 		this.contact = !0
 	}
 	fixedUpdate() {
-		super.fixedUpdate(),
+		super.fixedUpdate();
 		this.rotationSpeed = .999 * this.rotationSpeed
+	}
+	draw(t) {
+		const e = this.displayPos.toScreen(this.scene)
+			, i = this.scene.camera.zoom;
+		// this.scene.settings.developerMode && super.draw(t);
+		t.beginPath(),
+		t.arc(e.x, e.y, this.radius * i - t.lineWidth / 2, 0, 2 * Math.PI, !1),
+		this.fill && (t.fillStyle = this.fill,
+		t.fill()),
+		this.stroke && (t.strokeStyle = this.stroke,
+		t.stroke())
 	}
 }

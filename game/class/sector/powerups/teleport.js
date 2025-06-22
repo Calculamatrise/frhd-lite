@@ -1,4 +1,4 @@
-import Consumable from "./consumable.js";
+import Consumable from "../consumable.js";
 
 export default class extends Consumable {
 	color = '#dd45ec';
@@ -35,14 +35,12 @@ export default class extends Consumable {
 		s.restore()
 	}
 	drawPowerup(t, e) {
-		let n = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (n = this.settings.physicsLineColor),
 		e *= this.constructor.cache.scale,
 		t.save(),
 		t.scale(e, e),
 		t.translate(2.6, 3),
 		t.fillStyle = this.color,
-		t.strokeStyle = n,
+		t.strokeStyle = this.outline,
 		t.lineWidth = 5,
 		t.beginPath(),
 		t.moveTo(23.9052288, 5.91261647),

@@ -2,13 +2,9 @@ import Powerup from "../powerup.js";
 
 export default class extends Powerup {
 	color = '#08faf3';
+	hitboxRadius = Math.sqrt(1e3);
 	name = 'antigravity';
 	prefix = 'A';
-	constructor(t, e, i) {
-		super(i);
-		this.x = t;
-		this.y = e;
-	}
 	collide(t) {
 		let e = t.parent
 		  , i = e.player
@@ -52,15 +48,15 @@ export default class extends Powerup {
 		t.lineWidth = 5,
 		t.stroke(),
 		t.lineWidth = i,
-        t.fill()
+		t.fill(),
+		t.resetTransform()
 	}
 	updateCache(t, e) {
-		super.updateCache(t, e);
-		let i = this.outline;
-		/^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) && (i = this.settings.physicsLineColor),
+		let i = super.updateCache(t, e);
 		t.fillStyle = this.color,
-		t.strokeStyle = i,
-		t.lineWidth = 3
+		t.strokeStyle = this.outline,
+		t.lineWidth = 3;
+		return i
 	}
 	static cache = this.createCache({ scale: .5 })
 }

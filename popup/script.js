@@ -49,66 +49,86 @@ resetSettings.addEventListener('click', () => {
 for (const item in defaults) {
 	let element = document.getElementById(item);
 	switch (item) {
-	case 'bikeFrameColor':
-	case 'bikeTireColor':
-		element.parentElement.addEventListener('focusout', event => event.target.removeAttribute('tabindex'), { passive: true });
-		element.addEventListener('click', event => {
-			let t = event.target;
-			if (t.parentElement.hasAttribute('tabindex')) {
-				event.preventDefault();
-				t.parentElement.removeAttribute('tabindex');
-				return;
-			}
-
-			t.parentElement.setAttribute('tabindex', '0'),
-			t.parentElement.focus()
-		});
-		let checkbox = document.getElementById(element.id + '-visible');
-		element.parentElement.addEventListener('contextmenu', event => {
-			event.preventDefault(),
-			checkbox.checked = !1,
-			chrome.storage.proxy.local.settings.set(item, null)
-		});
-		element.addEventListener('input', event => {
-			chrome.storage.proxy.local.settings.set(item, event.target.value),
-			checkbox.checked = event.target.value !== '#000000'
-		}, { passive: true });
-		break;
-	case 'brightness':
-	case 'curveBreakLength':
-	case 'curvePoints':
-	case 'inputDisplayOpacity':
-	case 'inputDisplaySize':
-	case 'snapshots':
-		element.addEventListener('input', event => {
-			chrome.storage.proxy.local.settings.set(item, parseFloat(event.target.value) || 0)
-		}, { passive: true });
-		break;
 	case 'colorPalette':
 		for (let element of document.querySelectorAll('[id^=' + item + ']:not([id$=-visible])')) {
-			element.parentElement.addEventListener('focusout', event => event.target.removeAttribute('tabindex'), { passive: true });
-			element.addEventListener('click', event => {
-				let t = event.target;
-				if (t.parentElement.hasAttribute('tabindex')) {
-					event.preventDefault(),
-					t.parentElement.removeAttribute('tabindex');
-					return;
-				}
+			integrateLabelShortcut.call(element);
+		}
+		break;
+	case 'cosmetics':
+		let dialog = document.querySelector('dialog.prompt')
+		  , skuInput = dialog.querySelector('input[type="text"]#skuid')
+		  , dropdown = dialog.querySelector('.options')
+		  , cosmetics;
+		  skuInput.addEventListener('input', async () => {
+			cosmetics || (cosmetics = await fetchCosmeticSkus());
+			dropdown.replaceChildren(...cosmetics
+				.filter(sku => sku.toLowerCase().includes(skuInput.value.toLowerCase()))
+				.sort((a, b) => {
+					if (a.toLowerCase().indexOf(skuInput.value.toLowerCase()) > b.toLowerCase().indexOf(skuInput.value.toLowerCase())) {
+						return 1;
+					} else if (a.toLowerCase().indexOf(skuInput.value.toLowerCase()) < b.toLowerCase().indexOf(skuInput.value.toLowerCase())) {
+						return -1;
+					}
 
-				t.parentElement.setAttribute('tabindex', '0'),
-				t.parentElement.focus()
+					return a > b ? 1 : -1;
+				})
+				.slice(0, 15)
+				.map(sku => {
+					let element = document.createElement('button');
+					element.classList.add('ripple'),
+					element.style.setProperty('min-height', 'min-content'),
+					element.style.setProperty('text-align', 'left'),
+					element.innerText = sku.replace(/_/g, ' ').replace(/(?<!\w)\w/g, c => c.toUpperCase()),
+					element.addEventListener('click', event => {
+						event.preventDefault(),
+						event.stopPropagation(),
+						event.stopImmediatePropagation(),
+						skuInput.value = sku,
+						dropdown.replaceChildren()
+					});
+					return element
+				})
+			)
+		}),
+		dialog.addEventListener('close', ({ target }) => {
+			switch (target.returnValue) {
+			case 'cancel':
+				return;
+			default:
+				chrome.storage.proxy.local.settings[item].set('head', skuInput.value),
+				skuInput.value = null
+			}
+		});
+		for (let element of document.querySelectorAll('[id^=' + item + ']')) {
+			element.addEventListener('change', async ({ target }) => target.checked || (delete target.dataset.sku,
+			chrome.storage.proxy.local.settings[item].delete(target.id.replace(/.+\./g, '')),
+			chrome.storage.proxy.local.settings[item].set('options', {}),
+			chrome.storage.proxy.local.settings[item].delete('options')), { passive: true }),
+			element.addEventListener('click', async event => {
+				if (!event.target.checked) return;
+				event.preventDefault();
+				// dialog.showModal();
+				let value = event.target.checked || null;
+				while (value === true) {
+					let sku = prompt('Enter item SKU id:');
+					if (sku === null) return;
+					sku = sku.toLowerCase().replace(/\s+/g, '_');
+					await fetch('https://cdn.kanoapps.com/free_rider_hd/assets/inventory/head/scripts/v5/' + sku + '.js').then(r => {
+						if (!r.ok || r.status >= 400) return;
+						value = sku,
+						event.target.dataset.sku = sku,
+						event.target.checked = true;
+						return r.text().then(t => {
+							let variable = t.match(/\w+(?==this\.colors)/g);
+							if (!variable) return;
+							let options = t.match(new RegExp('(?<=' + variable + '\\.)\\w+', 'g'));
+							options && (options = Array.from(new Set(options))) || (options = []);
+							chrome.storage.proxy.local.settings[item].set('options', Object.fromEntries(options.map(opt => [opt, null])))
+						})
+					})
+				}
+				chrome.storage.proxy.local.settings[item].set(event.target.id.replace(/.+\./g, ''), value)
 			});
-			let checkbox = document.getElementById(element.id + '-visible');
-			element.parentElement.addEventListener('contextmenu', event => {
-				event.preventDefault(),
-				checkbox.checked = !1,
-				chrome.storage.proxy.local.settings[item].set(element.id.replace(/.+\./g, ''), null)
-			});
-			element.addEventListener('input', event => {
-				console.log(chrome.storage.proxy.local.settings[item], element.id.replace(/.+\./g, ''), event.target.value)
-				chrome.storage.proxy.local.settings[item].set(element.id.replace(/.+\./g, ''), event.target.value),
-				checkbox.checked = event.target.value !== '#000000'
-			}, { passive: true });
 		}
 		break;
 	case 'filterDuplicatePowerups':
@@ -120,7 +140,7 @@ for (const item in defaults) {
 			}
 			chrome.storage.proxy.local.settings.set(event.target.id, event.target.checked)
 		});
-		break;
+		continue;
 	case 'keymap':
 		let action = document.querySelector('#keybind-action');
 		action && action.addEventListener('change', event => {
@@ -141,18 +161,39 @@ for (const item in defaults) {
 		for (const theme of document.querySelectorAll("input[name='theme']"))
 			theme.addEventListener('input', function() {
 				chrome.storage.proxy.local.settings.set(item, this.id)
-			}, { passive: true });
-		break;
-	default:
-		element && element.type === 'checkbox' && element.addEventListener('change', ({ target }) => {
+			}, { passive: true })
+	}
+	if (!element) continue;
+	switch (element.type.toLowerCase()) {
+	case 'checkbox':
+		element.addEventListener('change', ({ target }) => {
 			chrome.storage.proxy.local.settings.set(target.id, target.checked)
+		}, { passive: true });
+		break;
+	case 'color':
+		integrateLabelShortcut.call(element);
+		break;
+	case 'range':
+		element.addEventListener('input', event => {
+			chrome.storage.proxy.local.settings.set(item, parseFloat(event.target.value) || 0)
 		}, { passive: true })
 	}
 }
 
+const rippleCache = new WeakMap();
 document.documentElement.addEventListener('pointerdown', function (event) {
-	this.style.setProperty('--offsetX', event.offsetX),
-	this.style.setProperty('--offsetY', event.offsetY)
+	event.target.style.setProperty('--offsetX', event.offsetX);
+	event.target.style.setProperty('--offsetY', event.offsetY);
+	rippleCache.has(event.target) && clearTimeout(rippleCache.get(event.target));
+	const timeout = setTimeout(() => {
+		event.target.style.removeProperty('--offsetX', event.offsetX);
+		event.target.style.removeProperty('--offsetY', event.offsetY);
+		event.target.style.length === 0 && event.target.removeAttribute('style');
+		rippleCache.delete(event.target)
+	}, 1e3);
+	rippleCache.set(event.target, timeout)
+	// this.style.setProperty('--offsetX', event.offsetX);
+	// this.style.setProperty('--offsetY', event.offsetY)
 });
 
 function setState(enabled) {
@@ -164,27 +205,58 @@ function restoreSettings(data) {
 	for (const item in data) {
 		let element = document.getElementById(item);
 		switch (item) {
-		case 'bikeFrameColor':
-		case 'bikeTireColor':
-			element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
-			element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
-			break;
 		case 'colorPalette':
 			for (let property in data[item]) {
 				element = document.getElementById(item + '.' + property);
-				element.parentElement.style.setProperty('background-color', (element.value = data[item][property] || '#000000') + '33');
-				element.value !== '#000000' && (element = document.getElementById(item + '.' + property + '-visible')) && (element.checked = true);
+				element && (element.parentElement.style.setProperty('background-color', (element.value = data[item][property] || '#000000') + '33'),
+				element.value !== '#000000' && (element = document.getElementById(item + '.' + property + '-visible')) && (element.checked = true));
 			}
 			break;
-		case 'curveBreakLength':
-		case 'curvePoints':
+		case 'cosmetics':
+			for (let property in data[item]) {
+				switch (property) {
+				case 'options':
+					if (Object.keys(data[item][property]).length < 1) {
+						for (let element of document.querySelectorAll('[for^="' + item + '.' + property + '."]')) {
+							element.remove();
+						}
+						break;
+					}
+					let parentElement = document.querySelector('details[data-type="cosmetics"]');
+					for (let option in data[item][property]) {
+						let id = item + '.' + property + '.' + option;
+						if (!(element = document.getElementById(id))) {
+							let colorLabel = document.querySelector('label:has(> input[type="color"])');
+							element = parentElement.appendChild(colorLabel.cloneNode(true)),
+							element.style.setProperty('background-color', 'hsl(0deg 0% 0% / 20%)'),
+							element.setAttribute('for', id);
+							let checkbox = element.querySelector('input[type="checkbox"]');
+							checkbox.setAttribute('id', id + '-visible'),
+							checkbox.checked = false;
+							let input = element.querySelector('input[type="color"]');
+							input.setAttribute('id', id),
+							input.value = null;
+							let label = element.querySelector('span');
+							label.textContent = option.replace(/^\w/, c => c.toUpperCase()) + ' colour',
+							element = input,
+							integrateLabelShortcut.call(element)
+						}
+
+						element && (element.parentElement.style.setProperty('background-color', (element.value = data[item][property][option] || '#000000') + '33'),
+						element.value !== '#000000' && (element = document.getElementById(id + '-visible')) && (element.checked = true))
+					}
+					break;
+				default:
+					element = document.getElementById(item + '.' + property),
+					element && (element.dataset.sku = data[item][property],
+					element.checked = true)
+				}
+			}
+			break;
 		case 'inputDisplayOpacity':
 		case 'inputDisplaySize':
-			element.parentElement.classList[data.inputDisplay ? 'remove' : 'add']('disabled');
-		case 'brightness':
-			element.value = data[item];
-			var name = element.parentElement.querySelector('.name');
-			name.textContent = name.textContent.replace(/(?<=\()[\d\.]+(%)?(?=\))/, element.value + '$1');
+		case 'raceProgressMin':
+			element.parentElement.classList[data[item.replace(/[A-Z][^A-Z]+$/, '')] ? 'remove' : 'add']('disabled');
 			break;
 		case 'keymap':
 			var action = document.querySelector('#keybind-action')
@@ -218,20 +290,77 @@ function restoreSettings(data) {
 				return wrapper;
 			}));
 			break;
-		case 'snapshots':
-			element.value = data[item];
-			element.parentElement.classList[data.playerTrail ? 'remove' : 'add']('disabled');
-			element.parentElement.querySelector(".name").innerText = `Snapshot count (${element.value})`;
-			break;
 		case 'theme':
 			(element = document.getElementById(data[item])) && (element.checked = true);
-			break;
+			continue;
 		case 'developerMode':
 			for (let dropdown of document.querySelectorAll('[data-type="experiments"]')) {
 				dropdown.style[(data[item] ? 'remove' : 'set') + 'Property']('display', 'none');
 			}
-		default:
-			element && element.type === 'checkbox' && (element.checked = data[item])
+		}
+		if (!element) continue;
+		switch (element.type.toLowerCase()) {
+		case 'checkbox':
+			element.checked = data[item];
+			break;
+		case 'color':
+			element.parentElement.style.setProperty('background-color', (element.value = data[item] || '#000000') + '33');
+			element.value !== '#000000' && (element = document.querySelector(`#${item}-visible`)) && (element.checked = true);
+			break;
+		case 'range':
+			element.value = data[item];
+			var name = element.parentElement.querySelector('.name');
+			name.dataset.value = element.value
 		}
 	}
+}
+
+async function fetchCosmeticSkus({ cache = true, force } = {}) {
+	let entry = chrome.storage.proxy.session.get('cosmeticSkus');
+	if (entry && !force) {
+		return entry
+	}
+
+	entry = await fetch("https://cdn.kanoapps.com/free_rider_hd/assets/styles/combined/gui/combined.min.120.16.32.45.css")
+	.then(r => r.text())
+	.then(t => t.match(/(?<=head_icons_\d+\.head_icons_\d+-)\w+/g));
+	cache && chrome.storage.proxy.session.set('cosmeticSkus', entry);
+	return entry 
+}
+
+function integrateLabelShortcut() {
+	this.parentElement.addEventListener('focusout', ({ target }) => target.removeAttribute('tabindex'), { passive: true }),
+	this.addEventListener('click', event => {
+		let t = event.target;
+		if (t.parentElement.hasAttribute('tabindex')) {
+			event.preventDefault();
+			t.parentElement.removeAttribute('tabindex');
+			return;
+		}
+
+		t.parentElement.setAttribute('tabindex', '0'),
+		t.parentElement.focus()
+	});
+	let checkbox = this.parentElement.querySelector('input[type="checkbox"]');
+	this.parentElement.addEventListener('contextmenu', event => {
+		event.preventDefault();
+		let object = chrome.storage.proxy.local.settings
+		, subtree = this.id.split('.')
+		, id = subtree.pop();
+		while (subtree.length > 0) {
+			object = object[subtree.shift()];
+		}
+		object.delete(id),
+		checkbox.checked = !1
+	}),
+	this.addEventListener('input', ({ target }) => {
+		let object = chrome.storage.proxy.local.settings
+		, subtree = target.id.split('.')
+		, id = subtree.pop();
+		while (subtree.length > 0) {
+			object = object[subtree.shift()];
+		}
+		object.set(id, target.value),
+		checkbox.checked = !0
+	}, { passive: true })
 }

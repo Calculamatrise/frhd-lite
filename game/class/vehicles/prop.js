@@ -3,12 +3,8 @@ import Mass from "./mass.js";
 
 export default class extends Mass {
 	motor = 0;
-	angle = null;
+	angle = new s;
 	speed = 0;
-	constructor(t, e) {
-		super(t, e);
-		this.angle = new s(0, 0);
-	}
 	fixedUpdate() {
 		let t = this.vel
 		  , e = this.angle
@@ -19,7 +15,11 @@ export default class extends Mass {
 		i.inc(t.factor(.99)),
 		this.contact = !1,
 		this.collide && this.scene.track.collide(this),
-		this.vel = i.sub(s),
+		this.vel.equ(i.sub(s)),
+		this.lastFixedPos.recorded && (this.lastFixedPos.equ(s),
+		this.lastFixedPos.recorded = false,
+		this.lastFixedPos.rendered = false,
+		this.lastTime = 0),
 		s.equ(i)
 	}
 }

@@ -1,8 +1,8 @@
-import Vector from "../math/cartesian.js";
+import Vector2 from "../math/cartesian.js";
 
 export default class {
-	size = null;
-	center = null;
+	center = new Vector2;
+	size = new Vector2;
 	width = 0;
 	height = 0;
 	constructor(t) {
@@ -10,8 +10,6 @@ export default class {
 			scene: { value: t, writable: true },
 			game: { value: t.game, writable: true }
 		});
-		this.size = new Vector(0, 0);
-		this.center = new Vector(0, 0);
 		this.setScreen()
 	}
 	setScreen() {

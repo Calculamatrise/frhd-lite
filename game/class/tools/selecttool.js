@@ -106,15 +106,15 @@ export default class Select extends Tool {
 		case "=":
 		case "+":
 			this.travelDistance++;
-			this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
+			this.scene.message.show("Increased travel distance for the Select Tool - " + this.travelDistance, !1);
 			break;
 		case "-":
 			this.travelDistance--;
-			this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1, "#000", "#FFF");
+			this.scene.message.show("Decreased travel distance for the Select Tool - " + this.travelDistance, !1);
 			break;
 		case "c":
 			this.copyAndPasteSelected(e.key),
-			this.scene.message.show("Copied selected area", !1, "#000000", "#FFFFFF");
+			this.scene.message.show("Copied selected area", !1);
 			break;
 		case "Delete":
 			this.selectedElements.length > 0 && this.toolhandler.addActionToTimeline({
@@ -125,16 +125,16 @@ export default class Select extends Tool {
 				t.removeAllReferences()
 			}
 			this.reset();
-			this.scene.message.show("Deleted selected area", !1, "#000", "#FFF");
+			this.scene.message.show("Deleted selected area", !1);
 			break;
 		case "f":
 			if (confirm("Are you sure you would you like to fill the selected area?"))
 				this.fillSelected(),
-				this.scene.message.show("Filled selected area", !1, "#000", "#FFF");
+				this.scene.message.show("Filled selected area", !1);
 			break;
 		case "r":
 			this.rotateSelected(),
-			this.scene.message.show("Rotated selected area", !1, "#000", "#FFF");
+			this.scene.message.show("Rotated selected area", !1);
 			break;
 		case "`":
 		case "Escape":

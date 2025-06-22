@@ -1,15 +1,14 @@
-import Consumable from "./consumable.js";
+import Consumable from "../consumable.js";
 
 export default class extends Consumable {
 	color = '#FAE335';
 	name = "goal";
 	prefix = 'T';
 	cacheStar(t) {
-		let e = this.constructor.cache.canvas;
-		e.width = this.constructor.cache.width * t,
-		e.height = this.constructor.cache.height * t;
-		let i = e.getContext('2d')
-		  , s = e.width / 2
+		let e = this.constructor.cache.canvas
+		  , i = e.getContext('2d');
+		this.updateCache(i, t) || i.clearRect(0, 0, e.width, e.height);
+		let s = e.width / 2
 		  , n = e.height / 2;
 		this.drawStar(s, n, 5, 10, 5, !0, t, i),
 		this.settings.developerMode && (i.beginPath(),
@@ -48,7 +47,8 @@ export default class extends Consumable {
 			this.sector.powerupCanvasDrawn = !1,
 			l.sound.play('goal_sound'),
 			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666')),
-			c >= u && (i.complete = !0);
+			c >= u && (i.complete = !0),
+			this.game.emit('targetCollect', this, i);
 			if (i.isGhost()) {
 				let raceTime = this.scene.raceTimes.container.children.find(({ data }) => data.user.u_id === i._user.u_id);
 				if (raceTime && raceTime.children.length > 0) {
@@ -90,9 +90,9 @@ export default class extends Consumable {
 		a.lineTo(t, e - s),
 		a.closePath(),
 		a.lineWidth = Math.max(2 * o, 1),
-		a.strokeStyle = /^(dark(er)?|midnight)$/i.test(lite.storage.get('theme')) ? '#FBFBFB' : this.outline,
+		a.strokeStyle = this.outline,
 		a.stroke(),
-		a.fillStyle = r ? this.color : '#FFFFFF',
+		a.fillStyle = r ? this.color : this.game.canvas?.computedStyleMap().get('background-color')?.toString() || '#FFFFFF',
 		a.fill()
 	}
 	recache(t) {
