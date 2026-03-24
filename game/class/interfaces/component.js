@@ -1,9 +1,10 @@
 export default class {
+	_cachedRect = null;
+	_layoutDirty = true;
 	actualHeight = 0;
 	actualWidth = 0;
-	alpha = null;
+	alpha = 1;
 	aspectRatio = null;
-	aspectRatioLock = !1;
 	background = null;
 	cached = !1;
 	canvas = null;
@@ -27,8 +28,8 @@ export default class {
 	 * @param {object} [options]
 	 * @param {number} [options.alpha]
 	 * @param {number} [options.aspectRatio]
-	 * @param {boolean} [options.aspectRatioLock]
 	 * @param {string} [options.background] Hexadecimal colour value
+	 * @param {string} [options.borderColor] Hexadecimal colour value
 	 * @param {string} [options.color] Hexadecimal colour value
 	 * @param {object} [options.font] Font properties
 	 * @param {string} [options.font.family]
@@ -42,51 +43,52 @@ export default class {
 	 * @param {(number|string)} [options.width]
 	 * @param {number|string} [options.x]
 	 * @param {number|string} [options.y]
+	 * @param {Container} [container]
 	 */
-	constructor(options, container) {
-		Object.defineProperty(this, 'cached', { enumerable: false }),
-		Object.defineProperty(this, 'canvas', { enumerable: false }),
-		Object.defineProperty(this, 'container', { enumerable: false }),
-		Object.defineProperty(this, 'data', { value: null, writable: true }),
-		Object.assign(this, options),
-		container && container.addChild(this)
-	}
-	_calculateInheritance(t) {
-		self = this;
-		let e = self[t];
-		switch (t) {
-		// case 'width':
-		case 'x':
-			t = 'actualWidth';
-			break;
-		// case 'height':
-		case 'y':
-			t = 'actualHeight'
+	constructor(options = null, container = null) {
+		Object.defineProperties(this, {
+			cached: { enumerable: false },
+			canvas: { enumerable: false },
+			container: { enumerable: false },
+			data: { value: null, writable: true }
+		});
+		if (options instanceof Object) {
+			for (const key in options) {
+				if (!Object.hasOwn(this, key)) continue;
+				this[key] = options[key];
+			}
 		}
-		let i;
-		while (/^\d+%/.test(e)) {
-			self = self.container,
-			i = (self && self[t]) ?? 0;
-			// e = Math.floor(eval(e.replace(/\d+%/, i * (parseFloat(e) / 100))));
-			e = Math.floor(i * (parseFloat(e) / 100));
-		}
-		return e ?? 0
+		this.setParent(container)
 	}
-	_calculateScale(t) {
-		self = this;
-		let e = self.scale[t];
-		while (self = self.container)
-			e *= self.scale[t];
-		return e ?? 1
+	_calculateInheritance(property) {
+		let component = this
+		  , value = component[property]
+		  , base;
+
+		switch (property) {
+		case 'x': base = component.actualWidth; break;
+		case 'y': base = component.actualHeight; break;
+		default: base = component.container?.['actual' + this.constructor._capitalize(property)] ?? 0
+		}
+
+		while (typeof value === 'string' && /\d+%/.test(value)) {
+			component = component.container;
+			base = component?.['actual' + this.constructor._capitalize(property)] ?? 0;
+			value = this.constructor.parsePropertyValue(value, base)
+		}
+
+		return parseFloat(value) || 0
+	}
+	_calculateScale(axis) {
+		const scale = this.constructor.inheritScale(this);
+		return scale[axis] ?? 1
 	}
 	_calculateRelativeFontSize({ height, initial, max, min, padding, width } = {}) {
-		let t = new OffscreenCanvas(1, 1).getContext('2d')
-		  , e = this._inherit('font')
+		let e = this.getProperty('font')
 		  , i = initial ?? 16
 		  , s;
 		while (!s || (isFinite(height) && s.actualHeight > (height - (padding ?? height * .1))) || (isFinite(width) && s.actualWidth > (width - (padding ?? width * .1)))) {
-			t.font = i-- * this.scale.y + 'px ' + (e.family || 'helsinki');
-			s = t.measureText(this.text),
+			s = this.constructor.measureText(this.text, i-- * this.scale.y + 'px ' + (e.family || 'helsinki')),
 			// s.actualHeight = s.actualBoundingBoxAscent + s.actualBoundingBoxDescent,
 			// s.actualWidth = s.actualBoundingBoxLeft + s.actualBoundingBoxRight,
 			s.actualHeight = s.fontBoundingBoxAscent + s.fontBoundingBoxDescent,
@@ -100,11 +102,9 @@ export default class {
 		return i
 	}
 	_calculateTextMetrics() {
-		let t = new OffscreenCanvas(1, 1).getContext('2d')
-		  , e = Object.assign({}, this._inherit('font'));
+		let e = Object.assign({}, this.getProperty('font'));
 		e.size ??= this._calculateRelativeFontSize(...arguments);
-		t.font = e.size * this.scale.y + 'px ' + (e.family || 'helsinki'),
-		e = Object.assign(t.measureText(this.text), e),
+		e = Object.assign(this.constructor.measureText(this.text, e.size * this.scale.y + 'px ' + (e.family || 'helsinki')), e),
 		// e.actualHeight = e.actualBoundingBoxAscent + e.actualBoundingBoxDescent;
 		e.actualHeight = e.fontBoundingBoxAscent + e.fontBoundingBoxDescent,
 		e.actualWidth = e.actualBoundingBoxLeft + e.actualBoundingBoxRight;
@@ -113,7 +113,7 @@ export default class {
 		// e.actualHeight += 2;
 		return e
 	}
-	_caclulateActual(property) {
+	_calculateActual(property) {
 		let initial = this._calculateInheritance(property);
 		let t = this.radius ?? this.size;
 		t && (t = Math.round(2 * (parseFloat(t) || 0)),
@@ -121,16 +121,22 @@ export default class {
 		this.text && (t = this._calculateTextMetrics({ [property]: initial }),
 		initial = Math.max(initial, Math.ceil(t['actual' + property.replace(/^\w/, c => c.toUpperCase())]))),
 		this.padding && (initial += 2 * this.padding),
-		/^\d+%.+/.test(this[property]) && (initial = Math.floor(eval(this[property].replace(/\d+%/, initial))));
+		typeof this[property] == 'string' && (initial = this.constructor.parsePropertyValue(this[property], initial));
 		return Math.floor(initial * this._calculateScale(property === 'height' ? 'y' : 'x'))
 	}
 	_getBoundingClientRect() {
-		let x = this._calculateInheritance('x') * this._calculateScale('x')
-		  , y = this._calculateInheritance('y') * this._calculateScale('y')
-		  , width = this._caclulateActual('width')
-		  , height = this._caclulateActual('height');
-		this.container && this.container.inline && this.container.gap && this.container.children.indexOf(this) > 0 && (x += this.gap);
-		return {
+		if (!this._layoutDirty && this._cachedRect)
+			return this._cachedRect;
+
+		let x = this._calculateInheritance('x') * this._calculateScale('x'),
+			y = this._calculateInheritance('y') * this._calculateScale('y'),
+			width = this._calculateActual('width'),
+			height = this._calculateActual('height');
+
+		if (this.container && this.container.inline && this.container.gap && this.container.children.indexOf(this) > 0)
+			x += this.gap;
+
+		this._cachedRect = {
 			bottom: y + height,
 			height,
 			left: x,
@@ -138,14 +144,9 @@ export default class {
 			top: y,
 			width,
 			x, y
-		}
-	}
-	_inherit(property) {
-		self = this;
-		let e = this[property];
-		while ((!e || e instanceof Object) && (self = self.container))
-			e = e instanceof Object ? Object.assign({}, self[property], Object.fromEntries(Object.entries(e).filter(([, value]) => value !== null))) : self[property];
-		return e ?? null
+		};
+		this._layoutDirty = false;
+		return this._cachedRect
 	}
 	_drawText(t, i) {
 		let args = [i, t.textAlign === 'center' ? this.actualWidth / 2 : 0, t.textBaseline === 'middle' ? this.actualHeight / 2 : 0];
@@ -158,16 +159,16 @@ export default class {
 		this.actualWidth = n.width),
 		n.height > 0 && n.height !== t.height && (t.height = n.height,
 		this.actualHeight = n.height),
-		this.alpha && (e.globalAlpha = this.alpha),
-		t = this._inherit('color'),
+		isFinite(this.alpha) && this.alpha < 1 && (e.globalAlpha = this.alpha),
+		t = this.getProperty('color'),
 		this.background && (e.fillStyle = this.background),
 		t && (e.strokeStyle = t,
 		!this.background && (e.fillStyle = t)),
-		this.text && (t = this._inherit('font'),
+		this.text && (t = this.getProperty('font'),
 		e.font = (t.size ?? this._calculateRelativeFontSize(n)) /* (t.size ?? 16) */ * this.scale.y + 'px ' + (t.family || 'helsinki'),
-		t = this._inherit('textAlign'),
+		t = this.getProperty('textAlign'),
 		t && (e.textAlign = t),
-		t = this._inherit('textBaseline') || 'top',
+		t = this.getProperty('textBaseline') || 'top',
 		t && (e.textBaseline = t))
 	}
 	createCanvas() {
@@ -176,7 +177,7 @@ export default class {
 		this.canvas = t);
 		return t
 	}
-	cache(t = window.devicePixelRatio) {
+	cache(dpr = window.devicePixelRatio) {
 		if (this.cached || this.image) return;
 		let e = this.createCanvas()
 		  , i = e.getContext('2d');
@@ -184,7 +185,12 @@ export default class {
 		this._setSize(e, i),
 		this.background && (i.roundRect(0, 0, e.width, e.height, (/%$/.test(this.borderRadius) ? Math.floor(Math.min(e.width, e.height) / 2 * (parseFloat(this.borderRadius) / 100)) : parseFloat(this.borderRadius)) || 0),
 		i.fill(),
-		e = this._inherit('color'),
+		this.borderColor && (i.save(),
+		this.borderWidth && (i.lineWidth = this.borderWidth),
+		i.strokeStyle = this.borderColor,
+		i.stroke(),
+		i.restore()),
+		e = this.getProperty('color'),
 		e && (i.fillStyle = e)),
 		this.text && this._drawText(i, this.text),
 		this.cached = !0
@@ -206,8 +212,72 @@ export default class {
 			this.cached || this.cache(s),
 			this.canvas.width > 0 && this.canvas.height > 0 && t.drawImage(this.canvas, e + this.x * this._calculateScale('x') * s, i + this.y * this._calculateScale('y') * s, n, r)
 	}
+	getProperty(name) {
+		return this.constructor.inheritProperty(this, name)
+	}
 	setDirty() {
-		this.cached = !1,
+		this.cached = !1;
+		this._layoutDirty = true;
 		this.container && (this.container.cached = !1)
+	}
+	setParent(component) {
+		component && component.addChild(this);
+		this.container = component || null
+	}
+	static #textMetricCalculator = null;
+	static get _textMetricCalculator() {
+		let offscreen = this.#textMetricCalculator;
+		if (!offscreen) {
+			offscreen = new OffscreenCanvas(1, 1).getContext('2d');
+			this.#textMetricCalculator = offscreen;
+		}
+		return offscreen
+	}
+	static _capitalize(name) {
+		return name.charAt(0).toUpperCase() + name.slice(1)
+	}
+	static inheritProperty(component, targetProperty) {
+		let e = component[targetProperty];
+		while ((!e || e instanceof Object) && (component = component.container))
+			e = e instanceof Object ? Object.assign({}, component[targetProperty], Object.fromEntries(Object.entries(e).filter(([, value]) => value !== null))) : component[targetProperty];
+		return e ?? null
+	}
+	static inheritScale(component) {
+		let scale = { ...component.scale };
+		while (component = component.container)
+			for (const axis in component.scale)
+				scale[axis] *= component.scale?.[axis] ?? 1;
+		return scale
+	}
+	static measureText(text, font = null) {
+		const ctx = this._textMetricCalculator;
+		font && (ctx.font = font);
+		const metrics = ctx.measureText(text);
+		return Object.assign(metrics, {
+			actualHeight: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent,
+			actualWidth: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight
+		})
+	}
+	static parsePropertyValue(value, relativeValue = 0) {
+		if (typeof value === 'string') {
+			const match = value.match(/^(\d+)%([\+\-\*\/]\d+(\.\d+)?)?$/);
+			if (match) {
+				const percent = parseFloat(match[1]);
+				const op = match[2] || '';
+				let result = relativeValue * (percent / 100);
+				if (op) {
+					const operator = op[0];
+					const operand = parseFloat(op.slice(1));
+					switch (operator) {
+					case '+': result += operand; break;
+					case '-': result -= operand; break;
+					case '*': result *= operand; break;
+					case '/': result /= operand; break
+					}
+				}
+				return isNaN(result) ? 0 : Math.floor(result);
+			}
+		}
+		return parseFloat(value)
 	}
 }

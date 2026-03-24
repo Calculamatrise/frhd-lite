@@ -34,6 +34,15 @@
 
 		get game() { return this.#parent.game }
 
+		_modProto(target, callback) {
+			if (typeof callback != 'function')
+				throw new TypeError('Second positional argument: callback must be of type: function');
+			const proto = Object.getPrototypeOf(target)
+				, superProto = Object.defineProperties({}, Object.getOwnPropertyDescriptors(proto));
+			callback(proto, superProto);
+			return Object.setPrototypeOf(target, proto)
+		}
+
 		hook(instance, { name, overwrite } = {}) {
 			name ??= instance.name ?? instance._name;
 			if (overwrite || !this.#cache.has(name)) {

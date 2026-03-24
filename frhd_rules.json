@@ -3,9 +3,7 @@
 	"priority": 1,
 	"action": {
 		"type": "block",
-		"redirect": {
-			"extensionPath": "/game/main.js"
-		}
+		"redirect": { "extensionPath": "/game/main.js" }
 	},
 	"condition": {
 		"urlFilter": "||cdn.*.com/free_rider_hd/assets/scripts/game/game.min.*.js",

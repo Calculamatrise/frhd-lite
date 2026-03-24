@@ -6,14 +6,19 @@ state.addEventListener('click', function(event) {
 	if (this.classList.contains('update-available')) {
 		return chrome.runtime.reload();
 	} else if (event.altKey && event.shiftKey) {
-		return window.open(chrome.runtime.getURL('dashboard/index.html'))
+		return window.open(chrome.runtime.getURL('dashboard/index.html'));
 	}
 
 	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'))
 }, { passive: true });
 
+const sponsor = document.querySelector('#sponsor');
+sponsor.addEventListener('click', function() {
+	chrome.tabs.create({ url: 'https://github.com/sponsors/Calculamatrise' })
+}, { passive: true });
+
 chrome.storage.local.onChanged.addListener(({ enabled, settings }) => {
-	settings && restoreSettings(settings.newValue),
+	settings && restoreSettings(settings.newValue);
 	enabled && setState(enabled.newValue)
 });
 

@@ -14,7 +14,8 @@ const moduleScript = {
 	id: "mod",
 	js: [
 		"game/mod.js",
-		"game/modules/player.js"
+		"game/modules/profileSearch.js",
+		"game/modules/trackModeration.js"
 		// modules
 	],
 	matches: documentUrlPatterns,
@@ -146,6 +147,7 @@ async function updateModuleScript(settings) {
 		case 'accountManager':
 		case 'achievementMonitor':
 		case 'featuredGhostsDisplay':
+		case 'playlists':
 			break;
 		default:
 			continue;
@@ -165,4 +167,4 @@ async function updateModuleScript(settings) {
 	return chrome.scripting.registerContentScripts(contentScripts)
 }
 
-import "./external-api.js";
+import "./externalApi.js";

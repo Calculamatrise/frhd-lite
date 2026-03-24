@@ -47,39 +47,6 @@ export default class extends GUI {
 		this.sprite = t.assets.getResult("targets_icon"),
 		this.resize()
 	}
-	// draw(t) {
-	// 	super.draw(t),
-	// 	t.beginPath();
-	// 	let p = (500 - Math.min(500, Math.min(this.bar.delta, this.bar.oldDelta))) / 100 // grow bar closer you get
-	// 	, i = t.canvas.width / 3 + p / 2
-	// 	, s = t.canvas.width / 2 - i / 2 - p / 2
-	// 	, n = t.canvas.height - 16 - p / 2
-	// 	, r = Math.min(9, Math.max(6, t.canvas.height / 12)) + p / 2
-	// 	, o = r / 2;
-	// 	t.roundRect(s, n, i, r, o),
-	// 	t.fillStyle = 'hsl(0deg 0% 50% / 75%)',
-	// 	t.fill(),
-	// 	t.lineWidth = 2,
-	// 	t.strokeStyle = t.fillStyle,
-	// 	t.stroke(),
-	// 	t.beginPath(),
-	// 	t.roundRect(s + o / 6, n + o / 6, Math.max(0, Math.min(i, i * this.bar.progress)) - o / 3, r - o / 3, o * 3),
-	// 	t.fillStyle = 'hsl(53deg 95% 59% / 85%)',
-	// 	t.fill();
-	// 	if (lite.storage.get('raceProgressSteps') && Math.max(this.scene.track.targets.length, lite.storage.get('raceProgressMin')) > 1) {
-	// 		t.fillStyle = 'hsl(0deg 0% 30% / 10%)',
-	// 		t.beginPath();
-	// 		for (let l = 1, p = Math.min(10, Math.max(this.scene.track.targets.length, lite.storage.get('raceProgressMin'))), a = p - 1, w = i / a; l < p; l++) {
-	// 			t.arc(s + (w * l) / (1 + 1 / a), n + r / 2, r / 3, 0, 2 * Math.PI),
-	// 			t.fill();
-	// 		}
-	// 	}
-	// 	t.fillStyle = 'white',
-	// 	t.font = (1.8 * r) + 'px helsinki',
-	// 	t.textAlign = 'center',
-	// 	t.textBaseline = 'middle',
-	// 	t.fillText(this.bar.delta <= 500 && (!this.bar.oldDelta || !(this.bar.oldDelta <= 250)) ? Math.floor(this.bar.delta) + 'm' : this.scene.score.goals.text, s + i / 2, n + r / 2 + .5)
-	// }
 	resize() {
 		let t = this.scene.game.canvas
 		  , e = Math.min(12, Math.max(8, t.height / 8));
@@ -96,6 +63,7 @@ export default class extends GUI {
 	}
 	update(t) {
 		if (!this.enabled) return;
+		this.updateInset(32);
 		let e = this.scene.track
 		  , i = t._powerupsConsumed.targets
 		  , s = i.length / e.targetCount

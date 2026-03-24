@@ -1,7 +1,7 @@
 import GUI from "../interfaces/gui.js";
 import Component from "../interfaces/component.js";
 import Container from "../interfaces/container.js";
-import formatnumber from "./formatnumber.js";
+import formatnumber from "../utils/formatnumber.js";
 
 export default class extends GUI {
 	raceCount = 0;
@@ -90,6 +90,7 @@ export default class extends GUI {
 		this.redraw())
 	}
 	update() {
+		this.updateInset(32);
 		if (this.raceCount > 0) {
 			let t = this.scene.camera;
 			t.focusIndex > 0 && t.focusIndex < this.maxRaces ? this.highlightRace(t.focusIndex - 1) : this.unhighlightRace()

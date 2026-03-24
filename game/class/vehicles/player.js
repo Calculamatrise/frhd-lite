@@ -1,5 +1,5 @@
 import Cartesian from "../math/cartesian.js";
-import Gamepad from "../utils/gamepad.js";
+import Gamepad from "../handlers/gamepad.js";
 import BALLOON from "./balloon.js";
 import BLOB from "./blob.js";
 import BMX from "./bmx.js";

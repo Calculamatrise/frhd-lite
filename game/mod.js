@@ -19,7 +19,7 @@ class FreeRiderLite {
 		ModManager.addEventListener('game:ready', this._load.bind(this)),
 		ModManager.addEventListener('game:stateChange', this.refresh.bind(this)));
 		self.hasOwnProperty('Application') && (Object.defineProperty(Application.Helpers.AjaxHelper, 'lastRequest', { value: null, writable: true }),
-		Object.defineProperty(Application.router.current_view, 'ajax', { value: null, writable: true }),
+		Application.router && Object.defineProperty(Application.router.current_view, 'ajax', { value: null, writable: true }),
 		Application.events.subscribe('ajax.request', e => (Application.Helpers.AjaxHelper.lastRequest = e,
 		typeof e.header_title == 'string' && (Application.router.current_view.ajax = e))));
 		addEventListener('message', ({ data }) => {
@@ -63,26 +63,22 @@ class FreeRiderLite {
 		navigator.onLine && this._uploadOfflineRaces(),
 		this.attachContextMenu(),
 		this.initEditorStyles(),
-		location.pathname.match(/^\/notifications\/?/i) && this.modifyCommentNotifications();
-		this.storage.get('accountManager') && this.initAccountManager();
-		location.pathname.match(/^\/t\//i) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
-		location.pathname.match(/\/r\/.+$/i) && GameSettings.raceData && this._updateChallengeLeaderboard(GameSettings.raceData),
+		location.pathname.startsWith('/notifications') && this.modifyCommentNotifications();
+		(location.pathname.startsWith('/t/') || location.pathname.startsWith('/random/track') || location.pathname.startsWith('/game/')) && GameSettings.track && (Application.events.publish("game.prerollAdStopped"),
 		this.cacheTrackData(),
-		this.storage.get('achievementMonitor') && this.initAchievementMonitor(),
+		!location.pathname.startsWith('/game/') && (location.pathname.match(/\/r\/.+$/i) && GameSettings.raceData && this._updateChallengeLeaderboard(GameSettings.raceData),
 		this.initBestDate(),
 		this.initDownloadGhosts(),
 		this.initGhostMetadata(),
 		this.initHighlightComment(),
 		this.initReportTracks(),
 		location.search.includes('c_id=') && this.initJumpToComment(),
-		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks(),
-		this.storage.get('featuredGhostsDisplay') && this.initFeaturedGhosts(),
-		typeof this.initPlayer == 'function' && this.initPlayer());
-		location.pathname.match(/^\/u\//i) && (Application.router.current_view.username === Application.settings.user.u_name ? (this.storage.get('playlists') && this.initPlayLater(),
-		this.initUserTrackAnalytics()) : this.initFriendsLastPlayed(),
-		Application.settings.user.moderator && (this.initUserModeration(),
-		this.initUserTrackModeration()));
-		location.pathname.match(/^\/account\/settings\/?/i) && this.initRequestTrackData()
+		Application.settings.user.u_id === GameSettings.track.u_id && this.initDownloadTracks()));
+		location.pathname.startsWith('/u/') && (Application.router.current_view.username === Application.settings.user.u_name ? this.initUserTrackAnalytics() : this.initFriendsLastPlayed(),
+		Application.settings.user.moderator && this.initUserModeration());
+		location.pathname.startsWith('/account/settings') && this.initRequestTrackData();
+		for (const module of this.constructor.modules.values())
+			module.call(this)
 	}
 
 	_load({ detail: game }) {
@@ -430,7 +426,7 @@ class FreeRiderLite {
 				let val = Math.max(42, Math.min(84, (brightness % 128))) * factor;
 				const sceneryLineColor = this.constructor.rgbToHex(r + val, g + val, b + val);
 				const minor = this.constructor.rgbToHex(r + val / 4.9, g + val / 4.9, b + val / 4.9);
-				// console.log(this.constructor.hexToRgb(backgroundColor), brightness, val, sceneryLineColor, minor)
+				// console.debug(this.constructor.hexToRgb(backgroundColor), brightness, val, sceneryLineColor, minor)
 				colorPalette.sceneryLineColor ?? (GameSettings.sceneryLineColor = this.constructor.rgbToHex(r + val, g + val, b + val)),
 				this.scene.toolHandler.options.gridMinorLineColor = this.constructor.rgbToHex(r + val / 4.9, g + val / 4.9, b + val / 4.9), // this.constructor.getVisibleColor(backgroundColor, { darkDefault: '25', initial: 128, lightDefault: 'e', min: 40, max: 215 }), // '#'.padEnd(7, theme == 'midnight' ? '20282e' : /^dark(er)?$/.test(theme) ? '25' : 'e'),
 				this.scene.toolHandler.options.gridMajorLineColor = this.constructor.rgbToHex(r + val / 1.66, g + val / 1.66, b + val / 1.66),
@@ -1190,18 +1186,19 @@ class FreeRiderLite {
 	}
 
 	drawInputDisplay(ctx) {
-		let { downButtons } = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad
-		  , size = parseInt(this.storage.get('inputDisplaySize')) + 3;
+		const { downButtons } = this.scene.playerManager.getPlayerByIndex(this.scene.camera.focusIndex)._gamepad
+
+		let size = parseInt(this.storage.get('inputDisplaySize')) + 3;
 		if (this.storage.get('relativeUISize')) {
-			let base = 1500
-			  , current = (screen.width + screen.height) / 2;
+			const base = 1500
+				, current = (screen.width + screen.height) / 2;
 			size *= current / base;
 		}
 
-		let offset = {
+		const offset = {
 			x: size,
-			y: ctx.canvas.height - size * 10
-		}
+			y: ctx.canvas.height - size * 10 - GameSettings.inset.bottom
+		};
 
 		ctx.save(),
 		ctx.fillStyle = GameSettings.physicsLineColor,
@@ -1349,7 +1346,7 @@ class FreeRiderLite {
 				const filteredAverageTicks = trackLeaderboard.filter(({ u_id }) => u_id !== userId).reduce((total, { run_time }) => total += parseTicks(run_time), 0) / trackLeaderboard.length;
 				const max = parseTicks(trackLeaderboard.at(-1).run_time);
 				const calculatedMargin = max - parseTicks(trackLeaderboard[Math.min(trackLeaderboard.length - 1, index + 1)].run_time);
-				this.constructor.debug && console.log(averageTicks, parseTicks(runTime), 'diff', averageTicks - parseTicks(runTime), 'max diff', max - averageTicks, max - filteredAverageTicks, filteredAverageTicks, calculatedMargin, 'max', max, 'max divided by 100', max / 100, calculatedMargin / max, calculatedMargin * (max / 100), max / calculatedMargin)
+				this.constructor.debug && console.debug(averageTicks, parseTicks(runTime), 'diff', averageTicks - parseTicks(runTime), 'max diff', max - averageTicks, max - filteredAverageTicks, filteredAverageTicks, calculatedMargin, 'max', max, 'max divided by 100', max / 100, calculatedMargin / max, calculatedMargin * (max / 100), max / calculatedMargin)
 				if (averageTicks - parseTicks(runTime) > max - filteredAverageTicks) return true;
 				return false
 			})) {
@@ -1428,66 +1425,7 @@ class FreeRiderLite {
 			checkNotificationEvent.apply(this, arguments);
 			e.result && Application.events.publish('notification.received', ...arguments);
 		}
-		Object.setPrototypeOf(Application.Helpers.AjaxHelper, prototype);
-	}
-
-	initPlayLater() {
-		let recentlyPlayedTab = document.querySelector('.tab-entry.recently-played-tab');
-		if (!recentlyPlayedTab || document.querySelector('.tab-entry.frhd-lite\\.play-later-tab')) return;
-		let playlist = this.fetchAndCachePlaylists('playlater');
-		if (playlist.size < 1) return;
-		let tab = recentlyPlayedTab.parentElement.appendChild(recentlyPlayedTab.cloneNode(true));
-		tab.classList.add('frhd-lite.play-later-tab');
-		tab.dataset.panel = '#frhd-lite\\.play-later';
-		tab.firstElementChild.lastChild.data = 'Play Later';
-		let recentlyPlayedPanel = document.querySelector('#profile_recently_played');
-		if (!recentlyPlayedPanel) return;
-		let panel = recentlyPlayedPanel.parentElement.appendChild(recentlyPlayedPanel.cloneNode(true));
-		panel.setAttribute('id', 'frhd-lite.play-later');
-		let list = panel.querySelector('.track-list');
-		list.replaceChildren(...Array.from(playlist && playlist.values()).map(entry => {
-			const authorUrl = 'https://' + location.host + '/u/' + entry.author;
-			const trackUrl = 'https://' + location.host + '/t/' + entry.slug;
-			return this.constructor.createElement('li', {
-				children: [
-					this.constructor.createElement('div.track-list-tile.trackTile', {
-						children: [
-							this.constructor.createElement('a.top', {
-								href: trackUrl,
-								children: [
-									this.constructor.createElement('img.track-list-tile-thumb.top-image', {
-										src: entry.img
-									}),
-									this.constructor.createElement('img.track-list-tile-thumb', {
-										alt: 'Track Preview',
-										src: 'https://cdn.' + location.host.split('.').slice(-2).join('.') + '/free_rider_hd/sprites/track_preview_250x150.png'
-									}),
-									this.constructor.createElement('span.bestTime', {
-										innerText: ' ' + entry.averageTime + ' ',
-										title: 'Average Time'
-									})
-								]
-							}),
-							this.constructor.createElement('div.bottom', {
-								children: [
-									this.constructor.createElement('a.name', {
-										href: trackUrl,
-										innerText: entry.title
-									}),
-									this.constructor.createElement('div.profileGravatarIcon', {
-										style: { backgroundImage: 'url(' + authorUrl + '/pic?size=50)' }
-									}),
-									this.constructor.createElement('a.author', {
-										href: authorUrl + '/created',
-										innerHTML: '&ensp;' + entry.author
-									})
-								]
-							})
-						]
-					})
-				]
-			})
-		}))
+		Object.setPrototypeOf(Application.Helpers.AjaxHelper, prototype)
 	}
 
 	initReportTracks() {
@@ -1601,184 +1539,23 @@ class FreeRiderLite {
 		})
 	}
 
-	initUserTrackModeration() {
-		for (let metadata of document.querySelectorAll("#created_tracks .bottom")) {
-			let label = metadata.appendChild(this.constructor.createElement('label', {
-				style: { display: 'block' }
-			}));
-			let avatar = metadata.querySelector('.profileGravatarIcon');
-			avatar && avatar.style.setProperty('margin-right', '4px');
-			label.appendChild(metadata.querySelector('.profileGravatarIcon'));
-			label.appendChild(metadata.querySelector('.author'));
-			label.appendChild(this.constructor.createElement('input', {
-				type: 'checkbox',
-				style: {
-					float: 'right',
-					height: '1.5rem'
-				}
-			}));
-		}
-		let nav = document.querySelector("#content > div > div.profile-tabs > section > div.tab_buttons > div");
-		let action = nav.appendChild(this.constructor.createElement('select', {
-			style: {
-				borderRadius: '4px',
-				float: 'right',
-				fontFamily: 'system-ui,roboto_medium,Arial,Helvetica,sans-serif',
-				letterSpacing: '-.02em',
-				marginRight: '10px',
-				marginTop: '8px'
-			}
-		}));
-		action.appendChild(this.constructor.createElement('option', {
-			disabled: true,
-			innerText: 'Select an action',
-			value: 'default'
-		}));
-		action.appendChild(this.constructor.createElement('option', {
-			innerText: 'Delete selected',
-			value: 'hide'
-		}));
-		action.appendChild(this.constructor.createElement('option', {
-			innerText: 'Deselect all',
-			value: 'deselect'
-		}));
-		action.appendChild(this.constructor.createElement('option', {
-			innerText: 'Select all',
-			value: 'select'
-		}));
-		action.addEventListener('change', async event => {
-			event.target.disabled = true;
-			switch (event.target.value) {
-			case 'hide':
-				let tracks = document.querySelectorAll("#created_tracks li:has(.bottom > label > input[type='checkbox']:checked)");
-				if (tracks.length > 0) {
-					let dialog = document.body.appendChild(this.constructor.createElement('dialog', {
-						style: {
-							border: 'none',
-							boxShadow: '0 0 4px 0px hsl(190deg 25% 60%)',
-							maxHeight: '75vh',
-							maxWidth: '50vw',
-							padding: 0,
-							width: '120vmin'
-						}
-					}));
-					let title = dialog.appendChild(this.constructor.createElement('p', {
-						innerText: 'Are you sure you would like to delete the following tracks?',
-						style: {
-							backgroundColor: 'inherit',
-							boxShadow: '0 0 4px 0 black',
-							padding: '1rem',
-							position: 'sticky',
-							top: 0,
-							zIndex: 3
-						}
-					}));
-					let close = title.appendChild(this.constructor.createElement('span.core_icons.core_icons-icon_close', {
-						style: { float: 'right' }
-					}));
-					close.addEventListener('click', () => dialog.remove(), { passive: true });
-					let list = dialog.appendChild(this.constructor.createElement('ul.track-list.clearfix', {
-						style: {
-							maxHeight: '50cqh',
-							overflowY: 'auto',
-							padding: '1rem',
-							textAlign: 'center'
-						}
-					}));
-					list.append(...Array.from(tracks).map(track => {
-						let clone = track.cloneNode(true);
-						clone.style.setProperty('width', 'min-content');
-						return clone;
-					}));
-					let form = dialog.appendChild(this.constructor.createElement('form', {
-						method: 'dialog',
-						style: {
-							backgroundColor: 'inherit',
-							bottom: 0,
-							boxShadow: '0 0 4px 0 black',
-							display: 'flex',
-							gap: '.25em',
-							padding: '1rem',
-							position: 'sticky',
-							zIndex: 2
-						}
-					}));
-					form.appendChild(this.constructor.createElement('button.new-button.button-type-1', {
-						innerText: 'Cancel',
-						value: 'cancel'
-					}));
-					let confirm = form.appendChild(this.constructor.createElement('button.new-button.button-type-2', {
-						innerText: 'Confirm',
-						value: 'default'
-					}));
-					confirm.addEventListener('click', async event => {
-						event.preventDefault();
-						for (let button of form.querySelectorAll('button')) {
-							button.disabled = true;
-							button.style.setProperty('opacity', .5);
-							button.style.setProperty('pointer-events', 'none');
-						}
-
-						form.appendChild(this.constructor.createElement('span.loading-hourglass'));
-						let cache = [];
-						let tracks = list.querySelectorAll(".bottom:has(> label > input[type='checkbox']:checked)");
-						for (let metadata of tracks) {
-							let name = metadata.querySelector('.name');
-							let url = name.href;
-							let [tid] = url.match(/(?<=\/t\/)\d+/);
-							await fetch('/moderator/hide_track/' + tid);
-							cache.push(tid);
-							let container = metadata.closest('li');
-							container.remove();
-						}
-
-						// post message to extension?
-						let key = 'frhd-lite_recently-hidden-tracks';
-						let storage = Object.assign({}, JSON.parse(sessionStorage.getItem(key)));
-						storage[Date.now()] = cache;
-						sessionStorage.setItem(key, JSON.stringify(storage));
-						dialog.close(event.target.value);
-					});
-					dialog.addEventListener('close', event => {
-						action.disabled = false;
-						dialog.remove();
-					});
-					dialog.showModal();
-				}
-			case 'deselect':
-				for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:checked")) {
-					checkbox.checked = false;
-				}
-				break;
-			case 'select':
-				for (let checkbox of document.querySelectorAll("#created_tracks .bottom > label > input[type='checkbox']:not(:checked)")) {
-					checkbox.checked = true;
-				}
-			}
-
-			event.target.value = 'default';
-			event.target.disabled = false;
-		}, { passive: true });
-	}
-
 	async modifyCommentNotifications() {
 		Application.Helpers.TemplateHelper.getTemplates(['notifications/t_uname_mention'], templates => {
-			for (let key in templates) {
+			for (const key in templates)
 				Application.Helpers.TemplateHelper.cached_templates[key] = templates[key].replace(/(?<={{track.url}})/, '?c_id={{comment.id}}')
-			}
 		});
-		let { notification_days: d } = Application.router.current_view.ajax && /^notifications$/i.test(Application.router.current_view.ajax.header_title) ? Application.router.current_view.ajax : await Application.Helpers.AjaxHelper.get('notifications');
-		let notifications = d && d.length > 0 && d.flatMap(({ notifications: n }) => n);
-		let commentNotifications = notifications.filter(({ t_uname_mention: t }) => t);
-		for (let { comment, track, ts } of commentNotifications) {
-			let notification = document.querySelector('.notification[data-ts="' + ts + '"] p > a[href$="' + track.url + '"]')
+		const { notification_days: d } = Application.router.current_view.ajax && /^notifications$/i.test(Application.router.current_view.ajax.header_title) ? Application.router.current_view.ajax : await Application.Helpers.AjaxHelper.get('notifications')
+			, notifications = d && d.length > 0 && d.flatMap(({ notifications: n }) => n)
+			, commentNotifications = notifications.filter(({ t_uname_mention: t }) => t);
+		for (const { comment, track, ts } of commentNotifications) {
+			const notification = document.querySelector('.notification[data-ts="' + ts + '"] p > a[href$="' + track.url + '"]')
 			notification && (notification.href += '?c_id=' + comment.id)
 		}
 	}
 
 	refreshAchievements() {
 		return this.constructor.fetchAchievements(...arguments).then(async res => {
-			let children = await Promise.all(res.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
+			const children = await Promise.all(res.achievements.filter(a => !a.complete).sort((a, b) => b.tot_num - a.tot_num).slice(0, 3).map(this.constructor.createProgressElement.bind(this.constructor)));
 			this.achievementMonitor.container.replaceChildren(...children);
 			return res
 		})
@@ -1816,6 +1593,7 @@ class FreeRiderLite {
 	static #styleSheet = document.head.appendChild(this.createElement('style', { id: 'frhd-lite.style' }));
 	static ajaxResponse = null;
 	static debug = false;
+	static modules = new Map();
 	static styleSheet = GameStyleManager.createProxyStyle(this.#styleSheet);
 	static compareUsers(a, b) {
 		return a.u_id == b.u_id || a.u_name == b.u_name || a.d_name == b.d_name
@@ -2566,7 +2344,7 @@ class FreeRiderLite {
 			}
 		}
 		duplicateInputs > 0 && (isTas = true);
-		console.log(data.race.code, duplicateInputs, isTas);
+		console.debug(data.race.code, duplicateInputs, isTas);
 		return !isTas
 	}
 

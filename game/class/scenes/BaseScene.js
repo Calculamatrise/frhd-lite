@@ -1,13 +1,13 @@
 import Track from "../tracks/track.js";
-import LoadingCircle from "../utils/loadingcircle.js";
-import MessageManager from "../utils/messagemanager.js";
-import Score from "../utils/score.js";
-import MouseHandler from "../utils/mousehandler.js";
-import SoundManager from "../utils/soundmanager.js";
+import LoadingCircle from "../hud/loadingcircle.js";
+import MessageManager from "../hud/messagemanager.js";
+import Score from "../hud/score.js";
+import MouseHandler from "../handlers/mousehandler.js";
+import SoundManager from "../managers/soundmanager.js";
 import CameraTool from "../tools/cameratool.js";
 import ToolHandler from "../tools/toolhandler.js";
-import VehicleTimer from "../utils/vehicletimer.js";
-import PlayerManager from "../vehicles/player_manager.js";
+import VehicleTimer from "../hud/vehicletimer.js";
+import PlayerManager from "../managers/player_manager.js";
 import Camera from "../view/camera.js";
 import Screen from "../view/screen.js";
 
@@ -23,14 +23,14 @@ export default class {
 	oldState = null;
 	vehicle = "Mtb";
 	importCode = !1;
-	message = new MessageManager(this);
 	constructor(t) {
 		Object.defineProperty(this, 'game', { value: t, writable: true });
 		this.assets = t.assets,
 		this.settings = t.settings,
 		this.mouse = new MouseHandler(this),
 		this.camera = new Camera(this),
-		this.score = new Score(this);
+		this.message = new MessageManager(this),
+		this.score = new Score(this),
 		this.screen = new Screen(this),
 		this.sound = new SoundManager(this),
 		this.createTrack(),
@@ -122,12 +122,11 @@ export default class {
 		/* !this.state.paused && */ /* !this.state.idle && */ (// ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
 		this.toolHandler.drawGrid(ctx),
 		this.track.draw(ctx)),
-		this.score.draw(ctx),
+		// this.score.draw(ctx),
 		this.playerManager.draw(ctx),
 		this.vehicleTimer.player && this.vehicleTimer.player._tempVehicleTicks > 0 && this.vehicleTimer.draw(ctx),
 		this.toolHandler.draw(ctx),
-		this.loading && this.loadingcircle.draw(ctx),
-		this.message.draw(ctx)
+		this.loading && this.loadingcircle.draw(ctx)
 	}
 	fixedUpdate() {
 		!this.game.interpolation && !this.camera.playerFocus?.isGhost() && this.camera.playerFocus?.isAlive() && this.camera.update(),
@@ -194,11 +193,13 @@ export default class {
 		t.registerTool(CameraTool);
 		return t
 	}
-	updateState(e = structuredClone(this.state)) {
+	updateState() {
 		let t = this.state;
 		t.zoomPercentage = this.camera.zoomPercentage,
 		t.vehicle = this.vehicle;
-		this.game.emit('stateChange', e, structuredClone(this.state));
+		this.game.emit('stateChange', this.oldState, this.state);
+		this.message.onStateChange(this.oldState, this.state);
+		this.score.onStateChange(this.oldState, this.state);
 		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
 	toggleVehicle() {

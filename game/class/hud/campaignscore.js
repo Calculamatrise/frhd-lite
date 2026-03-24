@@ -109,6 +109,7 @@ export default class extends GUI {
 		e.y = 40
 	}
 	update() {
+		this.updateInset(32);
 		this.updateState()
 	}
 }

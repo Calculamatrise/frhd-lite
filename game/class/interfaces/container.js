@@ -11,12 +11,10 @@ export default class extends Component {
 			i.container = this
 	}
 	_applyProperties(...args) {
-		for (let i in args) {
+		for (let i in args)
 			this.padding && (args[i] += 2 * this.padding);
-		}
-		if (args.length > 0) {
-			return args
-		}
+		if (args.length > 0)
+			return args;
 		return args[0]
 	}
 	_caclulateActual(property) {

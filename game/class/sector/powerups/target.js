@@ -92,7 +92,7 @@ export default class extends Consumable {
 		a.lineWidth = Math.max(2 * o, 1),
 		a.strokeStyle = this.outline,
 		a.stroke(),
-		a.fillStyle = r ? this.color : this.game.canvas?.computedStyleMap().get('background-color')?.toString() || '#FFFFFF',
+		a.fillStyle = r ? this.color : getComputedStyle(this.game.canvas)?.backgroundColor || '#FFFFFF',
 		a.fill()
 	}
 	recache(t) {

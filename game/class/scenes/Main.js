@@ -1,9 +1,10 @@
 import BaseScene from "./BaseScene.js";
-import r from "../utils/campaignscore.js";
+import r from "../hud/campaignscore.js";
 import P from "../utils/formatnumber.js";
-import o from "../utils/racetimes.js";
-import RaceProgress from "../utils/raceprogress.js";
+import o from "../hud/racetimes.js";
+import RaceProgress from "../hud/raceprogress.js";
 import PathTracer from "../tools/pathtracertool.js";
+import Player from "../ui/player.js";
 
 async function digestMessage(message) {
 	const msgUint8 = new TextEncoder().encode(message);
@@ -17,12 +18,14 @@ async function digestMessage(message) {
 
 export default class extends BaseScene {
 	races = [];
+	player = null;
 	playing = false;
 	raceTimes = new o(this);
 	ready = false;
 	loading = false;
 	constructor(t) {
 		super(t),
+		this.player = new Player(this),
 		this.raceProgress = new RaceProgress(this),
 		this.settings.isCampaign && (this.campaignScore = new r(this)),
 		this.state = this.setStateDefaults(),
@@ -116,6 +119,10 @@ export default class extends BaseScene {
 	update() {
 		super.update(...arguments);
 		this.updateScore()
+	}
+	updateState() {
+		super.updateState(...arguments);
+		this.player.onStateChange(this.oldState, this.state)
 	}
 	draw(ctx) {
 		super.draw(...arguments),

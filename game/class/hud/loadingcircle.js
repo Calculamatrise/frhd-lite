@@ -1,5 +1,4 @@
 export default class {
-	scene = null;
 	clockwise = !1;
 	screen = null;
 	settings = {
@@ -7,7 +6,7 @@ export default class {
 		color: "#1884cf"
 	}
 	constructor(t) {
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t, writable: true });
 		this.screen = t.screen
 	}
 	draw(t) {
@@ -18,7 +17,7 @@ export default class {
 		  , o = (performance.now() / 60) % 30 / 30 * 2 * Math.PI;
 		0 === o && (this.clockwise = !this.clockwise);
 		let l = e.width - 25 * s
-		  , c = e.height - 25 * s;
+		  , c = e.height - 25 * s - this.scene.settings.inset.bottom;
 		t.beginPath(),
 		t.arc(l, c, n * s, 0, o, !this.clockwise),
 		t.lineWidth = 3 * s,

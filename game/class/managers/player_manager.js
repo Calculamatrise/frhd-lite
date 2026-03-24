@@ -1,4 +1,4 @@
-import s from "./player.js";
+import s from "../vehicles/player.js";
 
 export default class {
 	_players = [];

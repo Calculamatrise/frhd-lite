@@ -15,7 +15,7 @@ import Balloon from "../sector/vehiclepowerups/balloon.js";
 import Blob from "../sector/vehiclepowerups/blob.js";
 import Helicopter from "../sector/vehiclepowerups/helicopter.js";
 import Truck from "../sector/vehiclepowerups/truck.js";
-import CanvasPool from "../utils/canvaspool.js";
+import CanvasPool from "../managers/canvaspool.js";
 
 export default class {
 	defaultLine = {
@@ -67,7 +67,7 @@ export default class {
 		if (i === void 0) return;
 		if (i.initialRender && data.partial) return;
 		!i.initialRender && data.partial === false && (i.initialRender = true);
-		i.bitmap = data.bitmap
+		// i.bitmap = data.bitmap
 		i.canvas = data.bitmap
 	}
 	createPowerupCache() {
@@ -414,7 +414,7 @@ export default class {
 			}(e[s])
 		}
 		let r = performance.now();
-		console.log("Track :: Time to draw entire track : " + (r - t) + "ms")
+		console.debug("Track :: Time to draw entire track : " + (r - t) + "ms")
 	}
 	undraw() {
 		for (let t of this.totalSectors.filter(t => t.drawn))

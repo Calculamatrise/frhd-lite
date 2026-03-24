@@ -48,8 +48,8 @@ export default class {
 			_downListener: { value: n, writable: true }
 		});
 		let o = this.onMouseWheel.bind(this);
-		e.addEventListener("mousewheel", o),
-		e.addEventListener("wheel", o),
+		e.addEventListener("mousewheel", o, { passive: false }),
+		e.addEventListener("wheel", o, { passive: false }),
 		Object.defineProperty(this, '_wheelListener', { value: o, writable: true })
 	}
 	contextMenuHandler(t) {

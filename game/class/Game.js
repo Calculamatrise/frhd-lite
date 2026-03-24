@@ -2,6 +2,7 @@ import EventEmitter from "./EventEmitter.js";
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
 import Events from "./utils/events.js";
+import Gui from "./interfaces/gui_.js";
 
 const SCENES =  { Editor, Main };
 class Game extends EventEmitter {
@@ -20,6 +21,7 @@ class Game extends EventEmitter {
 	canvas = null;
 	currentScene = null;
 	gameContainer = null;
+	gui = null;
 	height = 0;
 	onStateChange = null;
 	pixelRatio = window.devicePixelRatio;
@@ -35,6 +37,12 @@ class Game extends EventEmitter {
 		i.UIDarkerGrayColor ||= '#777777';
 		i.UIGrayColor ||= '#808080';
 		i.UITextColor ||= '#000000';
+		i.inset = Object.assign({
+			bottom: 0,
+			left: 0,
+			right: 0,
+			top: 0
+		}, i.inset);
 		this.settings = i;
 		this.initCanvas();
 		this.setSize();
@@ -57,7 +65,8 @@ class Game extends EventEmitter {
 		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true }),
 		this.ctx = this.canvas.getContext("2d"),
 		this.gameContainer = document.getElementById(this.settings.defaultContainerID),
-		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas)
+		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas),
+		this.gui = new Gui(this.gameContainer)
 	}
 	resetFrameProgress() {
 		this.lastTime = performance.now();
