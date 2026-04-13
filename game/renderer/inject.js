@@ -1,3 +1,5 @@
+{
+
 const workerUrl = chrome.runtime.getURL('game/renderer/worker.js');
 const injectedScript = document.createElement('script');
 injectedScript.type = 'module';
@@ -10,3 +12,5 @@ injectedScript.addEventListener('load', function() {
 	this.remove()
 }, { once: true, passive: true });
 document.documentElement.appendChild(injectedScript);
+
+}

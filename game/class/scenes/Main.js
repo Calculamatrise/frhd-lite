@@ -17,6 +17,8 @@ async function digestMessage(message) {
 }
 
 export default class extends BaseScene {
+	#boundGameComplete;
+
 	races = [];
 	player = null;
 	playing = false;
@@ -34,17 +36,21 @@ export default class extends BaseScene {
 		this.registerTools(),
 		this.setStartingVehicle(),
 		this.restart(),
-		t.settings.analyticsEnabled !== false && this.initAnalytics(),
-		GameManager.once('gameComplete', () => {
-			let e = {
-				race: structuredClone(this.state.dialogOptions.postData),
-				user: t.settings.user
-			};
-			this.settings.bestGhostEnabled && -1 === this.races.findIndex(i => this.uniqesByUserIdIterator(e) == this.uniqesByUserIdIterator(i) && i.race.run_ticks <= e.race.run_ticks) && this.addRaces([e]);
-			this.settings.fullscreen && this.command('focused', true); // only works on the first one
-			t.emit('trackRaceUploadSuccess', e)
-		})
+		t.settings.analyticsEnabled !== false && this.initAnalytics();
+		GameManager.once('gameComplete', this.#boundGameComplete = this.#gameComplete.bind(this))
 	}
+
+	#gameComplete() {
+		const t = this.game;
+		let e = {
+			race: structuredClone(this.state.dialogOptions.postData),
+			user: t.settings.user
+		};
+		this.settings.bestGhostEnabled && -1 === this.races.findIndex(i => this.uniqesByUserIdIterator(e) == this.uniqesByUserIdIterator(i) && i.race.run_ticks <= e.race.run_ticks) && this.addRaces([e]);
+		this.settings.fullscreen && this.command('focused', true); // only works on the first one
+		t.emit('trackRaceUploadSuccess', e)
+	}
+
 	getCanvasOffset() {
 		return {
 			height: 0,
@@ -118,17 +124,12 @@ export default class extends BaseScene {
 	}
 	update() {
 		super.update(...arguments);
+		this.player.update();
 		this.updateScore()
 	}
 	updateState() {
 		super.updateState(...arguments);
 		this.player.onStateChange(this.oldState, this.state)
-	}
-	draw(ctx) {
-		super.draw(...arguments),
-		this.campaignScore && this.campaignScore.draw(ctx),
-		window.hasOwnProperty('lite') && lite.storage.get('raceProgress') && this.state.inFocus && this.camera.playerFocus && this.raceProgress.draw(ctx),
-		this.raceTimes.draw(ctx)
 	}
 	isStateDirty() {
 		let e = this.state;
@@ -136,9 +137,7 @@ export default class extends BaseScene {
 		return super.isStateDirty()
 	}
 	updateScore() {
-		this.campaignScore && this.campaignScore.update(),
-		window.hasOwnProperty('lite') && lite.storage.get('raceProgress') && this.camera.playerFocus && this.raceProgress.update(this.camera.playerFocus),
-		this.raceTimes.update()
+		!this.state.paused && this.state.playing && window.lite?.storage.get('raceProgress') && this.camera.playerFocus && this.raceProgress.update(this.camera.playerFocus)
 	}
 	restart() {
 		this.message.show("Press Any Key To Start", 1),
@@ -152,7 +151,7 @@ export default class extends BaseScene {
 		this.camera.focusOnPlayer(),
 		this.camera.fastforward(),
 		this.showControlPlanel("main"),
-		this.resetRaceTimes()
+		this.raceTimes.reset()
 	}
 	setStartingVehicle() {
 		let t = this.settings
@@ -170,9 +169,6 @@ export default class extends BaseScene {
 	showControlPlanel(t) {
 		this.settings.isCampaign && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
 		this.state.showControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
-	}
-	resize() {
-		this.raceProgress.resize()
 	}
 	setStateDefaults() {
 		let t = super.setStateDefaults();
@@ -300,16 +296,6 @@ export default class extends BaseScene {
 			this.game.emit('trackRaceCreate', i))
 		})
 	}
-	resetRaceTimes() {
-		for (let element of this.raceTimes.raceList.filter(e => e.children.length > 2))
-			element.children[2].text = '0/' + this.track.targetCount,
-			element.setDirty()
-	}
-	redraw() {
-		super.redraw(),
-		this.raceProgress.redraw(),
-		this.raceTimes.redraw()
-	}
 	sortByRunTicksIterator(t) {
 		let e = parseInt(t.race.run_ticks);
 		return t.runTime ||= P(e / this.settings.drawFPS * 1e3),
@@ -364,12 +350,14 @@ export default class extends BaseScene {
 				}));
 			} else
 				this.game.emit('trackRaceUpload', q);
+			this.game.emit('trackComplete', e);
 			this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
 			i.reset(!0),
 			this.listen()
 		}
 	}
 	close() {
+		GameManager.removeListener('gameComplete', this.#boundGameComplete),
 		this.raceTimes = null,
 		this.score = null,
 		this.campaignScore = null,

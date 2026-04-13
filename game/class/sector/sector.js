@@ -56,8 +56,28 @@ export default class {
 		this.realX = this.x * this.zoom,
 		this.realY = this.y * this.zoom
 	}
+
+	#post(cmd, data, ...args) {
+		TrackRenderer.postMessage(Object.assign({
+			type: cmd,
+			sector: {
+				column: this.column,
+				row: this.row
+			}
+		}, data), ...args)
+	}
+
 	addLine(t) {
-		t instanceof PhysicsLine && this.physicsLines.push(t) || t instanceof SceneryLine && this.sceneryLines.push(t),
+		t instanceof PhysicsLine && this.physicsLines.push(t) || t.constructor === SceneryLine && this.sceneryLines.push(t);
+		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
+			const buf = t.toBuffer();
+			this.#post('ADD_LINE', Object.assign({}, t instanceof PhysicsLine && {
+				physicsLines: [buf]
+			}, t.constructor === SceneryLine && {
+				sceneryLines: [buf]
+			}), [buf.buffer]);
+		}
+
 		this.lineCount++,
 		this.drawn = !1
 	}
@@ -98,10 +118,9 @@ export default class {
 		}
 	}
 	createCanvas() {
-		if ('TrackRenderer' in window) {
+		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
 			this.canvas = document.createElement('canvas');
-			TrackRenderer.postMessage({
-				type: 'CREATE_SECTOR',
+			this.#post('CREATE_SECTOR', {
 				sector: {
 					column: this.column,
 					row: this.row,
@@ -142,14 +161,25 @@ export default class {
 	cleanSectorType(t, e) {
 		let i = this[t];
 		e && (i = i[e]);
-		for (let n of i.filter(s => s.remove))
-			i.splice(i.indexOf(n), 1)
+		// for (let n of i.filter(s => s.remove))
+		// 	i.splice(i.indexOf(n), 1)
+		for (let n of i.filter(s => s.remove)) {
+			i.splice(i.indexOf(n), 1);
+
+			if (t.endsWith('Lines') && this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
+				const buf = n.toBuffer();
+				this.#post('REMOVE_LINE', Object.assign({}, n instanceof PhysicsLine && {
+					physicsLines: [buf]
+				}, n.constructor === SceneryLine && {
+					sceneryLines: [buf]
+				}), [buf.buffer])
+			}
+		}
 	}
 	draw() {
 		!this.canvas && this.createCanvas();
-		if ('TrackRenderer' in window) {
-			TrackRenderer.postMessage({
-				type: 'CACHE_SECTOR',
+		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
+			this.#post('CACHE_SECTOR', {
 				sector: {
 					column: this.column,
 					row: this.row,
@@ -192,11 +222,23 @@ export default class {
 	erase(t, e, i) {
 		let s = [];
 		if (i.physics === !0)
-			for (let n of this.physicsLines.filter(n => n.erase(t, e)))
+			for (let n of this.physicsLines.filter(n => n.erase(t, e))) {
 				s.push(n);
+
+				if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
+					const buf = n.toBuffer();
+					this.#post('REMOVE_LINE', { physicsLines: [buf] }, [buf.buffer]);
+				}
+			}
 		if (i.scenery === !0)
-			for (let n of this.sceneryLines.filter(n => n.erase(t, e)))
+			for (let n of this.sceneryLines.filter(n => n.erase(t, e))) {
 				s.push(n);
+
+				if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
+					const buf = n.toBuffer();
+					this.#post('REMOVE_LINE', { sceneryLines: [buf] }, [buf.buffer]);
+				}
+			}
 		if (i.powerups === !0)
 			for (let n of this.powerups.all.map(n => n.erase(t, e)).filter(n => n))
 				s.push(...n);
@@ -261,13 +303,7 @@ export default class {
 	clear() {
 		this.drawn = !1,
 		this.powerupCanvasDrawn = !1,
-		this.canvas && ('TrackRenderer' in window ? TrackRenderer.postMessage({
-			type: 'CLEAR_SECTOR',
-			sector: {
-				column: this.column,
-				row: this.row
-			}
-		}) : (this.canvasPool.releaseCanvas(this.canvas),
+		this.canvas && ((this.settings.multiThreadedRendering && 'TrackRenderer' in window) ? this.#post('CLEAR_SECTOR') : (this.canvasPool.releaseCanvas(this.canvas),
 		this.canvas = null,
 		this.ctx = null)),
 		this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),

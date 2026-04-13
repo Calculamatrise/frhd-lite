@@ -49,14 +49,12 @@ export default class extends Consumable {
 			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666')),
 			c >= u && (i.complete = !0),
 			this.game.emit('targetCollect', this, i);
-			if (i.isGhost()) {
-				let raceTime = this.scene.raceTimes.container.children.find(({ data }) => data.user.u_id === i._user.u_id);
-				if (raceTime && raceTime.children.length > 0) {
-					let targets = raceTime.children[raceTime.children.length - 1];
-					targets.text = c + '/' + u;
-					this.scene.raceTimes.redraw()
-				}
-			}
+			if (i.isGhost()) this.game.emit('raceTimes:updateTargetProgress', {
+				collected: c,
+				player: i,
+				remaining: u - c,
+				total: u
+			})
 		}
 	}
 	draw(t, e, i, s) {
@@ -92,7 +90,7 @@ export default class extends Consumable {
 		a.lineWidth = Math.max(2 * o, 1),
 		a.strokeStyle = this.outline,
 		a.stroke(),
-		a.fillStyle = r ? this.color : getComputedStyle(this.game.canvas)?.backgroundColor || '#FFFFFF',
+		a.fillStyle = r ? this.color : this.game.canvas?.computedStyleMap().get('background-color') /* getComputedStyle(this.game.canvas)?.backgroundColor */ || '#FFFFFF',
 		a.fill()
 	}
 	recache(t) {

@@ -1,4 +1,38 @@
 export default class {
+	static #styleSheet;
+	static getStyleSheet() {
+		if (this.#styleSheet) return this.#styleSheet;
+
+		const styleSheet = new CSSStyleSheet();
+		styleSheet.replaceSync(`
+.message {
+	color: var(--color, currentColor);
+	font-family: 'helsinki';
+	font-size: 12pt;
+	left: 0;
+	margin: 0 auto;
+	max-width: 75%;
+	opacity: .975;
+	overflow: hidden;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: clamp(2em, 100px, 15%);
+	width: fit-content;
+}
+
+.message[outline]::before {
+	-webkit-text-stroke: 2px var(--outline, transparent);
+	content: attr(outline);
+	position: absolute;
+	z-index: -1;
+}
+		`);
+		this.#styleSheet = styleSheet;
+		return styleSheet
+	}
+
 	color = "#000";
 	element = null;
 	message = null;
@@ -7,50 +41,22 @@ export default class {
 			gui: { value: t.game.gui, writable: true },
 			timeout: { value: false, writable: true }
 		});
-		this._createStyleSheet();
-		this.init();
-		this.gui.appendChild(this.element)
-	}
-
-	_createStyleSheet() {
-		if (!this.styleSheet) {
-			const styleSheet = new CSSStyleSheet();
-			styleSheet.replaceSync(`
-				.message {
-					color: var(--color, currentColor);
-					font-family: 'helsinki';
-					font-size: 12pt;
-					left: 0;
-					margin: 0 auto;
-					max-width: 75%;
-					opacity: .975;
-					overflow: hidden;
-					pointer-events: none;
-					position: absolute;
-					right: 0;
-					text-align: center;
-					top: clamp(2em, 100px, 15%);
-					width: fit-content;
-				}
-
-				.message[outline]::before {
-					-webkit-text-stroke: 2px var(--outline, transparent);
-					content: attr(outline);
-					position: absolute;
-					z-index: -1;
-				}
-			`);
-			this.gui.insertStyleSheet(styleSheet);
-			this.styleSheet = styleSheet;
-		}
-		return this.styleSheet
+		this.init()
 	}
 
 	init() {
+		if (this.element) return console.warn('[Game] MessageManager already initialized!');
+
+		const styleSheet = this.constructor.getStyleSheet();
+		this.gui.insertStyleSheet(styleSheet);
+
 		this.element = this.gui.constructor.createElement('p.message');
+		this.gui.appendChild(this.element)
 	}
 
 	show(t, e, i, s) {
+		if (!this.element) this.init();
+
 		this.hide();
 		this.element.textContent = t;
 		this.message = t;
@@ -63,6 +69,8 @@ export default class {
 	}
 
 	hide() {
+		if (!this.element) return;
+
 		this.element.textContent = null;
 		this.element.style.removeProperty('--color');
 		this.element.removeAttribute('outline');

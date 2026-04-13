@@ -72,7 +72,6 @@ export default class {
 		const inc = { x, y };
 		this.pos.inc(inc);
 		this.old.inc(inc);
-		this.displayPos.inc(inc);
 		this.lastFixedPos.inc(inc)
 	}
 	draw(t) {

@@ -50,7 +50,7 @@ export default class {
 		this.camera = t.camera,
 		this.canvasPool = new CanvasPool(t),
 		this.createPowerupCache();
-		if ('TrackRenderer' in window) {
+		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
 			Object.defineProperty(this, '_boundRenderer', {
 				configurable: true,
 				value: this._handleRenderer.bind(this),
@@ -449,7 +449,8 @@ export default class {
 			, f = camera.position.x / settings.drawSectorSize - scene.screen.width / (2 * size) - 1 | 0
 			, v = camera.position.y / settings.drawSectorSize - scene.screen.height / (2 * size) - 1 | 0;
 		for (const t of this.totalSectors) {
-			if (t.dirty && t.cleanSector(), t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
+			t.dirty && t.cleanSector();
+			if (t.column >= f && g >= t.column && t.row >= v && m >= t.row) {
 				t.drawn === !1 && t.draw(),
 				t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
 				let S = (t.column * settings.drawSectorSize - camera.position.x) * camera.zoom + scene.screen.center.x | 0,
@@ -468,7 +469,7 @@ export default class {
 			t.close()
 	}
 	close() {
-		if ('TrackRenderer' in window)
+		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window)
 			TrackRenderer.removeEventListener('message', this._boundRenderer),
 			delete this._boundRenderer;
 		this.scene = null,

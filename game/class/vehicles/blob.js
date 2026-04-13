@@ -73,7 +73,8 @@ export default class extends Vehicle {
 		let a = this.head;
 		a.pos.x = .25 * r,
 		a.pos.y = .25 * o,
-		a.vel = t[0].vel
+		// a.vel = t[0].vel
+		a.vel.equ(t[0].vel)
 	}
 	updateSound() {
 		if (this.player.isInFocus()) {
@@ -143,5 +144,18 @@ export default class extends Vehicle {
 		t.fill(),
 		t.stroke(),
 		t.globalAlpha = 1
+	}
+	update() {
+		super.update(...arguments);
+
+		let t = 0
+		  , e = 0;
+		for (const { displayPos: i } of this.masses)
+			t += i.x,
+			e += i.y;
+
+		let a = this.head;
+		a.displayPos.x = .25 * t,
+		a.displayPos.y = .25 * e
 	}
 }

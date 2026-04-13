@@ -1,7 +1,38 @@
 export default class {
+	static #styleSheet;
+	static getStyleSheet() {
+		if (this.#styleSheet) return this.#styleSheet;
+
+		const styleSheet = new CSSStyleSheet();
+		styleSheet.replaceSync(`
+:host {
+	--accent: hsl(192 50% 60%);
+	accent-color: var(--accent);
+	/* color: hsl(180 4% 91%); */
+	color: var(--color, currentColor);
+	position: relative;
+}
+
+:host(.editor) > :not(slot) { margin-block: 45px }
+
+.overlay, .hud {
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+}
+
+.hud {
+	display: flex;
+	flex-direction: column;
+}
+		`);
+		this.#styleSheet = styleSheet;
+		return styleSheet
+	}
+
 	_container = null;
 	_root = null;
-	styleSheet = new CSSStyleSheet();
+	styleSheet = this.constructor.getStyleSheet();
 	constructor(t) {
 		Object.defineProperties(this, {
 			_container: { enumerable: false },
@@ -11,25 +42,6 @@ export default class {
 		const shadowRoot = t.shadowRoot || t.attachShadow({ mode: 'open' });
 		shadowRoot.children.length === 0 && shadowRoot.appendChild(document.createElement('slot'));
 		this._root = shadowRoot;
-		this.styleSheet.replaceSync(`
-			:host {
-				--accent: hsl(192 50% 60%);
-				accent-color: var(--accent);
-				color: hsl(180 4% 91%);
-				position: relative;
-			}
-
-			.overlay, .hud {
-				inset: 0;
-				pointer-events: none;
-				position: absolute;
-			}
-
-			.hud {
-				display: flex;
-				flex-direction: column;
-			}
-		`);
 		this.insertStyleSheet(this.styleSheet)
 	}
 

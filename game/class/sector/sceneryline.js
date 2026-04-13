@@ -84,5 +84,14 @@ export default class {
 		this.sectors = []
 	}
 
+	toBuffer(type) {
+		const arr = new Int32Array(4);
+		arr[0] = this.p1.x;
+		arr[1] = this.p1.y;
+		arr[2] = this.p2.x;
+		arr[3] = this.p2.y;
+		return arr
+	}
+
 	static type = 'scenery';
 }

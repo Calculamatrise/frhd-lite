@@ -4,7 +4,7 @@ import Explosion from "./explosion.js";
 export default class {
 	static Sounds = {};
 	alive = true;
-	color = '#000000';
+	color = window.GameSettings?.physicsLineColor || '#000000';
 	complete = false;
 	cosmetics = null;
 	crashed = false;
@@ -17,8 +17,10 @@ export default class {
 	springs = [];
 	slow = false;
 	constructor(t) {
-		Object.defineProperty(this, 'player', { value: t, writable: true }),
-		Object.defineProperty(this, 'scene', { value: t._scene, writable: true }),
+		Object.defineProperties(this, {
+			player: { value: t, writable: true },
+			scene: { value:t._scene }
+		}),
 		this.gamepad = t._gamepad,
 		this.settings = t._settings,
 		this.createCosmetics()
@@ -56,7 +58,7 @@ export default class {
 	}
 	moveVehicle(t, e) {
 		for (var i = this.masses, s = i.length, n = s - 1; n >= 0; n--)
-			i[n].move(t, e)
+			i[n].translate(t, e)
 	}
 	stopSounds() {
 		for (const key in this.constructor.Sounds) {

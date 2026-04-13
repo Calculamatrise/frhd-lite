@@ -1,6 +1,7 @@
+import EventEmitter from "../EventEmitter.js";
 import Vector from "../math/cartesian.js";
 
-export default class {
+export default class extends EventEmitter {
 	enabled = !0;
 	touch = null;
 	touches = [];
@@ -9,6 +10,7 @@ export default class {
 	mousewheel = !1;
 	throttledMouseWheel = null;
 	constructor(t) {
+		super();
 		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
 		this.touch = this.getTouchObject();
 		this.touch.old = this.getTouchObject();
@@ -68,10 +70,12 @@ export default class {
 		2 === t.button ? this.secondaryTouch.down === !1 && (this.updatePosition(t, this.secondaryTouch),
 		this.secondaryTouch.down = !0) : this.touch.down === !1 && (this.updatePosition(t, this.touch),
 		this.touch.down = !0,
+		this.emit('down', this.touch),
 		this.scene.redrawControls())
 	}
 	onMouseMove(t) {
 		this.updatePosition(t, this.touch),
+		this.emit('move', this.touch),
 		this.scene.redrawControls(),
 		this.updatePosition(t, this.secondaryTouch)
 	}
@@ -81,6 +85,7 @@ export default class {
 		this.secondaryTouch.down = !1) : this.touch.down === !0 && (this.updatePosition(t, this.touch),
 		this.scene.interactWithControls(),
 		this.touch.down = !1,
+		this.emit('up', this.touch),
 		this.scene.redrawControls())
 	}
 	onMouseWheel(t) {

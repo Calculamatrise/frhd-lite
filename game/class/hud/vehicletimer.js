@@ -1,74 +1,90 @@
-import Container from "../interfaces/container.js";
+export default class {
+	static #styleSheet;
+	static getStyleSheet() {
+		if (this.#styleSheet) return this.#styleSheet;
 
-export default class extends Container {
+		const styleSheet = new CSSStyleSheet();
+		styleSheet.replaceSync(`
+.vehicle-timer {
+	background-color: rgba(242,144,66,.5);
+	border: 3px solid rgba(242,144,66,1);
+	border-radius: .75em;
+	bottom: 10px;
+	font-family: 'helsinki';
+	font-size: 17.5px;
+	left: 0;
+	line-height: 1em;
+	margin-inline: auto;
+	max-height: 40%;
+	padding: .25em 1.25em;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	transition: opacity 200ms ease;
+	user-select: none;
+	width: fit-content;
+}
+
+.vehicle-timer:hover { opacity: .5 }
+		`);
+		this.#styleSheet = styleSheet;
+		return styleSheet
+	}
+
+	get visible() { return this.element?.style.getPropertyValue('display') == 'none' }
+	set visible(value) { this.element?.style.setProperty('display', value ? 'block' : 'none') }
+
 	settings = null;
 	constructor(t) {
-		super({
-			background: 'rgba(242,144,66,.5)',
-			borderColor: 'rgba(242,144,66,1)',
-			borderRadius: '75%',
-			borderWidth: 5,
-			color: 'black',
-			font: { size: 17.5 },
-			text: "00:00",
-			textAlign: 'center',
-			textBaseline: 'middle',
-			width: 200,
-			height: 60,
-			x: 100,
-			y: 80
+		Object.defineProperties(this, {
+			scene: { value: t, writable: true },
+			gui: { value: t.game.gui, writable: true }
 		});
-		Object.defineProperty(this, 'scene', { value: t, writable: true }),
-		this.settings = t.settings,
-		this.removePlayer(),
-		this.centerContainer(),
-		this.createPulseTween()
+		this.settings = t.settings;
+		this.removePlayer()
 	}
+
+	init() {
+		if (this.element) return;
+
+		const styleSheet = this.constructor.getStyleSheet();
+		this.gui.insertStyleSheet(styleSheet);
+
+		const container = this.gui.constructor.createElement('div.vehicle-timer');
+		container.textContent = "00:00";
+		this.element = container;
+		this.gui.appendChild(this.element)
+	}
+
 	setPlayer(t) {
 		this.player = t
 	}
-	removePlayer() {
-		this.player = !1
-	}
-	playerAddedTime(t) {
-		this.player === t && this.createPulseTween()
-	}
-	createPulseTween() {
-		const i = this.scene.game.pixelRatio / 2;
-		this.tweenRemaining = 200;
-		this.tweenStart = i;
-		this.tweenScale = 1.2 * i
-	}
-	centerContainer() {
-		const t = this.scene.screen;
-		this.x = t.width / 2 - this.actualWidth / 2,
-		this.y = t.height - this.actualHeight - 100 - this.settings.inset.bottom
-	}
-	fixedUpdate() {
-		if (this.tweenRemaining > 0) {
-			this.tweenRemaining = Math.max(this.tweenRemaining - 1e3 / this.scene.game.settings.drawFPS);
-			this.scale.x = this.scale.y = this.scale.x * (1 - this.tweenRemaining / 100) + this.tweenScale * (this.tweenRemaining / 100);
-			this.scale.x == this.tweenScale && (this.tweenScale = this.tweenStart);
-		}
 
-		this.player && this.player._tempVehicleTicks > 0 ? (this.centerContainer(),
-		this.updateTime()) : this.visible = !1
-		this.visible = !0
+	removePlayer() {
+		this.player = null
 	}
+
+	playerAddedTime(t) {
+		this.player === t && this.init()
+	}
+
+	fixedUpdate() {
+		this.player?._tempVehicleTicks > 0 ? this.updateTime() : this.visible = false
+	}
+
 	updateTime() {
 		let e = this.player._tempVehicleTicks
 		  , i = this.scene.settings.drawFPS
 		  , s = (e / i).toFixed(2)
-		  , n = "";
-		10 > s && (n = "0"),
-		n += s,
-		this.text = n,
-		this.setDirty(),
+		  , n = 10 > s ? '0' : '';
+		n += s;
+		if (n !== this.element.textContent) this.element.textContent = n;
 		this.visible = true
 	}
+
 	close() {
-		this.player = null,
-		this.scene = null,
+		this.player = null;
+		this.scene = null;
 		this.settings = null
 	}
 }

@@ -4,6 +4,10 @@ import r from "../sector/sceneryline.js";
 import o from "../sector/powerups/target.js";
 
 export default class {
+	#boundGamepadListener;
+	#boundMouseListener;
+	#boundListener;
+
 	currentTool = "";
 	scene = null;
 	camera = null;
@@ -13,7 +17,7 @@ export default class {
 	gridCache = !1;
 	gridCacheAlpha = 1;
 	gridUseEnabled = !1;
-	snapPoint = !1;
+	snapPoint = null;
 	previousTool = "";
 	options = null;
 	constructor(t) {
@@ -28,7 +32,15 @@ export default class {
 		t.settings.analyticsEnabled !== false && this.initAnalytics(),
 		this.actionTimeline = [],
 		this.actionTimelineMax = 50,
-		this.actionTimelinePointer = 0
+		this.actionTimelinePointer = 0;
+
+		// this.#boundMouseListener = this.checkMouse.bind(this);
+		// this.mouse.on('down', this.#boundMouseListener);
+		// this.mouse.on('move', this.#boundMouseListener);
+
+		this.#boundGamepadListener = this.checkHotkeys.bind(this);
+		this.gamepad.addEventListener('buttonDown', this.#boundGamepadListener);
+		this.gamepad.addEventListener('buttonUp', this.#boundGamepadListener)
 	}
 	initAnalytics() {
 		Object.defineProperty(this, 'analytics', {
@@ -121,7 +133,7 @@ export default class {
 	update() {
 		this.checkGrid(),
 		this.mouse.enabled && this.tools[this.currentTool].update(),
-		this.checkHotkeys(),
+		// this.checkHotkeys(),
 		this.checkMouse(),
 		this.checkSnap()
 	}
@@ -241,7 +253,7 @@ export default class {
 		t.globalAlpha = 1
 	}
 	cacheGrid() {
-		if (window.lite && lite.storage.get("isometricGrid"))
+		if (window.lite?.storage.get("isometricGrid"))
 			return this.cacheIsometricGrid()
 		let t = this.scene.camera.zoom
 		  , e = 200 * t

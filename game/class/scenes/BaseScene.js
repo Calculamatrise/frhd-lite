@@ -2,7 +2,7 @@ import Track from "../tracks/track.js";
 import LoadingCircle from "../hud/loadingcircle.js";
 import MessageManager from "../hud/messagemanager.js";
 import Score from "../hud/score.js";
-import MouseHandler from "../handlers/mousehandler.js";
+import MouseHandler from "../handlers/mouse.js";
 import SoundManager from "../managers/soundmanager.js";
 import CameraTool from "../tools/cameratool.js";
 import ToolHandler from "../tools/toolhandler.js";
@@ -89,8 +89,8 @@ export default class {
 		return i
 	}
 	createTrack() {
-		this.track && this.track.close();
-		let t = new Track(this);
+		this.track?.close();
+		const t = new Track(this);
 		this.track = t;
 		return t
 	}
@@ -122,9 +122,7 @@ export default class {
 		/* !this.state.paused && */ /* !this.state.idle && */ (// ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
 		this.toolHandler.drawGrid(ctx),
 		this.track.draw(ctx)),
-		// this.score.draw(ctx),
 		this.playerManager.draw(ctx),
-		this.vehicleTimer.player && this.vehicleTimer.player._tempVehicleTicks > 0 && this.vehicleTimer.draw(ctx),
 		this.toolHandler.draw(ctx),
 		this.loading && this.loadingcircle.draw(ctx)
 	}
@@ -134,12 +132,12 @@ export default class {
 		this.playerManager.checkKeys()),
 		!this.state.paused && this.state.playing && (this.message.update(),
 		this.playerManager.fixedUpdate(),
-		!this.camera.focusIndex && (this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++)),
-		this.vehicleTimer.fixedUpdate()
+		!this.camera.focusIndex && (this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
+		this.vehicleTimer.fixedUpdate())
 	}
 	update(delta) {
 		this.restartTrack && this.restart();
-		this.updateToolHandler();
+		this.toolHandler.update();
 		this.mouse.update();
 		this.score.update();
 		this.sound.update();
@@ -181,7 +179,6 @@ export default class {
 		return i
 	}
 	redraw() {
-		this.score.redraw(),
 		this.track.undraw(),
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()
@@ -192,6 +189,9 @@ export default class {
 		this.toolHandler = t,
 		t.registerTool(CameraTool);
 		return t
+	}
+	resize() {
+		// this.toolHandler.resize()
 	}
 	updateState() {
 		let t = this.state;
@@ -209,9 +209,6 @@ export default class {
 		  , s = t.indexOf(i);
 		i = t[++s % e];
 		this.selectVehicle(i)
-	}
-	updateToolHandler() {
-		this.toolHandler.update()
 	}
 	selectVehicle(t) {
 		let e = this.track.allowedVehicles

@@ -5,14 +5,14 @@ export default class {
 	constructor(t) {
 		Object.defineProperty(this, 'scene', { value: t || null, writable: true });
 		this.muted = t.settings.soundsEnabled !== !1;
-		Number.isFinite(t.settings.volume) && (this.volume = t.settings.volume)
+		isFinite(t.settings.volume) && (this.volume = t.settings.volume)
 	}
 	update() {
 		let t = this.scene
 		  , e = t.settings
 		  , i = t.state.paused || !t.state.playing;
 		this.muted = i || e.soundsEnabled === !1;
-		this.volume !== e.volume && Number.isFinite(e.volume) && (this.volume = e.volume);
+		this.volume !== e.volume && isFinite(e.volume) && (this.volume = e.volume);
 		for (let s of this.sounds.values()) {
 			s.muted = this.muted;
 			if (s.paused && !i) {

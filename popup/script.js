@@ -5,8 +5,6 @@ const state = document.querySelector('#state');
 state.addEventListener('click', function(event) {
 	if (this.classList.contains('update-available')) {
 		return chrome.runtime.reload();
-	} else if (event.altKey && event.shiftKey) {
-		return window.open(chrome.runtime.getURL('dashboard/index.html'));
 	}
 
 	chrome.storage.proxy.local.set('enabled', !chrome.storage.proxy.local.get('enabled'))
@@ -197,8 +195,6 @@ document.documentElement.addEventListener('pointerdown', function (event) {
 		rippleCache.delete(event.target)
 	}, 1e3);
 	rippleCache.set(event.target, timeout)
-	// this.style.setProperty('--offsetX', event.offsetX);
-	// this.style.setProperty('--offsetY', event.offsetY)
 });
 
 function setState(enabled) {

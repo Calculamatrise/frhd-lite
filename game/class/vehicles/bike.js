@@ -78,27 +78,25 @@ export default class extends Vehicle {
 		l
 	}
 	fixedUpdate() {
-		if (!super.fixedUpdate()) {
-			// To compensate -- For it not to look choppy
-			// Call this.update(this.scene.game.lastTime - performance.now() / this.scene.game.updateInterval?)
-			// if (this.slow !== false && (this._slowState = 1 - Boolean(this._slowState)) === 1) return; // return this.update()
-			let t = this.springs
-			  , e = this.masses;
+		if (super.fixedUpdate()) return;
+		// To compensate -- For it not to look choppy
+		// Call this.update(this.scene.game.lastTime - performance.now() / this.scene.game.updateInterval?)
+		// if (this.slow !== false && (this._slowState = 1 - Boolean(this._slowState)) === 1) return; // return this.update()
+		let t = this.springs
+			, e = this.masses;
+		for (let e = t.length, i = e - 1; i >= 0; i--)
+			t[i].fixedUpdate();
+		for (let n = e.length, r = n - 1; r >= 0; r--)
+			e[r].fixedUpdate();
+		this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1);
+		if (this.slow === !1) {
+			this.crashed === !1 && this.control();
 			for (let e = t.length, i = e - 1; i >= 0; i--)
 				t[i].fixedUpdate();
 			for (let n = e.length, r = n - 1; r >= 0; r--)
 				e[r].fixedUpdate();
-			this.rearWheel.contact && this.frontWheel.contact && (this.slow = !1);
-			if (this.slow === !1) {
-				this.crashed === !1 && this.control();
-				for (let e = t.length, i = e - 1; i >= 0; i--)
-					t[i].fixedUpdate();
-				for (let n = e.length, r = n - 1; r >= 0; r--)
-					e[r].fixedUpdate();
-			}
-			this.ragdoll && this.ragdoll.fixedUpdate()
 		}
-		this.updateCameraFocalPoint()
+		this.ragdoll && this.ragdoll.fixedUpdate()
 	}
 	update() {
 		(this.scene.game.interpolation || this.scene.camera.playerFocus?.isGhost() || !this.scene.camera.playerFocus?.isAlive()) && super.update(...arguments);

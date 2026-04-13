@@ -1,73 +1,96 @@
-import GUI from "../interfaces/gui.js";
-import Component from "../interfaces/component.js";
 import Cartesian from "../math/cartesian.js";
 
-export default class extends GUI {
-	bar = new Component({
-		background: 'hsl(53deg 95% 59% / 85%)',
-		border: 'round',
-		borderRadius: '100%',
-		color: 'white',
-		data: {
-			delta: 0,
-			oldDelta: 0,
-			progress: 0
-		},
-		height: '100% - 4',
-		x: 2,
-		y: 2,
-		// text: '0/0',
-		// textAlign: 'center',
-		// textBaseline: 'middle',
-		width: 0
-	}, this.container);
-	progress = new Component({
-		color: 'white',
-		height: '100%',
-		text: '0/0',
-		textAlign: 'center',
-		textBaseline: 'middle',
-		width: '100%'
-	}, this.container);
-	steps = new Component({
-		height: '100%',
-		width: '100%'
-	}, this.container);
-	constructor(t) {
-		super(t, {
-			background: 'hsl(0deg 0% 50% / 75%)',
-			borderWidth: 2,
-			borderRadius: '100%',
-			// font: { size: 12 },
-			// padding: 2,
-			verticalAlign: 'bottom',
-			x: 60,
-			y: 32
-		}),
-		this.sprite = t.assets.getResult("targets_icon"),
-		this.resize()
-	}
-	resize() {
-		let t = this.scene.game.canvas
-		  , e = Math.min(12, Math.max(8, t.height / 8));
-		this.container.width = t.width / 3,
-		this.container.x = t.width / 2 - this.container.width / 2,
-		this.container.y = t.height - 1.5 * e - 8,
-		this.container.height = e
-		// this.progress.width = this.container.width
-		// this.bar.height = e
+export default class {
+	static #styleSheet;
+	static getStyleSheet() {
+		if (this.#styleSheet) return this.#styleSheet;
 
-		// if (lite.storage.get('raceProgressSteps') && Math.max(this.scene.track.targets.length, lite.storage.get('raceProgressMin')) > 1) {
-		// 	console.log(this.steps, this.scene.track)
-		// }
+		const styleSheet = new CSSStyleSheet();
+		styleSheet.replaceSync(`
+.race-progress {
+	background-color: hsl(0 0 40% / 33%);
+	border: 1px solid hsl(0 0 40% / 15%);
+	border-bottom-color: transparent;
+	border-radius: 1em;
+	/* bottom: 10px; */
+	font-family: 'helsinki';
+	font-size: 11px;
+	left: 0;
+	line-height: 1em;
+	margin-inline: auto;
+	max-height: 24px;
+	min-width: 150px;
+	padding: .25em;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: 8px;
+	transition: opacity 200ms ease;
+	user-select: none;
+	width: 33%;
+	z-index: 0;
+}
+
+.race-progress::before {
+	--inset: 2px;
+	background-color: hsl(53deg 95% 59% / 85%);
+	border-radius: inherit;
+	bottom: 0;
+	content: "";
+	height: calc(100% - var(--inset) * 2);
+	/* inset: 1px; */
+	left: 0;
+	margin: var(--inset);
+	position: absolute;
+	top: 0;
+	width: calc(1% * var(--progress, 0) - var(--inset) * 2);
+	z-index: -1;
+}
+
+.race-progress::after { content: attr(data-distance) }
+.race-progress[data-display=distance]::after { content: attr(data-distance) attr(unit, "M") }
+.race-progress:not([data-distance]) { display: none }
+		`);
+		this.#styleSheet = styleSheet;
+		return styleSheet
 	}
+
+	get enabled() { return window.lite?.storage.get('raceProgress') }
+	set enabled(value) {
+		if (value) this.element?.style.removeProperty('display');
+		else this.element?.style.setProperty('display', 'none')
+	}
+
+	constructor(t) {
+		Object.defineProperties(this, {
+			scene: { value: t, writable: true },
+			gui: { value: t.game.gui, writable: true }
+		});
+		this.init()
+	}
+
+	init() {
+		if (this.element) return console.warn('[Game] Race progress already initialized!');
+
+		const styleSheet = this.constructor.getStyleSheet();
+		this.gui.insertStyleSheet(styleSheet);
+
+		const container = this.gui.constructor.createElement('div.race-progress');
+		this.element = container;
+
+		if (!this.enabled) this.element.style.setProperty('display', 'none');
+
+		this.gui.appendChild(this.element)
+	}
+
 	update(t) {
 		if (!this.enabled) return;
-		this.updateInset(32);
+
 		let e = this.scene.track
 		  , i = t._powerupsConsumed.targets
 		  , s = i.length / e.targetCount
-		  , n = e.targets.find(t => t.id == (typeof i.at == 'function' ? i.at(-1) : i[i.length - 1])) || { x: 0, y: 0 }
+		  , n = e.targets.find(t => t.id == i.at(-1)) || { x: 0, y: 0 }
 		  , p = new Cartesian(n.x, n.y) // anchor point A
 		  , x = e.targets.length <= 1 ? e.targets : Array(...(t._tempVehicle || t._baseVehicle).masses).map(t => e.targets.filter(t => !i.includes(t.id)).sort((a, b) => new Cartesian(a.x, a.y).sub(t.pos).len() - new Cartesian(b.x, b.y).sub(t.pos).len())[0])
 		  , q = x.sort((a, b) => p.sub(new Cartesian(a.x, a.y).len()) - p.sub(new Cartesian(b.x, b.y).len()))[0] // next target
@@ -76,17 +99,14 @@ export default class extends GUI {
 		  , y = (q && Math.min(...(t._tempVehicle || t._baseVehicle).masses.map(t => v.sub(t.pos).len() /* - ~~t.radius / 2*/).sort((a, b) => a - b))) ?? 0 // distance to next target
 		  , d = Math.min(1, Math.max(0, (w - y) / w)) * 100 / e.targetCount
 		  , m = i.length > 0 && Array(...(t._tempVehicle || t._baseVehicle).masses).map(t => new Cartesian(n.x, n.y).sub(t.pos).len()).sort((a, b) => a - b)[0];
-		s += d / 100,
-		this.bar.data.oldDelta = m ?? null,
-		this.bar.data.delta = y,
-		this.bar.data.progress = s;
-		let scale = Math.max(1, Math.min(1.5, (500 - Math.min(500, Math.min(this.bar.data.delta, this.bar.data.oldDelta))) / 250));
-		this.container.scale.x = scale,
-		this.container.scale.y = scale,
-		this.bar.width = (this.container.width - 4) * s,
-		// this.bar.setDirty(),
-		this.progress.text = y <= 500 && (!this.bar.oldDelta || !(this.bar.oldDelta <= 250)) ? Math.floor(y) + 'm' : (i.length + '/' + e.targetCount),
-		// this.progress.setDirty()
-		this.redraw()
+		s += d / 100;
+		this.oldDelta = m ?? null;
+		this.element.style.setProperty('--progress', s * 100);
+
+		const showDistance = y <= 500 && (!this.oldDelta || !(this.oldDelta <= 250));
+		this.element.dataset.display = showDistance ? 'distance' : 'targets';
+
+		const text = showDistance ? Math.floor(y) : (i.length + '/' + e.targetCount);
+		if (text != this.element.dataset.distance) this.element.dataset.distance = text
 	}
 }

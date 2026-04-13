@@ -5,6 +5,7 @@ export default GameInventoryManager.HeadClass = class {
 		Outline: 'hsl(0, 0%, 0%)',
 		Skin: 'hsl(0, 0%, 100%)'
 	};
+
 	versions = {};
 	createVersion() {
 		let t = this.colors
@@ -18,6 +19,7 @@ export default GameInventoryManager.HeadClass = class {
 			canvas: document.createElement('canvas')
 		}
 	}
+
 	draw(t, e, i, s, n, r) {
 		let o = this.getCache(n)
 		  , l = this.getScale()
@@ -34,14 +36,17 @@ export default GameInventoryManager.HeadClass = class {
 		t.rotate(-s),
 		t.translate(-e, -i)
 	}
+
 	getCache(t) {
 		let e = this.getVersions();
 		return e[this.versionName].dirty && this.cache(t),
 		e[this.versionName].canvas
 	}
+
 	getVersions() {
 		return this.versions
 	}
+
 	setDirty() {
 		let t = this.getVersions();
 		t[this.versionName].dirty = !0

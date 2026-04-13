@@ -6,16 +6,16 @@
 	<script type="module" src="script.js" defer></script>
 </head>
 <body class="view">
-	<div style="display:flex;gap:.25em;">
+	<header>
 		<button class="tab" id="state"></button>
 		<button id="sponsor">
-			<svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" fill="#c96198">
+			<svg height="16" viewBox="0 0 16 16" width="16" fill="#c96198">
 				<path d="m8 14.25.345.666a.75.75 0 0 1-.69 0l-.008-.004-.018-.01a7.152 7.152 0 0 1-.31-.17 22.055 22.055 0 0 1-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.066 22.066 0 0 1-3.744 2.584l-.018.01-.006.003h-.002ZM4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.58 20.58 0 0 0 8 13.393a20.58 20.58 0 0 0 3.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.749.749 0 0 1-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5Z"></path>
 			</svg>
 			<!-- show sponsor text only on hover-- expand width -->
 			<!-- <span>Sponsor</span> -->
 		</button>
-	</div>
+	</header>
 	<nav>
 		<label for="features" class="tab ripple">Features</label>
 		<label for="options" class="tab ripple">Options</label>
@@ -24,7 +24,7 @@
 	</nav>
 	<div class="details">
 		<input type="radio" name="nav" id="features">
-		<label class="ripple" title="Displays featured ghosts on the leaderboard">
+		<!-- <label class="ripple" title="Displays featured ghosts on the leaderboard">
 			<input type="checkbox" id="accountManager">
 			<span>Account manager</span>
 		</label>
@@ -42,7 +42,9 @@
 				<input type="checkbox" id="playlists">
 				<span>Playlists</span>
 			</label>
-		</details>
+		</details> -->
+		<p>Web-based features have migrated to a separate extension for better compatibility with other mods. <a href="https://community.freeriderhd.com/threads/free-rider-toolkit.15597/">Click here to read more</a></p>
+		<button style="width:100%">Install Free Rider Toolkit</button>
 	</div>
 	<div class="details">
 		<input type="radio" name="nav" id="options" checked>
@@ -58,10 +60,10 @@
 			<input type="checkbox" id="isometricGrid">
 			<span>Isometric grid</span>
 		</label>
-		<label class="ripple" title="Display the last 15 snapshots of your rider">
+		<!-- <label class="ripple" title="Display the last 15 snapshots of your rider">
 			<input type="checkbox" id="playerTrail">
 			<span>Player trail</span>
-		</label>
+		</label> -->
 		<label class="ripple" title="Display a progress bar for your race">
 			<input type="checkbox" id="raceProgress">
 			<span class="name">Race progress</span>
@@ -87,7 +89,7 @@
 		</details>
 		<details>
 			<summary class="tab ripple">Show advanced options</summary>
-			<label class="ripple" title="Always show the distance to the next target">
+			<label class="ripple disabled" title="Always show the distance to the next target">
 				<input type="checkbox" id="alwaysShowDistance">
 				<span>Always show distance</span>
 			</label>
@@ -103,17 +105,25 @@
 				<input type="checkbox" id="disableAnalytics">
 				<span>Disable analytics</span>
 			</label>
-			<label title="Use relative size for UI components">
+			<label class="ripple" title="Moves rendering to a worker thread so the main thread remains responsive">
+				<input type="checkbox" id="multiThreadedRendering" checked>
+				<span style="font-size: smaller">Multi-threaded rendering</span>
+			</label>
+			<!-- <label title="Use relative size for UI components">
 				<input type="checkbox" id="relativeUISize">
 				<span class="name">Relative UI size</span>
-			</label>
+			</label> -->
 			<label class="ripple" title="Cursor will be a point on the line">
 				<input type="checkbox" id="preciseEditorTools">
 				<span>Precise editor tools</span>
 			</label>
-			<label class="ripple" title="Draw steps on the race progress display">
+			<!-- <label class="ripple" title="Draw steps on the race progress display">
 				<input type="checkbox" id="raceProgressSteps">
 				<span>Race progress steps</span>
+			</label> -->
+			<label class="ripple" title="Whether to show the old timers on the top left">
+				<input type="checkbox" id="showLegacyScore" checked disabled>
+				<span>Show legacy timer</span>
 			</label>
 			<label title="Change the minimum length before lines break in a curve">
 				<span class="name" data-value="20">Curve Break Length</span>
@@ -135,6 +145,10 @@
 				<span class="name" data-value="400000">Export threshold</span>
 				<input type="range" class="override-pointer-events" id="exportThreshold" min="100000" max="1000000" value="400000" step="50000" style="width: -webkit-fill-available">
 			</label>
+			<label class="disabled" title="Cap your frames">
+				<span class="name" data-value="240">Max frame rate</span>
+				<input type="range" class="override-pointer-events" id="maxFrameRate" min="1" max="1000" value="120" step="5" style="width: -webkit-fill-available">
+			</label>
 			<label title="Change the minimum number of steps to draw on the race progress display">
 				<span class="name" data-value="1">Race progress min</span>
 				<input type="range" class="override-pointer-events" id="raceProgressMin" min="1" max="10" value="1" step="1" style="width: -webkit-fill-available">
@@ -145,6 +159,10 @@
 			</label>
 			<details data-type="experiments" style="display: none;">
 				<summary class="tab ripple">Experiments</summary>
+				<label class="ripple" title="Automatically restart if your time is lower than your best">
+					<input type="checkbox" id="autoRestart" disabled>
+					<span>Auto restart</span>
+				</label>
 				<label class="ripple" title="Remove duplicate powerups">
 					<input type="checkbox" id="filterDuplicatePowerups">
 					<span class="name">Filter duplicates</span>
@@ -156,6 +174,10 @@
 				<label class="disabled ripple" title="Draw a racing path and share it for others to follow">
 					<input type="checkbox" id="raceTrail">
 					<span>Path tracer</span>
+				</label>
+				<label class="ripple disabled" title="Display the last n snapshots of your rider">
+					<input type="checkbox" id="playerTrail">
+					<span>Player trail</span>
 				</label>
 				<label class="ripple disabled" title="Allows you to save multiple additional ghosts locally">
 					<input type="checkbox" id="saveMultipleGhosts">

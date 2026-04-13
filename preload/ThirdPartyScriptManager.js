@@ -1,4 +1,4 @@
-{
+if (!self.ModManager) {
 	const Events = {
 		ButtonDown: 'game:buttonDown',
 		ButtonUp: 'game:buttonUp',
@@ -68,8 +68,10 @@
 		writable: true
 	});
 
-	self.ModManager || Object.defineProperty(self, 'ModManager', {
-		value: new ThirdPartyScriptManager(GameManager),
-		writable: true
-	});
+	document.addEventListener('DOMContentLoaded', function() {
+		Object.defineProperty(self, 'ModManager', {
+			value: new ThirdPartyScriptManager(GameManager),
+			writable: true
+		})
+	}, { once: true, passive: true })
 }

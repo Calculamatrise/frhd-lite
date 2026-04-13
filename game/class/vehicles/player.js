@@ -19,7 +19,7 @@ let g = 0
 }
 
 function m(t, e) {
-	for (var i in e)
+	for (const i in e)
 		try {
 			t[i] = e[i].constructor == Object ? m(t[i], e[i]) : e[i]
 		} catch (s) {
@@ -155,7 +155,7 @@ export default class {
 		t = this._baseVehicle)),
 		this._effectTicks > 0 && (this._effectTicks--,
 		this._effect.fixedUpdate()),
-		window.hasOwnProperty('lite') && lite.storage.get('playerTrail') && this.isGhost() || this.isAlive() && lite.snapshots.push(this._createSnapshot()),
+		window.lite?.storage.get('playerTrail') && !this.isGhost() && this.isAlive() && lite.snapshots.push(this._createSnapshot()),
 		t.fixedUpdate();
 		/* !skip && */ this._addCheckpoint && (this._createCheckpoint(),
 		this._addCheckpoint = !1)
@@ -203,6 +203,7 @@ export default class {
 			this.checkKeys(),
 			this.fixedUpdate(),
 			!this.complete && (this._gamepad.playbackTicks += 1 / (this._game.config.tickRate / 30)), /* this._gamepad.playbackTicks++; */
+			this._game.emit('playbackTick', this);
 			this.isInFocus() && this._game.emit('replayTick', this._gamepad.playbackTicks)
 		}
 
@@ -264,7 +265,7 @@ export default class {
 		this._tempVehicleTicks > 0 && (t = this._tempVehicle),
 		this._effectTicks > 0 && this._effect.draw(ctx, this._effectTicks / 100),
 		t.draw(ctx),
-		window.hasOwnProperty('lite') && lite.storage.get('confirmRestart') && this._gamepad.isButtonDown('restart') && this.drawRestart(ctx),
+		window.lite?.storage.get('confirmRestart') && this._gamepad.isButtonDown('restart') && this.drawRestart(ctx),
 		this.isGhost() && this.drawName(ctx)
 	}
 	drawRestart(ctx) {
@@ -368,7 +369,10 @@ export default class {
 					y: 0
 				}));
 				let r = JSON.parse(s._tempVehicle);
-				m(n, r),
+				m(n, r);
+				for (const m of n.masses)
+					m.displayPos = m.pos,
+					m.lastFixedPos.equ(m.pos);
 				this._tempVehicle = n,
 				this._tempVehicleType = s._tempVehicleType,
 				this._tempVehicleTicks = s._tempVehicleTicks,
@@ -377,8 +381,9 @@ export default class {
 				let n = this._baseVehicle
 				  , r = JSON.parse(s._baseVehicle);
 				m(n, r);
-				// for (const m of n.masses)
-				// 	m.lastFixedPos.equ(m.pos);
+				for (const m of n.masses)
+					m.displayPos = m.pos,
+					m.lastFixedPos.equ(m.pos);
 				this._tempVehicle && this._tempVehicle.stopSounds(),
 				this._tempVehicleTicks = 0,
 				this._tempVehicleType = !1,

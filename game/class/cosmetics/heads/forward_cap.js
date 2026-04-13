@@ -5,6 +5,7 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		this.colors = t,
 		this.createVersion()
 	}
+
 	cache(t) {
 		let e = this.versions[this.versionName]
 		  , h = e.canvas
@@ -44,6 +45,7 @@ export default class ForwardCap extends GameInventoryManager.HeadClass {
 		l.lineTo(103.5, 36.5),
 		l.stroke()
 	}
+
 	getBaseWidth() { return 115 }
 	getBaseHeight() { return 112 }
 	getDrawOffsetX() { return 2.2 }

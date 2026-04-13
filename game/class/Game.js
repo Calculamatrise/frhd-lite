@@ -2,7 +2,7 @@ import EventEmitter from "./EventEmitter.js";
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
 import Events from "./utils/events.js";
-import Gui from "./interfaces/gui_.js";
+import Gui from "./ui/gui.js";
 
 const SCENES =  { Editor, Main };
 class Game extends EventEmitter {
@@ -20,7 +20,7 @@ class Game extends EventEmitter {
 	assets = null;
 	canvas = null;
 	currentScene = null;
-	gameContainer = null;
+	container = null;
 	gui = null;
 	height = 0;
 	onStateChange = null;
@@ -43,6 +43,7 @@ class Game extends EventEmitter {
 			right: 0,
 			top: 0
 		}, i.inset);
+		i.multiThreadedRendering ??= true;
 		this.settings = i;
 		this.initCanvas();
 		this.setSize();
@@ -64,9 +65,9 @@ class Game extends EventEmitter {
 		this.canvas = document.createElement("canvas"),
 		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true }),
 		this.ctx = this.canvas.getContext("2d"),
-		this.gameContainer = document.getElementById(this.settings.defaultContainerID),
-		this.gameContainer !== null && this.gameContainer.appendChild(this.canvas),
-		this.gui = new Gui(this.gameContainer)
+		this.container = document.getElementById(this.settings.defaultContainerID),
+		this.container !== null && this.container.appendChild(this.canvas),
+		this.gui = new Gui(this.container)
 	}
 	resetFrameProgress() {
 		this.lastTime = performance.now();
@@ -84,8 +85,8 @@ class Game extends EventEmitter {
 		let t = window.innerHeight
 		  , e = window.innerWidth;
 		if (!this.settings.fullscreen && !this.settings.isStandalone) {
-			t = this.gameContainer.clientHeight,
-			e = this.gameContainer.clientWidth;
+			t = this.container.clientHeight,
+			e = this.container.clientWidth;
 		}
 		this.currentScene && (t -= this.currentScene.getCanvasOffset().height)
 		let n = 1;
@@ -114,9 +115,10 @@ class Game extends EventEmitter {
 		})
 	}
 	switchScene(t) {
-		this.currentScene !== null && this.currentScene.close(),
-		this.currentScene = new SCENES[t](this),
-		this.emit(Events.SceneChange, this.currentScene)
+		this.currentScene !== null && this.currentScene.close();
+		this.currentScene = new SCENES[t](this);
+		this.emit(Events.SceneChange, this.currentScene);
+		this.container.classList.toggle('editor', t === 'Editor')
 	}
 	update(time) {
 		// DEBUG

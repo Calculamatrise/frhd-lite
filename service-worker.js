@@ -1,7 +1,7 @@
 import defaults from "./constants/defaults.js";
 
 const excludeMatches = [
-	"*://*/*\?ajax*",
+	"*://*/*?ajax*",
 	"*://*/*&ajax*",
 	"*://*.com/*api/*"
 ];
@@ -12,12 +12,7 @@ const documentUrlPatterns = [
 const moduleScript = {
 	excludeMatches,
 	id: "mod",
-	js: [
-		"game/mod.js",
-		"game/modules/profileSearch.js",
-		"game/modules/trackModeration.js"
-		// modules
-	],
+	js: ["mod/main.js"],
 	matches: documentUrlPatterns,
 	runAt: "document_end",
 	world: "MAIN"
@@ -27,28 +22,17 @@ const contentScripts = [{
 	id: "connection-broker",
 	js: ["broker.js", "game/renderer/inject.js"],
 	matches: documentUrlPatterns,
-	runAt: "document_end"
+	runAt: "document_start"
 }, {
 	excludeMatches,
 	id: "game",
 	js: [
-		"shared/Zip.js",
-		"game/assets/elements/ContextMenu.js",
+		"preload/ThirdPartyScriptManager.js",
+		"preload/ThirdPartyStyleManager.js",
 		"game/main.js"
 	],
 	matches: documentUrlPatterns,
 	runAt: "document_start",
-	world: "MAIN"
-}, {
-	excludeMatches,
-	id: "ext",
-	js: [
-		"game/ThirdPartyScriptManager.js",
-		"game/ThirdPartyStyleManager.js",
-		// "game/mod.js"
-	],
-	matches: documentUrlPatterns,
-	runAt: "document_end",
 	world: "MAIN"
 }, moduleScript];
 
@@ -74,8 +58,7 @@ chrome.runtime.onUpdateAvailable.addListener(async function() {
 });
 
 chrome.storage.local.onChanged.addListener(function({ enabled, settings }) {
-	enabled && setState({ enabled: enabled.newValue });
-	settings && updateModuleScript(settings.newValue)
+	enabled && setState({ enabled: enabled.newValue })
 });
 
 self.addEventListener('activate', function() {
@@ -85,11 +68,8 @@ self.addEventListener('activate', function() {
 async function setState({ enabled = true }) {
 	if (enabled) {
 		await chrome.scripting.registerContentScripts(contentScripts);
-		await chrome.storage.local.get(({ settings }) => updateModuleScript(settings));
-		await createContextMenuOptions();
 	} else {
 		await chrome.scripting.unregisterContentScripts();
-		await chrome.contextMenus.removeAll();
 	}
 
 	await chrome.declarativeNetRequest.updateEnabledRulesets({
@@ -108,63 +88,6 @@ function updateIcon(enabled = true) {
 			128: path(128)
 		}
 	})
-}
-
-chrome.contextMenus.onClicked.addListener(function(event) {
-	chrome.storage.local.get(({ settings }) => {
-		switch(event.menuItemId) {
-		case 'accountManager':
-		case 'achievementMonitor':
-		case 'featuredGhostsDisplay':
-			settings[event.menuItemId] = event.checked;
-			chrome.storage.local.set({ settings })
-		}
-	})
-});
-
-function createContextMenuOptions() {
-	return chrome.storage.local.get(async ({ settings }) => {
-		const options = {
-			accountManager: { checked: settings.accountManager, title: 'Account Manager', type: 'checkbox' },
-			achievementMonitor: { checked: settings.achievementMonitor, title: 'Achievement Monitor', type: 'checkbox' },
-			featuredGhostsDisplay: { checked: settings.featuredGhostsDisplay, title: 'Highlight Featured Races', type: 'checkbox' }
-		}
-		for (const option in options) {
-			await chrome.contextMenus.create(Object.assign({
-				contexts: ['page'],
-				documentUrlPatterns,
-				id: option,
-				type: 'normal'
-			}, options[option]))
-		}
-	})
-}
-
-async function updateModuleScript(settings) {
-	const scripts = moduleScript.js;
-	for (const module in settings) {
-		switch (module) {
-		case 'accountManager':
-		case 'achievementMonitor':
-		case 'featuredGhostsDisplay':
-		case 'playlists':
-			break;
-		default:
-			continue;
-		}
-
-		const enabled = settings[module];
-		const path = `game/modules/${module}.js`;
-		if (enabled) {
-			scripts.push(path);
-		} else if (scripts.includes(path)) {
-			scripts.splice(scripts.indexOf(path), 1);
-		}
-	}
-
-	// return chrome.scripting.updateContentScripts([moduleScript])
-	await chrome.scripting.unregisterContentScripts();
-	return chrome.scripting.registerContentScripts(contentScripts)
 }
 
 import "./externalApi.js";

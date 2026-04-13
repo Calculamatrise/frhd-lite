@@ -53,12 +53,12 @@ export default class extends EventTarget {
 	handleButtonDown(t) {
 		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && !t.ctrlKey && t.preventDefault(),
-		this.setButtonDown(e)
+		this.setButtonDown(e, null, t.isTrusted)
 	}
 	handleButtonUp(t) {
 		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && t.preventDefault(),
-		this.setButtonUp(e)
+		this.setButtonUp(e, t.isTrusted)
 	}
 	blurred = false;
 	previousDownButtons = {};
@@ -77,21 +77,27 @@ export default class extends EventTarget {
 		for (let e in t)
 			this.setButtonDown(t[e])
 	}
-	setButtonUp(t) {
+	setButtonUp(t, isTrusted) {
 		this.blurred = false;
-		const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Up', t));
-		if (defaultPrevented) return;
+		if (isTrusted) {
+			const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Up', t));
+			if (defaultPrevented) return;
+		}
+
 		this.downButtons[t] && (this.onButtonUp && this.onButtonUp(t),
 		this.downButtons[t] = !1,
 		this.inactiveDownButtons.delete(t),
 		this.inactiveDownButtons.delete(t == 'left' ? 'right' : t == 'right' ? 'left' : null),
 		this.numberOfKeysDown--)
 	}
-	setButtonDown(t, e) {
+	setButtonDown(t, e, isTrusted) {
 		this.blurred = false;
 		if (this.downButtons[t]) return;
-		const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Down', t));
-		if (defaultPrevented) return;
+		if (isTrusted) {
+			const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Down', t));
+			if (defaultPrevented) return;
+		}
+
 		this.onButtonDown && this.onButtonDown(t),
 		this.downButtons[t] = e ? e : !0,
 		e = t == 'left' ? 'right' : t == 'right' ? 'left' : null,
@@ -127,7 +133,7 @@ export default class extends EventTarget {
 	update() {
 		this.replaying && this.updatePlayback();
 		!this.blurred && (this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
-		this.tickDownButtons = window.hasOwnProperty('lite') && lite.storage.get('inputRollover') && this.recording ? Object.fromEntries(Object.entries(this.downButtons).map(([key, value]) => [key, value && this.inactiveDownButtons.has(key) ? false : value])) : Object.assign({}, this.downButtons));
+		this.tickDownButtons = window.lite?.storage.get('inputRollover') && this.recording ? Object.fromEntries(Object.entries(this.downButtons).map(([key, value]) => [key, value && this.inactiveDownButtons.has(key) ? false : value])) : Object.assign({}, this.downButtons));
 		// console.log(this.downButtons, this.tickDownButtons)
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
 		this.recording && this.updateRecording()

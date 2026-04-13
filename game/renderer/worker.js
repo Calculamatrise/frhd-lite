@@ -96,8 +96,7 @@ Object.defineProperty(self, 'grid', {
 
 addEventListener('message', async function({ data }) {
 	switch (data.type) {
-	case 0: // ping
-		return postMessage({ type: 1 });
+	case 0: return postMessage({ type: 1 }); // ping
 	case 'CACHE_SECTOR': {
 		const { sector: { column, row, size, x, y }, settings, zoom } = data;
 		const sector = grid.get(column, row);
@@ -152,7 +151,7 @@ addEventListener('message', async function({ data }) {
 		break;
 	}
 
-	case 'CREATE_SECTOR':
+	case 'CREATE_SECTOR': {
 		const { sector: { column, row, size, x, y }, physicsLines, sceneryLines, settings } = data;
 		grid.clear(column, row);
 		grid.set(column, row, {
@@ -161,7 +160,67 @@ addEventListener('message', async function({ data }) {
 			settings,
 			size,
 			x, y
-		})
+		});
+		break;
+	}
+
+	case 'ADD_LINE': {
+		const { sector: { column, row }, physicsLines, sceneryLines } = data;
+		const sector = grid.get(column, row);
+		if (!sector) return;
+		if (physicsLines) {
+			for (const [x1, y1, x2, y2] of physicsLines) {
+				sector.physicsLines.push({
+					p1: { x: x1, y: y1 },
+					p2: { x: x2, y: y2 }
+				});
+			}
+		}
+
+		if (sceneryLines) {
+			for (const [x1, y1, x2, y2] of sceneryLines) {
+				sector.sceneryLines.push({
+					p1: { x: x1, y: y1 },
+					p2: { x: x2, y: y2 }
+				});
+			}
+		}
+		break;
+	}
+
+	case 'REMOVE_LINE':
+		const { sector: { column, row }, physicsLines, sceneryLines } = data;
+		const sector = grid.get(column, row);
+		if (!sector) return;
+		if (physicsLines) {
+			const lines = sector.physicsLines.filter(line => {
+				return physicsLines.find(([x1, y1, x2, y2]) =>
+					line.p1.x === x1 &&
+					line.p1.y === y1 &&
+					line.p2.x === x2 &&
+					line.p2.y === y2
+				)
+			});
+			for (const line of lines) {
+				const index = sector.physicsLines.indexOf(line);
+				sector.physicsLines.splice(index, 1);
+			}
+		}
+
+		if (sceneryLines) {
+			const lines = sector.sceneryLines.filter(line => {
+				return sceneryLines.find(([x1, y1, x2, y2]) =>
+					line.p1.x === x1 &&
+					line.p1.y === y1 &&
+					line.p2.x === x2 &&
+					line.p2.y === y2
+				)
+			});
+			for (const line of lines) {
+				const index = sector.sceneryLines.indexOf(line);
+				sector.sceneryLines.splice(index, 1);
+			}
+		}
 	}
 });
 

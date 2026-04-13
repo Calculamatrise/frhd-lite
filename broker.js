@@ -1,15 +1,18 @@
-chrome.storage.local.get(({ settings }) => {
-	sendPayload({
-		action: 'setStorage',
-		storage: settings
-	})
-});
 chrome.storage.local.onChanged.addListener(({ settings }) => {
 	settings && sendPayload({
 		action: 'updateStorage',
 		storage: settings.newValue
 	})
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+	chrome.storage.local.get(({ settings }) => {
+		sendPayload({
+			action: 'setStorage',
+			storage: settings
+		})
+	})
+}, { once: true, passive: true });
 
 function sendPayload(data) {
 	return postMessage(Object.assign({ sender: 'frhd-lite' }, data))

@@ -25,7 +25,7 @@ export default class extends Vehicle {
 		this.ctx.strokeStyle = this.color
 	}
 	createMasses(t) {
-		var e = [];
+		const e = this.masses;
 		e.push(new Prop(new s(t.x + 0,t.y + 18),this));
 		var i = new Mass(new s(t.x + -17,t.y + 42), this)
 		, r = new Mass(new s(t.x + 17,t.y + 42), this)
@@ -49,12 +49,8 @@ export default class extends Vehicle {
 		this.rotor = 0,
 		this.rotor2 = 0,
 		this.dir = 1;
-		let l = this;
-		e[3].drive = this.head.drive = function() {
-			l.explode()
-		}
-		this.focalPoint = e[0],
-		this.masses = e
+		e[3].drive = this.head.drive = this.explode.bind(this);
+		this.focalPoint = e[0]
 	}
 	createSprings() {
 		let t = this.masses
@@ -140,10 +136,10 @@ export default class extends Vehicle {
 		}
 		this.updateCockpitAngle()
 	}
-	update() {
-		super.update(...arguments);
-		// this.updateCockpitAngle()
-	}
+	// update() {
+	// 	super.update(...arguments);
+	// 	// this.updateCameraFocalPoint()
+	// }
 	updateSound() {
 		if (this.player.isInFocus()) {
 			let t = this.scene.sound
@@ -196,8 +192,8 @@ export default class extends Vehicle {
 	}
 	updateCockpitAngle() {
 		let t = this.masses
-		  , e = t[0].displayPos
-		  , i = t[3].displayPos
+		  , e = t[0].pos
+		  , i = t[3].pos
 		  , s = e.x
 		  , n = e.y
 		  , r = i.x
@@ -249,7 +245,7 @@ export default class extends Vehicle {
 		  , o = this.scene
 		  , a = o.camera.zoom
 		  , q = new s(this.head.displayPos.x, this.head.displayPos.y)
-		  , m = new s(this.mass2.displayPos.x, this.mass2.displayPos.y).add(this.mass3.displayPos).factor(.5)
+		  , m = new s(this.masses[1].displayPos.x, this.masses[1].displayPos.y).add(this.masses[2].displayPos).factor(.5)
 		  , h = q.sub(m).factor(a)
 		  , l = new s(-h.y * i,h.x * i)
 		  , c = q.toScreen(o);
@@ -265,8 +261,8 @@ export default class extends Vehicle {
 		t.moveTo(c.x + .9 * h.x + l.x * u, c.y + .8 * h.y + l.y * u),
 		t.lineTo(c.x + .9 * h.x - l.x * u, c.y + .8 * h.y - l.y * u),
 		t.stroke();
-		var p = new s(this.mass2.displayPos.x, this.mass2.displayPos.y).toScreen(o)
-		  , d = new s(this.mass3.displayPos.x, this.mass3.displayPos.y).toScreen(o);
+		var p = new s(this.masses[1].displayPos.x, this.masses[1].displayPos.y).toScreen(o)
+		  , d = new s(this.masses[2].displayPos.x, this.masses[2].displayPos.y).toScreen(o);
 		t.lineWidth = 3 * a,
 		t.strokeStyle = '#'.padEnd(7, /^(darker|midnight)$/.test(window.lite.storage.get('theme')) ? '8' : window.lite.storage.get('theme') === 'dark' ? '9' : '6'),
 		t.beginPath(),
@@ -284,7 +280,7 @@ export default class extends Vehicle {
 		t.lineWidth = 6 * a,
 		t.strokeStyle = this.color,
 		t.beginPath();
-		var f = new s(this.mass4.displayPos.x, this.mass4.displayPos.y).toScreen(o);
+		var f = new s(this.masses[3].displayPos.x, this.masses[3].displayPos.y).toScreen(o);
 		t.moveTo(c.x, c.y),
 		t.lineTo(f.x, f.y),
 		t.lineTo(c.x - .1 * h.x, c.y - .3 * h.y),
@@ -301,7 +297,7 @@ export default class extends Vehicle {
 		t.stroke(),
 		t.beginPath(),
 		t.lineWidth = 2 * a,
-		t.arc(f.x, f.y, this.mass4.radius * a, 0, 2 * Math.PI, !1),
+		t.arc(f.x, f.y, this.masses[3].radius * a, 0, 2 * Math.PI, !1),
 		t.stroke();
 		m = this.drawCockpit()
 		var y = m.width

@@ -1,13 +1,14 @@
-import s from "../vehicles/player.js";
+import Player from "../vehicles/player.js";
 
 export default class {
 	_players = [];
 	_playerLookup = {};
 	firstPlayer = null;
 	constructor(t) {
-		Object.defineProperty(this, 'scene', { value: t, writable: true }),
-		Object.defineProperty(this, 'game', { value: t.game, writable: true }),
-		this.settings = t.settings
+		Object.defineProperties(this, {
+			scene: { value: t },
+			game: { value: t.game }
+		})
 	}
 	fixedUpdate() {
 		if (!this.scene.camera.focusIndex)
@@ -37,7 +38,7 @@ export default class {
 			t.update()
 	}
 	createPlayer(t, e) {
-		return new s(this.scene,e)
+		return new Player(this.scene,e)
 	}
 	addPlayer(t) {
 		this._players.push(t),
@@ -92,7 +93,6 @@ export default class {
 		this._playerLookup = null,
 		this.firstPlayer = null,
 		this.scene = null,
-		this.game = null,
-		this.settings = null
+		this.game = null
 	}
 }
