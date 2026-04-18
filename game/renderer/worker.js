@@ -1,12 +1,12 @@
 class CanvasPool {
-	canvasPools = new Map();
+	pool = new Map();
 	poolCap = 5e3;
 	getCanvas(size) {
-		if (!this.canvasPools.has(size)) {
-			this.canvasPools.set(size, []);
+		if (!this.pool.has(size)) {
+			this.pool.set(size, []);
 		}
 
-		const pool = this.canvasPools.get(size);
+		const pool = this.pool.get(size);
 		return pool.pop() || new OffscreenCanvas(size, size)
 	}
 
@@ -18,11 +18,11 @@ class CanvasPool {
 
 	releaseCanvas(canvas) {
 		const size = canvas.width;
-		if (!this.canvasPools.has(size)) {
-			this.canvasPools.set(size, []);
+		if (!this.pool.has(size)) {
+			this.pool.set(size, []);
 		}
 
-		const pool = this.canvasPools.get(size);
+		const pool = this.pool.get(size);
 		if (pool.length < this.poolCap) {
 			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -108,12 +108,14 @@ addEventListener('message', async function({ data }) {
 		const ctx = offscreen.getContext('2d');
 		sector.offscreen = offscreen;
 
-		const sendBitmap = async (partial = false) => postMessage({
-			column,
-			row,
-			partial,
-			bitmap: await snapshotCanvas(ctx.canvas) // await createImageBitmap(offscreen) // offscreen.transferToImageBitmap()
-		});
+		const sendBitmap = async (partial = false) => {
+			const bitmap = await snapshotCanvas(ctx.canvas); // await createImageBitmap(offscreen); // offscreen.transferToImageBitmap();
+			return postMessage({
+				column, row,
+				partial,
+				bitmap
+			}, [bitmap])
+		};
 		const sendBitmapUpdate = () => sendBitmap(true);
 
 		const sessionId = crypto.randomUUID();
@@ -152,8 +154,25 @@ addEventListener('message', async function({ data }) {
 	}
 
 	case 'CREATE_SECTOR': {
-		const { sector: { column, row, size, x, y }, physicsLines, sceneryLines, settings } = data;
+		const { sector: { column, row, size, x, y }, physicsBuf, sceneryBuf, settings } = data;
 		grid.clear(column, row);
+
+		const physicsLines = [];
+		for (let i = 0; i < physicsBuf.length; i += 4) {
+			physicsLines.push({
+				p1: { x: physicsBuf[i], y: physicsBuf[i + 1], },
+				p2: { x: physicsBuf[i + 2], y: physicsBuf[i + 3] }
+			});
+		}
+
+		const sceneryLines = [];
+		for (let i = 0; i < sceneryBuf.length; i += 4) {
+			sceneryLines.push({
+				p1: { x: sceneryBuf[i], y: sceneryBuf[i + 1], },
+				p2: { x: sceneryBuf[i + 2], y: sceneryBuf[i + 3] }
+			});
+		}
+
 		grid.set(column, row, {
 			physicsLines,
 			sceneryLines,

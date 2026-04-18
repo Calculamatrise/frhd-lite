@@ -46,8 +46,12 @@ export default class extends Consumable {
 			i.isGhost() === !1 && (this.hit = !0,
 			this.sector.powerupCanvasDrawn = !1,
 			l.sound.play('goal_sound'),
-			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666')),
-			c >= u && (i.complete = !0),
+			l.message.show(c + " of " + u + ' Stars', 50, this.color, '#666'));
+			if (c >= u) {
+				i.complete = !0;
+				!l.camera.focusIndex && l.checkComplete();
+			}
+
 			this.game.emit('targetCollect', this, i);
 			if (i.isGhost()) this.game.emit('raceTimes:updateTargetProgress', {
 				collected: c,

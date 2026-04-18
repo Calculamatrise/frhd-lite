@@ -1,4 +1,6 @@
-export default class extends EventTarget {
+import EventEmitter from "../EventEmitter.js";
+
+export default class extends EventEmitter {
 	tickDownButtons = {};
 	previousTickDownButtons = {};
 	downButtons = {};
@@ -17,12 +19,14 @@ export default class extends EventTarget {
 		Object.defineProperty(this, 'scene', { value: t, writable: true }),
 		Object.defineProperty(this, 'inactiveDownButtons', { enumerable: false })
 	}
+
 	listen() {
 		document.onkeydown = this.handleButtonDown.bind(this);
 		document.onkeyup = this.handleButtonUp.bind(this);
 		window.addEventListener('blur', this._handleBlur = this.handleBlur.bind(this));
 		window.addEventListener('focus', this._handleFocus = this.handleFocus.bind(this))
 	}
+
 	unlisten() {
 		document.onkeydown = null;
 		document.onkeyup = null;
@@ -31,15 +35,18 @@ export default class extends EventTarget {
 		this._handleBlur = null;
 		this._handleFocus = null
 	}
+
 	recordKeys(t) {
 		this.keysToRecord = t,
 		this.recording = !0
 	}
+
 	loadPlayback(t, e) {
 		this.keysToPlay = e,
 		this.playback = t,
 		this.replaying = !0
 	}
+
 	setKeyMap(t) {
 		let e = {};
 		for (let i in t)
@@ -50,37 +57,44 @@ export default class extends EventTarget {
 				e[t[i]] = i;
 		this.keymap = e
 	}
+
 	handleButtonDown(t) {
 		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && !t.ctrlKey && t.preventDefault(),
 		this.setButtonDown(e, null, t.isTrusted)
 	}
+
 	handleButtonUp(t) {
 		let e = this.getInternalCode(t.keyCode);
 		"string" == typeof e && t.preventDefault(),
 		this.setButtonUp(e, t.isTrusted)
 	}
+
 	blurred = false;
 	previousDownButtons = {};
 	handleBlur() {
 		this.blurred = true,
 		this.previousDownButtons = Object.assign({}, this.tickDownButtons)
 	}
+
 	handleFocus() {
 		this.blurred && (this.tickDownButtons = Object.assign({}, this.previousDownButtons),
 		this.downButtons = Object.fromEntries(Object.keys(this.tickDownButtons).map(key => [key, false])))
 	}
+
 	getInternalCode(t) {
 		return this.keymap[t] || t
 	}
+
 	setButtonsDown(t) {
 		for (let e in t)
 			this.setButtonDown(t[e])
 	}
+
 	setButtonUp(t, isTrusted) {
 		this.blurred = false;
 		if (isTrusted) {
-			const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Up', t));
+			const defaultPrevented = this.emit('buttonUp', t);
 			if (defaultPrevented) return;
 		}
 
@@ -90,11 +104,12 @@ export default class extends EventTarget {
 		this.inactiveDownButtons.delete(t == 'left' ? 'right' : t == 'right' ? 'left' : null),
 		this.numberOfKeysDown--)
 	}
+
 	setButtonDown(t, e, isTrusted) {
 		this.blurred = false;
 		if (this.downButtons[t]) return;
 		if (isTrusted) {
-			const defaultPrevented = !this.dispatchEvent(this.constructor.createEvent('Down', t));
+			const defaultPrevented = this.emit('buttonDown', t);
 			if (defaultPrevented) return;
 		}
 
@@ -104,9 +119,11 @@ export default class extends EventTarget {
 		e && this.downButtons[e] && this.inactiveDownButtons.add(e),
 		this.numberOfKeysDown++
 	}
+
 	isButtonDown(t) {
 		return this.tickDownButtons[t] > 0
 	}
+
 	getButtonDownOccurances(t) {
 		let e = 0;
 		if (this.isButtonDown(t)) {
@@ -116,12 +133,14 @@ export default class extends EventTarget {
 		}
 		return e
 	}
+
 	getDownButtons() {
 		let t = [];
 		for (let e in this.tickDownButtons)
 			this.tickDownButtons[e] && t.push(e);
 		return t
 	}
+
 	reset(t) {
 		(this.replaying || t) && (this.downButtons = {},
 		this.playbackTicks = 0),
@@ -130,6 +149,7 @@ export default class extends EventTarget {
 		this.previousTickDownButtons = {},
 		this.records = {}
 	}
+
 	update() {
 		this.replaying && this.updatePlayback();
 		!this.blurred && (this.previousTickDownButtons = Object.assign({}, this.tickDownButtons),
@@ -138,12 +158,14 @@ export default class extends EventTarget {
 		this.tickNumberOfKeysDown = this.numberOfKeysDown;
 		this.recording && this.updateRecording()
 	}
+
 	areKeysDown() {
 		for (let t in this.downButtons)
 			if (this.downButtons[t] === !0)
 				return !0;
 		return !1
 	}
+
 	updatePlayback() {
 		let t = this.playback
 		  , e = this.playbackTicks ?? this.scene.ticks;
@@ -157,6 +179,7 @@ export default class extends EventTarget {
 			"undefined" != typeof t[s] && "undefined" != typeof t[s][e] && this.setButtonUp(i)
 		}
 	}
+
 	updateRecording() {
 		let t = this.scene.ticks
 		  , e = this.records
@@ -184,6 +207,7 @@ export default class extends EventTarget {
 			}
 		}
 	}
+
 	buttonWasRecentlyDown(t) {
 		let e = this.records;
 		this.replaying && (e = this.playback);
@@ -198,14 +222,17 @@ export default class extends EventTarget {
 		}
 		return s
 	}
+
 	getReplayString() {
 		window.hasOwnProperty('lite') && lite.storage.get('showCustomizations') && Object.assign(this.records, lite._appendRecords());
 		return JSON.stringify(this.records)
 	}
+
 	encodeReplayString() {
 		return window.hasOwnProperty('lite') && lite.constructor.encodeReplayString(this.records, this.scene.settings)
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		this.unlisten(),
 		this.onButtonDown = null,
 		this.onButtonUp = null,
@@ -216,6 +243,7 @@ export default class extends EventTarget {
 		this.records = null,
 		this.keysToRecord = null
 	}
+
 	static createEvent(type, code) {
 		const key = typeof code == 'string' ? code : String.fromCharCode(code)
 			, keyCode = typeof code == 'number' ? code : code.charCodeAt();
@@ -227,6 +255,7 @@ export default class extends EventTarget {
 			cancelable: true
 		})
 	}
+
 	static decodeReplayString(t) {
 		let e = JSON.parse(atob(t));
 		let i = {

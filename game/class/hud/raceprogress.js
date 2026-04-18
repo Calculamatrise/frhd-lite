@@ -67,7 +67,17 @@ export default class {
 			scene: { value: t, writable: true },
 			gui: { value: t.game.gui, writable: true }
 		});
-		this.init()
+		this.init();
+
+		t.game.on('cameraFocus', entity => {
+			this.element?.style.removeProperty('display');
+			this.update(entity)
+		});
+		t.game.on('cameraUnfocus', () => this.element?.style.setProperty('display', 'none'));
+
+		const boundUpdate = () => t.camera.playerFocus && this.update(t.camera.playerFocus);
+		// t.game.on('tick', boundUpdate);
+		t.game.on('reset', boundUpdate)
 	}
 
 	init() {

@@ -1,19 +1,20 @@
 import EventEmitter from "./EventEmitter.js";
 import Editor from "./scenes/Editor.js";
 import Main from "./scenes/Main.js";
-import Events from "./utils/events.js";
 import Gui from "./ui/gui.js";
+import Events from "./utils/events.js";
 
 const SCENES =  { Editor, Main };
 class Game extends EventEmitter {
 	static Events = Events;
+	#boundUpdate = this.update.bind(this);
 	#frames = 0;
 	#lastFrameTime = performance.now();
+	#oldDelta = -1;
 	#timer = performance.now();
 	#updates = 0;
 	stats = { fps: 0, ups: 0 };
-	config = { maxFrameRate: null, tickRate: 30 };
-	// config = { maxFrameRate: null, tickRate: 60 };
+	config = { debug: true, maxFrameRate: null, maxSteps: 5, smoothing: .66, tickRate: 30 };
 	frameInterval = 1e3 / this.config.maxFrameRate;
 	interpolation = true;
 	updateInterval = 1e3 / this.config.tickRate;
@@ -43,6 +44,8 @@ class Game extends EventEmitter {
 			right: 0,
 			top: 0
 		}, i.inset);
+		i.freezeOnPause ??= false;
+		i.lowLatencyMode ??= false;
 		i.multiThreadedRendering ??= true;
 		this.settings = i;
 		this.initCanvas();
@@ -53,34 +56,44 @@ class Game extends EventEmitter {
 			value: requestAnimationFrame(this.update.bind(this)),
 			writable: true
 		});
-		this.emit(Events.Ready)
+		window.GameManager?.emit('game:ready')
 	}
+
 	command() {
 		this.currentScene.command.apply(this.currentScene, arguments)
 	}
+
 	freeze() {
 		cancelAnimationFrame(this.updateCallback)
 	}
+
 	initCanvas() {
 		this.canvas = document.createElement("canvas"),
 		this.canvas.addEventListener("dblclick", () => this.currentScene instanceof Main && this.currentScene.toggleFullscreen(), { passive: true }),
-		this.ctx = this.canvas.getContext("2d"),
+		this.ctx = this.canvas.getContext("2d", {
+			alpha: 'darker' !== window.lite?.storage.get('theme'),
+			desynchronized: this.settings.lowLatencyMode
+		}),
 		this.container = document.getElementById(this.settings.defaultContainerID),
 		this.container !== null && this.container.appendChild(this.canvas),
 		this.gui = new Gui(this.container)
 	}
+
 	resetFrameProgress() {
 		this.lastTime = performance.now();
 		this.progress = 0;
 		this.config.maxFrameRate && (this.#lastFrameTime = this.lastTime)
 	}
+
 	resume() {
 		this.updateCallback = requestAnimationFrame(this.update.bind(this))
 	}
+
 	setMaxFrameRate(fps) {
 		this.config.maxFrameRate = fps;
 		this.frameInterval = 1e3 / fps
 	}
+
 	setSize() {
 		let t = window.innerHeight
 		  , e = window.innerWidth;
@@ -106,7 +119,7 @@ class Game extends EventEmitter {
 		this.ctx.lineJoin = "round",
 		this.ctx.strokeStyle = this.settings.physicsLineColor,
 		this.currentScene && (this.currentScene.command("resize"),
-		this.currentScene.screen.update(),
+		this.currentScene.screen.setScreen(),
 		(this.currentScene.state.paused || !this.currentScene.state.playing) && this.currentScene.draw(this.ctx));
 		this.emit(Events.Resize, {
 			devicePixelRatio: n,
@@ -114,24 +127,27 @@ class Game extends EventEmitter {
 			width: r
 		})
 	}
+
 	switchScene(t) {
-		this.currentScene !== null && this.currentScene.close();
+		this.currentScene !== null && this.currentScene[Symbol.dispose]();
 		this.currentScene = new SCENES[t](this);
 		this.emit(Events.SceneChange, this.currentScene);
 		this.container.classList.toggle('editor', t === 'Editor')
 	}
-	update(time) {
-		// DEBUG
-		if (this._lastRafTime !== null) {
-			let rafDelta = time - this._lastRafTime;
-			(this._rafDeltaHist ||= []).push(rafDelta);
-			if (this._rafDeltaHist.length > 300) this._rafDeltaHist.shift();
-			if (rafDelta > 20) console.warn(`Slow rAF frame: ${Math.round(rafDelta)}ms`);
-		}
-		this._lastRafTime = time;
-		// DEBUG END
 
-		this.updateCallback = requestAnimationFrame(this.update.bind(this));
+	update(time) {
+		if (this.config.debug) {
+			if (this._lastRafTime !== null) {
+				let rafDelta = time - this._lastRafTime;
+				(this._rafDeltaHist ||= []).push(rafDelta);
+				if (this._rafDeltaHist.length > 300) this._rafDeltaHist.shift();
+				if (rafDelta > 20) console.warn(`Slow rAF frame: ${Math.round(rafDelta)}ms`);
+			}
+
+			this._lastRafTime = time;
+		}
+
+		this.updateCallback = requestAnimationFrame(this.#boundUpdate);
 		if (this._wasPaused !== this.currentScene.state.paused) {
 			this._wasPaused = this.currentScene.state.paused;
 			!this.currentScene.state.paused && this.resetFrameProgress();
@@ -143,25 +159,42 @@ class Game extends EventEmitter {
 			delta = this.updateInterval;
 		}
 
+		delta = Math.min(delta * .9 + this.#oldDelta * .1, this.updateInterval / this.config.smoothing);
+	
+		this.#oldDelta = delta;
+		this.lastTime = time;
 		this.progress += delta / this.updateInterval;
 		// if (this.progress >= 1 && this.currentScene.state.paused) {
 		// 	this.freeze();
 		// 	return;
 		// }
 
-		this.lastTime = time;
-		while (this.progress >= 1) {
+
+		let steps = 0;
+		while (this.progress >= 1 && steps < this.config.maxSteps) {
 			this.progress--;
-			if (this.emit(Events.Tick, this.currentScene.ticks)) continue;
+			if (this.emit(Events.BeforeTick, this.currentScene.ticks)) continue;
 			this.currentScene.fixedUpdate();
-			this.#updates++
+			this.emit(Events.Tick, this.currentScene.ticks);
+			this.#updates++;
+			steps++
 		}
 
 		if (!this.config.maxFrameRate || time - this.#lastFrameTime >= this.frameInterval) {
-			this.config.maxFrameRate && (this.#lastFrameTime = time);
-			this.currentScene.update(this.progress);
-			this.currentScene.lateUpdate(this.progress);
-			this.currentScene.draw(this.ctx);
+			// this.config.maxFrameRate && (this.#lastFrameTime = time);
+			if (this.config.maxFrameRate) {
+				this.#lastFrameTime += this.frameInterval;
+				if (time - this.#lastFrameTime > this.frameInterval) {
+					this.#lastFrameTime = time;
+				}
+			}
+
+			if (!this.settings.freezeOnPause || (!this.currentScene.state.paused || this.currentScene.state.playing)) {
+				this.currentScene.update(this.progress);
+				this.currentScene.lateUpdate(this.progress);
+				this.currentScene.draw(this.ctx);
+			}
+
 			this.emit(Events.Draw, this.ctx);
 			this.#frames++;
 		}
@@ -178,18 +211,19 @@ class Game extends EventEmitter {
 			})
 		}
 	}
+
 	close() {
+		this[Symbol.dispose]()
+	}
+
+	[Symbol.dispose]() {
 		this.freeze(),
-		this.updateCallback = null,
-		this.currentScene.close(),
+		this.currentScene[Symbol.dispose](),
 		this.currentScene = null,
 		this.assets = null,
-		this.settings = null,
 		this.canvas.remove(),
 		this.canvas = null,
-		this.ctx = null,
-		this.height = null,
-		this.width = null
+		this.ctx = null
 	}
 }
 

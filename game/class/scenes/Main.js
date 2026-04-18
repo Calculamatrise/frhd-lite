@@ -51,17 +51,26 @@ export default class extends BaseScene {
 		t.emit('trackRaceUploadSuccess', e)
 	}
 
+	#verifyComplete() {
+		let t = this.playerManager.firstPlayer
+		  , e = t._powerupsConsumed.targets
+		  , i = this.track.targets;
+		return i.findIndex(n => -1 === e.indexOf(n.id)) === -1
+	}
+
 	getCanvasOffset() {
 		return {
 			height: 0,
 			width: 0
 		}
 	}
+
 	createMainPlayer() {
 		let t = super.createMainPlayer();
 		t.setKeyMap(this.settings.playHotkeys),
 		t.recordKeys(this.settings.keysToRecord)
 	}
+
 	createTrack() {
 		let t = super.createTrack()
 		  , e = this.getAvailableTrackCode();
@@ -72,10 +81,12 @@ export default class extends BaseScene {
 		this.restartTrack = !0,
 		this.ready = !0)
 	}
+
 	play() {
 		this.state.playing || (this.state.playing = !0,
 		this.hideControlPlanel())
 	}
+
 	buttonDown(t) {
 		switch (t) {
 		case "exit_fullscreen":
@@ -91,14 +102,17 @@ export default class extends BaseScene {
 		}
 		this.state.showDialog || super.buttonDown(t)
 	}
+
 	exitFullscreen() {
 		if (!super.exitFullscreen()) return !1;
 		this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", "game-out-fullscreen")
 	}
+
 	toggleFullscreen() {
 		let t = super.toggleFullscreen();
 		t && this.settings.analyticsEnabled !== !1 && this.trackEvent("game-ui", "game-fullscreen-toggle", this.settings.fullscreen ? "game-into-fullscreen" : "game-out-fullscreen")
 	}
+
 	trackEvent(t, e, i) {
 		Application.Helpers.GoogleAnalyticsHelper.track_event({
 			category: t,
@@ -108,37 +122,40 @@ export default class extends BaseScene {
 			non_interaction: !0
 		})
 	}
+
 	setTrackAllowedVehicles() {
 		let t = this.track
 		  , e = this.settings.track;
 		e && (t.allowedVehicles = e.vehicles)
 	}
+
 	registerTools() {
 		let t = super.registerTools();
 		t.registerTool(PathTracer),
 		t.setTool("Camera")
 	}
+
 	fixedUpdate() {
 		if (!this.ready) return;
-		super.fixedUpdate()
-	}
-	update() {
-		super.update(...arguments);
-		this.player.update();
+		super.fixedUpdate();
 		this.updateScore()
 	}
+
 	updateState() {
 		super.updateState(...arguments);
 		this.player.onStateChange(this.oldState, this.state)
 	}
+
 	isStateDirty() {
 		let e = this.state;
 		e.fullscreen != this.settings.fullscreen && (e.fullscreen = this.settings.fullscreen);
 		return super.isStateDirty()
 	}
+
 	updateScore() {
 		!this.state.paused && this.state.playing && window.lite?.storage.get('raceProgress') && this.camera.playerFocus && this.raceProgress.update(this.camera.playerFocus)
 	}
+
 	restart() {
 		this.message.show("Press Any Key To Start", 1),
 		this.track.resetPowerups(),
@@ -151,25 +168,31 @@ export default class extends BaseScene {
 		this.camera.focusOnPlayer(),
 		this.camera.fastforward(),
 		this.showControlPlanel("main"),
-		this.raceTimes.reset()
+		this.raceTimes.reset();
+		this.game.emit('reset')
 	}
+
 	setStartingVehicle() {
 		let t = this.settings
 		  , e = t.startVehicle;
 		t.track && (e = t.track.vehicle),
 		this.vehicle = e
 	}
+
 	updatePlayers() {
 		this.playerManager.update()
 	}
+
 	hideControlPlanel() {
 		this.state.showSkip && (this.state.showSkip = !1),
 		this.state.showControls !== !1 && (this.state.showControls = !1)
 	}
+
 	showControlPlanel(t) {
 		this.settings.isCampaign && this.settings.campaignData.can_skip && this.analytics && this.analytics.deaths > 5 && (this.state.showSkip = !0),
 		this.state.showControls !== t && this.settings.showHelpControls && (this.state.showControls = t)
 	}
+
 	setStateDefaults() {
 		let t = super.setStateDefaults();
 		return t.paused = !1,
@@ -178,6 +201,7 @@ export default class extends BaseScene {
 		t.showSkip = !1,
 		t
 	}
+
 	command(t, ...e) {
 		super.command(...arguments);
 		switch (t) {
@@ -213,6 +237,7 @@ export default class extends BaseScene {
 			this.exitFullscreen()
 		}
 	}
+
 	addRaces(t) {
 		this.mergeRaces(t),
 		this.sortRaces(),
@@ -222,6 +247,7 @@ export default class extends BaseScene {
 		this.addPlayers(),
 		this.restartTrack = !0
 	}
+
 	addRaceTimes() {
 		let t = this.settings.raceColors
 		  , e = t.length
@@ -234,6 +260,7 @@ export default class extends BaseScene {
 			s.addRace(r, n)
 		}
 	}
+
 	addPlayers() {
 		let t = this.playerManager;
 		t.clear();
@@ -249,12 +276,14 @@ export default class extends BaseScene {
 			t.addPlayer(h)
 		}
 	}
+
 	clearRaces() {
 		this.races.splice(0),
 		this.game.emit('trackChallengeUpdate', this.races),
 		this.raceTimes.clear(),
 		this.playerManager.clear()
 	}
+
 	formatRaces(t) {
 		t ||= this.races;
 		for (let { race: e } of t.filter(t => 'string' == typeof t.race.code)) {
@@ -266,9 +295,11 @@ export default class extends BaseScene {
 		}
 		return t
 	}
+
 	removeDuplicateRaces() {
 		this.races = this.races.filter((race, index, races) => index === races.findIndex(dup => this.uniqesByUserIdIterator(dup) == this.uniqesByUserIdIterator(race)))
 	}
+
 	removeRaces(t) {
 		t = Array.from(t).map(e => parseInt(e));
 		let e = this.races
@@ -281,13 +312,16 @@ export default class extends BaseScene {
 		this.addRaceTimes(),
 		this.camera.focusOnMainPlayer()
 	}
+
 	uniqesByUserIdIterator(t) {
 		let e = t.user;
 		return String(e.u_id)
 	}
+
 	sortRaces() {
 		this.races.length > 1 ? this.races.sort((a, b) => this.sortByRunTicksIterator(a) - this.sortByRunTicksIterator(b)) : this.sortByRunTicksIterator(this.races[0])
 	}
+
 	mergeRaces(t) {
 		let e = this.races;
 		t && t.forEach(i => {
@@ -296,71 +330,72 @@ export default class extends BaseScene {
 			this.game.emit('trackRaceCreate', i))
 		})
 	}
+
 	sortByRunTicksIterator(t) {
 		let e = parseInt(t.race.run_ticks);
 		return t.runTime ||= P(e / this.settings.drawFPS * 1e3),
 		e
 	}
+
 	toggleFullscreen() {
 		if (!this.settings.embedded) return super.toggleFullscreen();
 		let t = this.settings
 		  , e = t.basePlatformUrl + "/t/" + t.track.url;
 		window.open(e)
 	}
-	verifyComplete() {
-		let t = this.playerManager.firstPlayer
-		  , e = t._powerupsConsumed.targets
-		  , i = this.track.targets;
-		return i.findIndex(n => -1 === e.indexOf(n.id)) === -1
-	}
-	async trackComplete() {
-		if (this.verifyComplete()) {
-			this.sound.play("victory_sound");
-			let t = this.playerManager;
-			t.mutePlayers();
-			let e = t.firstPlayer
-			  , i = e.getGamepad()
-			  , s = i.getReplayString()
-			  , n = this.settings
-			  , r = this.ticks
-			  , o = P(r / n.drawFPS * 1e3)
-			  , a = $("#track-data").data("t_id")
-			  , h = {
-					t_id: a,
-					u_id: n.user.u_id,
-					code: s,
-					vehicle: e._baseVehicleType,
-					run_ticks: r,
-					fps: 25,
-					time: o
-				};
-			h.sig = await digestMessage(h.t_id + "|" + h.u_id + "|" + h.code + "|" + h.run_ticks + "|" + h.vehicle + "|" + h.fps + "|erxrHHcksIHHksktt8933XhwlstTekz");
-			let u = this.races;
-			u.length > 0 && (h.races = u.map(({ user }) => user.u_id)),
-			n.isCampaign && (h.is_campaign = !0);
-			let q = {
-				postData: h,
-				analytics: this.analytics
+
+	async checkComplete() {
+		if (!this.#verifyComplete()) return;
+
+		const defaultPrevented = this.game.emit('beforeComplete');
+		if (defaultPrevented) return;
+
+		this.sound.play("victory_sound");
+		let t = this.playerManager;
+		t.mutePlayers();
+		let e = t.firstPlayer
+			, i = e.getGamepad()
+			, s = i.getReplayString()
+			, n = this.settings
+			, r = this.ticks
+			, o = P(r / n.drawFPS * 1e3)
+			, a = $("#track-data").data("t_id")
+			, h = {
+				t_id: a,
+				u_id: n.user.u_id,
+				code: s,
+				vehicle: e._baseVehicleType,
+				run_ticks: r,
+				fps: 30,
+				time: o
 			};
-			this.state.dialogOptions = Object.assign({}, q)
-			if (!navigator.onLine) {
-				this.state.dialogOptions.postData = {},
-				this.game.emit('trackRaceUploadError', Object.defineProperty(new Error("Network Error: Failed to upload race"), 'data', {
-					value: Object.assign({}, q)
-				}));
-			} else
-				this.game.emit('trackRaceUpload', q);
-			this.game.emit('trackComplete', e);
-			this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
-			i.reset(!0),
-			this.listen()
-		}
+		h.sig = await digestMessage(h.t_id + "|" + h.u_id + "|" + h.code + "|" + h.run_ticks + "|" + h.vehicle + "|" + h.fps + "|erxrHHcksIHHksktt8933XhwlstTekz");
+		let u = this.races;
+		u.length > 0 && (h.races = u.map(({ user }) => user.u_id)),
+		n.isCampaign && (h.is_campaign = !0);
+		let q = {
+			postData: h,
+			analytics: this.analytics
+		};
+		this.state.dialogOptions = Object.assign({}, q)
+		if (!navigator.onLine) {
+			this.state.dialogOptions.postData = {},
+			this.game.emit('trackRaceUploadError', Object.defineProperty(new Error("Network Error: Failed to upload race"), 'data', {
+				value: Object.assign({}, q)
+			}));
+		} else
+			this.game.emit('trackRaceUpload', q);
+		this.game.emit('trackComplete', e);
+		this.command("dialog", (n.isCampaign ? "campaign" : "track") + '_complete'),
+		i.reset(!0),
+		this.listen()
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		GameManager.removeListener('gameComplete', this.#boundGameComplete),
 		this.raceTimes = null,
 		this.score = null,
 		this.campaignScore = null,
-		super.close()
+		super[Symbol.dispose]()
 	}
 }

@@ -134,7 +134,8 @@ export default class extends BaseScene {
 		this.playerManager.reset(),
 		this.camera.focusOnPlayer(),
 		this.camera.fastforward(),
-		this.score.update()
+		this.score.update();
+		this.game.emit('reset')
 	}
 	resize() {
 		this.pauseControls.resize(),
@@ -198,7 +199,7 @@ export default class extends BaseScene {
 		failIfTooLarge && code.length < threshold && (failIfTooLarge = false);
 		this.state.dialogOptions.code = failIfTooLarge ? "Track code too large to display" : code
 	}
-	trackComplete() {
+	checkComplete() {
 		this.verified = !this.track.dirty
 	}
 	hideControlPanel() {}
@@ -260,10 +261,11 @@ export default class extends BaseScene {
 			this.command("dialog", !1)
 		}
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		this.settings.analyticsEnabled !== !1 && this.trackAction("editor-exit", "exit"),
 		document.removeEventListener('paste', this._pasteEvent),
 		this._pasteEvent = null,
-		super.close()
+		super[Symbol.dispose]()
 	}
 }

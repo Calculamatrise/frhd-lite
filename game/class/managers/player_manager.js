@@ -6,10 +6,11 @@ export default class {
 	firstPlayer = null;
 	constructor(t) {
 		Object.defineProperties(this, {
-			scene: { value: t },
-			game: { value: t.game }
+			scene: { value: t, writable: true },
+			game: { value: t.game, writable: true }
 		})
 	}
+
 	fixedUpdate() {
 		if (!this.scene.camera.focusIndex)
 			for (const t of this._players.filter(player => !player.complete && !player.isGhost()))
@@ -19,49 +20,52 @@ export default class {
 		window.hasOwnProperty('lite') && lite.storage.get('confirmRestart') && this.firstPlayer && this.firstPlayer._gamepad.isButtonDown('restart') && this.firstPlayer._restartTimeout && (this.scene.ticks - this.firstPlayer._restartTimeout >= 10) && (this.scene.restartTrack = !0,
 		this.firstPlayer._gamepad.setButtonUp('restart'))
 	}
+
 	update() {
 		for (const t of this._players.filter(player => !player.complete))
 			t.update(...arguments)
 	}
+
 	lateUpdate() {
 		for (const t of this._players.filter(player => !player.complete))
 			t.lateUpdate(...arguments)
 	}
+
 	mutePlayers() {
 		for (let t = this._players, e = t.length, i = 0; e > i; i++) {
 			let s = t[i].getActiveVehicle();
 			s.stopSounds()
 		}
 	}
+
 	updateGamepads() {
 		for (const { _gamepad: t } of this._players.filter(player => !player.isGhost()))
 			t.update()
 	}
+
 	createPlayer(t, e) {
 		return new Player(this.scene,e)
 	}
+
 	addPlayer(t) {
 		this._players.push(t),
 		this._playerLookup[t.id] = t,
 		this.game.emit('playerAdd', t)
 	}
+
 	checkKeys() {
 		for (const t of this._players.filter(player => !player.isGhost()))
 			t.checkKeys()
 	}
+
 	draw(ctx) {
 		for (const t of this._players)
 			t.draw(ctx)
 	}
-	getPlayerByIndex(t) {
-		return this._players[t]
-	}
-	getPlayerById(t) {
-		return this._playerLookup[t]
-	}
-	getPlayerCount() {
-		return this._players.length
-	}
+
+	getPlayerByIndex(t) { return this._players[t] }
+	getPlayerById(t) { return this._playerLookup[t] }
+	getPlayerCount() { return this._players.length }
 	removePlayer(t) {
 		let e = this._players
 		  , i = this._playerLookup
@@ -70,11 +74,13 @@ export default class {
 		delete i[s.id],
 		this.game.emit('playerRemove', s)
 	}
+
 	reset() {
 		for (const t of this._players)
 			t.reset(),
 			t.isGhost() && (t._replayIterator = t.createReplayIterator())
 	}
+
 	clear() {
 		this._players.splice(1);
 		for (const t in this._playerLookup) {
@@ -83,11 +89,13 @@ export default class {
 		}
 		this.scene.camera.focusIndex > 0 && this.scene.camera.unfocus()
 	}
+
 	_closePlayers() {
 		for (const t of this._players)
-			t.close()
+			t[Symbol.dispose]()
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		this._closePlayers(),
 		this._players = null,
 		this._playerLookup = null,

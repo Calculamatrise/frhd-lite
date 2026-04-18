@@ -19,12 +19,14 @@ export default class extends EventEmitter {
 		t.settings.analyticsEnabled !== false && this.initAnalytics();
 		this.bindToMouseEvents()
 	}
+
 	initAnalytics() {
 		Object.defineProperty(this, 'analytics', {
 			value: { clicks: 0 },
 			writable: true
 		})
 	}
+
 	getTouchObject() {
 		return {
 			id: null,
@@ -36,6 +38,7 @@ export default class extends EventEmitter {
 			type: 1
 		}
 	}
+
 	bindToMouseEvents() {
 		let e = this.scene.game.canvas
 		  , i = this.onMouseMove.bind(this)
@@ -54,16 +57,17 @@ export default class extends EventEmitter {
 		e.addEventListener("wheel", o, { passive: false }),
 		Object.defineProperty(this, '_wheelListener', { value: o, writable: true })
 	}
+
 	contextMenuHandler(t) {
 		return t.stopPropagation(),
 		t.preventDefault(),
 		!1
 	}
+
 	disableContextMenu() {
-		this.scene.game.canvas.oncontextmenu = function() {
-			return !1
-		}
+		this.scene.game.canvas.oncontextmenu = function() { return !1 }
 	}
+
 	onMouseDown(t) {
 		this.scene.game.canvas.setPointerCapture(t.pointerId),
 		this.analytics && this.analytics.clicks++,
@@ -73,12 +77,14 @@ export default class extends EventEmitter {
 		this.emit('down', this.touch),
 		this.scene.redrawControls())
 	}
+
 	onMouseMove(t) {
 		this.updatePosition(t, this.touch),
 		this.emit('move', this.touch),
 		this.scene.redrawControls(),
 		this.updatePosition(t, this.secondaryTouch)
 	}
+
 	onMouseUp(t) {
 		this.scene.game.canvas.releasePointerCapture(t.pointerId),
 		2 === t.button ? this.secondaryTouch.down === !0 && (this.updatePosition(t, this.secondaryTouch),
@@ -88,6 +94,7 @@ export default class extends EventEmitter {
 		this.emit('up', this.touch),
 		this.scene.redrawControls())
 	}
+
 	onMouseWheel(t) {
 		t.preventDefault(),
 		t.stopPropagation();
@@ -96,11 +103,13 @@ export default class extends EventEmitter {
 		this.wheel = e,
 		!1
 	}
+
 	update() {
 		this.enabled && (this.updateTouch(this.touch),
 		this.updateTouch(this.secondaryTouch),
 		this.updateWheel())
 	}
+
 	updatePosition(t, e) {
 		e.id = t.pointerId,
 		e.type = t.button;
@@ -109,6 +118,7 @@ export default class extends EventEmitter {
 		i.y = t.offsetY * window.devicePixelRatio,
 		this.updateRealPosition(e)
 	}
+
 	updateRealPosition(t) {
 		let i = t.real;
 		i.x = Math.round((t.pos.x - this.scene.screen.center.x) / this.scene.camera.zoom + this.scene.camera.position.x),
@@ -129,6 +139,7 @@ export default class extends EventEmitter {
 		}
 		this.updateCallback = !0
 	}
+
 	updateTouch(t) {
 		t.old.pos.x = t.pos.x,
 		t.old.pos.y = t.pos.y,
@@ -143,11 +154,13 @@ export default class extends EventEmitter {
 		t.old.press = t.press,
 		t.old.release = t.release
 	}
+
 	updateWheel() {
 		this.mousewheel = this.wheel,
 		this.wheel = !1
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		let e = this.scene.game.canvas;
 		e.removeEventListener("mousewheel", this._wheelListener),
 		e.removeEventListener("wheel", this._wheelListener),

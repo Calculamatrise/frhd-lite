@@ -1,3 +1,4 @@
+import Cartesian from "../math/cartesian.js";
 import Mass from "./mass.js";
 
 export default class extends Mass {
@@ -25,10 +26,12 @@ export default class extends Mass {
 		this.angle += this.speed,
 		this.contact = !0
 	}
+
 	fixedUpdate() {
 		super.fixedUpdate();
 		this.rotationSpeed = .999 * this.rotationSpeed
 	}
+
 	draw(t) {
 		const e = this.displayPos.toScreen(this.scene)
 			, i = this.scene.camera.zoom;

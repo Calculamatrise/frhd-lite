@@ -1,24 +1,25 @@
 export default class Tool {
-	toolhandler = null;
-	camera = null;
-	mouse = null;
 	name = '';
-	scene = null;
 	constructor(t) {
-		this.toolhandler = t,
-		this.scene = t.scene,
-		this.game = t.scene.game,
-		this.camera = t.scene.camera,
-		this.mouse = t.scene.mouse,
+		Object.defineProperties(this, {
+			toolhandler: { value: t, writable: true },
+			scene: { value: t.scene, writable: true },
+			game: { value: t, writable: true }
+		});
+		this.camera = t.scene.camera;
+		this.mouse = t.scene.mouse;
 		this.gamepad = t.gamepad
 	}
+
 	checkKeys() {
 		let t = this.gamepad
-		  , e = this.toolhandler.constructor.parseToolName(this.constructor.name)
-		  , i = this.toolhandler;
-		t.isButtonDown(e) && (i.setTool(e),
-		t.setButtonUp(e))
+		  , e = this.toolhandler
+		  , i = this.name
+		  , s = i + 'tool';
+		t.isButtonDown(i) && (e.setTool(s),
+		t.setButtonUp(i))
 	}
+
 	draw(t) {
 		let e = this.toolhandler
 		  , i = e.gamepad
@@ -26,9 +27,11 @@ export default class Tool {
 		  , n = s.select;
 		  n && (i.isButtonDown("ctrl") || n.selectedElements.length > 0) && n.draw(t)
 	}
+
 	getOptions() {
 		return this.options || {}
 	}
+
 	press() { }
 	hold() { }
 	release() { }
@@ -47,9 +50,11 @@ export default class Tool {
 		e.release && this.release()),
 		t.mousewheel !== !1 && r === !1 && this.mousewheel(t.mousewheel)
 	}
+
 	moveCamera() {
 		return this.toolhandler.tools.camera.hold()
 	}
+
 	mousewheel(t) {
 		let e = this.scene.settings
 		  , i = this.scene.game.pixelRatio
@@ -65,6 +70,7 @@ export default class Tool {
 		h.setZoom(c / i, l.pos),
 		h.desiredZoom < o ? h.setZoom(n, l.pos) : h.desiredZoom > a && h.setZoom(r, l.pos)
 	}
+
 	selectArea(t) {
 		let e = this.toolhandler
 		  , i = e.tools
@@ -73,7 +79,8 @@ export default class Tool {
 		t.old.down && s.hold(),
 		t.release && s.release())
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		this.camera = null,
 		this.mouse = null,
 		this.scene = null,

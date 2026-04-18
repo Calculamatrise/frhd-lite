@@ -11,6 +11,7 @@ export default class VehiclePowerup extends BasePowerupTool {
 		this.options = t.scene.settings.vehiclePowerup,
 		this.registerPowerupTools()
 	}
+
 	registerPowerupTools() {
 		this.registerTool(new s(this, this.toolhandler)),
 		this.registerTool(new n(this, this.toolhandler)),

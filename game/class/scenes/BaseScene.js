@@ -23,6 +23,7 @@ export default class {
 	oldState = null;
 	vehicle = "Mtb";
 	importCode = !1;
+	vehicleTimer = null;
 	constructor(t) {
 		Object.defineProperty(this, 'game', { value: t, writable: true });
 		this.assets = t.assets,
@@ -35,9 +36,9 @@ export default class {
 		this.sound = new SoundManager(this),
 		this.createTrack(),
 		this.loadingcircle = new LoadingCircle(this),
-		this.playerManager = new PlayerManager(this),
-		this.vehicleTimer = new VehicleTimer(this)
+		this.playerManager = new PlayerManager(this)
 	}
+
 	buttonDown(t) {
 		let e = this.camera;
 		switch (t) {
@@ -78,6 +79,7 @@ export default class {
 			this.updateState()
 		}
 	}
+
 	createMainPlayer() {
 		let t = this.playerManager
 		  , e = t.createPlayer(this, this.settings.user)
@@ -88,12 +90,20 @@ export default class {
 		this.playerManager.addPlayer(e);
 		return i
 	}
+
 	createTrack() {
-		this.track?.close();
+		this.track?.[Symbol.dispose]();
 		const t = new Track(this);
 		this.track = t;
 		return t
 	}
+
+	createVehicleTimer(t) {
+		const e = new VehicleTimer(this);
+		t && e.setPlayer(t);
+		this.vehicleTimer = e
+	}
+
 	command(t, ...e) {
 		switch (t) {
 		case "resize":
@@ -115,9 +125,9 @@ export default class {
 			this.importCode = e[0].code
 		}
 	}
+
 	draw(ctx) {
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		this.game.emit(this.game.constructor.Events.Clear, ctx);
 		if (this.game.emit(this.game.constructor.Events.BeforeDraw, ctx)) return;
 		/* !this.state.paused && */ /* !this.state.idle && */ (// ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height),
 		this.toolHandler.drawGrid(ctx),
@@ -126,23 +136,26 @@ export default class {
 		this.toolHandler.draw(ctx),
 		this.loading && this.loadingcircle.draw(ctx)
 	}
+
 	fixedUpdate() {
 		!this.game.interpolation && !this.camera.playerFocus?.isGhost() && this.camera.playerFocus?.isAlive() && this.camera.update(),
 		!this.state.paused && !this.state.showDialog && (this.playerManager.updateGamepads(),
 		this.playerManager.checkKeys()),
 		!this.state.paused && this.state.playing && (this.message.update(),
 		this.playerManager.fixedUpdate(),
-		!this.camera.focusIndex && (this.playerManager.firstPlayer.complete ? this.trackComplete() : this.ticks++),
-		this.vehicleTimer.fixedUpdate())
+		!this.camera.focusIndex && !this.playerManager.firstPlayer.complete && this.game.emit('tick', this.ticks++),
+		this.vehicleTimer?.fixedUpdate());
+		this.score.update();
+		this.sound.update()
 	}
+
 	update(delta) {
 		this.restartTrack && this.restart();
 		this.toolHandler.update();
-		this.mouse.update();
-		this.score.update();
-		this.sound.update();
+		this.mouse.update(); // Remove
 		this.playerManager.update(delta)
 	}
+
 	lateUpdate(delta) {
 		!this.state.paused && this.state.playing && this.playerManager.lateUpdate(),
 		(this.game.interpolation || this.camera.playerFocus?.isGhost() || !this.camera.playerFocus?.isAlive()) && this.camera.update(delta),
@@ -150,12 +163,14 @@ export default class {
 		this.isStateDirty() && this.updateState(),
 		this.importCode && this.createTrack()
 	}
+
 	exitFullscreen() {
 		if (!this.settings.fullscreenAvailable) return !1;
 		this.settings.fullscreen = !1;
 		this.state.fullscreen = !1;
 		return !0
 	}
+
 	getAvailableTrackCode() {
 		let t = this.settings
 		  , e = !1;
@@ -164,12 +179,14 @@ export default class {
 		this.importCode = null),
 		e
 	}
+
 	initAnalytics() {
 		Object.defineProperty(this, 'analytics', {
 			value: { deaths: 0 },
 			writable: true
 		})
 	}
+
 	interactWithControls() {}
 	isStateDirty() {
 		let i = !1;
@@ -178,11 +195,13 @@ export default class {
 			this.oldState[s] = this.state[s]);
 		return i
 	}
+
 	redraw() {
 		this.track.undraw(),
 		GameInventoryManager.redraw(),
 		this.toolHandler.resize()
 	}
+
 	redrawControls() {}
 	registerTools() {
 		let t = new ToolHandler(this);
@@ -190,9 +209,11 @@ export default class {
 		t.registerTool(CameraTool);
 		return t
 	}
+
 	resize() {
 		// this.toolHandler.resize()
 	}
+
 	updateState() {
 		let t = this.state;
 		t.zoomPercentage = this.camera.zoomPercentage,
@@ -202,6 +223,7 @@ export default class {
 		this.score.onStateChange(this.oldState, this.state);
 		null !== this.game.onStateChange && this.game.onStateChange(this.state)
 	}
+
 	toggleVehicle() {
 		let t = this.track.allowedVehicles
 		  , e = t.length
@@ -210,6 +232,7 @@ export default class {
 		i = t[++s % e];
 		this.selectVehicle(i)
 	}
+
 	selectVehicle(t) {
 		let e = this.track.allowedVehicles
 		  , i = e.indexOf(t);
@@ -218,20 +241,24 @@ export default class {
 		this.playerManager.firstPlayer.setBaseVehicle(t),
 		this.restartTrack = !0)
 	}
+
 	listen() {
 		let t = this.playerManager.firstPlayer
 		  , e = t.getGamepad();
 		e.listen()
 	}
+
 	unlisten() {
 		let t = this.playerManager.firstPlayer
 		  , e = t.getGamepad();
 		e.unlisten()
 	}
+
 	openDialog(t) {
 		this.state.playing = !1,
 		this.state.showDialog = t
 	}
+
 	setStateDefaults() {
 		let t = {};
 		return t.playing = !this.settings.waitForKeyPress,
@@ -242,9 +269,7 @@ export default class {
 		t.inFocus = !0,
 		t
 	}
-	stopAudio() {
-		this.sound && this.sound.stop_all()
-	}
+
 	toggleFullscreen() {
 		if (!this.settings.fullscreenAvailable) return !1;
 		let e = !this.settings.fullscreen;
@@ -252,24 +277,25 @@ export default class {
 		this.state.fullscreen = e;
 		return !0
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		this._onresize = null,
 		this.score = null,
-		this.mouse.close(),
+		this.mouse[Symbol.dispose](),
 		this.mouse = null,
-		this.camera.close(),
+		this.camera[Symbol.dispose](),
 		this.camera = null,
-		this.screen.close(),
+		this.screen[Symbol.dispose](),
 		this.screen = null,
-		this.vehicleTimer.close(),
+		this.vehicleTimer?.[Symbol.dispose](),
 		this.vehicleTimer = null,
-		this.playerManager.close(),
+		this.playerManager[Symbol.dispose](),
 		this.playerManager = null,
-		this.stopAudio(),
-		this.sound.close(),
+		this.sound.stopAll(),
+		this.sound[Symbol.dispose](),
 		this.sound = null,
-		this.track.close(),
-		this.toolHandler.close(),
+		this.track[Symbol.dispose](),
+		this.toolHandler[Symbol.dispose](),
 		this.game = null,
 		this.assets = null,
 		this.settings = null,

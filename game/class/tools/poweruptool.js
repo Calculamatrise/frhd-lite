@@ -15,6 +15,7 @@ export default class Powerup extends BasePowerupTool {
 		super(t),
 		this.registerPowerupTools()
 	}
+
 	registerPowerupTools() {
 		this.registerTool(new n(this.toolhandler)),
 		this.registerTool(new r(this.toolhandler)),
@@ -25,6 +26,7 @@ export default class Powerup extends BasePowerupTool {
 		this.registerTool(new l(this.toolhandler)),
 		this.registerTool(new c(this.toolhandler))
 	}
+
 	update() {
 		let t = this.toolhandler.gamepad
 		  , e = this.options;

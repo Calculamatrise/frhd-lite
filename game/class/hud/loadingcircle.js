@@ -4,11 +4,12 @@ export default class {
 	settings = {
 		radius: 10,
 		color: "#1884cf"
-	}
+	};
 	constructor(t) {
 		Object.defineProperty(this, 'scene', { value: t, writable: true });
 		this.screen = t.screen
 	}
+
 	draw(t) {
 		let e = this.screen
 		  , i = this.settings

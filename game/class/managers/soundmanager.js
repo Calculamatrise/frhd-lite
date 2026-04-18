@@ -7,6 +7,7 @@ export default class {
 		this.muted = t.settings.soundsEnabled !== !1;
 		isFinite(t.settings.volume) && (this.volume = t.settings.volume)
 	}
+
 	update() {
 		let t = this.scene
 		  , e = t.settings
@@ -20,22 +21,26 @@ export default class {
 			} else if (!s.paused && i) {
 				s.pause()
 			}
-			this.scene.game.emit(this.scene.game.constructor.Events.SoundUpdate, s)
+			t.game.emit(t.game.constructor.Events.SoundUpdate, s)
 		}
 	}
+
 	setVolume(t, e) {
 		const sound = this.sounds.get(t);
 		sound && (sound.volume = (e ?? 1) * this.volume)
 	}
-	mute_all() {
+
+	muteAll() {
 		for (let t of this.sounds.values())
 			t.muted = true;
 		this.muted = true
 	}
-	stop_all() {
+
+	stopAll() {
 		for (let e in this.sounds)
 			this.stop(e)
 	}
+
 	play(t, e) {
 		if (!this.scene.settings.soundsEnabled) return;
 		if (!this.sounds.has(t)) {
@@ -47,15 +52,19 @@ export default class {
 		}
 		this.setVolume(t, e)
 	}
+
 	stop(t) {
 		const sound = this.sounds.get(t);
 		sound && (sound.pause(),
 		this.scene.game.emit(this.scene.game.constructor.Events.SoundDelete, sound),
 		this.sounds.delete(t))
 	}
-	close() {
+
+	[Symbol.dispose]() {
+		this.sounds.clear();
 		this.sounds = null
 	}
+
 	static play(asset) {
 		if (typeof asset != 'object' || asset === null)
 			throw new TypeError('First positional argument: asset must be of type: object');

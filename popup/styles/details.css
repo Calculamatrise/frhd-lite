@@ -1,0 +1,81 @@
+.details {
+	font-size: small;
+	font-family: roboto_medium, Arial, Helvetica, sans-serif;
+	padding: 0.25rem;	
+}
+
+.details > input:is([type="checkbox"], [type="radio"]) { display: none }
+:not(.wrapper) > .details:has(> input:is([type="checkbox"], [type="radio"]):not(:checked)) { display: none !important }
+
+.summary:has(+ :is(.details, .wrapper)) {
+	align-items: stretch;
+	display: flex;
+}
+
+.summary:has(+ :is(.details, .wrapper)) > label:first-child { width: 100% }
+.summary:has(+ :is(.details, .wrapper)) label:has(> .chevron) {
+	aspect-ratio: 1;
+	height: 100%;
+	width: auto;
+}
+
+.summary:has(+ :is(.details, .wrapper)) .chevron {
+	aspect-ratio: 1;
+	background-color: currentColor;
+	display: inline-block;
+	height: .85em;
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M.2929 4.2929c-.3905.3905-.3905 1.0237 0 1.4142l7 7c.3905.3905 1.0237.3905 1.4142 0l7-7c.3905-.3905.3905-1.0237 0-1.4142-.3905-.3905-1.0237-.3905-1.4142 0L8 10.5858 1.7071 4.2929c-.3905-.3905-1.0237-.3905-1.4142 0Z' fill='white'/%3E%3C/svg%3E");
+	mask-position: center;
+	mask-repeat: no-repeat;
+	transition: scale 80ms ease, transform .2s ease;
+	width: .85em;
+}
+
+.summary:has(+ :is(.details, .wrapper)):hover .chevron { scale: 1.25 }
+.summary:has(+ :is(.details, .wrapper)) label:hover > .chevron { scale: 1.35 }
+.summary:has(+ :is(.details, .wrapper)) label:active > .chevron { scale: .95 }
+.summary:has(+ .details > input:first-child:checked, + .wrapper > .details > input:first-child:checked) label > .chevron { transform: scaleY(-1) }
+
+.summary + :is(.details, .wrapper) {
+	overflow: hidden;
+	padding-left: .5em;
+	position: relative;
+}
+
+.summary + :is(.details, .wrapper)::before {
+	background: var(--border-color);
+	content: "";
+	display: inline-block;
+	height: 100%;
+	width: 1px;
+	position: absolute;
+	box-sizing: border-box;
+	left: 0;
+}
+
+.wrapper:has(> .details:first-child:last-child) {
+	display: grid;
+	grid-template-rows: 1fr;
+	transition: grid-template-rows .2s ease;
+}
+
+.wrapper > .details:first-child:last-child {
+	overflow-y: hidden;
+	transition: margin-block .2s ease, padding-block .2s ease;
+}
+
+.wrapper:has(> .details:first-child:last-child > input:first-child:not(:checked)) { grid-template-rows: 0fr }
+.wrapper > .details:first-child:last-child:has(> input:first-child:not(:checked)) {
+	margin-block: 0;
+	padding-block: 0;
+}
+
+/* Require option to b enabled? */
+.summary:has(input:not(:checked)) > .remote:not(.persistent) { display: none }
+.summary:has(input:not(:checked)):has(> .remote:not(.persistent)) + .wrapper { grid-template-rows: 0fr !important }
+.summary:has(input:not(:checked)):has(> .remote:not(.persistent)) + .wrapper > .details {
+	margin-block: 0;
+	padding-block: 0;
+}
+
+.wrapper > .details.sub-opts { font-size: smaller }

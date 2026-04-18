@@ -4,7 +4,7 @@ import "../cosmetics/heads/forward_cap.js";
 import s from "../math/cartesian.js";
 import Bike from "./bike.js";
 import n from "./mass.js";
-import a from "./wheel.js";
+import Wheel from "./wheel.js";
 
 export default class extends Bike {
 	vehicleName = "MTB";
@@ -16,10 +16,11 @@ export default class extends Bike {
 		this.stopSounds();
 		-1 === i && this.swap()
 	}
+
 	createMasses(t, e) {
 		var i = new n(new s(t.x + 2, t.y + -38), this)
-		, r = new a(new s(t.x + 23, t.y), this)
-		, o = new a(new s(t.x + -23, t.y), this);
+		, r = new Wheel(new s(t.x + 23, t.y), this)
+		, o = new Wheel(new s(t.x + -23, t.y), this);
 		i.drive = this.createRagdoll.bind(this),
 		o.radius = 14,
 		r.radius = 14,
@@ -34,6 +35,7 @@ export default class extends Bike {
 		this.frontWheel = r,
 		this.rearWheel = o
 	}
+
 	createSprings() {
 		super.createSprings(),
 		this.chasse.lrest = 45,
@@ -49,6 +51,7 @@ export default class extends Bike {
 		this.frontSpring.springConstant = .2,
 		this.frontSpring.dampConstant = .3
 	}
+
 	control() {
 		let t = this.gamepad
 		  , e = t.isButtonDown("up")
@@ -71,14 +74,12 @@ export default class extends Bike {
 		!h && e && (this.rearSpring.contract(-7, 5),
 		this.frontSpring.contract(7, 5))
 	}
+
 	drawBikeFrame(o, a = this.player._opacity) {
 		let t = this.scene
-		  , frontWheel = new s(this.frontWheel.displayPos.x, this.frontWheel.displayPos.y)
-		  , rearWheel = new s(this.rearWheel.displayPos.x, this.rearWheel.displayPos.y)
-		  , head = new s(this.head.displayPos.x, this.head.displayPos.y)
-		  , e = frontWheel.toScreen(t)
-		  , i = rearWheel.toScreen(t)
-		  , n = head.toScreen(t)
+		  , e = this.frontWheel.displayPos.toScreen(t)
+		  , i = this.rearWheel.displayPos.toScreen(t)
+		  , n = this.head.displayPos.toScreen(t)
 		  , r = t.camera.zoom
 		  , h = e.sub(i)
 		  , l = new s(e.y - i.y, i.x - e.x)
@@ -174,8 +175,8 @@ export default class extends Bike {
 			c.y = -y.x * this.dir,
 			c.factorSelf(r ** 2);
 			let x = y.factor(.5);
-			x.x = m.x + x.x + c.x * (200 / y.lenSqr()),
-			x.y = m.y + x.y + c.y * (200 / y.lenSqr());
+			x.x = m.x + x.x + c.x * (200 / w),
+			x.y = m.y + x.y + c.y * (200 / w);
 			let _ = y.factor(.12);
 			_.x = f.x + _.x + c.x * (50 / w),
 			_.y = f.y + _.y + c.y * (50 / w),

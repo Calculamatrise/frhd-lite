@@ -455,7 +455,7 @@ export default class {
 				t.hasPowerups && (t.powerupCanvasDrawn || t.cachePowerupSector());
 				let S = (t.column * settings.drawSectorSize - camera.position.x) * camera.zoom + scene.screen.center.x | 0,
 					P = (t.row * settings.drawSectorSize - camera.position.y) * camera.zoom + scene.screen.center.y | 0;
-				ctx.drawImage(t.canvas, S, P, size, size);
+				t.canvas && ctx.drawImage(t.canvas, S, P, size, size);
 				if (t.hasPowerups && t.powerupCanvasDrawn) {
 					const powerupSectorSize = (settings.drawSectorSize + t.powerupCanvasOffset) * camera.zoom;
 					ctx.drawImage(t.powerupCanvas, S - t.powerupCanvasOffset * camera.zoom / 2, P - t.powerupCanvasOffset * camera.zoom / 2, powerupSectorSize, powerupSectorSize)
@@ -464,16 +464,18 @@ export default class {
 				t.drawn && t.clear()
 		}
 	}
-	closeSectors() {
+
+	_closeSectors() {
 		for (const t of this.totalSectors)
-			t.close()
+			t[Symbol.dispose]()
 	}
-	close() {
+
+	[Symbol.dispose]() {
 		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window)
 			TrackRenderer.removeEventListener('message', this._boundRenderer),
 			delete this._boundRenderer;
 		this.scene = null,
-		this.closeSectors(),
+		this._closeSectors(),
 		this.totalSectors = null,
 		this.canvasPool = null,
 		this.sectors = null,

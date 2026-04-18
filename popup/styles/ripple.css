@@ -1,0 +1,23 @@
+.ripple { overflow: hidden; }
+.ripple::before {
+	background-color: black;
+	border-radius: 50%;
+	content: "";
+	left: calc(var(--offsetX) * 1px);
+	opacity: 0;
+	padding: 50%;
+	pointer-events: none;
+	position: absolute;
+	scale: 2;
+	top: calc(var(--offsetY) * 1px);
+	translate: -50% -50%;
+	transition: translate 800ms ease-out, scale 800ms, opacity 1s;
+}
+
+/* .ripple:not(.focus):active::before, .ripple.focus:not(:focus-within):active::before */
+.ripple:is(:not(.focus), .focus:not(:focus-within)):active::before {
+	opacity: .5;
+	scale: 0;
+	transition: 0s;
+	translate: -50% -50%;
+}

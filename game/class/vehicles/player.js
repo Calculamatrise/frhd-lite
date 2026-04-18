@@ -29,6 +29,8 @@ function m(t, e) {
 }
 
 export default class {
+	// #boundCheckKeys = this.checkKeys.bind(this);
+
 	_ghost = !1;
 	color = '#000000';
 	id = g++;
@@ -43,6 +45,8 @@ export default class {
 		t.settings.track && (i = t.settings.track.vehicle),
 		this._baseVehicleType = i,
 		this._gamepad = new Gamepad(t),
+		// this._gamepad.on('buttonDown', this.#boundCheckKeys);
+		// this._gamepad.on('buttonUp', this.#boundCheckKeys);
 		e.color && (this._color = e.color),
 		this.setDefaults(),
 		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0))
@@ -121,7 +125,8 @@ export default class {
 			ticks: e,
 			position: i,
 			direction: s
-		}
+		};
+		if (!this._scene.vehicleTimer) this._scene.camera.playerFocus === this && this._scene.createVehicleTimer(this)
 	}
 	createTempVehicle(t, e, i, s) {
 		if (this._temp_vehicle_options) {
@@ -416,6 +421,7 @@ export default class {
 		} else
 			this.restartScene()
 	}
+
 	returnToCheckpoint(t) {
 		if (this._cache.length > 0) {
 			for (var e = 0; t > e; e++)
@@ -423,27 +429,7 @@ export default class {
 			this.gotoCheckpoint()
 		}
 	}
-	close() {
-		this.id = null,
-		this._scene = null,
-		this._game = null,
-		this._user = null,
-		this._settings = null,
-		this._baseVehicleType = null,
-		this._gamepad.close(),
-		this._gamepad = null,
-		this._baseVehicle = null,
-		this._tempVehicleType = null,
-		this._tempVehicle = null,
-		this._tempVehicleTicks = null,
-		this._addCheckpoint = null,
-		this._checkpoints = null,
-		this._cache = null,
-		this._crashed = null,
-		this._effect = null,
-		this._effectTicks = null,
-		this._powerupsConsumed = null
-	}
+
 	reset() {
 		this._restartTimeout = null,
 		this._tempVehicle && this._tempVehicle.stopSounds(),
@@ -451,7 +437,26 @@ export default class {
 		this.setDefaults(),
 		this.createBaseVehicle(new Cartesian(0, 35), 1, new Cartesian(0, 0)),
 		this._gamepad.reset(),
-		this._scene.state.playerAlive = this.isAlive(),
+		this._scene.state.playerAlive = this.isAlive();
+		if (this._scene.vehicleTimer) this._scene.vehicleTimer.visible = false;
 		this._game.emit('playerReset', this)
+	}
+
+	[Symbol.dispose]() {
+		this._scene = null,
+		this._game = null,
+		this._user = null,
+		this._settings = null,
+		this._gamepad[Symbol.dispose](),
+		this._gamepad = null,
+		this._baseVehicle = null,
+		this._tempVehicleType = null,
+		this._tempVehicle = null,
+		this._tempVehicleTicks = null,
+		this._checkpoints = null,
+		this._cache = null,
+		this._effect = null,
+		this._effectTicks = null,
+		this._powerupsConsumed = null
 	}
 }

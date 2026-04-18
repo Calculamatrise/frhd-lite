@@ -11,9 +11,7 @@ class FreeRiderLite {
 	storage = new Map();
 	trackData = null;
 	constructor() {
-		let searchParams = new URLSearchParams(location.search);
-		if (searchParams.has('ajax')) return;
-		self.Application && Application.events.subscribe('mainview.loaded', this._childLoad.bind(this)),
+		window.Application?.events.subscribe('mainview.loaded', this._childLoad.bind(this)),
 		self.ModManager && (ModManager.hook(this, { name: 'lite' }),
 		ModManager.addEventListener('game:ready', this._load.bind(this)),
 		ModManager.addEventListener('game:stateChange', this.refresh.bind(this)));
@@ -92,23 +90,24 @@ class FreeRiderLite {
 			progress.setAttribute('max', playerFocus.race.run_ticks ?? 100)
 		});
 		game.on('draw', ctx => this.draw(ctx));
-		// game.on('playerBaseVehicleDraw', ({ baseVehicle, ctx, player }) => {
-		// 	if (this.scene.ticks <= 0 || player.isGhost()) return;
+		// game.on('playerBaseVehicleDraw', (baseVehicle, ctx) => {
+		// 	if (this.scene.ticks <= 0 || baseVehicle.player.isGhost()) return;
 		// 	try {
-		// 		if (!this.scene.state.playing) {
-		// 			let t = parseInt(this.storage.get('snapshots'));
-		// 			if (t > 0) {
-		// 				// Object.create(Object.getPrototypeOf(baseVehicle))
-		// 				for (let e of player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
-		// 					baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, t / 3e2 * player._checkpoints.indexOf(e) % 1);
-		// 				for (let e of player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle))
-		// 					baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, t / 3e2 * player._cache.indexOf(e) % 1);
-		// 			}
-		// 		}
-
 		// 		if (this.storage.get('playerTrail')) {
-		// 			for (let e of this.snapshots.filter(({ _baseVehicle: t }) => t))
-		// 				baseVehicle.drawBikeFrame.call(Object.assign({}, baseVehicle, { scene: this.scene }, JSON.parse(e._baseVehicle)), ctx, this.snapshots.length / (this.snapshots.length * 200) * this.snapshots.indexOf(e) % 1);
+		// 			baseVehicle._save();
+		// 			for (const e of this.snapshots.filter(({ _baseVehicle: t }) => t)) {
+		// 				const snapshot = JSON.parse(e._baseVehicle);
+		// 				baseVehicle.dir = snapshot.dir;
+		// 				baseVehicle.drawHeadAngle = snapshot.drawHeadAngle;
+		// 				baseVehicle.pedala = snapshot.pedala;
+		// 				baseVehicle.frontWheel.displayPos.equ(snapshot.frontWheel.displayPos);
+		// 				baseVehicle.head.displayPos.equ(snapshot.head.displayPos);
+		// 				baseVehicle.rearWheel.displayPos.equ(snapshot.rearWheel.displayPos);
+		// 				// baseVehicle.updateDrawHeadAngle();
+		// 				baseVehicle.drawBikeFrame(ctx, this.snapshots.length / (this.snapshots.length * 200) * this.snapshots.indexOf(e) % 1);
+		// 			}
+
+		// 			baseVehicle._restore();
 		// 		}
 		// 	} catch (err) {
 		// 		this.constructor.warn(err)
@@ -180,17 +179,16 @@ class FreeRiderLite {
 			}),
 			navigator.connection.addEventListener('change', this._connectionEvent))
 		});
-		game.currentScene.playerManager.firstPlayer._gamepad.addEventListener('buttonDown', event => {
-			if (event.key !== 'left' && event.key !== 'right') return;
-			if (this.scene.camera.focusIndex < 1) return;
+		game.currentScene.playerManager.firstPlayer._gamepad.on('buttonDown', key => {
+			if ((key !== 'left' && key !== 'right') || this.scene.camera.focusIndex < 1) return;
 			const { playerFocus } = this.scene.camera;
 			if (!playerFocus.isGhost() || playerFocus._gamepad.playbackTicks < 1) return;
-			event.preventDefault();
-			const dir = event.key === 'left' ? -1 : 1;
+			const dir = key === 'left' ? -1 : 1;
 			const targetTick = (playerFocus._gamepad.playbackTicks ?? this.scene.ticks) + 5 * dir;
 			playerFocus._replayIterator.next(targetTick);
 			this.scene.state.playing = false;
-			game.emit('seek', targetTick)
+			game.emit('seek', targetTick);
+			return false
 		});
 		this.snapshots.splice(0);
 		this._updateFromSettings(this.storage);
@@ -280,6 +278,11 @@ class FreeRiderLite {
 		  , redraw = !1;
 		for (const [key, value] of changes.entries()) {
 			switch (key) {
+			case 'autoRestart':
+				GameSettings.restartOnComplete = value;
+				this.scene.game.removeListener('beforeComplete', this.restartOnComplete);
+				value && this.scene.game.on('beforeComplete', this.restartOnComplete);
+				break;
 			case 'bikeFrameColor':
 				var firstPlayer = this.scene.playerManager.firstPlayer;
 				firstPlayer && (firstPlayer._baseVehicle.color = value,
@@ -295,9 +298,7 @@ class FreeRiderLite {
 				baseVehicle.rearWheel.color = value);
 				break;
 			case 'brightness':
-				this.constructor.styleSheet.set('#game-container', Object.assign({}, this.constructor.styleSheet.get('#game-container'), {
-					filter: 'brightness(' + value / 100 + ')'
-				}));
+				this.constructor.styleSheet.set('#game-container', Object.assign({}, this.constructor.styleSheet.get('#game-container'), { filter: `brightness(${value / 100})` }));
 				break;
 			case 'colorPalette':
 				let updateTheme = !1;
@@ -346,11 +347,22 @@ class FreeRiderLite {
 			case 'disableAnalytics':
 				GameSettings.analyticsEnabled = !value;
 				break;
+			case 'frameTimeSmoothing':
+				this.scene.game.config.smoothing = value;
+				break;
+			case 'interpolation':
+				this.scene.game.interpolation = value;
+				break;
 			case 'keymap':
 				this.scene.playerManager.firstPlayer._gamepad.setKeyMap(GameManager.scene !== 'Editor' ? GameSettings.playHotkeys : GameSettings.editorHotkeys);
 				break;
+			case 'freezeOnPause':
+			case 'lowLatencyMode':
 			case 'multiThreadedRendering':
 				GameSettings[key] = value;
+				break;
+			case 'maxFrameRate':
+				this.scene.game.setMaxFrameRate(value);
 				break;
 			case 'raceProgress':
 				this.scene.raceProgress && (this.scene.raceProgress.enabled = value);
@@ -359,6 +371,7 @@ class FreeRiderLite {
 				const theme = this._getColorScheme(value);
 				const colorPalette = this.storage.get('colorPalette');
 				let backgroundColor = '#'.padEnd(7, theme == 'midnight' ? '1d2328' : theme == 'darker' ? '0' : theme == 'dark' ? '1b' : 'f');
+				GameSettings.backgroundColor = backgroundColor;
 				colorPalette.backgroundColor ?? this.constructor.styleSheet.set('#game-container > canvas', Object.assign({}, this.constructor.styleSheet.get('#game-container > canvas'), { backgroundColor }));
 				backgroundColor = this.constructor.styleSheet.get('#game-container > canvas').backgroundColor;
 				GameSettings.UITextColor = this.constructor.getVisibleColor(backgroundColor),
@@ -613,6 +626,22 @@ class FreeRiderLite {
 		const keymap = this.storage.get('keymap');
 		for (const key in keymap)
 			this.scene.playerManager.firstPlayer._gamepad.keymap[key.charCodeAt()] = keymap[key]
+	}
+
+	restartOnComplete() {
+		const userId = this.settings.user.u_id;
+		// Check actual best time, even if not racing -- this.settings.trackUserStats
+		const bestTicks = this.currentScene.races?.find(({ user }) => user.u_id == userId)?.race.run_ticks;
+		if (!bestTicks) return;
+
+		const surpassed = this.currentScene.ticks < bestTicks;
+		if (!surpassed) {
+			this.currentScene.state.playing = false;
+			// this.currentScene.restart();
+			this.currentScene.restartTrack = true;
+		}
+
+		return surpassed
 	}
 
 	updateTASLeaderboard(races) {

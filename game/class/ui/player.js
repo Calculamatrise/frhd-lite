@@ -9,7 +9,7 @@ export default class {
 		const styleSheet = new CSSStyleSheet();
 		styleSheet.replaceSync(`
 .player-overlay {
-	color: hsl(180 4% 91%);
+	/* color: hsl(180 4% 91%); */
 	inset: 0;
 	pointer-events: none;
 	position: absolute;
@@ -239,15 +239,16 @@ export default class {
 .cinema:has(> :checked)::before { --vertical-margin: 5 }
 
 .control-icon.svg {
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: 75%;
+	background-color: currentColor;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: 75%;
 }
-.settings { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3Cpath d='M10.47 4.32c.602-1.306 2.458-1.306 3.06 0l.218.473a1.684 1.684 0 0 0 2.112.875l.49-.18c1.348-.498 2.66.814 2.162 2.163l-.18.489a1.684 1.684 0 0 0 .875 2.112l.474.218c1.305.602 1.305 2.458 0 3.06l-.474.218a1.684 1.684 0 0 0-.875 2.112l.18.49c.498 1.348-.814 2.66-2.163 2.162l-.489-.18a1.684 1.684 0 0 0-2.112.875l-.218.473c-.602 1.306-2.458 1.306-3.06 0l-.218-.473a1.684 1.684 0 0 0-2.112-.875l-.49.18c-1.348.498-2.66-.814-2.163-2.163l.181-.489a1.684 1.684 0 0 0-.875-2.112l-.474-.218c-1.305-.602-1.305-2.458 0-3.06l.474-.218a1.684 1.684 0 0 0 .875-2.112l-.18-.49c-.498-1.348.814-2.66 2.163-2.163l.489.181a1.684 1.684 0 0 0 2.112-.875l.218-.474Z'/%3E%3C/svg%3E") }
-.volume { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 14V10C3 9.44772 3.44772 9 4 9H6.64922C6.87629 9 7.0966 8.92272 7.27391 8.78087L10.3753 6.29976C11.0301 5.77595 12 6.24212 12 7.08062V16.9194C12 17.7579 11.0301 18.2241 10.3753 17.7002L7.27391 15.2191C7.0966 15.0773 6.87629 15 6.64922 15H4C3.44772 15 3 14.5523 3 14Z'/%3E%3Cpath d='M15.8302 15.2139C16.5435 14.3639 16.9537 13.3008 16.9963 12.1919C17.0389 11.0831 16.7114 9.99163 16.0655 9.08939'/%3E%3Cpath d='M18.8944 17.7851C20.2406 16.1807 20.9852 14.1571 20.9998 12.0628C21.0144 9.96855 20.2982 7.93473 18.9745 6.31174'/%3E%3C/svg%3E") }
-.volume.mid { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 14V10C5 9.44772 5.44772 9 6 9H8.64922C8.87629 9 9.0966 8.92272 9.27391 8.78087L12.3753 6.29976C13.0301 5.77595 14 6.24212 14 7.08062V16.9194C14 17.7579 13.0301 18.2241 12.3753 17.7002L9.27391 15.2191C9.0966 15.0773 8.87629 15 8.64922 15H6C5.44772 15 5 14.5523 5 14Z'/%3E%3Cpath d='M17.8302 15.2139C18.5435 14.3639 18.9537 13.3008 18.9963 12.1919C19.0389 11.0831 18.7114 9.99163 18.0655 9.08939'/%3E%3C/svg%3E") }
-.volume.off { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V10C7 9.44772 7.44772 9 8 9H10.6492C10.8763 9 11.0966 8.92272 11.2739 8.78087L14.3753 6.29976C15.0301 5.77595 16 6.24212 16 7.08062V16.9194C16 17.7579 15.0301 18.2241 14.3753 17.7002L11.2739 15.2191C11.0966 15.0773 10.8763 15 10.6492 15H8C7.44772 15 7 14.5523 7 14Z'/%3E%3C/svg%3E") }
-.volume.mute { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 14V10C3 9.44772 3.44772 9 4 9H6.64922C6.87629 9 7.0966 8.92272 7.27391 8.78087L10.3753 6.29976C11.0301 5.77595 12 6.24212 12 7.08062V16.9194C12 17.7579 11.0301 18.2241 10.3753 17.7002L7.27391 15.2191C7.0966 15.0773 6.87629 15 6.64922 15H4C3.44772 15 3 14.5523 3 14Z'/%3E%3Cpath d='M16 9.5L18.5 12M21 14.5L18.5 12M18.5 12L21 9.5M18.5 12L16 14.5'/%3E%3C/svg%3E") }
+.settings { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3Cpath d='M10.47 4.32c.602-1.306 2.458-1.306 3.06 0l.218.473a1.684 1.684 0 0 0 2.112.875l.49-.18c1.348-.498 2.66.814 2.162 2.163l-.18.489a1.684 1.684 0 0 0 .875 2.112l.474.218c1.305.602 1.305 2.458 0 3.06l-.474.218a1.684 1.684 0 0 0-.875 2.112l.18.49c.498 1.348-.814 2.66-2.163 2.162l-.489-.18a1.684 1.684 0 0 0-2.112.875l-.218.473c-.602 1.306-2.458 1.306-3.06 0l-.218-.473a1.684 1.684 0 0 0-2.112-.875l-.49.18c-1.348.498-2.66-.814-2.163-2.163l.181-.489a1.684 1.684 0 0 0-.875-2.112l-.474-.218c-1.305-.602-1.305-2.458 0-3.06l.474-.218a1.684 1.684 0 0 0 .875-2.112l-.18-.49c-.498-1.348.814-2.66 2.163-2.163l.489.181a1.684 1.684 0 0 0 2.112-.875l.218-.474Z'/%3E%3C/svg%3E") }
+.volume { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 14V10C3 9.44772 3.44772 9 4 9H6.64922C6.87629 9 7.0966 8.92272 7.27391 8.78087L10.3753 6.29976C11.0301 5.77595 12 6.24212 12 7.08062V16.9194C12 17.7579 11.0301 18.2241 10.3753 17.7002L7.27391 15.2191C7.0966 15.0773 6.87629 15 6.64922 15H4C3.44772 15 3 14.5523 3 14Z'/%3E%3Cpath d='M15.8302 15.2139C16.5435 14.3639 16.9537 13.3008 16.9963 12.1919C17.0389 11.0831 16.7114 9.99163 16.0655 9.08939'/%3E%3Cpath d='M18.8944 17.7851C20.2406 16.1807 20.9852 14.1571 20.9998 12.0628C21.0144 9.96855 20.2982 7.93473 18.9745 6.31174'/%3E%3C/svg%3E") }
+.volume.mid { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 14V10C5 9.44772 5.44772 9 6 9H8.64922C8.87629 9 9.0966 8.92272 9.27391 8.78087L12.3753 6.29976C13.0301 5.77595 14 6.24212 14 7.08062V16.9194C14 17.7579 13.0301 18.2241 12.3753 17.7002L9.27391 15.2191C9.0966 15.0773 8.87629 15 8.64922 15H6C5.44772 15 5 14.5523 5 14Z'/%3E%3Cpath d='M17.8302 15.2139C18.5435 14.3639 18.9537 13.3008 18.9963 12.1919C19.0389 11.0831 18.7114 9.99163 18.0655 9.08939'/%3E%3C/svg%3E") }
+.volume.off { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V10C7 9.44772 7.44772 9 8 9H10.6492C10.8763 9 11.0966 8.92272 11.2739 8.78087L14.3753 6.29976C15.0301 5.77595 16 6.24212 16 7.08062V16.9194C16 17.7579 15.0301 18.2241 14.3753 17.7002L11.2739 15.2191C11.0966 15.0773 10.8763 15 10.6492 15H8C7.44772 15 7 14.5523 7 14Z'/%3E%3C/svg%3E") }
+.volume.mute { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 14V10C3 9.44772 3.44772 9 4 9H6.64922C6.87629 9 7.0966 8.92272 7.27391 8.78087L10.3753 6.29976C11.0301 5.77595 12 6.24212 12 7.08062V16.9194C12 17.7579 11.0301 18.2241 10.3753 17.7002L7.27391 15.2191C7.0966 15.0773 6.87629 15 6.64922 15H4C3.44772 15 3 14.5523 3 14Z'/%3E%3Cpath d='M16 9.5L18.5 12M21 14.5L18.5 12M18.5 12L21 9.5M18.5 12L16 14.5'/%3E%3C/svg%3E") }
 .volume-container > input[type="range"] {
 	max-width: 100px;
 	overflow: hidden;
@@ -334,7 +335,11 @@ export default class {
 			// Don't fade if hovering scrubber
 			this.fade(3e3)
 		}, { passive: true });
-		t.addEventListener('pointerleave', () => this.fade(0), { passive: true })
+		t.addEventListener('pointerleave', () => this.fade(0), { passive: true });
+		const boundUpdate = this.updateScore.bind(this);
+		this.game.on('tick', boundUpdate);
+		this.game.on('playbackTick', boundUpdate);
+		this.game.on('reset', boundUpdate)
 	}
 
 	init() {
@@ -545,7 +550,7 @@ export default class {
 		this.targets.setAttribute('max', t.track.targetCount)
 	}
 
-	update() {
+	updateScore() {
 		const t = this.scene;
 
 		const focusPlayer = null !== t.camera.playerFocus ? t.camera.playerFocus : null;
@@ -569,7 +574,7 @@ export default class {
 		if (time !== this.time.textContent) this.time.textContent = time;
 
 		const targets = (t.camera.playerFocus || t.playerManager.firstPlayer).getTargetsHit();
-		if (targets != this.targets.textContent) this.targets.textContent = targets;
+		if (targets != this.targets.textContent) this.targets.textContent = targets
 	}
 }
 

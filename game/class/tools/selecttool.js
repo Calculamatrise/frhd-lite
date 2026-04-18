@@ -212,8 +212,9 @@ export default class Select extends Tool {
 		this.passive = !1,
 		this.unselectElements()
 	}
-	close() {
-		super.close(),
+
+	[Symbol.dispose]() {
+		super[Symbol.dispose](),
 		this.dashOffset = 0,
 		this.selectedElements = null,
 		this.p2 = null,

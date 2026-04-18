@@ -4,64 +4,63 @@ import r from "../sector/sceneryline.js";
 import o from "../sector/powerups/target.js";
 
 export default class {
-	#boundGamepadListener;
-	#boundMouseListener;
-	#boundListener;
+	#boundGamepadListener = this.checkHotkeys.bind(this);
+	#boundMouseDownListener = this.press.bind(this);
+	// #boundMouseMoveListener = this.checkMouse.bind(this);
 
+	actionTimeline = [];
+	actionTimelineMax = 50;
+	actionTimelinePointer = 0;
 	currentTool = "";
-	scene = null;
-	camera = null;
-	mouse = null;
 	tools = {};
-	gamepad = null;
 	gridCache = !1;
 	gridCacheAlpha = 1;
 	gridUseEnabled = !1;
-	snapPoint = null;
+	snapPoint = new i;
 	previousTool = "";
-	options = null;
 	constructor(t) {
-		this.scene = t;
+		Object.defineProperty(this, 'scene', { value: t, writable: true });
 		this.camera = t.camera;
 		this.mouse = t.mouse;
 		this.mouse.updateCallback = this.draw.bind(this);
 		this.gamepad = t.playerManager.firstPlayer.getGamepad();
 		this.options = t.settings.toolHandler;
-		this.snapPoint = new i;
 		this.snapPoint.equ(this.scene.track.defaultLine.p2),
-		t.settings.analyticsEnabled !== false && this.initAnalytics(),
-		this.actionTimeline = [],
-		this.actionTimelineMax = 50,
-		this.actionTimelinePointer = 0;
+		t.settings.analyticsEnabled !== false && this.initAnalytics();
 
-		// this.#boundMouseListener = this.checkMouse.bind(this);
-		// this.mouse.on('down', this.#boundMouseListener);
-		// this.mouse.on('move', this.#boundMouseListener);
+		this.mouse.on('down', this.#boundMouseDownListener);
 
-		this.#boundGamepadListener = this.checkHotkeys.bind(this);
-		this.gamepad.addEventListener('buttonDown', this.#boundGamepadListener);
-		this.gamepad.addEventListener('buttonUp', this.#boundGamepadListener)
+		this.gamepad.on('buttonDown', this.#boundGamepadListener);
+		this.gamepad.on('buttonUp', this.#boundGamepadListener);
+
+		// t.game.on('cameraZoom', this.checkGrid.bind(this))
 	}
+
 	initAnalytics() {
 		Object.defineProperty(this, 'analytics', {
 			value: { actions: 0 },
 			writable: true
 		})
 	}
+
 	enableGridUse() {
 		this.gridUseEnabled = !0
 	}
+
 	getToolOptions() {
 		return this.tools[this.currentTool].getOptions()
 	}
+
 	setToolOption(t, e, i) {
 		"undefined" != typeof i && "undefined" != typeof this.tools[i] ? this.tools[i].setOption(t, e) : this.tools[this.currentTool].setOption(t, e),
 		this.scene.updateState()
 	}
+
 	registerTool(t) {
 		t = new t(this);
 		this.tools[this.constructor.parseToolName(t.name)] = t;
 	}
+
 	setTool(t) {
 		t = this.constructor.parseToolName(t);
 		this.currentTool !== t && this.tools.hasOwnProperty(t) && (this.resetTool(),
@@ -70,6 +69,7 @@ export default class {
 		this.scene.updateState(),
 		this.analytics && this.analytics.actions++)
 	}
+
 	addActionToTimeline(t) {
 		this.actionTimeline.length >= this.actionTimelineMax && (this.actionTimeline.splice(0, this.actionTimeline.length - this.actionTimelineMax),
 		this.actionTimelinePointer = this.actionTimelineMax),
@@ -77,6 +77,7 @@ export default class {
 		this.actionTimeline.push(t),
 		this.actionTimelinePointer++
 	}
+
 	revertAction() {
 		let t = this.actionTimelinePointer;
 		if (t > 0) {
@@ -92,6 +93,7 @@ export default class {
 			this.actionTimelinePointer = t
 		}
 	}
+
 	applyAction() {
 		let t = this.actionTimeline
 		  , e = this.actionTimelinePointer;
@@ -108,6 +110,7 @@ export default class {
 			this.actionTimelinePointer = e
 		}
 	}
+
 	removeObjects(t) {
 		for (let e = 0; e < t.length; e++) {
 			let i = t[e];
@@ -116,6 +119,7 @@ export default class {
 		}
 		this.scene.track.cleanTrack()
 	}
+
 	addObjects(t) {
 		for (let e = t.length, i = this.scene.track, s = 0; e > s; s++) {
 			let a = t[s];
@@ -127,51 +131,60 @@ export default class {
 			i.addPowerup(a))
 		}
 	}
+
 	resetTool() {
 		"" !== this.currentTool && this.tools[this.currentTool].reset()
 	}
+
 	update() {
 		this.checkGrid(),
 		this.mouse.enabled && this.tools[this.currentTool].update(),
 		// this.checkHotkeys(),
-		this.checkMouse(),
+		// this.checkMouse(),
 		this.checkSnap()
 	}
+
 	checkGrid() {
 		let t = this.scene.camera;
 		t.zoom !== t.desiredZoom && (this.gridCache = !1)
 	}
+
 	checkSnap() {
 		this.options.snapLocked && (this.options.snap = !0)
 	}
+
 	moveCameraTowardsMouse() {
-		if (this.options.cameraLocked === !1) {
-			let t = this.scene.screen
-			  , e = 100
-			  , i = t.height - e
-			  , s = 0 + e
-			  , n = t.width - e
-			  , r = 0 + e
-			  , o = this.options.cameraMoveSpeed
-			  , a = t.center
-			  , h = this.camera
-			  , l = this.mouse.touch
-			  , c = l.pos.x
-			  , u = l.pos.y
-			  , p = .8 * (c - a.x)
-			  , d = u - a.y;
-			(c >= n || r >= c || u >= i || s >= u) && (h.position.x += p * o * (1 / h.zoom),
-			h.position.y += d * o * (1 / h.zoom))
-		}
+		if (this.options.cameraLocked) return;
+		this.press();
+
+		let t = this.scene.screen
+			, e = 100
+			, i = t.height - e
+			, s = 0 + e
+			, n = t.width - e
+			, r = 0 + e
+			, o = this.options.cameraMoveSpeed
+			, a = t.center
+			, h = this.camera
+			, l = this.mouse.touch
+			, c = l.pos.x
+			, u = l.pos.y
+			, p = .8 * (c - a.x)
+			, d = u - a.y;
+		(c >= n || r >= c || u >= i || s >= u) && (h.position.x += p * o * (1 / h.zoom),
+		h.position.y += d * o * (1 / h.zoom))
 	}
+
 	checkMouse() {
 		let t = this.mouse.touch
 		  , e = this.mouse.secondaryTouch;
 		(t.press || e.press) && this.press()
 	}
+
 	press() {
 		this.camera.unfocus()
 	}
+
 	checkHotkeys() {
 		let t = this.gamepad
 		  , e = this.options.snap
@@ -200,37 +213,45 @@ export default class {
 		t.isButtonDown("lineType") && (t.setButtonUp("lineType"),
 		this.toggleLineType())
 	}
+
 	toggleLineType() {
 		let t = this.options.lineType;
 		this.options.lineType = "physics" === t ? "scenery" : "physics",
 		this.scene.updateState()
 	}
+
 	toggleGrid() {
 		this.options.grid = this.scene.state.grid = !this.options.grid,
 		this.scene.updateState()
 	}
+
 	toggleSnap() {
 		this.options.snap = !this.options.snap,
 		this.options.snapLocked = !this.options.snapLocked,
 		this.resetTool(),
 		this.scene.updateState()
 	}
+
 	toggleQuickSnap() {
 		this.options.snapLocked || (this.options.snap = !this.options.snap,
 		this.resetTool(),
 		this.scene.updateState())
 	}
+
 	toggleCameraLock() {
 		this.options.cameraLocked = !this.options.cameraLocked,
 		this.scene.updateState()
 	}
+
 	draw(ctx) {
 		this.mouse.enabled && this.tools[this.currentTool].draw(ctx)
 	}
+
 	drawGrid(e) {
 		let t = this.scene.game.pixelRatio;
 		this.options.grid === !0 && this.options.visibleGrid && this.drawCachedGrid(e, t)
 	}
+
 	drawCachedGrid(t, e) {
 		this.gridCache === !1 && this.cacheGrid(e);
 		let i = this.gridCache
@@ -252,6 +273,7 @@ export default class {
 			}
 		t.globalAlpha = 1
 	}
+
 	cacheGrid() {
 		if (window.lite?.storage.get("isometricGrid"))
 			return this.cacheIsometricGrid()
@@ -288,6 +310,7 @@ export default class {
 		this.gridCache = o,
 		this.gridCacheAlpha = Math.min(t + .2, 1)
 	}
+
 	cacheIsometricGrid() {
 		let t = this.scene.camera.zoom
 		  , e = 200 * t
@@ -308,15 +331,19 @@ export default class {
 		this.gridCache = o,
 		this.gridCacheAlpha = Math.min(t + .2, 1)
 	}
+
 	resize() {
 		let t = this.scene.game.pixelRatio;
 		this.cacheGrid(t)
 	}
+
 	undo() {}
 	redo() {}
-	close() {
-		this.actionTimeline = [],
+
+	[Symbol.dispose]() {
+		this.actionTimeline.splice(0),
 		this.actionTimelinePointer = 0,
+		this.tools[this.currentTool]?.[Symbol.dispose]?.();
 		this.tools = null,
 		this.mouse = null,
 		this.scene = null,

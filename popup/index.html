@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Free Rider Lite</title>
 	<link rel="stylesheet" href="style.css">
+	<script src="ux.js"></script>
 	<script type="module" src="script.js" defer></script>
 </head>
 <body class="view">
@@ -24,34 +24,31 @@
 	</nav>
 	<div class="details">
 		<input type="radio" name="nav" id="features">
-		<!-- <label class="ripple" title="Displays featured ghosts on the leaderboard">
-			<input type="checkbox" id="accountManager">
-			<span>Account manager</span>
-		</label>
-		<label class="ripple" title="Displays featured ghosts on the leaderboard">
-			<input type="checkbox" id="achievementMonitor">
-			<span>Achievement monitor</span>
-		</label>
-		<label class="ripple" title="Displays featured ghosts on the leaderboard">
-			<input type="checkbox" id="featuredGhostsDisplay">
-			<span>Featured ghosts</span>
-		</label>
-		<details data-type="experiments" style="display: none;">
-			<summary class="tab ripple">Experiments</summary>
-			<label class="ripple" title="Toggle track playlists">
-				<input type="checkbox" id="playlists">
-				<span>Playlists</span>
-			</label>
-		</details> -->
 		<p>Web-based features have migrated to a separate extension for better compatibility with other mods. <a href="https://community.freeriderhd.com/threads/free-rider-toolkit.15597/">Click here to read more</a></p>
 		<button style="width:100%">Install Free Rider Toolkit</button>
 	</div>
 	<div class="details">
 		<input type="radio" name="nav" id="options" checked>
-		<label class="ripple" title="Toggle an input display">
-			<input type="checkbox" id="inputDisplay">
-			<span>Input display</span>
-		</label>
+		<div class="summary">
+			<label class="ripple" title="Toggle an input display">
+				<input type="checkbox" id="inputDisplay">
+				<span>Input display</span>
+			</label>
+			<label for="inputDisplayOptions" class="remote"><span class="chevron"></span></label>
+		</div>
+		<div class="wrapper">
+			<div class="details sub-opts">
+				<input type="checkbox" id="inputDisplayOptions">
+				<label title="Change the size of the input display">
+					<span class="name" data-value="5">Size</span>
+					<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="5" value="5" style="width: -webkit-fill-available">
+				</label>
+				<label title="Change the opacity of the input display">
+					<span class="name" data-value="1">Opacity</span>
+					<input type="range" class="override-pointer-events" id="inputDisplayOpacity" min="0.1" max="1" value="1" step="0.1" style="width: -webkit-fill-available">
+				</label>
+			</div>
+		</div>
 		<label class="ripple" title="Allow keyboard input rollover to prevent overlapping inputs">
 			<input type="checkbox" id="inputRollover">
 			<span>Input rollover</span>
@@ -60,14 +57,54 @@
 			<input type="checkbox" id="isometricGrid">
 			<span>Isometric grid</span>
 		</label>
-		<!-- <label class="ripple" title="Display the last 15 snapshots of your rider">
-			<input type="checkbox" id="playerTrail">
-			<span>Player trail</span>
-		</label> -->
-		<label class="ripple" title="Display a progress bar for your race">
-			<input type="checkbox" id="raceProgress">
-			<span class="name">Race progress</span>
-		</label>
+		<!-- <div class="summary">
+			<label class="ripple disabled" title="Display the last n snapshots of your rider">
+				<input type="checkbox" id="playerTrail">
+				<span>Player trail</span>
+			</label>
+			<label for="playerTrailOptions" class="remote"><span class="chevron"></span></label>
+		</div>
+		<div class="wrapper">
+			<div class="details sub-opts">
+				<input type="checkbox" id="playerTrailOptions">
+				<label title="Change the number of snaphsots shown on checkpoints">
+					<span class="name" data-value="10">Snapshots</span>
+					<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
+				</label>
+			</div>
+		</div> -->
+		<div class="summary">
+			<label class="ripple" title="Display a progress bar for your race">
+				<input type="checkbox" id="raceProgress">
+				<span>Race progress</span>
+			</label>
+			<label for="raceProgressOptions" class="remote"><span class="chevron"></span></label>
+		</div>
+		<div class="wrapper">
+			<div class="details sub-opts">
+				<input type="checkbox" id="raceProgressOptions">
+				<label class="ripple disabled" title="Always show the distance to the next target">
+					<input type="checkbox" id="alwaysShowDistance">
+					<span>Always show distance</span>
+				</label>
+				<div class="summary">
+					<label class="ripple" title="Display a progress bar for your race">
+						<input type="checkbox" id="raceProgressSteps">
+						<span>Steps</span>
+					</label>
+					<label for="raceProgressStepsOptions" class="remote"><span class="chevron"></span></label>
+				</div>
+				<div class="wrapper">
+					<div class="details sub-opts">
+						<input type="checkbox" id="raceProgressStepsOptions">
+						<label title="Change the minimum number of steps to draw on the race progress display">
+							<span class="name" data-value="1">Minimum</span>
+							<input type="range" class="override-pointer-events" id="raceProgressMin" min="1" max="10" value="1" step="1" style="width: -webkit-fill-available">
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
 		<details>
 			<summary class="tab ripple">Colour scheme options</summary>
 			<label for="bikeFrameColor" class="focus ripple acuired-color" title="Customize your bike frame">
@@ -86,13 +123,13 @@
 				<input type="checkbox" id="showCustomizations">
 				<span>Show for others</span>
 			</label>
+			<!-- <label class="ripple" title="Display race author name and cosmetics">
+				<input type="checkbox" id="importRaceMetadata">
+				<span>Import race metadata</span>
+			</label> -->
 		</details>
 		<details>
 			<summary class="tab ripple">Show advanced options</summary>
-			<label class="ripple disabled" title="Always show the distance to the next target">
-				<input type="checkbox" id="alwaysShowDistance">
-				<span>Always show distance</span>
-			</label>
 			<label class="ripple" title="When selected, you must hold R to restart the track">
 				<input type="checkbox" id="confirmRestart">
 				<span>Confirm restart</span>
@@ -105,9 +142,65 @@
 				<input type="checkbox" id="disableAnalytics">
 				<span>Disable analytics</span>
 			</label>
+			<div class="summary">
+				<label class="ripple" title="Toggle interpolation">
+					<input type="checkbox" id="interpolation" checked>
+					<span>Interpolation</span>
+				</label>
+				<label for="interpolationOptions" class="remote"><span class="chevron"></span></label>
+			</div>
+			<div class="wrapper">
+				<div class="details sub-opts">
+					<input type="checkbox" id="interpolationOptions">
+					<label title="Smooths frame timing to reduce spikes and improve stability">
+						<span class="name" data-value="0.66">Frame time smoothing</span>
+						<input type="range" class="override-pointer-events" id="frameTimeSmoothing" min="0.1" max="1" value="0.66" step="0.1" style="width: -webkit-fill-available">
+					</label>
+					<label title="Cap your frames — Set to 0 to disable">
+						<span class="name" data-value="240">Max frame rate</span>
+						<input type="range" class="override-pointer-events" id="maxFrameRate" min="0" max="480" value="120" step="5" style="width: -webkit-fill-available">
+					</label>
+				</div>
+			</div>
+			<label class="ripple" title="Lowers perceived latency">
+				<input type="checkbox" id="lowLatencyMode">
+				<span>Low latency mode</span>
+			</label>
+			<div class="summary">
+				<label class="ripple disabled" title="Run the game in an optimized state that consumes less power">
+					<input type="checkbox" id="lowPowerMode">
+					<span>Low power mode</span>
+				</label>
+				<label for="lowPowerModeOptions" class="remote persistent"><span class="chevron"></span></label>
+			</div>
+			<div class="wrapper">
+				<div class="details sub-opts">
+					<input type="checkbox" id="lowPowerModeOptions">
+					<div class="summary" data-id="laptop-only">
+						<label class="ripple" title="Automatically enable low power mode when the battery drops below n%">
+							<input type="checkbox" id="autoLowPowerAuto">
+							<span>Auto</span>
+						</label>
+						<label for="autoLowPowerModeOptions" class="remote"><span class="chevron"></span></label>
+					</div>
+					<div class="wrapper">
+						<div class="details sub-opts">
+							<input type="checkbox" id="autoLowPowerModeOptions">
+							<label title="Set a threshold for when to automatically enable low power mode">
+								<span class="name" data-value="1">Battery threshold</span>
+								<input type="range" class="override-pointer-events" id="lowPowerModeThreshold" min="10" max="30" value="1" step="1" style="width: -webkit-fill-available">
+							</label>
+						</div>
+					</div>
+					<label class="ripple" title="Pause rendering when the game is paused">
+						<input type="checkbox" id="freezeOnPause">
+						<span>Stop rendering on pause</span>
+					</label>
+				</div>
+			</div>
 			<label class="ripple" title="Moves rendering to a worker thread so the main thread remains responsive">
-				<input type="checkbox" id="multiThreadedRendering" checked>
-				<span style="font-size: smaller">Multi-threaded rendering</span>
+				<input type="checkbox" id="multiThreadedRendering" checked disabled>
+				<span>Multi-threaded rendering</span>
 			</label>
 			<!-- <label title="Use relative size for UI components">
 				<input type="checkbox" id="relativeUISize">
@@ -117,50 +210,26 @@
 				<input type="checkbox" id="preciseEditorTools">
 				<span>Precise editor tools</span>
 			</label>
-			<!-- <label class="ripple" title="Draw steps on the race progress display">
-				<input type="checkbox" id="raceProgressSteps">
-				<span>Race progress steps</span>
-			</label> -->
 			<label class="ripple" title="Whether to show the old timers on the top left">
 				<input type="checkbox" id="showLegacyScore" checked disabled>
 				<span>Show legacy timer</span>
 			</label>
 			<label title="Change the minimum length before lines break in a curve">
-				<span class="name" data-value="20">Curve Break Length</span>
+				<span class="name" data-value="20">Curve break length</span>
 				<input type="range" class="override-pointer-events" id="curveBreakLength" min="2" max="300" value="20" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the number of points in a curve">
-				<span class="name" data-value="3">Curve Points</span>
+				<span class="name" data-value="3">Curve points</span>
 				<input type="range" class="override-pointer-events" id="curvePoints" min="3" max="10" value="3" style="width: -webkit-fill-available">
-			</label>
-			<label title="Change the size of the input display">
-				<span class="name" data-value="5">Input display size</span>
-				<input type="range" class="override-pointer-events" id="inputDisplaySize" min="1" max="5" value="5" style="width: -webkit-fill-available">
-			</label>
-			<label title="Change the opacity of the input display">
-				<span class="name" data-value="1">Input display opacity</span>
-				<input type="range" class="override-pointer-events" id="inputDisplayOpacity" min="0.1" max="1" value="1" step="0.1" style="width: -webkit-fill-available">
 			</label>
 			<label title="Change the maximum number of characters for the track code to be displayed in the export dialog">
 				<span class="name" data-value="400000">Export threshold</span>
 				<input type="range" class="override-pointer-events" id="exportThreshold" min="100000" max="1000000" value="400000" step="50000" style="width: -webkit-fill-available">
 			</label>
-			<label class="disabled" title="Cap your frames">
-				<span class="name" data-value="240">Max frame rate</span>
-				<input type="range" class="override-pointer-events" id="maxFrameRate" min="1" max="1000" value="120" step="5" style="width: -webkit-fill-available">
-			</label>
-			<label title="Change the minimum number of steps to draw on the race progress display">
-				<span class="name" data-value="1">Race progress min</span>
-				<input type="range" class="override-pointer-events" id="raceProgressMin" min="1" max="10" value="1" step="1" style="width: -webkit-fill-available">
-			</label>
-			<label title="Change the number of snaphsots shown on checkpoints">
-				<span class="name" data-value="10">Snapshot Count</span>
-				<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
-			</label>
 			<details data-type="experiments" style="display: none;">
 				<summary class="tab ripple">Experiments</summary>
 				<label class="ripple" title="Automatically restart if your time is lower than your best">
-					<input type="checkbox" id="autoRestart" disabled>
+					<input type="checkbox" id="autoRestart">
 					<span>Auto restart</span>
 				</label>
 				<label class="ripple" title="Remove duplicate powerups">
@@ -171,14 +240,26 @@
 					<input type="checkbox" id="importRaceMetadata">
 					<span>Import race metadata</span>
 				</label>
-				<label class="disabled ripple" title="Draw a racing path and share it for others to follow">
+				<div class="summary">
+					<label class="ripple" title="Display the last n snapshots of your rider">
+						<input type="checkbox" id="playerTrail">
+						<span>Player trail</span>
+					</label>
+					<label for="playerTrailOptions" class="remote"><span class="chevron"></span></label>
+				</div>
+				<div class="wrapper">
+					<div class="details sub-opts">
+						<input type="checkbox" id="playerTrailOptions">
+						<label title="Change the number of snaphsots shown on checkpoints">
+							<span class="name" data-value="10">Snapshots</span>
+							<input type="range" class="override-pointer-events" id="snapshots" min="0" max="15" value="10" style="width: -webkit-fill-available">
+						</label>
+					</div>
+				</div>
+				<!-- <label class="disabled ripple" title="Draw a racing path and share it for others to follow">
 					<input type="checkbox" id="raceTrail">
 					<span>Path tracer</span>
-				</label>
-				<label class="ripple disabled" title="Display the last n snapshots of your rider">
-					<input type="checkbox" id="playerTrail">
-					<span>Player trail</span>
-				</label>
+				</label> -->
 				<label class="ripple disabled" title="Allows you to save multiple additional ghosts locally">
 					<input type="checkbox" id="saveMultipleGhosts">
 					<span>Save multiple ghosts</span>
@@ -206,6 +287,7 @@
 				</details>
 			</details>
 			<button class="tab ripple" id="reset-settings" title="Reset all the settings to their default state (THIS CANNOT BE UNDONE)">Reset settings</button>
+			<footer>Version <span id="version">0.1.x</span></footer>
 		</details>
 	</div>
 	<div class="details">

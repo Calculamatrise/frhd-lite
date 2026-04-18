@@ -57,11 +57,13 @@ export default class {
 	}
 
 	setPlayer(t) {
-		this.player = t
+		this.player = t;
+		this.visible = true
 	}
 
 	removePlayer() {
-		this.player = null
+		this.player = null;
+		this.visible = false
 	}
 
 	playerAddedTime(t) {
@@ -82,7 +84,7 @@ export default class {
 		this.visible = true
 	}
 
-	close() {
+	[Symbol.dispose]() {
 		this.player = null;
 		this.scene = null;
 		this.settings = null

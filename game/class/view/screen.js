@@ -12,6 +12,7 @@ export default class {
 		});
 		this.setScreen()
 	}
+
 	setScreen() {
 		this.width = this.game.width,
 		this.height = this.game.height,
@@ -20,18 +21,16 @@ export default class {
 		this.center.x = this.game.width / 2,
 		this.center.y = this.game.height / 2
 	}
-	update() {
-		(this.game.width !== this.width || this.game.height !== this.height) && this.setScreen()
-	}
+
 	realToScreen(t, e) {
 		return (t - this.scene.camera.position[e]) * this.scene.camera.zoom + this.scene.screen.center[e]
 	}
+
 	toReal(t, e) {
 		return (t - this.scene.screen.center[e]) / this.scene.camera.zoom + this.scene.camera.position[e]
 	}
-	close() {
-		this.width = null,
-		this.height = null,
+
+	[Symbol.dispose]() {
 		this.center = null,
 		this.size = null,
 		this.game = null,

@@ -17,6 +17,7 @@ export default class extends Vehicle {
 		this.updateCameraFocalPoint();
 		-1 === i && this.swap()
 	}
+
 	createMasses(t) {
 		this.masses.push(new n(new s(t.x - 15,t.y + 7), this)),
 		this.masses.push(new n(new s(t.x + 15,t.y + 7), this)),
@@ -31,6 +32,7 @@ export default class extends Vehicle {
 		this.rearWheel = this.masses[2],
 		this.frontWheel = this.masses[3]
 	}
+
 	createSprings() {
 		let t = this.masses;
 		this.springs.push(new r(t[0],t[1],this)),
@@ -47,6 +49,7 @@ export default class extends Vehicle {
 		for (let e in this.springs)
 			this.springs[e].springConstant = .3
 	}
+
 	updateCameraFocalPoint() {}
 	fixedUpdate() {
 		if (super.fixedUpdate()) return;
@@ -65,6 +68,7 @@ export default class extends Vehicle {
 		this.updateDrawHeadAngle(),
 		this.updateCameraFocalPoint()
 	}
+
 	updateSound() {
 		if (this.player.isInFocus()) {
 			let t = this.scene.sound;
@@ -78,9 +82,11 @@ export default class extends Vehicle {
 				t.stop(this.constructor.Sounds.TruckGround)
 		}
 	}
+
 	updateCameraFocalPoint() {
 		this.focalPoint = 1 === this.dir ? this.head : this.backMass
 	}
+
 	updateDrawHeadAngle() {
 		let t = this.frontWheel.displayPos
 		  , e = this.rearWheel.displayPos
@@ -92,11 +98,13 @@ export default class extends Vehicle {
 		  , a = s - r;
 		this.drawHeadAngle = -(Math.atan2(o, a) - Math.PI / 2)
 	}
+
 	swap() {
 		this.dir = -1 * this.dir,
 		this.springs[0].swap(),
 		this.springs[5].swap()
 	}
+
 	control() {
 		let t = this.gamepad
 		  , e = t.isButtonDown("up")
@@ -120,6 +128,7 @@ export default class extends Vehicle {
 		c[0].rotate(l / 8),
 		c[5].rotate(l / 8)
 	}
+
 	draw(t) {
 		if (super.draw(...arguments)) return;
 		if (this.scene.ticks > 0 && !this.player.isGhost()) {
@@ -155,6 +164,7 @@ export default class extends Vehicle {
 		this.drawTruck(t),
 		t.globalAlpha = 1
 	}
+
 	drawTruck(t) {
 		let e = this.scene
 		  , i = e.camera.zoom
@@ -223,6 +233,7 @@ export default class extends Vehicle {
 		this.tire(t, a.x, a.y, 10 * i, i, this.frontWheel.angle),
 		t.restore()
 	}
+
 	tire(t, e, i, s, n, r) {
 		t.beginPath(),
 		t.arc(e, i, 10 * n, 0, 2 * Math.PI, !1),

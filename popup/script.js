@@ -160,6 +160,34 @@ for (const item in defaults) {
 			element.value = null
 		}
 		break;
+	case 'lowPowerMode':
+		// const subOptsToggle = document.querySelector('[for="lowPowerModeOptions"]');
+		const subOptsToggle = document.querySelector('[data-id="laptop-only"]');
+		if (typeof navigator.getBattery != 'function') {
+			subOptsToggle.style.setProperty('display', 'none');
+			break;
+		}
+
+		navigator.getBattery().then(battery => {
+			const hasBattery = battery && !(
+				battery.charging === true &&
+				battery.chargingTime === 0 &&
+				battery.dischargingTime === Infinity &&
+				battery.level === 1
+			);
+			if (!hasBattery) {
+				// element.parentElement.style.setProperty('display', 'none');
+				// element.parentElement.classList.add('disabled');
+				subOptsToggle.style.setProperty('display', 'none');
+				return;
+			}
+
+			// updateStatus()
+
+			// battery.addEventListener("chargingchange", updateStatus)
+			// battery.addEventListener("levelchange", updateStatus)
+		});
+		break;
 	case 'theme':
 		for (const theme of document.querySelectorAll("input[name='theme']"))
 			theme.addEventListener('input', function() {
@@ -182,20 +210,6 @@ for (const item in defaults) {
 		}, { passive: true })
 	}
 }
-
-const rippleCache = new WeakMap();
-document.documentElement.addEventListener('pointerdown', function (event) {
-	event.target.style.setProperty('--offsetX', event.offsetX);
-	event.target.style.setProperty('--offsetY', event.offsetY);
-	rippleCache.has(event.target) && clearTimeout(rippleCache.get(event.target));
-	const timeout = setTimeout(() => {
-		event.target.style.removeProperty('--offsetX', event.offsetX);
-		event.target.style.removeProperty('--offsetY', event.offsetY);
-		event.target.style.length === 0 && event.target.removeAttribute('style');
-		rippleCache.delete(event.target)
-	}, 1e3);
-	rippleCache.set(event.target, timeout)
-});
 
 function setState(enabled) {
 	state.classList[enabled ? 'add' : 'remove']('enabled');

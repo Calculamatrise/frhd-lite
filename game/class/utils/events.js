@@ -1,5 +1,6 @@
 export default {
 	BeforeDraw: 'beforeDraw',
+	BeforeUpdate: 'beforeTick',
 	Clear: 'clear',
 	Debug: 'debug',
 	Draw: 'draw',
@@ -13,7 +14,6 @@ export default {
 	PlayerUpdate: 'playerUpdate',
 	PlayerVehicleCreate: 'playerVehicleCreate',
 	PlayerVehicleDraw: 'playerVehicleDraw',
-	Ready: 'ready',
 	Resize: 'resize',
 	SceneChange: 'sceneChange',
 	SoundCreate: 'soundCreate',

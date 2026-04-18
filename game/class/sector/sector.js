@@ -2,20 +2,8 @@ import PhysicsLine from "./physicsline.js";
 import SceneryLine from "./sceneryline.js";
 
 export default class {
-	scene = null;
-	settings = null;
-	drawSectorSize = null;
-	row = 0;
-	column = 0;
-	camera = null;
-	zoom = 0;
-	x = 0;
-	y = 0;
-	realX = 0;
-	realY = 0;
 	physicsLines = [];
 	sceneryLines = [];
-	canvasPool = null;
 	canvas = null;
 	ctx = null;
 	dirty = !1;
@@ -42,8 +30,10 @@ export default class {
 	};
 	powerupsCount = 0;
 	constructor(t, e, i) {
-		this.track = i,
-		this.scene = i.scene,
+		Object.defineProperties(this, {
+			track: { value: i, writable: true },
+			scene: { value: i.scene, writable: true }
+		});
 		this.settings = i.settings,
 		this.drawSectorSize = i.settings.drawSectorSize,
 		this.row = e,
@@ -119,7 +109,24 @@ export default class {
 	}
 	createCanvas() {
 		if (this.settings.multiThreadedRendering && 'TrackRenderer' in window) {
-			this.canvas = document.createElement('canvas');
+			const physicsBuffer = new Int32Array(this.physicsLines.length * 4);
+			let i = 0
+			for (const { p1, p2 } of this.physicsLines) {
+				physicsBuffer[i++] = p1.x
+				physicsBuffer[i++] = p1.y
+				physicsBuffer[i++] = p2.x
+				physicsBuffer[i++] = p2.y
+			}
+
+			const sceneryBuffer = new Int32Array(this.sceneryLines.length * 4);
+			i = 0;
+			for (const { p1, p2 } of this.sceneryLines) {
+				sceneryBuffer[i++] = p1.x
+				sceneryBuffer[i++] = p1.y
+				sceneryBuffer[i++] = p2.x
+				sceneryBuffer[i++] = p2.y
+			}
+
 			this.#post('CREATE_SECTOR', {
 				sector: {
 					column: this.column,
@@ -128,14 +135,14 @@ export default class {
 					x: this.x,
 					y: this.y
 				},
-				physicsLines: this.physicsLines,
-				sceneryLines: this.sceneryLines,
+				physicsBuf: physicsBuffer,
+				sceneryBuf: sceneryBuffer,
 				settings: {
 					physicsLineColor: this.settings.physicsLineColor,
 					sceneryLineColor: this.settings.sceneryLineColor
 				},
 				zoom: this.scene.camera.zoom
-			});
+			}, [physicsBuffer.buffer, sceneryBuffer.buffer]);
 			return;
 		}
 
@@ -309,7 +316,7 @@ export default class {
 		this.powerupCanvas && (this.canvasPool.releaseCanvas(this.powerupCanvas),
 		this.powerupCanvas = null)
 	}
-	close() {
+	[Symbol.dispose]() {
 		this.track = null,
 		this.scene = null,
 		this.settings = null,

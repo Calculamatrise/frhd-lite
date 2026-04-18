@@ -9,12 +9,36 @@ export default class extends Vehicle {
 		BikeFall: type => `bike_fall_${type}`,
 		BikeGround: 'bike_ground'
 	};
+
+	_pos = new Int32Array(9);
 	cosmeticHead = null;
 	cosmeticRearWheel = null;
 	cosmeticFrontWheel = null;
 	pedala = 0;
 	swapped = !1;
 	ragdoll = null;
+	_save() {
+		this._pos[0] = this.dir;
+		this._pos[1] = this.drawHeadAngle;
+		this._pos[2] = this.pedala;
+		this._pos[3] = this.frontWheel.displayPos.x;
+		this._pos[4] = this.frontWheel.displayPos.y;
+		this._pos[5] = this.head.displayPos.x;
+		this._pos[6] = this.head.displayPos.y;
+		this._pos[7] = this.rearWheel.displayPos.x;
+		this._pos[8] = this.rearWheel.displayPos.y
+	}
+
+	_restore() {
+		this.dir = this._pos[0]
+		this.drawHeadAngle = this._pos[1];
+		this.pedala = this._pos[2];
+		this.frontWheel.displayPos.set(this._pos[3], this._pos[4]);
+		this.head.displayPos.set(this._pos[5], this._pos[6]);
+		this.rearWheel.displayPos.set(this._pos[7], this._pos[8]);
+		// this.updateDrawHeadAngle()
+	}
+
 	createSprings() {
 		let t = new r(this.head,this.rearWheel,this)
 		  , e = new r(this.rearWheel,this.frontWheel,this)
@@ -26,6 +50,7 @@ export default class extends Vehicle {
 		this.chasse = e,
 		this.frontSpring = i
 	}
+
 	createRagdoll() {
 		this.ragdoll = new h(this.getStickMan(),this),
 		this.ragdoll.zero(this.head.vel, this.rearWheel.vel),
@@ -38,18 +63,22 @@ export default class extends Vehicle {
 		this.player.isInFocus() && this.playBailSound(),
 		this.dead()
 	}
+
 	playBailSound() {
 		let t = this.scene.sound
 		  , e = Math.min(this.speed / 50, 1)
 		  , i = Math.ceil(3 * Math.random());
 		t.play(this.constructor.Sounds.BikeFall(i), e)
 	}
+
 	updateCameraFocalPoint() {
 		this.focalPoint = this.ragdoll ? this.ragdoll.head : this.head
 	}
+
 	updateSpeed() {
 		this.speed = Math.abs(Math.round(this.focalPoint.vel.x + this.focalPoint.vel.y))
 	}
+
 	getStickMan() {
 		let t = this.dir
 		  , e = this.head
@@ -77,6 +106,7 @@ export default class extends Vehicle {
 		l.rKnee = l.waist.add(l.rFoot).factor(.5).add(c.factor(160 / c.lenSqr())),
 		l
 	}
+
 	fixedUpdate() {
 		if (super.fixedUpdate()) return;
 		// To compensate -- For it not to look choppy
@@ -98,14 +128,17 @@ export default class extends Vehicle {
 		}
 		this.ragdoll && this.ragdoll.fixedUpdate()
 	}
+
 	update() {
 		(this.scene.game.interpolation || this.scene.camera.playerFocus?.isGhost() || !this.scene.camera.playerFocus?.isAlive()) && super.update(...arguments);
 		this.ragdoll ? this.ragdoll.update(...arguments) : this.updateDrawHeadAngle()
 	}
+
 	lateUpdate() {
 		super.lateUpdate(...arguments);
-		this.ragdoll && this.ragdoll.lateUpdate(...arguments)
+		this.ragdoll?.lateUpdate(...arguments)
 	}
+
 	updateSound() {
 		if (this.player.isInFocus()) {
 			this.updateSpeed();
@@ -116,6 +149,7 @@ export default class extends Vehicle {
 			e.stop(this.constructor.Sounds.BikeGround))
 		}
 	}
+
 	swap() {
 		this.dir = -1 * this.dir,
 		this.chasse.swap();
@@ -123,14 +157,60 @@ export default class extends Vehicle {
 		this.rearSpring.leff = this.frontSpring.leff,
 		this.frontSpring.leff = t
 	}
+
 	draw(ctx) {
-		if (super.draw(...arguments)) return;
-		if (this.scene.game.emit(this.scene.game.constructor.Events.PlayerBaseVehicleDraw, this)) return;
+		if (super.draw(...arguments) || this.scene.game.emit(this.scene.game.constructor.Events.PlayerBaseVehicleDraw, this, ctx)) return;
 		ctx.imageSmoothingEnabled = !0,
 		ctx.mozImageSmoothingEnabled = !0,
 		ctx.webkitImageSmoothingEnabled = !0;
+		// if (!this.scene.state.playing && (this.player._checkpoints.length > 0 || this.player._cache.length > 0)) {
+		// 	let t = window.lite ? lite.storage.get('snapshots') : 5;
+		// 	if (t > 0) {
+		// 		this._save();
+		// 		for (const e of this.player._checkpoints.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle)) {
+		// 			const snapshot = JSON.parse(e._baseVehicle);
+		// 			this.dir = snapshot.dir;
+		// 			this.drawHeadAngle = snapshot.drawHeadAngle;
+		// 			this.frontWheel.displayPos.equ(snapshot.frontWheel.displayPos);
+		// 			this.head.displayPos.equ(snapshot.head.displayPos);
+		// 			this.rearWheel.displayPos.equ(snapshot.rearWheel.displayPos);
+		// 			this.drawBikeFrame(ctx, t / 3e2 * this.player._checkpoints.indexOf(e) % 1);
+		// 		}
+
+		// 		for (const e of this.player._cache.filter((e, i, s) => i > s.length - (t + 1) && e._baseVehicle)) {
+		// 			const snapshot = JSON.parse(e._baseVehicle);
+		// 			this.dir = snapshot.dir;
+		// 			this.drawHeadAngle = snapshot.drawHeadAngle;
+		// 			this.frontWheel.displayPos.equ(snapshot.frontWheel.displayPos);
+		// 			this.head.displayPos.equ(snapshot.head.displayPos);
+		// 			this.rearWheel.displayPos.equ(snapshot.rearWheel.displayPos);
+		// 			this.drawBikeFrame(ctx, t / 3e2 * this.player._cache.indexOf(e) % 1);
+		// 		}
+
+		// 		this._restore();
+		// 	}
+		// }
+
+		// if (window.lite?.storage.get('playerTrail') && lite.snapshots.length > 0) {
+		// 	this._save();
+		// 	for (const e of lite.snapshots.filter(({ _baseVehicle: t }) => t)) {
+		// 		const snapshot = JSON.parse(e._baseVehicle);
+		// 		this.dir = snapshot.dir;
+		// 		this.drawHeadAngle = snapshot.drawHeadAngle;
+		// 		this.pedala = snapshot.pedala;
+		// 		this.frontWheel.displayPos.equ(snapshot.frontWheel.displayPos);
+		// 		this.head.displayPos.equ(snapshot.head.displayPos);
+		// 		this.rearWheel.displayPos.equ(snapshot.rearWheel.displayPos);
+		// 		// this.updateDrawHeadAngle();
+		// 		this.drawBikeFrame(ctx, lite.snapshots.length / (lite.snapshots.length * 200) * lite.snapshots.indexOf(e) % 1);
+		// 	}
+
+		// 	this._restore();
+		// }
+
 		this.drawBikeFrame(ctx)
 	}
+
 	drawBikeFrame(t, alpha) {
 		const e = this.scene
 			, i = e.camera.zoom
@@ -139,6 +219,7 @@ export default class extends Vehicle {
 		t.strokeStyle = this.frontWheel.color || s,
 		t.lineWidth = 3 * i
 	}
+
 	updateDrawHeadAngle() {
 		let t = this.frontWheel.displayPos
 		  , e = this.rearWheel.displayPos
@@ -150,8 +231,9 @@ export default class extends Vehicle {
 		  , a = s - r;
 		this.drawHeadAngle = -(Math.atan2(o, a) - Math.PI / 2)
 	}
-	close() {
-		super.close();
+
+	[Symbol.dispose]() {
+		super[Symbol.dispose]();
 		this.ragdoll = null
 	}
 }

@@ -1,7 +1,7 @@
 import Vector from "../math/cartesian.js";
 import Bike from "./bike.js";
 import n from "./mass.js";
-import a from "./wheel.js";
+import Wheel from "./wheel.js";
 
 export default class extends Bike {
 	vehicleName = "BMX";
@@ -13,10 +13,11 @@ export default class extends Bike {
 		this.stopSounds();
 		-1 === i && this.swap()
 	}
+
 	createMasses(t, e) {
 		var i = new n(new Vector(t.x,t.y - 36), this)
-		  , r = new a(new Vector(t.x + 21,t.y + 3), this)
-		  , o = new a(new Vector(t.x + -21,t.y + 3), this);
+		  , r = new Wheel(new Vector(t.x + 21,t.y + 3), this)
+		  , o = new Wheel(new Vector(t.x + -21,t.y + 3), this);
 		i.drive = this.createRagdoll.bind(this),
 		o.radius = 11.7,
 		r.radius = 11.7,
@@ -31,6 +32,7 @@ export default class extends Bike {
 		this.frontWheel = r,
 		this.rearWheel = o
 	}
+
 	createSprings() {
 		super.createSprings(),
 		this.chasse.lrest = 42,
@@ -46,6 +48,7 @@ export default class extends Bike {
 		this.frontSpring.springConstant = .35,
 		this.frontSpring.dampConstant = .3
 	}
+
 	control() {
 		let t = this.gamepad
 		  , e = t.isButtonDown("up")
@@ -69,14 +72,12 @@ export default class extends Bike {
 		!h && e && (this.rearSpring.contract(-7, 5),
 		this.frontSpring.contract(7, 5))
 	}
+
 	drawBikeFrame(u, r = this.player._opacity) {
 		let t = this.scene
-		  , rearWheel = new Vector(this.rearWheel.displayPos.x, this.rearWheel.displayPos.y)
-		  , frontWheel = new Vector(this.frontWheel.displayPos.x, this.frontWheel.displayPos.y)
-		  , head = new Vector(this.head.displayPos.x, this.head.displayPos.y)
-		  , e = rearWheel.toScreen(t)
-		  , i = frontWheel.toScreen(t)
-		  , n = head.toScreen(t)
+		  , e = this.rearWheel.displayPos.toScreen(t)
+		  , i = this.frontWheel.displayPos.toScreen(t)
+		  , n = this.head.displayPos.toScreen(t)
 		  , o = i.sub(e)
 		  , l = this.dir
 		  , a = new Vector((i.y - e.y) * l, (e.x - i.x) * l)
@@ -88,7 +89,7 @@ export default class extends Bike {
 		this.frontWheel.draw(u);
 		this.frontWheel.fill || u.fill(),
 		this.frontWheel.stroke || u.stroke(),
-		this.rearWheel.draw(u),
+		this.rearWheel.draw(u);
 		this.rearWheel.fill || u.fill(),
 		this.rearWheel.stroke || u.stroke();
 		let p = e.add(o.factor(.3)).add(a.factor(.25))
@@ -108,7 +109,7 @@ export default class extends Bike {
 		u.lineWidth = Math.max(1 * c, .5),
 		u.arc(d.x, d.y, 3 * c, 0, 2 * Math.PI, !1),
 		u.stroke();
-		let g = new Vector(6 * Math.cos(h) * c,6 * Math.sin(h) * c)
+		let g = new Vector(6 * Math.cos(h) * c, 6 * Math.sin(h) * c)
 		  , m = d.add(g)
 		  , y = d.sub(g);
 		u.beginPath(),
@@ -152,7 +153,7 @@ export default class extends Bike {
 			D = D.factor(c * c);
 			let O = M.add(A.factor(.5)).add(D.factor(200 / A.lenSqr()))
 			  , z = y.add(A.factor(.12)).add(D.factor(50 / A.lenSqr()));
-			q = this.player && this.player.color || q,
+			q = this.player?.color || q,
 			u.strokeStyle = q + Math.min(255, Math.round(255 * .5 * r)).toString(16).padStart(Math.floor(q.length / 3), 0),
 			u.lineWidth = 6 * c,
 			u.beginPath(),
